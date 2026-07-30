@@ -1517,7 +1517,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const result = await player
-				.judge(card => get.color(card) == "black" ? 2 : 1)
+				.judge(card => get.color(card) == "black" ? 2 : -1)
 				.set("judge2", result => result.bool)
 				.forResult();
 
@@ -2013,6 +2013,104 @@ const skills = {
 		},
 		ai: {
 			threaten: 1.6,
+		},
+	},
+
+	//旱魃
+	xinji_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:2",
+		trigger: { global: "loseAfter" },
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return (
+				_status.currentPhase &&
+				_status.currentPhase.isIn() &&
+				event.player?.isIn() &&
+				event.player != _status.currentPhase &&
+				!player.getEnemies(null, false).includes(event.player) &&
+				event.type == "discard" &&
+				event.cards2?.some(card => get.position(card, true) == "d" && event.hs?.includes(card))
+			);
+		},
+		async content(event, trigger, player) {
+			const difficulty = getTianshuDifficulty();
+			const num = difficulty == "nightmare" ? 2 : 1;
+			const target = _status.currentPhase;
+			player.line(target);
+			await target.damage(num, player);
+		},
+		ai: {
+			threaten: 1.6,
+		},
+	},
+	zhiri_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:2",
+		trigger: { global: "useCardToPlayered" },
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return (
+				event.isFirstTarget &&
+				event.player?.isIn() &&
+				player.getEnemies(null, false).includes(event.player) &&
+				get.type2(event.card) == "trick" &&
+				get.color(event.card) == "red"
+			);
+		},
+		async content(event, trigger, player) {
+			let num = 1;
+			const difficulty = getTianshuDifficulty();
+			if (difficulty == "hard") {
+				num = 2;
+			} else if (difficulty == "nightmare") {
+				num = 3;
+			}
+
+			await player.draw(num);
+		},
+		ai: {
+			threaten: 1.4,
+		},
+	},
+	fenshi_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:2",
+		trigger: { player: "phaseZhunbeiBegin" },
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			const num = player.countCards("h") - player.hp;
+			if (num < 0) return true;
+			if (num > 0) return player.getEnemies(null, false).some(target => target.isIn());
+			return false;
+		},
+		async content(event, trigger, player) {
+			const num = player.countCards("h") - player.hp;
+
+			if (num < 0) {
+				await player.draw(-num);
+				return;
+			}
+
+			const enemies = player.getEnemies(null, false).filter(target => target.isIn());
+			const map = new Map();
+
+			for (let i = 0; i < num && enemies.length; i++) {
+				const target = enemies.randomGet();
+				map.set(target, (map.get(target) || 0) + 1);
+			}
+
+			for (const [target, damage] of map) {
+				if (!target.isIn()) continue;
+				player.line(target);
+				await target.damage(damage, player);
+			}
+		},
+		ai: {
+			threaten: 2,
 		},
 	},
 };

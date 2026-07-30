@@ -211,6 +211,16 @@ const characters = {
         img: "extension/术樱包/pve/images/天书乱斗/xuannv_boss_shuying.png",
         dieAudios: ["ext:术樱包/pve/audio/dead/天书乱斗/xuannv_boss_shuying.mp3"]
     },
+    hanba_boss_shuying: {
+        sex: "female",
+        group: "shen",
+        hp: 4,
+        skills: ["xinji_shuying", "zhiri_shuying", "fenshi_shuying"],
+        isHiddenBoss: true,
+        isBossAllowed: true,
+        img: "extension/术樱包/pve/images/天书乱斗/hanba_boss_shuying.png",
+        dieAudios: ["ext:术樱包/pve/audio/dead/天书乱斗/hanba_boss_shuying.mp3"]
+    },
 
 };
 

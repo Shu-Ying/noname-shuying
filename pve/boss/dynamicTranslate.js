@@ -167,8 +167,8 @@ const dynamicTranslates = {
 
     //玄女
     xuanlie_shuying(player, skill) {
-        let num = 2;
-        if (getTianshuDifficulty() == "normal") num = 1;
+        const difficulty = getTianshuDifficulty();
+        const num = difficulty == "normal" ? 1 : 2;
 
         return `锁定技，回合结束时，对所有本回合你获得过其牌的敌方角色依次造成${num}点伤害。`;
     },
@@ -181,7 +181,25 @@ const dynamicTranslates = {
                 : "若这些牌包含4种花色，这些角色再额外失去1点体力。";
 
         return `锁定技，准备阶段，你获得所有敌方角色各${num}张手牌。若你以此法获得的牌包含2种颜色，则对所有你以此法获得其牌的敌方角色造成1点伤害。${extra}`;
-    }
+    },
+
+    xinji_shuying(player, skill) {
+        const difficulty = getTianshuDifficulty();
+        const num = difficulty == "nightmare" ? 2 : 1;
+
+        return `锁定技，当友方于回合外因弃置而失去手牌时，你对当前角色造成${num}点伤害。`
+    },
+    zhiri_shuying(player, skill) {
+        let num = 1;
+        const difficulty = getTianshuDifficulty();
+        if (difficulty == "hard") {
+            num = 2;
+        } else if (difficulty == "nightmare") {
+            num = 3;
+        }
+
+        return `锁定技，当敌方角色使用红色锦囊牌指定目标后，你摸${num}张牌。`
+    },
 };
 
 export default dynamicTranslates;

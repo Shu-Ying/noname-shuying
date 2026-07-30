@@ -1,9 +1,9 @@
 const bossList = {
-    stage1: ["riyeyoushen_boss_shuying", "wuma_boss_shuying"],
-    //stage1: ["chenlong_boss_shuying", "weiyang_boss_shuying", "shenhou_boss_shuying", "xvgou_boss_shuying"],
+    //stage1: ["riyeyoushen_boss_shuying", "dongzhuo_boss_shuying"],
+    stage1: ["chenlong_boss_shuying", "weiyang_boss_shuying", "shenhou_boss_shuying", "xvgou_boss_shuying"],
     stage2: ["heibaiwuchang_boss_shuying", "yvsai_boss_shuying", "huangfeng_boss_shuying", "riyeyoushen_boss_shuying"],
-    stage3: ["caocao_boss_shuying", "simayi_boss_shuying", "lvbu_boss_shuying"],
-    stage4: ["shuishengonggong_boss_shuying", "shaohao_boss_shuying", "xuannv_boss_shuying"],
+    stage3: ["caocao_boss_shuying", "simayi_boss_shuying", "lvbu_boss_shuying", "dongzhuo_boss_shuying"],
+    stage4: ["shuishengonggong_boss_shuying", "shaohao_boss_shuying", "xuannv_boss_shuying", "hanba_boss_shuying"],
 };
 
 const virtualIdolList = ["vtb_xiaotao", "vtb_xiaosha", "vtb_xiaoshan", "vtb_xiaole", "vtb_xiaojiu"];
@@ -178,6 +178,17 @@ const bossDifficulty = {
                 skills: ["zhanjia_shuying"],
             },
         },
+        dongzhuo_boss_shuying: {
+            ...bossDifficultyTemplates.qingqingzijin,
+            hard: {
+                ...bossDifficultyTemplates.qingqingzijin.hard,
+                skills: ["qubu_shuying"],
+            },
+            nightmare: {
+                ...bossDifficultyTemplates.qingqingzijin.nightmare,
+                skills: ["qubu_shuying"],
+            },
+        },
 
         shuishengonggong_boss_shuying: {
             ...bossDifficultyTemplates.tianshuluandou,
@@ -190,12 +201,9 @@ const bossDifficulty = {
                 skill: ["shuishen_shuying"],
             },
         },
-        shaohao_boss_shuying: {
-            ...bossDifficultyTemplates.tianshuluandou,
-        },
-        xuannv_boss_shuying: {
-            ...bossDifficultyTemplates.tianshuluandou,
-        },
+        shaohao_boss_shuying: { ...bossDifficultyTemplates.tianshuluandou, },
+        xuannv_boss_shuying: { ...bossDifficultyTemplates.tianshuluandou, },
+        hanba_boss_shuying: { ...bossDifficultyTemplates.tianshuluandou, },
 
 
         baiqi_boss_shuying: {},

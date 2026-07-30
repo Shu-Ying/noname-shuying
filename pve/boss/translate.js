@@ -139,6 +139,15 @@ const translates = {
     jiutian_shuying_info: "锁定技，准备阶段，你获得所有敌方角色各1张手牌。若你以此法获得的牌包含2种颜色，则对所有你以此法获得其牌的敌方角色造成1点伤害。",
     dishi_shuying: "帝师",
     dishi_shuying_info: "当你使用【杀】或普通锦囊牌指定目标时，如果目标数为1，可以增加一个目标；如果目标数大于1，你可以减少一个目标。",
+
+    hanba_boss_shuying: "旱魃",
+    xinji_shuying: "心悸",
+    xinji_shuying_info: "锁定技，当友方于回合外因弃置而失去手牌时，你对当前角色造成1点伤害。",
+    zhiri_shuying: "炙日",
+    zhiri_shuying_info: "锁定技，当敌方角色使用红色锦囊牌指定目标后，你摸1张牌。",
+    fenshi_shuying: "焚世",
+    fenshi_shuying_info: "锁定技，准备阶段，若你的手牌数小于体力值，则将手牌摸至于体力值相等；若你的手牌数大于体力值，则你对敌方角色造成共计X点伤害，点数随机分配（X为手牌数减体力值）。",
+
 };
 
 export default translates;

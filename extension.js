@@ -5,7 +5,7 @@ import initShuYingMenu from "./menu.js";
 
 export const type = "extension";
 export let shuYing = new Object();
-const shuYingLocalVersion = "2.0.0.8";
+const shuYingLocalVersion = "2.0.0.9";
 
 shuYing.name = "术樱包";
 shuYing.editable = false;
