@@ -1,0 +1,494 @@
+.manual {
+	position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+	z-index: 4;
+}
+
+.manual>.menu {
+	display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 50px;
+	background: rgba(0,0,0,0.6);
+}
+
+.manual>.content {
+	position: absolute;
+	left: 0;
+    top: 50px;
+    width: 100%;
+    height: calc(100% - 50px) !important;
+    background: none;
+	overflow-y: auto;
+}
+
+.manual>.content>.content-container>.content {
+	width: 100%;
+	height: 100%;
+}
+
+.manual>.content>.content-container>.content>.caption {
+	display: inline-block;
+	width: 100%;
+	height: auto;
+	margin: 0;
+}
+
+.manual>.content>.content-container>.content>.caption div {
+	position: static;
+	height: auto;
+}
+
+.manual>.menu>.addNewBoss {
+	position: absolute;
+    left: calc(50% + 110px);
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+
+.manual>.menu>.newBossList {
+	position: absolute;
+    left: calc(5% - 15px);
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+
+.manual>.menu>.deleteNewBossAllList {
+	position: absolute;
+    left: calc(20% - 15px);
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+
+.manual>.menu>.deleteNewBoss {
+	position: absolute;
+    left: calc(50% - 163px);
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+.manual>.menu>.playerList {
+	position: absolute;
+    left: calc(80% - 15px);
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+
+.manual>.menu>.close {
+	position: absolute;
+    right: 5px;
+    top: calc(50% - 15px);
+    width: 60px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: red;
+}
+
+.manual>.menu>input {
+    position: absolute;
+    left: calc(50% - 100px);
+    top: calc(50% - 15px);
+    width: 200px;
+    height: 30px;
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    border: 2px solid rgba(255,255,100,0.4);
+    border-radius: 2px;
+    background: transparent;
+}
+
+.shuYing-character-dialog-mask {
+    position: fixed !important;
+    inset: 0;
+    z-index: 99999;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.58);
+    font-size: 14px;
+    line-height: normal;
+}
+
+.shuYing-character-dialog-mask *,
+.shuYing-character-dialog-mask *::before,
+.shuYing-character-dialog-mask *::after {
+    box-sizing: border-box;
+    float: none !important;
+    writing-mode: horizontal-tb !important;
+    letter-spacing: 0 !important;
+}
+
+.shuYing-character-dialog {
+    position: relative !important;
+    width: min(680px, 92vw);
+    max-height: 86vh;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px;
+    height: auto !important;
+    padding: 16px 18px 14px;
+    border: 1px solid rgba(246, 211, 101, 0.7);
+    border-radius: 8px;
+    background: rgba(24, 21, 26, 0.96);
+    box-shadow: 0 20px 54px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: #f6d365;
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+    text-align: left;
+    transform: none;
+    overflow: hidden;
+}
+
+.shuYing-character-dialog>.shuYing-character-dialog-header,
+.shuYing-character-dialog>.shuYing-character-dialog-intro,
+.shuYing-character-dialog>.shuYing-character-dialog-search,
+.shuYing-character-dialog>.shuYing-character-dialog-toolbar,
+.shuYing-character-dialog>.shuYing-character-dialog-grid-wrap,
+.shuYing-character-dialog>.shuYing-character-dialog-controls {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+}
+
+.shuYing-character-dialog-header {
+    display: flex !important;
+    flex: none !important;
+    flex-direction: row !important;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 30px;
+    width: 100%;
+}
+
+.shuYing-character-dialog-title {
+    display: block !important;
+    position: static !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
+    white-space: nowrap !important;
+    writing-mode: horizontal-tb !important;
+    text-shadow: 0 0 5px #000;
+}
+
+.shuYing-character-dialog-count {
+    display: block !important;
+    position: static !important;
+    flex: none;
+    width: auto !important;
+    height: auto !important;
+    font-size: 14px;
+    line-height: 22px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.shuYing-character-dialog-intro {
+    display: block !important;
+    flex: none !important;
+    width: 100%;
+    height: auto !important;
+    font-size: 14px;
+    line-height: 22px;
+    color: rgba(255, 255, 255, 0.82);
+    text-align: left;
+}
+
+.shuYing-character-dialog-toolbar {
+    display: flex !important;
+    flex: none !important;
+    flex-direction: column !important;
+    gap: 8px;
+    width: 100%;
+    max-height: 74px;
+    overflow-y: auto;
+    padding: 2px 0 4px;
+}
+
+.shuYing-character-dialog-search {
+    all: unset;
+    display: block !important;
+    flex: none !important;
+    width: 100%;
+    height: 32px;
+    padding: 4px 10px;
+    border: 1px solid rgba(246, 211, 101, 0.55);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.32);
+    color: #fff;
+    font-size: 15px;
+    line-height: 24px;
+    text-align: left;
+}
+
+.shuYing-character-dialog-groups {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    min-height: 28px;
+    padding: 1px 0 3px;
+}
+
+.shuYing-character-dialog-group {
+    all: unset;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 3px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.shuYing-character-dialog-group.selected {
+    border-color: rgba(246, 211, 101, 0.75);
+    color: #f6d365;
+}
+
+.shuYing-character-dialog-check {
+    position: relative;
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    flex: none;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.28);
+}
+
+.shuYing-character-dialog-group.selected .shuYing-character-dialog-check {
+    border-color: rgba(246, 211, 101, 0.9);
+    background: rgba(246, 211, 101, 0.85);
+}
+
+.shuYing-character-dialog-group.selected .shuYing-character-dialog-check::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 4px;
+    height: 7px;
+    border: solid #24170b;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.shuYing-character-dialog-group-text {
+    display: inline-block;
+    min-width: 1em;
+    white-space: nowrap;
+}
+
+.shuYing-character-dialog-grid-wrap {
+    position: relative !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: 100%;
+    min-height: 168px;
+    margin-top: 35px;
+    padding: 12px 10px 10px;
+    border: 1px solid rgba(246, 211, 101, 0.34);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.035);
+    overflow: hidden;
+}
+
+.shuYing-character-dialog-grid {
+    position: relative !important;
+    display: grid !important;
+    flex: none !important;
+    grid-template-columns: repeat(auto-fill, 104px);
+    justify-content: center;
+    align-content: start;
+    gap: 12px;
+    min-height: 152px;
+    max-height: min(39vh, 350px);
+    overflow-y: auto;
+    padding: 0 3px 2px;
+    width: 100%;
+}
+
+.shuYing-character-dialog-card {
+    all: unset;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    width: 104px;
+    min-height: 152px;
+    padding: 8px 7px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transform: none;
+    text-align: center;
+}
+
+.shuYing-character-dialog-card.selected {
+    border-color: #f6d365;
+    background: rgba(246, 211, 101, 0.15);
+    box-shadow: 0 0 16px rgba(246, 211, 101, 0.34);
+}
+
+.shuYing-character-dialog-card.selected::after {
+    content: "已选";
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(246, 211, 101, 0.95);
+    color: #22160d;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.shuYing-character-dialog-avatar {
+    position: relative !important;
+    display: block !important;
+    width: 80px;
+    height: 108px;
+    flex: none;
+    margin: 0;
+    border-radius: 5px;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.42);
+}
+
+.shuYing-character-dialog-name {
+    width: 100%;
+    overflow: hidden;
+    color: #fff;
+    font-size: 15px;
+    line-height: 22px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 0 4px #000;
+}
+
+.shuYing-character-dialog-empty {
+    grid-column: 1 / -1;
+    padding: 34px 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 16px;
+    line-height: 26px;
+    text-align: center;
+}
+
+.shuYing-character-dialog-controls {
+    display: flex !important;
+    flex: none !important;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 2px;
+}
+
+.shuYing-character-dialog-button {
+    all: unset;
+    display: inline-block !important;
+    min-width: 72px;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid rgba(246, 211, 101, 0.58);
+    border-radius: 5px;
+    background: linear-gradient(180deg, rgba(111, 78, 32, 0.92), rgba(55, 35, 18, 0.92));
+    color: #f6d365;
+    font-size: 15px;
+    line-height: 28px;
+    text-align: center;
+    text-shadow: 0 1px 2px #000;
+    cursor: pointer;
+}
+
+.shuYing-character-dialog-button:hover {
+    border-color: rgba(246, 211, 101, 0.9);
+    background: linear-gradient(180deg, rgba(139, 99, 42, 0.95), rgba(70, 45, 22, 0.95));
+}
+
+.shuYing-character-dialog-button.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+@media screen and (max-width: 520px) {
+    .shuYing-character-dialog {
+        width: 96vw;
+        padding: 14px 12px 12px;
+    }
+
+    .shuYing-character-dialog-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .shuYing-character-dialog-toolbar {
+        max-height: 64px;
+    }
+
+    .shuYing-character-dialog-grid-wrap {
+        min-height: 154px;
+        padding: 10px 7px 8px;
+    }
+
+    .shuYing-character-dialog-grid {
+        grid-template-columns: repeat(auto-fill, 92px);
+        gap: 10px;
+        max-height: 36vh;
+    }
+
+    .shuYing-character-dialog-card {
+        width: 92px;
+        min-height: 138px;
+    }
+
+    .shuYing-character-dialog-avatar {
+        width: 72px;
+        height: 98px;
+    }
+}
