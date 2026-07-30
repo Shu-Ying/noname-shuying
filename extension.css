@@ -148,7 +148,7 @@
 .shuYing-character-dialog {
     position: relative !important;
     width: min(680px, 92vw);
-    max-height: 86vh;
+    max-height: 100vh;
     display: flex !important;
     flex-direction: column !important;
     gap: 10px;
@@ -241,7 +241,7 @@
     all: unset;
     display: block !important;
     flex: none !important;
-    width: 100%;
+    width: 97%;
     height: 32px;
     padding: 4px 10px;
     border: 1px solid rgba(246, 211, 101, 0.55);
