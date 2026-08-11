@@ -1,4 +1,24 @@
 const translates = {
+    mengpo_boss_shuying: "孟婆",
+    aotang_shuying: "熬汤",
+    aotang_shuying_info: "锁定技，你的回合开始时，令随机一名敌方角色随机遗忘1个武将技能直到你的下回合开始。",
+    yunju_shuying: "云飓",
+    yunju_shuying_info: "锁定技，敌方角色的回合结束时，该角色随机弃置1张手牌。",
+    guimei_shuying: "鬼魅",
+    guimei_shuying_info: "锁定技，你不会被翻面。你每回合首次成为其他角色使用牌的唯一目标时，将该牌目标改为随机角色，若目标仍为你，此牌使用者失去1点体力；若目标不为你，你回复1点体力。",
+
+    baowei_boss_shuying: "豹尾",
+    eli_shuying: "恶力",
+    eli_shuying_info: "锁定技，你每回合首次对敌方角色造成伤害时，你进行一次判定：若结果为红色，此伤害+1；若结果为黑色，你获得“完杀”直到回合结束",
+    yinsha_shuying: "隐煞",
+    yinsha_shuying_info: "锁定技，若其他角色的攻击范围内不包括你，其不能使用牌指定你为目标。且这些角色不能响应你使用的牌。",
+
+    niaozui_boss_shuying: "鸟嘴",
+    suoxue_shuying: "索穴",
+    suoxue_shuying_info: "每回合限一次，你使用伤害牌指定单一目标后，若其手牌数大于你，你可将手牌摸至与该角色相同（至多5张）；若其手牌数小于你，你可弃置一张手牌令此牌不能抵消。",
+    bingyi_shuying: "病疑",
+    bingyi_shuying_info: "锁定技，每回合首次失去最后的手牌时，你摸5张牌。",
+
     heibaiwuchang_boss_shuying: "黑白无常",
     mizui_shuying: "迷醉",
     mizui_shuying_info: "锁定技，你的伤害牌造成伤害后，你随机弃置受伤角色的1张牌。",
@@ -13,9 +33,11 @@ const translates = {
     shiyv_shuying: "施狱",
     shiyv_shuying_info: "锁定技，摸牌阶段，你放弃摸牌改为随机获得牌堆中每种花色的牌各一张。",
     manji_shuying: "蛮击",
-    manji_shuying_info: "你使用【杀】指定单一目标后，你可以弃置该角色2张手牌。若其中有【杀】，你本次【杀】造成的伤害+1。",
+    manji_shuying_info: "你使用【杀】指定单一目标后，你可以弃置该角色1张手牌。若此牌是【杀】，你本次【杀】的伤害+1。",
     xiaoshou_shuying: "枭首",
-    xiaoshou_shuying_info: "锁定技，准备阶段，你对随机一名敌方角色造成2点伤害",
+    xiaoshou_shuying_info: "锁定技，准备阶段，你对随机一名敌方角色造成2点伤害。",
+    guizhao_shuying: "诡招",
+    guizhao_shuying_info: "锁定技，当你于回合内使用一张牌时，若此牌的类别是你本回合第一次使用，则你摸一张牌。",
 
     yvsai_boss_shuying: "鱼鳃",
     anchao_shuying: "暗潮",
@@ -39,7 +61,23 @@ const translates = {
     duane_shuying: "断恶",
     duane_shuying_info: "锁定技，敌方角色的弃牌阶段结束时，若其此阶段弃置了黑色牌，则该角色失去2点体力。",
 
+    guiwang_boss_shuying: "鬼王",
+    jizhou_shuying: "疾咒",
+    jizhou_shuying_info: "锁定技，敌方角色的出牌阶段开始时，你进行一次判定，然后其选择一项：1.弃置任意张点数之和大于判定结果的牌，你获得1个“噬”标记；2.失去1点体力。",
+    danshi_shuying: "啖噬",
+    danshi_shuying_info: "锁定技，你受到伤害时此伤害+1，然后你摸1张牌并移去1个“噬”。",
+    chihu_shuying: "赤虎",
+    chihu_shuying_info: "锁定技，若你的手牌数不是全场最多的，摸牌阶段你多摸4张牌；若你的体力值不是全场最多的，你造成的伤害+1。",
 
+    yanluowang_boss_shuying: "阎罗王",
+    dianwei_shuying: "殿威",
+    dianwei_shuying_info: "锁定技，准备阶段，你视为对装备区里没牌的敌方角色使用一张【杀】，然后装备区里有牌的敌方角色随机弃置一张装备区里的牌。",
+    xingpan_shuying: "刑判",
+    xingpan_shuying_info: "锁定技，出牌阶段开始时，你进行一次判定：若结果为红色，敌方唯一手牌最多的角色将一半数量的手牌交给你（向下取整）；若结果为黑色，敌方唯一体力最多的角色失去1点体力。",
+    zhennu_shuying: "震怒",
+    zhennu_shuying_info: "锁定技，当你的体力值首次降至一半以下时，你立即开始你的回合并摸四张牌。",
+    xuanpan_shuying: "宣判",
+    xuanpan_shuying_info: "一名敌方角色的回合结束后，若其本回合对你造成了4点或更多伤害，你随机对其造成1- 3点伤害；若其本回合摸牌数达到8张或更多，你随机摸1-4张牌；若其本回合回复了3点或更多体力值，你随机回复1 - 3点体力；若你本回合因弃置而进入弃牌堆的牌达到4张或更多，其随机弃置1 - 3张手牌。",
 };
 
 export default translates;

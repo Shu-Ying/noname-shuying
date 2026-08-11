@@ -13,4 +13,10 @@ const mergeBossModules = (dataType, modules) => {
     return result;
 };
 
+// 从标准主题入口中提取指定字段，再复用统一的重复 ID 处理规则。
+const mergeBossSection = (dataType, modules, section) => {
+    return mergeBossModules(dataType, modules.map(([moduleName, data]) => [moduleName, data?.[section]]));
+};
+
+export { mergeBossSection };
 export default mergeBossModules;

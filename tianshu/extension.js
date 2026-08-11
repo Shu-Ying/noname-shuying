@@ -721,20 +721,23 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     };
 
     tianshu.character = {
-        tianshu_boss_shuYing: ["male", "qun", 0,
-            ["shuYing_Skill_Tianshu_Go", "shuYing_Tianshu_NewNoStartCards", "shuYing_Skill_Tianshu_intro1", "shuYing_Skill_Tianshu_intro2", "shuYing_Skill_Tianshu_intro3",
-                "shuYing_Skill_Tianshu_intro4", "shuYing_Skill_Tianshu_intro5"],
-            ["boss", 'ext:术樱包/pve/images/tianshu.jpg']]
-    };
-    tianshu.init = () => {
-        for (let i in lib.character.character) {
-            if (lib.character.character[i][4].includes('hiddenboss')) continue;
-            lib.character.character.config[i + '_boss_config'] = {
-                name: get.translation(i),
-                init: true,
-                unfrequent: true,
-            }
-        }
+        tianshu_boss_shuYing: {
+            sex: "male",
+            group: "",
+            hp: 0,
+            skills: [
+                "shuYing_Skill_Tianshu_Go",
+                "shuYing_Tianshu_NewNoStartCards",
+                "shuYing_Skill_Tianshu_intro1",
+                "shuYing_Skill_Tianshu_intro2",
+                "shuYing_Skill_Tianshu_intro3",
+                "shuYing_Skill_Tianshu_intro4",
+                "shuYing_Skill_Tianshu_intro5",
+            ],
+            isBoss: true,
+            extraModeData: "qun",
+            img: "extension/术樱包/pve/images/tianshu.jpg",
+        },
     };
     tianshu.game = {};
     tianshu.boss = {
@@ -869,5 +872,5 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     tianshu.characterTitle = {};
     tianshu.characterReplace = {};
 
-    shuYing.appendExtension("shuYing_pve_tianshu", "天书乱斗", tianshu);
+    return tianshu;
 }

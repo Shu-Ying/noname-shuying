@@ -188,6 +188,9 @@ async function getManifest() {
         throw new Error("校验清单格式错误");
     }
 
+    getManifestRemoveFiles(manifest);
+    getManifestRemoveDirectories(manifest);
+
     return manifest;
 }
 
@@ -241,7 +244,46 @@ function getManifestAssetFiles(manifest, coreFiles) {
 }
 
 function getManifestRemoveFiles(manifest) {
-    return uniqueManifestList(manifest?.remove || []);
+    const files = uniqueManifestList(manifest?.remove || []);
+    const unsafe = files.filter(file => !isSafeManifestPath(file));
+
+    if (unsafe.length) {
+        throw new Error(`校验清单 remove 包含不安全路径：${unsafe.join("、")}`);
+    }
+
+    const conflicts = files.filter(file => manifest?.files?.[file]);
+    if (conflicts.length) {
+        throw new Error(`待删除文件仍存在于新版清单：${conflicts.join("、")}`);
+    }
+
+    return files;
+}
+
+function isSafeManifestPath(path) {
+    const parts = normalizeManifestPath(path).split("/");
+    return parts.length > 0
+        && parts.every(part => part && part != "." && part != "..")
+        && !parts.some(part => part.includes(":"));
+}
+
+function getManifestRemoveDirectories(manifest) {
+    const directories = uniqueManifestList(manifest?.removeDirectories || []);
+    const unsafe = directories.filter(directory => !isSafeManifestPath(directory));
+
+    if (unsafe.length) {
+        throw new Error(`校验清单 removeDirectories 包含不安全路径：${unsafe.join("、")}`);
+    }
+
+    const manifestFiles = getManifestFileKeys(manifest);
+    const conflicts = directories.filter(directory =>
+        manifestFiles.some(file => file == directory || file.startsWith(`${directory}/`))
+    );
+
+    if (conflicts.length) {
+        throw new Error(`待删除目录仍包含新版文件：${conflicts.join("、")}`);
+    }
+
+    return directories.sort((a, b) => b.split("/").length - a.split("/").length || b.length - a.length);
 }
 
 function getManifestDownloadFiles(manifest) {
@@ -330,6 +372,20 @@ function removeFile(path) {
     });
 }
 
+function removeDir(path) {
+    return new Promise(resolve => {
+        if (typeof game.removeDir != "function") {
+            resolve({ removed: false, error: new Error("当前环境不支持删除文件夹") });
+            return;
+        }
+        game.removeDir(
+            path,
+            () => resolve({ removed: true }),
+            error => resolve({ removed: false, error })
+        );
+    });
+}
+
 function createDir(path) {
     return new Promise((resolve, reject) => {
         game.createDir(path, resolve, reject);
@@ -351,6 +407,28 @@ async function removeManifestFiles(shuYing, manifest) {
         await addLog(shuYing, `删除旧文件：${file}`);
         await removeFile(`extension/术樱包/${file}`);
     }
+}
+
+async function removeManifestDirectories(shuYing, manifest) {
+    const directories = getManifestRemoveDirectories(manifest);
+
+    for (const directory of directories) {
+        const target = `extension/术樱包/${directory}`;
+        await addLog(shuYing, `删除废弃目录：${directory}`);
+        const result = await removeDir(target);
+
+        if (result.removed) {
+            await addLog(shuYing, `废弃目录已删除：${directory}`);
+        }
+        else {
+            await addLog(shuYing, `废弃目录不存在或删除失败，已跳过：${directory}；${getErrorMessage(result.error)}`);
+        }
+    }
+}
+
+async function removeManifestOldPaths(shuYing, manifest) {
+    await removeManifestFiles(shuYing, manifest);
+    await removeManifestDirectories(shuYing, manifest);
 }
 
 async function downloadCoreFiles(shuYing, manifest) {
@@ -396,7 +474,7 @@ async function downloadCoreFiles(shuYing, manifest) {
                 await writeTargetFile(fileData[file], `extension/术樱包/${file}`);
                 progress++;
             }
-            await removeManifestFiles(shuYing, manifest);
+            await removeManifestOldPaths(shuYing, manifest);
             setProgress(shuYing, { title: "核心文件修复", status: "完成", current: coreFiles.length * 2, total: coreFiles.length * 2 });
         }
         catch (error) {
@@ -524,7 +602,7 @@ async function repairMissingFiles(shuYing) {
         await createFolders("extension/术樱包/", files, shuYing);
 
         await downloadList(shuYing, files, manifest);
-        await removeManifestFiles(shuYing, manifest);
+        await removeManifestOldPaths(shuYing, manifest);
 
         setProgress(shuYing, { title: "查漏补缺", status: "完成", current: files.length, total: files.length });
         await addLog(shuYing, "查漏补缺完成");

@@ -39,7 +39,7 @@ shuYing.loadVoices = async () => {
     return shuYing.voices;
 };
 
-// 公共函数需要在菜单创建前初始化，扩展菜单可在选将预备阶段被点击，此时还没有 player。
+// 公共函数需要在菜单创建前初始化，扩展菜单可在选将预备阶段被点击
 shuYing.initFunction = () => {
     if (shuYing.functionInitialized) return;
     if (typeof func == "function") {
@@ -87,6 +87,49 @@ shuYing.appendExtension = function (name, translate, obj) {
         lib.config.characters.push(name);
     }
     lib.translate[name + '_character_config'] = translate;
+};
+
+// 将玩法模块的数据合并进同一个武将包，重复 ID 保留主包内容，避免生成额外的武将包菜单项。
+shuYing.mergeCharacterPack = function (target, source, sourceName = "附加模块") {
+    if (!target || !source) return target;
+    const sections = [
+        "character", "card", "skill", "translate", "characterSort", "characterFilter",
+        "characterTitle", "dynamicTranslate", "characterIntro", "perfectPair", "pinyins",
+        "boss", "game", "characterReplace",
+    ];
+    for (const section of sections) {
+        const data = source[section];
+        if (!data || typeof data != "object") continue;
+        const targetData = target[section] || (target[section] = {});
+        for (const [id, value] of Object.entries(data)) {
+            if (Object.prototype.hasOwnProperty.call(targetData, id)) {
+                console.warn(`术樱包：跳过${sourceName}中重复的${section} ID“${id}”`);
+                continue;
+            }
+            targetData[id] = value;
+        }
+    }
+    return target;
+};
+
+// 清理旧版本曾注册的独立武将包，防止历史配置让已合并模块继续出现在武将包列表。
+shuYing.removeLegacyCharacterPack = function (name) {
+    const removeFrom = list => {
+        if (!Array.isArray(list)) return false;
+        let changed = false;
+        for (let index = list.indexOf(name); index >= 0; index = list.indexOf(name)) {
+            list.splice(index, 1);
+            changed = true;
+        }
+        return changed;
+    };
+    removeFrom(lib.config.all.characters);
+    if (removeFrom(lib.config.characters)) {
+        game.saveConfig("characters", lib.config.characters);
+    }
+    removeFrom(lib.connectCharacterPack);
+    delete lib.characterPack[name];
+    delete lib.translate[`${name}_character_config`];
 };
 
 shuYing.getVersion = (callback) => {
@@ -203,20 +246,24 @@ shuYing.initConfig = () => {
 
 };
 
-//术樱包菜单配置由 ./menu.js 初始化
-
 //术樱包初始化武将包
 shuYing.initCharacter = async () => {
     let shuYingList;
     if (lib.config.mode == 'boss') {
-        const shuying_boss = await shuYing.loadModule("./pve/boss/index.js", "活动BOSS", true);
-        if (shuying_boss) {
-            shuYing.appendExtension("shuYing_pve_boss", "活动BOSS", shuying_boss);
-        }
+        shuYing.removeLegacyCharacterPack("shuYing_pve_tianshu");
+        let shuying_boss = await shuYing.loadModule("./pve/boss/index.js", "活动BOSS", true);
 
         const initTianShu = await shuYing.loadModule("./tianshu/extension.js", "天书乱斗", true);
         if (typeof initTianShu == "function") {
-            initTianShu(lib, game, ui, get, ai, _status, shuYing);
+            const tianshu = initTianShu(lib, game, ui, get, ai, _status, shuYing);
+            if (tianshu) {
+                if (shuying_boss) shuYing.mergeCharacterPack(shuying_boss, tianshu, "天书乱斗");
+                else shuying_boss = tianshu;
+            }
+        }
+
+        if (shuying_boss) {
+            shuYing.appendExtension("shuYing_pve_boss", "活动BOSS", shuying_boss);
         }
         // shuYingList =
         //     [

@@ -1,13 +1,7 @@
-import zhuoguiquxie from "./sets/zhuoguiquxie/dynamicTranslate.js";
-import qingqingzijin from "./sets/qingqingzijin/dynamicTranslate.js";
-import tianshu from "./sets/tianshu/dynamicTranslate.js";
-import mergeBossModules from "./merge.js";
+import bossSets from "./sets.js";
+import { mergeBossSection } from "./merge.js";
 
-// 汇总存在动态描述的主题技能；无动态描述的主题不需要空模块占位。
-const dynamicTranslates = mergeBossModules("动态翻译", [
-    ["捉鬼驱邪", zhuoguiquxie],
-    ["青青子衿", qingqingzijin],
-    ["天书乱斗", tianshu],
-]);
+// 汇总所有主题动态描述；空主题模块会被安全忽略。
+const dynamicTranslates = mergeBossSection("动态翻译", bossSets, "dynamicTranslate");
 
 export default dynamicTranslates;

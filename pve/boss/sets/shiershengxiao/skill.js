@@ -71,6 +71,137 @@ const skills = {
 		},
 	},
 
+	//丑牛
+	chouniu_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		trigger: {
+			player: "phaseJieshuBegin",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return player.isDamaged() && player.isMinHp();
+		},
+		async content(event, trigger, player) {
+			await player.recover();
+		},
+		ai: {
+			threaten: 1.2,
+		},
+	},
+
+	//寅虎
+	yinhu_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		enable: "phaseUse",
+		position: "he",
+		filter(event, player) {
+			const enemies = player.getEnemies(null, false);
+			return (
+				enemies.some(target => target.isIn()) &&
+				player.hasCard(card => lib.skill.yinhu_shuying.filterCard(card, player), "he")
+			);
+		},
+		filterCard(card, player) {
+			if (!lib.filter.cardDiscardable(card, player)) return false;
+			return !player.getStorage("yinhu_shuying_used").some(cardx => {
+				return get.type2(cardx[2]) == get.type2(card);
+			});
+		},
+		filterTarget(card, player, target) {
+			return (
+				target != player &&
+				target.isIn() &&
+				player.getEnemies(null, false).includes(target)
+			);
+		},
+		check(card) {
+			return 8 - get.value(card);
+		},
+		async content(event, trigger, player) {
+			const card = event.cards[0];
+			const target = event.target;
+
+			player.addTempSkill("yinhu_shuying_used", "phaseUseAfter");
+			player.markAuto("yinhu_shuying_used", [
+				[get.translation(get.type2(card)), "", card.name],
+			]);
+
+			player.line(target);
+			const damageEvent = target.damage(1, player);
+			await damageEvent;
+
+			const causedDying = game.getGlobalHistory("everything", evt => {
+				return evt.name == "dying" && evt.getParent(damageEvent.name) === damageEvent;
+			}).length > 0;
+
+			if (causedDying) {
+				player.tempBanSkill("yinhu_shuying");
+			}
+		},
+		ai: {
+			order: 7,
+			result: {
+				target(player, target) {
+					if (!player.getEnemies(null, false).includes(target)) return 0;
+					return get.damageEffect(target, player, target);
+				},
+			},
+		},
+		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					name: "已弃置的牌类型",
+					mark(dialog, content = []) {
+						if (content.length) {
+							dialog.addSmall([content, "vcard"]);
+						}
+					},
+				},
+			},
+		},
+	},
+
+	//卯兔
+	maotu_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		trigger: {
+			global: "dieAfter",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return !player.hasSkill("maotu_shuying_effect", null, false, false);
+		},
+		async content(event, trigger, player) {
+			player.addTempSkill("maotu_shuying_effect", {
+				player: "phaseBegin",
+			});
+		},
+		subSkill: {
+			effect: {
+				charlotte: true,
+				mark: true,
+				marktext: "兔",
+				intro: {
+					content: "你不是体力值大于等于你的其他角色使用牌的合法目标",
+				},
+				mod: {
+					targetEnabled(card, source, target) {
+						if (source != target && source.getHp() >= target.getHp()) {
+							return false;
+						}
+					},
+				},
+			},
+		},
+	},
+
 	//辰龙
 	chenlong_shuying: {
 		mode: ["boss"],
@@ -133,6 +264,55 @@ const skills = {
 		},
 	},
 
+	//巳蛇
+	sishe_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		trigger: {
+			player: "damageEnd",
+		},
+		logTarget: "source",
+		filter(event, player) {
+			return (
+				event.num > 0 &&
+				event.source?.isIn() &&
+				player.getEnemies(null, false).includes(event.source)
+			);
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseBool(get.prompt2(event.skill, trigger.source))
+				.set("ai", () => {
+					const player = get.player();
+					const trigger = get.event().getTrigger();
+					return (
+						player.getEnemies(null, false).includes(trigger.source) &&
+						get.damageEffect(trigger.source, player, player) > 0
+					);
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const source = trigger.source;
+			player.line(source);
+			await source.damage(trigger.num, player);
+		},
+		ai: {
+			threaten: 0.6,
+			maixie: true,
+			effect: {
+				target(card, source, target) {
+					if (
+						get.tag(card, "damage") &&
+						target.getEnemies(null, false).includes(source)
+					) {
+						return [1, 0, 0, -0.7];
+					}
+				},
+			},
+		},
+	},
+
 	//午马
 	wuma_shuying: {
 		mode: ["boss"],
@@ -177,6 +357,7 @@ const skills = {
 			},
 		},
 	},
+
 	//未羊
 	weiyang_shuying: {
 		mode: ["boss"],
@@ -257,6 +438,26 @@ const skills = {
 		},
 	},
 
+	//酉鸡
+	youji_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		trigger: {
+			player: "phaseDrawBegin2",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return game.roundNumber > 0 && !event.numFixed;
+		},
+		async content(event, trigger, player) {
+			trigger.num += Math.min(5, game.roundNumber);
+		},
+		ai: {
+			threaten: 1.4,
+		},
+	},
+
 	//戌狗
 	xvgou_shuying: {
 		mode: ["boss"],
@@ -292,6 +493,77 @@ const skills = {
 		},
 	},
 
+	//亥猪
+	haizhu_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/十二生肖:1",
+		trigger: {
+			player: "phaseZhunbeiBegin",
+			global: ["loseAfter", "loseAsyncAfter"],
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			if (event.name == "phaseZhunbei") {
+				return player.isMaxHandcard();
+			}
+
+			if (event.type != "discard" || event.getlx === false) {
+				return false;
+			}
+
+			return game.hasPlayer(target => {
+				if (target == player) return false;
+
+				return event.getl?.(target)?.cards2?.some(card => {
+					return (
+						get.color(card) == "black" &&
+						get.position(card, true) == "d"
+					);
+				});
+			});
+		},
+		async content(event, trigger, player) {
+			if (trigger.name == "phaseZhunbei") {
+				await player.loseHp();
+				return;
+			}
+
+			const cards = game
+				.filterPlayer(target => {
+					if (target == player) return false;
+
+					return trigger.getl?.(target)?.cards2?.some(card => {
+						return (
+							get.color(card) == "black" &&
+							get.position(card, true) == "d"
+						);
+					});
+				})
+				.reduce((list, target) => {
+					return list.addArray(
+						trigger
+							.getl(target)
+							.cards2.filter(card => {
+								return (
+									get.color(card) == "black" &&
+									get.position(card, true) == "d"
+								);
+							})
+					);
+				}, []);
+
+			if (!cards.length) return;
+
+			if (trigger.delay === false) {
+				await game.delay();
+			}
+			await player.gain(cards, "gain2");
+		},
+		ai: {
+			threaten: 1.6,
+		},
+	},
 };
 
 export default skills;
