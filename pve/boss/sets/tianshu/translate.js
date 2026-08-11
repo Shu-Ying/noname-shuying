@@ -1,0 +1,53 @@
+const translates = {
+    shuishengonggong_boss_shuying: "水神共工",
+    shuishen_shuying: "水神",
+    shuishen_shuying_info: "锁定技，弃牌堆中，不同牌名的牌数达到4时，你回复体力时回复量+1；达到5时，摸牌阶段额外摸5张牌；达到9时，你造成伤害时伤害+1。",
+    tuanliu_shuying: "湍流",
+    tuanliu_shuying_info: "锁定技，结束阶段，若本回合进入弃牌堆的卡牌数量：大于4，你回复2点体力；大于5，你摸4张牌；大于9，你对所有敌方角色造成1点伤害。",
+    juehong_shuying: "决洪",
+    juehong_shuying_info: "锁定技，准备阶段，你令所有敌方角色自己弃置自己的装备区内的所有牌，若其装备区内没有牌，则改为随机弃置2张手牌",
+
+    baiqi_boss_shuying: "白起",
+    changsheng_shuying: "常胜",
+    changsheng_shuying_info: "锁定技，你使用【杀】无距离限制。",
+    shashen_shuying: "杀神",
+    shashen_shuying_info: "你可以将手牌中的任意牌当【杀】使用或打出。你使用的【杀】造成伤害后，摸三张牌。",
+    wuan_shuying: "武安",
+    wuan_shuying_info: "锁定技，你可使用的【杀】的次数+3，【杀】造成的伤害+1。",
+
+    kuafu_boss_shuying: "盘古",
+    shenqu_shuying: "神躯",
+    shenqu_shuying_info: "锁定技，当你受到伤害后，将所有红色手牌置于牌堆底，并摸等量的牌。",
+    lieben_shuying: "烈奔",
+    lieben_shuying_info: "锁定技，当你使用【杀】指定目标后，使用牌堆底的牌进行一次判定：若判定结果为红色，则此杀不计入出牌阶段使用次数且伤害+1。",
+    yinjiang_shuying: "饮江",
+    yinjiang_shuying_info: "锁定技，当你在出牌阶段摸牌后，获得牌堆底的1张牌。若该牌为红色，则对所有敌方角色造成1点伤害。当你在同一个阶段内以此法造成过两次活更多的伤害后，该技能失效直到回合结束。",
+    zhuri_shuying: "逐日",
+    zhuri_shuying_info: "锁定技，你使用红色牌时摸1张牌。当你成为【杀】或普通锦囊牌的目标后，结算完毕后将该牌放置在牌堆底。",
+
+    shaohao_boss_shuying: "少昊",
+    baiyi_shuying: "白仪",
+    baiyi_shuying_info: "锁定技，每名敌方角色的回合开始时，若当前轮数小于3，你随机获得其1张牌；若当前轮数小于5，对其造成1点雷电伤害；若当前轮数小于7，其随机弃置1张牌。",
+    shenen_shuying: "神恩",
+    shenen_shuying_info: "锁定技，所有己方角色使用牌锁定技，所有己方角色使用牌没有距离限制。",
+
+
+    xuannv_boss_shuying: "玄女",
+    xuanlie_shuying: "玄烈",
+    xuanlie_shuying_info: "锁定技，回合结束时，对所有本回合你获得过其牌的敌方角色依次造成1点伤害。",
+    jiutian_shuying: "九天",
+    jiutian_shuying_info: "锁定技，准备阶段，你获得所有敌方角色各1张手牌。若你以此法获得的牌包含2种颜色，则对所有你以此法获得其牌的敌方角色造成1点伤害。",
+    dishi_shuying: "帝师",
+    dishi_shuying_info: "当你使用【杀】或普通锦囊牌指定目标时，如果目标数为1，可以增加一个目标；如果目标数大于1，你可以减少一个目标。",
+
+    hanba_boss_shuying: "旱魃",
+    xinji_shuying: "心悸",
+    xinji_shuying_info: "锁定技，当友方于回合外因弃置而失去手牌时，你对当前角色造成1点伤害。",
+    zhiri_shuying: "炙日",
+    zhiri_shuying_info: "锁定技，当敌方角色使用红色锦囊牌指定目标后，你摸1张牌。",
+    fenshi_shuying: "焚世",
+    fenshi_shuying_info: "锁定技，准备阶段，若你的手牌数小于体力值，则将手牌摸至于体力值相等；若你的手牌数大于体力值，则你对敌方角色造成共计X点伤害，点数随机分配（X为手牌数减体力值）。",
+
+};
+
+export default translates;

@@ -223,13 +223,10 @@ shuYing.initCharacter = async () => {
         //         "yuanshen",
         //     ];
     }
-    else {
-        // initBengTie(lib, game, ui, get, ai, _status, shuYing);
 
-        // shuYingList =
-        //     [
-        //         "yuanshen",
-        //     ];
+    const shuying_character = await shuYing.loadModule("./character/index.js", "术樱包", true);
+    if (shuying_character) {
+        shuYing.appendExtension("shuYing_character", "术樱包", shuying_character);
     }
 
     // shuYingList.forEach(url => {
@@ -247,6 +244,10 @@ shuYing.precontent = async () => {
     shuYing.initCSS();
     shuYing.initFunction();
     shuYing.initConfig();
+    // const initMengsan = await shuYing.loadModule("./mengsan/mode.js", "梦三模式", true);
+    // if (typeof initMengsan == "function") {
+    //     await initMengsan();
+    // }
     initShuYingMenu({ lib, game, ui, shuYing, updater });
     shuYing.getVersion();
     await shuYing.initCharacter();

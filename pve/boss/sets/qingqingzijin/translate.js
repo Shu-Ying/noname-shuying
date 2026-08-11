@@ -1,0 +1,41 @@
+const translates = {
+    caocao_boss_shuying: "曹操",
+    jianxiong_shuying: "奸雄",
+    jianxiong_shuying_info: "当你受到伤害后，你可以获得对你造成伤害的牌并摸一张牌。",
+    lingba_shuying: "凌霸",
+    lingba_shuying_info: "锁定技，你的回合开始时，若你手牌数为全场最多，则对一名随机敌人造成1点伤害。若你手牌数大于等于你体力值的两倍，则改为对所有敌人造成伤害。",
+    yishen_shuying: "疑神",
+    yishen_shuying_info: "当你回复体力时，可以改为获得一名随机敌方角色一张随机装备。",
+
+    simayi_boss_shuying: "司马懿",
+    fankui_shuying: "反馈",
+    fankui_shuying_info: "当你受到1点伤害后，你可以获得伤害来源的一张牌。",
+    guicai_shuying: "鬼才",
+    guicai_shuying_info: "当一名角色的判定牌生效前，你可以打出一张牌代替之。",
+    langgu_shuying: "狼顾",
+    langgu_shuying_info: "	锁定技，每回合限一次，当你获得其他角色的牌时，进行一次判定：若结果为黑桃，随机弃置其1张手牌，且视为此技能本回合未发动过。",
+    yuanlv_shuying: "远虑",
+    yuanlv_shuying_info: "当你使用锦囊牌对敌方角色造成伤害时，你可以防止该伤害，改为摸一张牌且该敌方角色对你造成1点伤害。",
+
+    lvbu_boss_shuying: "吕布",
+    wushuang_shuying: "无双",
+    wushuang_shuying_info: "锁定技。①你使用的【杀】需两张【闪】才能抵消；与你进行【决斗】的角色每次需要打出两张【杀】。②每回合限1次，当你使用【杀】或【决斗】造成伤害时，若受伤角色没有使用或打出过【杀】或【闪】响应此牌，则此伤害+1。",
+    shenij_shuying: "神戟",
+    shenij_shuying_info: "判定阶段，你可以弃置两张手牌，然后弃置你判定区里的牌；摸牌阶段，你多摸两张牌；出牌阶段，你可以多使用一张【杀】，你的【杀】可以多指定一名角色为目标。",
+    zhanjia_shuying: "战甲",
+    zhanjia_shuying_info: "锁定技，每回合限一次，当你受到大于2点的伤害时，将此伤害减至2点，然后摸两张牌。",
+
+    dongzhuo_boss_shuying: "董卓",
+    jiuchi_shuying: "酒池",
+    jiuchi_shuying_info: "你可以将一张黑桃手牌当【酒】使用。",
+    roulin_shuying: "肉林",
+    roulin_shuying_info: "锁定技，你对女性角色使用的【杀】和女性角色对你使用的【杀】均需使用两张【闪】才能抵消。",
+    baonue_shuying: "暴虐",
+    baonue_shuying_info: "锁定技，回合开始时，你摸X张牌并对至多X名角色造成1点伤害，然后你失去1点体力。X为你已损失体力且最大为3。",
+    qubu_shuying: "驭布",
+    qubu_shuying_info: "锁定技，当友方角色使用【杀】指定目标时，进行一次判定：若结果为黑桃，你对此【杀】的所有目标造成1点伤害。",
+
+
+};
+
+export default translates;

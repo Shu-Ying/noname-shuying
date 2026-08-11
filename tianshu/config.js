@@ -1,6 +1,6 @@
 const bossList = {
-    //stage1: ["riyeyoushen_boss_shuying", "dongzhuo_boss_shuying"],
-    stage1: ["chenlong_boss_shuying", "weiyang_boss_shuying", "shenhou_boss_shuying", "xvgou_boss_shuying"],
+    // stage1: ["caocao_boss_shuying", "dongzhuo_boss_shuying"],
+    stage1: ["zishu_boss_shuying", "wuma_boss_shuying", "chenlong_boss_shuying", "weiyang_boss_shuying", "shenhou_boss_shuying", "xvgou_boss_shuying"],
     stage2: ["heibaiwuchang_boss_shuying", "yvsai_boss_shuying", "huangfeng_boss_shuying", "riyeyoushen_boss_shuying"],
     stage3: ["caocao_boss_shuying", "simayi_boss_shuying", "lvbu_boss_shuying", "dongzhuo_boss_shuying"],
     stage4: ["shuishengonggong_boss_shuying", "shaohao_boss_shuying", "xuannv_boss_shuying", "hanba_boss_shuying"],
@@ -121,11 +121,11 @@ const bossDifficulty = {
             ...bossDifficultyTemplates.zhuoguiquxie,
             hard: {
                 ...bossDifficultyTemplates.zhuoguiquxie.hard,
-                skill: ["xixing_shuying"],
+                skills: ["xixing_shuying"],
             },
             nightmare: {
                 ...bossDifficultyTemplates.zhuoguiquxie.nightmare,
-                skill: ["xixing_shuying", "taiping_shuying"],
+                skills: ["xixing_shuying", "taiping_shuying"],
             },
         },
         yvsai_boss_shuying: {
@@ -139,7 +139,7 @@ const bossDifficulty = {
             ...bossDifficultyTemplates.zhuoguiquxie,
             nightmare: {
                 ...bossDifficultyTemplates.zhuoguiquxie.nightmare,
-                skill: ["duane_shuying"],
+                skills: ["duane_shuying"],
             },
         },
 
@@ -194,11 +194,11 @@ const bossDifficulty = {
             ...bossDifficultyTemplates.tianshuluandou,
             hard: {
                 ...bossDifficultyTemplates.tianshuluandou.hard,
-                skill: ["shuishen_shuying"],
+                skills: ["shuishen_shuying"],
             },
             nightmare: {
                 ...bossDifficultyTemplates.tianshuluandou.nightmare,
-                skill: ["shuishen_shuying"],
+                skills: ["shuishen_shuying"],
             },
         },
         shaohao_boss_shuying: { ...bossDifficultyTemplates.tianshuluandou, },

@@ -9,9 +9,10 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     const state = {
         difficulty: "normal",
         stageIndex: 0,
-        currentBosses: [],
         selectedSkills: {},
         selectedSkillSet: {},
+        difficultyBossMap: {},
+        originalBossMap: {},
         playerSideIds: {},
         roundStartPlayer: null,
         roundStartSeat: 0,
@@ -59,8 +60,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     const getVirtualIdolIds = () => tianshuConfig.virtualIdolList || Object.values(tianshuConfig.virtualIdols).flat();
     // 判断指定角色是否为虚拟偶像。
     const isVirtualIdol = player => Boolean(player && (getVirtualIdolIds().includes(player.name1) || getVirtualIdolIds().includes(player.name)));
-    // 判断指定角色是否属于当前关卡 Boss 列表。
-    const isCurrentStageBoss = player => Boolean(player && (state.currentBosses.includes(player.name1) || state.currentBosses.includes(player.name)));
+    // 判断指定角色是否为当前关卡实际召唤的 Boss；玩家变身为同名动态武将时不会被误判。
+    const isCurrentStageBoss = player => Boolean(player?.storage?.shuYing_tianshu_stageBoss && player.storage.shuYing_tianshu_stageIndex == state.stageIndex);
     // 判断指定角色是否属于开局捕获的玩家方。
     const isCapturedPlayerSide = player => Boolean(getPlayerKey(player) && state.playerSideIds[getPlayerKey(player)]);
     // 获取玩家方角色列表，可按是否存活、是否包含虚拟偶像过滤。
@@ -227,8 +228,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         state.difficulty = keys[Math.max(0, controls.indexOf(result.control))] || "normal";
         _status[tianshuConfig.settings.difficultyStatusKey] = state.difficulty;
     };
-    // 在指定座位创建关卡 Boss；初始主 Boss 已静默死亡，所以关卡 Boss 全部使用忠臣身份。
-    const addStageBoss = (position, name) => {
+    // 在指定座位创建当前难度的动态 Boss；初始主 Boss 已静默死亡，所以关卡 Boss 全部使用忠臣身份。
+    const addStageBoss = (position, originalName) => {
+        const name = state.difficultyBossMap[originalName] || originalName;
         const boss = game.addFellow(position, name, "zoominanim");
         boss.dataset.position = position;
         boss.side = true;
@@ -236,6 +238,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         boss.setIdentity(boss.identity);
         boss.storage.shuYing_tianshu_stageBoss = true;
         boss.storage.shuYing_tianshu_stageIndex = state.stageIndex;
+        boss.storage.shuYing_tianshu_originalBossName = originalName;
         game.addVideo("setIdentity", boss, boss.identity);
         if (game.playerMap) game.playerMap[boss.dataset.position] = boss;
         game.arrangePlayers();
@@ -246,7 +249,12 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         const num = Number(value);
         return Number.isFinite(num) ? num : null;
     };
-    const getBossConfigName = player => player?.name1 || player?.name || "";
+    // 将动态难度武将 ID 还原为 config.js 中使用的原始 Boss ID。
+    const getBossConfigName = source => {
+        if (typeof source == "string") return state.originalBossMap[source] || source;
+        const name = source?.storage?.shuYing_tianshu_originalBossName || source?.name1 || source?.name || "";
+        return state.originalBossMap[name] || name;
+    };
     // 读取当前 Boss 在当前难度下的数值配置；单 Boss 配置覆盖默认难度配置。
     const getBossDifficultyConfig = player => {
         const defaultConfig = tianshuConfig.bossDifficulty?.default?.[state.difficulty] || {};
@@ -256,27 +264,61 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     // 补充技能只读取当前难度配置，不跨难度继承低难度技能。
     const getBossDifficultySkills = player => {
         const defaultSkills = tianshuConfig.bossDifficulty?.default?.[state.difficulty]?.skills || [];
-        const bossSkills = tianshuConfig.bossDifficulty?.bosses?.[getBossConfigName(player)]?.[state.difficulty]?.skills || [];
+        const bossConfig = tianshuConfig.bossDifficulty?.bosses?.[getBossConfigName(player)]?.[state.difficulty] || {};
+        const bossSkills = [];
+        if (Array.isArray(bossConfig.skills)) bossSkills.addArray(bossConfig.skills);
         const skills = [];
         for (const skill of defaultSkills.concat(bossSkills)) {
             if (skill && !skills.includes(skill)) skills.push(skill);
         }
         return skills;
     };
-    // Boss 难度数值属于出场面板修正
-    const applyBossDifficultyConfig = player => {
-        const config = getBossDifficultyConfig(player);
+    // 根据原始武将和当前难度，生成包含准确体力、上限及追加技能的隐藏动态武将。
+    const createDifficultyBossCharacter = originalName => {
+        const original = lib.character[originalName];
+        if (!original) return null;
+        const source = get.convertedCharacter(original);
+        const data = {};
+        for (const [key, value] of Object.entries(source)) {
+            data[key] = value && typeof value == "object" ? get.copy(value) : value;
+        }
+        const config = getBossDifficultyConfig(originalName);
         const maxHp = getConfigNumber(config.maxHp);
         const maxHpBonus = getConfigNumber(config.maxHpBonus) || 0;
         const hp = getConfigNumber(config.hp);
         const hpBonus = getConfigNumber(config.hpBonus) || 0;
-        player.maxHp = Math.max(1, maxHp ?? player.maxHp + maxHpBonus);
-        player.hp = Math.min(Math.max(0, hp ?? player.hp + hpBonus), player.maxHp);
-        for (const skill of getBossDifficultySkills(player)) {
-            if (!player.hasSkill(skill)) player.addSkill(skill);
+        data.maxHp = Math.max(1, maxHp ?? source.maxHp + maxHpBonus);
+        data.hp = Math.min(Math.max(1, hp ?? source.hp + hpBonus), data.maxHp);
+        data.skills = source.skills.slice();
+        data.skills.addArray(getBossDifficultySkills(originalName));
+        data.isHiddenBoss = true;
+        data.isBossAllowed = true;
+        data.isAiForbidden = true;
+        data.tempname = Array.isArray(source.tempname) ? source.tempname.slice() : [];
+        data.tempname.add(originalName);
+        return get.convertedCharacter(data);
+    };
+    // 难度选择后一次性注册本局全部动态 Boss，供召唤、变身及武将牌技能读取共同使用。
+    const prepareDifficultyBossCharacters = () => {
+        state.difficultyBossMap = {};
+        state.originalBossMap = {};
+        const names = tianshuConfig.stages.flatMap(stage => stage?.bosses || []);
+        for (const originalName of Array.from(new Set(names))) {
+            const character = createDifficultyBossCharacter(originalName);
+            if (!character) continue;
+            const dynamicName = `${originalName}_tianshu_${state.difficulty}`;
+            state.difficultyBossMap[originalName] = dynamicName;
+            state.originalBossMap[dynamicName] = originalName;
+            lib.character[dynamicName] = character;
+            lib.translate[dynamicName] = lib.translate[originalName] || get.translation(originalName);
+            if (lib.translate[`${originalName}_ab`]) lib.translate[`${dynamicName}_ab`] = lib.translate[`${originalName}_ab`];
+            if (lib.translate[`${originalName}_prefix`]) lib.translate[`${dynamicName}_prefix`] = lib.translate[`${originalName}_prefix`];
+            if (lib.characterIntro?.[originalName]) lib.characterIntro[dynamicName] = lib.characterIntro[originalName];
+            if (lib.characterTitle?.[originalName]) lib.characterTitle[dynamicName] = lib.characterTitle[originalName];
+            lib.config.forbidai?.add(dynamicName);
+            lib.hiddenCharacters?.add(dynamicName);
+            lib.skilllist.addArray(character.skills);
         }
-        player.update();
-        return config;
     };
     // 让开局占位主 Boss 静默死亡，避免作为关卡 Boss 参与后续流程。
     const killInitialBossSilently = async () => {
@@ -445,7 +487,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             return result;
         };
     };
-    // 召唤指定关卡的 Boss，并完成初始 Boss 静默退场和难度强化。
+    // 召唤指定关卡的动态 Boss，并按配置补足仅属于登场流程的初始手牌。
     const spawnStage = async (stageIndex = state.stageIndex) => {
         state.stageIndex = stageIndex;
         state.clearingStage = false;
@@ -456,7 +498,6 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             const boss = pool.randomRemove();
             if (boss) bosses.push(boss);
         }
-        state.currentBosses = bosses.slice();
         const seats = getBossSeats();
         if (stageIndex == 0) await killInitialBossSilently();
         bosses.forEach((boss, index) => {
@@ -464,7 +505,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         });
         game.arrangePlayers();
         for (const player of game.players.filter(current => isCurrentStageBoss(current))) {
-            const config = applyBossDifficultyConfig(player);
+            const config = getBossDifficultyConfig(player);
             const startCards = getConfigNumber(config.startCards);
             if (startCards === null) continue;
             const needCards = startCards - player.countCards("h");
@@ -618,7 +659,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (!isCurrentStageBoss(deadBoss)) return;
         if (deadBoss.storage.shuYing_tianshu_bossDieHandled) return;
         deadBoss.storage.shuYing_tianshu_bossDieHandled = true;
-        const stageCleared = !state.currentBosses.some(name => game.players.some(current => current.name1 == name || current.name == name));
+        const stageCleared = !game.players.some(current => isCurrentStageBoss(current));
         const finalCleared = stageCleared && state.stageIndex >= tianshuConfig.stages.length - 1;
         if (!finalCleared && event.source && event.source.isIn()) {
             if (event.source.hp < event.source.maxHp) await event.source.recover(tianshuConfig.reward.killRecover);
@@ -637,6 +678,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         capturePlayerSide();
         state.pendingSpawn = true;
         await chooseDifficulty(player);
+        prepareDifficultyBossCharacters();
         _status.additionalReward = () => 500;
         ["shandian", "huoshan", "hongshui", "fulei", "lebu", "bingliang"].forEach(name => lib.inpile.remove(name));
         Array.from(ui.cardPile.childNodes).forEach(node => {
@@ -662,6 +704,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         },
         handleBossDie,
         isCurrentStageBoss,
+        getBossConfigName,
+        getDifficultyBossName: originalName => state.difficultyBossMap[originalName] || originalName,
         // 判断角色是否为玩家方成员，默认要求角色仍在场。
         isPlayerSideMember: (player, aliveOnly = true) => Boolean(player && (!aliveOnly || player.isIn()) && isCapturedPlayerSide(player) && !isVirtualIdol(player)),
         // 判断玩家方是否已经全灭。
