@@ -1,0 +1,21 @@
+{
+  "core": [
+    "extension.js",
+    "menu.js",
+    "function.js",
+    "update.js",
+    "mengsan/mode.js",
+    "mengsan/config.js",
+    "mengsan/state.js",
+    "mengsan/style.css",
+    "tianshu/extension.js",
+    "tianshu/config.js",
+    "pve/boss/index.js",
+    "pve/boss/character.js",
+    "pve/boss/skill.js",
+    "pve/boss/dynamicTranslate.js",
+    "pve/boss/translate.js"
+  ],
+  "remove": [],
+  "removeDirectories": []
+}

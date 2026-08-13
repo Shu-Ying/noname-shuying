@@ -9,6 +9,7 @@ const characters = {
         img: "extension/术樱包/pve/images/青青子衿/caocao_boss_shuying.jpg",
         dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/caocao_boss_shuying.mp3"]
     },
+
     simayi_boss_shuying: {
         sex: "male",
         group: "wei",
@@ -19,6 +20,7 @@ const characters = {
         img: "extension/术樱包/pve/images/青青子衿/simayi_boss_shuying.jpg",
         dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/simayi_boss_shuying.mp3"]
     },
+
     lvbu_boss_shuying: {
         sex: "male",
         group: "qun",
@@ -29,6 +31,7 @@ const characters = {
         img: "extension/术樱包/pve/images/青青子衿/lvbu_boss_shuying.jpg",
         dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/lvbu_boss_shuying.mp3"]
     },
+
     dongzhuo_boss_shuying: {
         sex: "male",
         group: "qun",
@@ -38,6 +41,28 @@ const characters = {
         isBossAllowed: true,
         img: "extension/术樱包/pve/images/青青子衿/dongzhuo_boss_shuying.jpg",
         dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/dongzhuo_boss_shuying.mp3"]
+    },
+
+    yuanshu_boss_shuying: {
+        sex: "male",
+        group: "qun",
+        hp: 4,
+        skills: ["yongsi_shuying", "wangzun_shuying"],
+        isHiddenBoss: true,
+        isBossAllowed: true,
+        img: "extension/术樱包/pve/images/青青子衿/yuanshu_boss_shuying.jpg",
+        dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/yuanshu_boss_shuying.mp3"]
+    },
+
+    zhangjiao_boss_shuying: {
+        sex: "male",
+        group: "qun",
+        hp: 4,
+        skills: ["guidao_shuying", "leiji_shuying", "zhuzheng_shuying"],
+        isHiddenBoss: true,
+        isBossAllowed: true,
+        img: "extension/术樱包/pve/images/青青子衿/zhangjiao_boss_shuying.jpg",
+        dieAudios: ["ext:术樱包/pve/audio/dead/青青子衿/zhangjiao_boss_shuying.mp3"]
     },
 };
 

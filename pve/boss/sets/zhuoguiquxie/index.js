@@ -11,7 +11,7 @@ import perfectPairs from "./perfectPairs.js";
 import voices from "./voices.js";
 import { characterSort, characterSortTranslate } from "./sort.js";
 
-// 捉鬼驱邪主题数据片段，由活动 BOSS 根入口统一注册。
+// 驱鬼逐邪主题数据片段，由活动 BOSS 根入口统一注册。
 export default {
     character: characters,
     card: cards,

@@ -511,6 +511,7 @@ const skills = {
 			return player.getEnemies(null, false).some(target => target.isIn());
 		},
 		async content(event, trigger, player) {
+			const difficulty = getTianshuDifficulty();
 			const enemies = player.getEnemies(null, false).filter(target => target.isIn());
 
 			if (difficulty == "nightmare") {
@@ -667,7 +668,7 @@ const skills = {
 			},
 		},
 	},
-	shiyu_shuying: {
+	shiyv_shuying: {
 		mode: ["boss"],
 		audio: "ext:术樱包/pve/audio/skill/驱鬼逐邪:1",
 		trigger: {
@@ -1457,22 +1458,107 @@ const skills = {
 		},
 		forced: true,
 		locked: true,
+		silent: true,
+		popup: false,
 		mark: true,
 		filter(event, player) {
 			return (
 				getTianshuDifficulty() != "normal" &&
 				!player.storage.zhennu_shuying_used &&
 				event.changedHp < 0 &&
-				player.hp <= player.maxHp / 2 &&
-				player.hp - event.changedHp > player.maxHp / 2
+				event.originalHp > event.originalMaxHp / 2 &&
+				event.originalHp + event.changedHp <= event.originalMaxHp / 2
 			);
 		},
 		async content(event, trigger, player) {
 			player.storage.zhennu_shuying_used = true;
+			player.storage.zhennu_shuying_pending = true;
+			player.storage.zhennu_shuying_pending_type = trigger.getParent()?.name;
+			trigger.zhennu_shuying_pending = true;
 			player.markSkill("zhennu_shuying");
+		},
+		group: "zhennu_shuying_takeover",
+		subSkill: {
+			takeover: {
+				charlotte: true,
+				forced: true,
+				silent: true,
+				popup: false,
+				forceDie: true,
+				trigger: {
+					player: [
+						"changeHpAfter",
+						"damageAfter",
+						"loseHpAfter",
+						"dyingAfter",
+					],
+				},
+				filter(event, player, name) {
+					if (
+						!player.storage.zhennu_shuying_pending ||
+						!player.isIn() ||
+						player.hp <= 0
+					) {
+						return false;
+					}
 
-			await player.draw(4);
-			player.insertPhase();
+					if (name == "dyingAfter") return true;
+					if (name == "changeHpAfter") {
+						return (
+							event.zhennu_shuying_pending === true &&
+							!["damage", "loseHp"].includes(
+								player.storage.zhennu_shuying_pending_type
+							)
+						);
+					}
+
+					return (
+						(name == "damageAfter" &&
+							player.storage.zhennu_shuying_pending_type ==
+							"damage") ||
+						(name == "loseHpAfter" &&
+							player.storage.zhennu_shuying_pending_type ==
+							"loseHp")
+					);
+				},
+				async content(event, trigger, player) {
+					delete player.storage.zhennu_shuying_pending;
+					delete player.storage.zhennu_shuying_pending_type;
+					player.logSkill("zhennu_shuying");
+
+					const phase = event.getParent("phase");
+					const phaseLoop = event.getParent("phaseLoop");
+					if (phase && phaseLoop) {
+						player.insertPhase("zhennu_shuying");
+						phaseLoop.player = player;
+
+						let activeChild = event;
+						let current = event.getParent();
+						while (current && current != phaseLoop) {
+							const pendingEvents = [
+								...(current.next || []),
+								...(current.after || []),
+							];
+							for (const pendingEvent of pendingEvents) {
+								if (pendingEvent == activeChild) continue;
+								pendingEvent.finish();
+								pendingEvent.untrigger(true);
+							}
+
+							current.finish();
+							current.untrigger(true);
+							if (current == phase) break;
+							activeChild = current;
+							current = current.getParent();
+						}
+					}
+
+					await player.draw(4);
+					if (!phase || !phaseLoop) {
+						player.insertPhase("zhennu_shuying", true);
+					}
+				},
+			},
 		},
 		intro: {
 			content(storage, player) {

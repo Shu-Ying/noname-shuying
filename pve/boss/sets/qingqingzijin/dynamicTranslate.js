@@ -66,6 +66,28 @@ const dynamicTranslates = {
         return `锁定技，回合开始时，你摸X张牌并对至多X名角色造成1点伤害，然后你失去1点体力。X为你已损失体力且最大为${num}。`
     },
 
+    //袁术
+    wangzun_shuying(player, skill) {
+        const num =
+            getTianshuDifficulty() == "nightmare" ? 2 : 1;
+
+        return `锁定技，其他敌方角色的结束阶段，若其本回合：1.没有对你造成伤害，则其弃置${num}张牌；2.对你造成的伤害数超过1点，则你对其造成1点伤害。`;
+    },
+    duoxi_shuying(player, skill) {
+        const num =
+            getTianshuDifficulty() == "nightmare" ? 2 : 1;
+
+        return `其他角色的摸牌阶段，你可以失去1点体力，改为你与其各摸${num}张牌。`;
+    },
+
+    //张角
+    zhuzheng_shuying(player, skill) {
+        if (getTianshuDifficulty() == "nightmare") {
+            return "当一名其他角色使用【杀】指定目标时，若你在其攻击范围内且你不是目标，则你可以将一张手牌置于牌堆顶，取消所有目标，然后你成为目标。";
+        }
+
+        return "其他角色使用【杀】指定除你外的角色时，若你在其攻击范围内，你可以将一张手牌置于牌堆顶，取消所有目标，然后若此【杀】不为黑色，你成为目标。";
+    },
 };
 
 export default dynamicTranslates;
