@@ -1,16 +1,9 @@
 {
   "version": "2.0.1.0",
-<<<<<<< HEAD
   "generated_at": "2026-08-13T09:28:20.285659+00:00",
   "algorithm": "sha256",
   "file_count": 276,
   "folder_sha256": "ab1c54fd1136e50f96b2cec7a419fd22bde8cf8df8f0e40dab842f0d4fb3aaec",
-=======
-  "generated_at": "2026-08-13T09:24:08.169785+00:00",
-  "algorithm": "sha256",
-  "file_count": 276,
-  "folder_sha256": "2c4cb3f294d31638f276b0f37607ea30877b309307e5ee1b87d85052bf5ed663",
->>>>>>> b256c0f8e4446bd82892d04d45e71fd8fd7cd2a4
   "core": [
     "extension.js",
     "menu.js",
@@ -1299,13 +1292,8 @@
       "sha256": "7594c68dd1308de5fd13ea7e76fde665a296400a7505b32054bf0d149986bb05"
     },
     "update.txt": {
-<<<<<<< HEAD
       "size": 2901,
       "sha256": "6ce45269f253f8fb42665ba3fc14a1ac8a5e48d60b9cb5c6fe5beccb9336cc2f"
-=======
-      "size": 1763,
-      "sha256": "0c8d90ecb09de1f92bf73ffa444d754fe1a8614029ae3b91d515c35f4863c2b5"
->>>>>>> b256c0f8e4446bd82892d04d45e71fd8fd7cd2a4
     },
     "voices.js": {
       "size": 1711,
@@ -2820,13 +2808,8 @@
       },
       "update.txt": {
         "type": "file",
-<<<<<<< HEAD
         "size": 2901,
         "sha256": "6ce45269f253f8fb42665ba3fc14a1ac8a5e48d60b9cb5c6fe5beccb9336cc2f"
-=======
-        "size": 1763,
-        "sha256": "0c8d90ecb09de1f92bf73ffa444d754fe1a8614029ae3b91d515c35f4863c2b5"
->>>>>>> b256c0f8e4446bd82892d04d45e71fd8fd7cd2a4
       },
       "voices.js": {
         "type": "file",
