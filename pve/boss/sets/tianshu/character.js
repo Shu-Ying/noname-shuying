@@ -9,27 +9,41 @@ const characters = {
         isBossAllowed: true,
         img: "extension/术樱包/pve/images/天书乱斗/shuishengonggong_boss_shuying.png"
     },
-    // huoshenzhurong_boss_shuying: {},
+
+    huoshenzhurong_boss_shuying:
+    {
+        sex: "male",
+        group: "shen",
+        hp: 4,
+        skills: ["xingxia_shuying", "baoyan_shuying"],
+        isHiddenBoss: true,
+        isBossAllowed: true,
+        img: "extension/术樱包/pve/images/天书乱斗/huoshenzhurong_boss_shuying.png"
+    },
+
     baiqi_boss_shuying:
     {
         sex: "male",
         group: "shen",
         hp: 4,
-        skills: ["changsheng_shuying", "shashen_shuying", "wuan_shuying"],
+        skills: ["wuan_shuying"],
         isHiddenBoss: true,
         isBossAllowed: true,
         img: "extension/术樱包/pve/images/天书乱斗/baiqi_boss_shuying.png"
     },
+
     kuafu_boss_shuying:
     {
         sex: "male",
         group: "shen",
         hp: 4,
-        skills: ["shenqu_shuying", "lieben_shuying", "yinjiang_shuying", "zhuri_shuying"],
+        skills: ["zhuri_shuying", "yinjiang_shuying", "lieben_shuying"],
         isHiddenBoss: true,
         isBossAllowed: true,
-        img: "extension/术樱包/pve/images/天书乱斗/kuafu_boss_shuying.png"
+        img: "extension/术樱包/pve/images/天书乱斗/kuafu_boss_shuying.png",
+        dieAudios: ["ext:术樱包/pve/audio/dead/天书乱斗/kuafu_boss_shuying.mp3"]
     },
+
     shaohao_boss_shuying:
     {
         sex: "male",
@@ -40,6 +54,7 @@ const characters = {
         isBossAllowed: true,
         img: "extension/术樱包/pve/images/天书乱斗/shaohao_boss_shuying.png"
     },
+
     xuannv_boss_shuying: {
         sex: "female",
         group: "shen",
@@ -50,6 +65,7 @@ const characters = {
         img: "extension/术樱包/pve/images/天书乱斗/xuannv_boss_shuying.png",
         dieAudios: ["ext:术樱包/pve/audio/dead/天书乱斗/xuannv_boss_shuying.mp3"]
     },
+
     hanba_boss_shuying: {
         sex: "female",
         group: "shen",

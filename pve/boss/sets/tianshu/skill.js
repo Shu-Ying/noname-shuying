@@ -89,26 +89,229 @@ const skills = {
 		},
 	},
 
-	//白起
+	//火神祝融 over
+	xingxia_shuying: {
+		mode: ["boss"],
+		audio: false,
+		trigger: {
+			player: "phaseUseBegin",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			const enemies = player.getEnemies(null, false);
+			return (
+				game.hasPlayer(target => {
+					return target.isIn() && !enemies.includes(target);
+				}) &&
+				enemies.some(target => target.isIn())
+			);
+		},
+		async content(event, trigger, player) {
+			const difficulty = getTianshuDifficulty();
+			const enemies = player
+				.getEnemies(null, false)
+				.filter(target => target.isIn());
+			const friends = game.filterPlayer(target => {
+				return target.isIn() && !enemies.includes(target);
+			});
+			if (!friends.length || !enemies.length) return;
+
+			const friend = friends.randomGet();
+			player.line(friend, "fire");
+			await friend.damage(1, player, "fire");
+
+			let discardNum = 1;
+			let damageNum = 1;
+
+			if (difficulty == "hard") {
+				discardNum = 2;
+			} else if (difficulty == "nightmare") {
+				discardNum = 3;
+				damageNum = 2;
+			}
+
+			for (const target of enemies) {
+				if (!target.isIn()) continue;
+
+				const canDiscard =
+					target.countCards("he", card => {
+						return (
+							get.color(card, target) == "red" &&
+							lib.filter.cardDiscardable(card, target)
+						);
+					}) >= discardNum;
+
+				let discarded = false;
+				if (canDiscard) {
+					const result = await target
+						.chooseToDiscard(
+							"he",
+							discardNum,
+							`行夏：弃置${get.cnNumber(discardNum)}张红色牌，或受到${get.cnNumber(damageNum)}点火焰伤害`
+						)
+						.set("filterCard", (card, target) => {
+							return (
+								get.color(card, target) == "red" &&
+								lib.filter.cardDiscardable(card, target)
+							);
+						})
+						.set("source", player)
+						.set("damageNum", damageNum)
+						.set("ai", card => {
+							const target = get.player();
+							const damageNum = get.event().damageNum;
+
+							if (target.hp <= damageNum) {
+								return 12 - get.value(card);
+							}
+							return 7 - get.value(card);
+						})
+						.forResult();
+
+					discarded = result.bool;
+				}
+
+				if (!discarded && target.isIn()) {
+					player.line(target, "fire");
+					await target.damage(damageNum, player, "fire");
+				}
+			}
+		},
+		ai: {
+			threaten: 1.8,
+		},
+	},
+	baoyan_shuying: {
+		mode: ["boss"],
+		audio: false,
+		trigger: {
+			global: "damageSource",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return event.num > 0 && event.hasNature("fire");
+		},
+		async content(event, trigger, player) {
+			player.addMark("baoyan_shuying", 1, false);
+		},
+		marktext: "炎",
+		intro: {
+			name: "炎",
+			content: "mark",
+		},
+		group: "baoyan_shuying_burst",
+		subSkill: {
+			burst: {
+				audio: false,
+				trigger: {
+					player: "phaseEnd",
+				},
+				forced: true,
+				locked: true,
+				filter(event, player) {
+					return (
+						player.countMark("baoyan_shuying") > 0 &&
+						player
+							.getEnemies(null, false)
+							.some(target => target.isIn())
+					);
+				},
+				async content(event, trigger, player) {
+					const num = player.countMark("baoyan_shuying");
+					player.removeMark("baoyan_shuying", num, false);
+
+					const enemies = player
+						.getEnemies(null, false)
+						.filter(target => target.isIn());
+					if (!enemies.length) return;
+
+					if (getTianshuDifficulty() == "nightmare") {
+						const target = enemies.randomGet();
+						player.line(target, "fire");
+						await target.damage(num, player, "fire");
+						return;
+					}
+
+					const targets = enemies.randomGets(
+						Math.min(num, enemies.length)
+					);
+					for (const target of targets) {
+						if (!target.isIn()) continue;
+
+						player.line(target, "fire");
+						await target.damage(1, player, "fire");
+					}
+				},
+			},
+		},
+		ai: {
+			threaten: 1.7,
+		},
+	},
+	huoshen_shuying: {
+		mode: ["boss"],
+		audio: false,
+		trigger: {
+			global: "damageSource",
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			return (
+				getTianshuDifficulty() == "nightmare" &&
+				event.num > 0 &&
+				event.hasNature("fire")
+			);
+		},
+		async content(event, trigger, player) {
+			if (player.isDamaged()) {
+				await player.recover();
+				await player.draw();
+			} else {
+				await player.draw(3);
+			}
+		},
+		ai: {
+			threaten: 2,
+		},
+	},
+
+	//白起 over
 	changsheng_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: false,
 		forced: true,
+		locked: true,
 		mod: {
 			targetInRange(card, player, target) {
-				if (card.name == "sha") return true;
+				const difficulty = getTianshuDifficulty();
+				if (
+					difficulty != "hard" &&
+					card.name == "sha"
+				) {
+					return true;
+				}
 			},
+		},
+		ai: {
+			unequip: true,
+			threaten: 1.2,
 		},
 	},
 	shashen_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: false,
 		enable: ["chooseToUse", "chooseToRespond"],
 		filterCard: true,
 		position: "h",
 		viewAs: { name: "sha" },
 		viewAsFilter(player) {
-			return player.countCards("h") > 0;
+			return (
+				getTianshuDifficulty() != "normal" &&
+				player.countCards("h") > 0
+			);
 		},
 		prompt: "将一张手牌当【杀】使用或打出",
 		check(card) {
@@ -118,29 +321,77 @@ const skills = {
 		subSkill: {
 			draw: {
 				trigger: { source: "damageEnd" },
+				forced: true,
+				locked: true,
+				usable(skill, player) {
+					return getTianshuDifficulty() == "hard"
+						? 1
+						: Infinity;
+				},
 				filter(event, player) {
-					return event.card?.name == "sha";
+					const difficulty = getTianshuDifficulty();
+					if (
+						difficulty == "normal" ||
+						event.card?.name != "sha"
+					) {
+						return false;
+					}
+
+					if (difficulty == "nightmare") {
+						return true;
+					}
+
+					// 困难难度只检查本回合使用的第一张【杀】
+					const useEvent = event.getParent("useCard");
+					if (!useEvent) return false;
+
+					const firstSha = player.getHistory(
+						"useCard",
+						evt => evt.card.name == "sha"
+					)[0];
+
+					return useEvent == firstSha;
 				},
 				async content(event, trigger, player) {
-					await player.draw(3);
+					const num =
+						getTianshuDifficulty() == "nightmare"
+							? 3
+							: 2;
+
+					await player.draw(num);
 				},
 			},
 		},
 		ai: {
 			respondSha: true,
 			skillTagFilter(player) {
-				return player.countCards("h") > 0;
+				return (
+					getTianshuDifficulty() != "normal" &&
+					player.countCards("h") > 0
+				);
 			},
-			order: 4,
+			order(item, player) {
+				return get.order({ name: "sha" }, player) - 0.1;
+			},
 		},
 	},
 	wuan_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: false,
 		forced: true,
+		locked: true,
 		mod: {
 			cardUsable(card, player, num) {
-				if (card.name == "sha") return num + 3;
+				if (card.name != "sha") return;
+
+				const difficulty = getTianshuDifficulty();
+				if (difficulty == "nightmare") {
+					return num + 3;
+				}
+				if (difficulty == "hard") {
+					return num + 2;
+				}
+				return num + 1;
 			},
 		},
 		trigger: { source: "damageBegin1" },
@@ -150,62 +401,129 @@ const skills = {
 		async content(event, trigger, player) {
 			trigger.num++;
 		},
+		ai: {
+			damageBonus: true,
+			threaten: 2,
+		},
 	},
 
-	//盘古
+	//夸父 over
 	shenqu_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: false,
 		trigger: { player: "damageEnd" },
 		forced: true,
+		locked: true,
 		filter(event, player) {
-			return player.countCards("h", card => get.color(card) == "red") > 0;
+			return (
+				getTianshuDifficulty() == "nightmare" &&
+				player.countCards("h", card => get.color(card) == "red") > 0
+			);
 		},
 		async content(event, trigger, player) {
 			const cards = player.getCards("h", card => get.color(card) == "red");
-			await player.lose(cards, ui.cardPile, "insert");
+			await player.lose(cards, ui.cardPile);
 			await player.draw(cards.length);
+		},
+		ai: {
+			threaten: 1.5,
 		},
 	},
 	lieben_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:1",
 		trigger: { player: "useCardToPlayered" },
 		forced: true,
+		locked: true,
 		filter(event, player) {
-			return event.card.name == "sha" && ui.cardPile.lastChild;
+			return (
+				event.card.name == "sha" &&
+				event.isFirstTarget &&
+				ui.cardPile.lastChild
+			);
 		},
 		async content(event, trigger, player) {
-			const judge = player.judge(card => get.color(card) == "red" ? 2 : -1);
+			const judge = player.judge(card => {
+				return get.color(card) == "red" ? 2 : -1;
+			});
 			judge.directresult = ui.cardPile.lastChild;
 			judge.judge2 = result => result.bool;
+
 			const result = await judge.forResult();
-			if (result.bool) {
-				trigger.getParent().addCount = false;
-				trigger.getParent().baseDamage++;
+			if (!result.bool) return;
+
+			const useEvent = trigger.getParent();
+			if (useEvent.addCount !== false) {
+				useEvent.addCount = false;
+
+				const stat = player.getStat().card;
+				if (typeof stat.sha == "number") {
+					stat.sha--;
+				}
 			}
+
+			if (getTianshuDifficulty() == "nightmare") {
+				useEvent.baseDamage = (useEvent.baseDamage || 1) + 1;
+			}
+		},
+		ai: {
+			threaten: 1.4,
 		},
 	},
 	yinjiang_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:1",
 		trigger: { player: "drawEnd" },
 		forced: true,
+		locked: true,
 		filter(event, player) {
-			return player.isPhaseUsing() && !player.hasSkill("yinjiang_shuying_disabled") && ui.cardPile.lastChild;
+			return (
+				player.isPhaseUsing() &&
+				!player.hasSkill("yinjiang_shuying_disabled") &&
+				ui.cardPile.lastChild
+			);
 		},
 		async content(event, trigger, player) {
 			const card = ui.cardPile.lastChild;
 			await player.gain(card, "gain2");
-			if (get.color(card) == "red") {
-				let count = 0;
-				for (const target of player.getEnemies(null, false).filter(target => target.isIn())) {
-					player.line(target);
-					await target.damage(player);
+
+			if (get.color(card) != "red") return;
+
+			const enemies = player
+				.getEnemies(null, false)
+				.filter(target => target.isIn());
+
+			if (!enemies.length) return;
+
+			const targets =
+				getTianshuDifficulty() == "nightmare"
+					? enemies
+					: [enemies.randomGet()];
+
+			let count = 0;
+
+			for (const target of targets) {
+				if (!target?.isIn()) continue;
+
+				player.line(target);
+				const damageEvent = target.damage(1, player);
+				await damageEvent;
+
+				// 只统计实际成立的伤害事件
+				if (player.getHistory("sourceDamage").includes(damageEvent)) {
 					count++;
 				}
-				player.storage.yinjiang_shuying_count = (player.storage.yinjiang_shuying_count || 0) + count;
-				if (player.storage.yinjiang_shuying_count >= 2) player.addTempSkill("yinjiang_shuying_disabled", { player: "phaseUseEnd" });
+			}
+
+			if (!count) return;
+
+			player.storage.yinjiang_shuying_count =
+				(player.storage.yinjiang_shuying_count || 0) + count;
+
+			if (player.storage.yinjiang_shuying_count >= 2) {
+				player.addTempSkill("yinjiang_shuying_disabled", {
+					player: "phaseAfter",
+				});
 			}
 		},
 		group: "yinjiang_shuying_clear",
@@ -213,22 +531,30 @@ const skills = {
 			clear: {
 				trigger: { player: "phaseUseEnd" },
 				silent: true,
+				charlotte: true,
 				async content(event, trigger, player) {
 					delete player.storage.yinjiang_shuying_count;
 				},
 			},
-			disabled: { charlotte: true },
+			disabled: {
+				charlotte: true,
+			},
+		},
+		ai: {
+			threaten: 2,
 		},
 	},
 	zhuri_shuying: {
 		mode: ["boss"],
-		audio: "ext:术樱包/pve/audio/skill:1",
+		audio: "ext:术樱包/pve/audio/skill/天书乱斗:1",
 		forced: true,
+		locked: true,
 		group: ["zhuri_shuying_draw", "zhuri_shuying_bottom"],
 		subSkill: {
 			draw: {
 				trigger: { player: "useCard" },
 				forced: true,
+				locked: true,
 				filter(event, player) {
 					return get.color(event.card) == "red";
 				},
@@ -239,15 +565,26 @@ const skills = {
 			bottom: {
 				trigger: { global: "useCardAfter" },
 				forced: true,
+				locked: true,
 				filter(event, player) {
-					return event.targets?.includes(player) && (event.card.name == "sha" || get.type(event.card) == "trick") && event.cards?.filterInD("d").length;
+					return (
+						event.targets?.includes(player) &&
+						(event.card.name == "sha" ||
+							get.type(event.card) == "trick") &&
+						event.cards?.someInD("d")
+					);
 				},
 				async content(event, trigger, player) {
 					const cards = trigger.cards.filterInD("d");
+					if (!cards.length) return;
+
 					game.log(cards, "被置于牌堆底");
-					for (const card of cards) ui.cardPile.appendChild(card);
+					await game.cardsGotoPile(cards);
 				},
 			},
+		},
+		ai: {
+			threaten: 1.8,
 		},
 	},
 
@@ -482,7 +819,7 @@ const skills = {
 		},
 	},
 
-	//旱魃
+	//旱魃 over
 	xinji_shuying: {
 		mode: ["boss"],
 		audio: "ext:术樱包/pve/audio/skill/天书乱斗:2",

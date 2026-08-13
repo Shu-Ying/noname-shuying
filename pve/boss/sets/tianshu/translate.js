@@ -7,30 +7,37 @@ const translates = {
     juehong_shuying: "决洪",
     juehong_shuying_info: "锁定技，准备阶段，你令所有敌方角色自己弃置自己的装备区内的所有牌，若其装备区内没有牌，则改为随机弃置2张手牌",
 
+    huoshenzhurong_boss_shuying: "火神祝融",
+    xingxia_shuying: "行夏",
+    xingxia_shuying_info: "锁定技，出牌阶段开始时，你对随机1名友方角色造成1点火焰伤害，然后令所有敌方角色选择一项：1.弃置1张红色牌；2.受到你造成的1点火焰伤害",
+    baoyan_shuying: "爆炎",
+    baoyan_shuying_info: "锁定技，每当有角色造成火焰伤害后，你获得1个”炎‘标记。你的回合结束时，弃置所有“炎”标记，随机对X名敌人各造成1点火焰伤害。（X为弃置的炎标记数量）",
+    huoshen_shuying: "火神",
+    huoshen_shuying_info: "锁定技，每当有角色造成火焰伤害后，你回复1点体力并摸1张牌，若你的体力值为满，改为摸3张牌",
+
     baiqi_boss_shuying: "白起",
     changsheng_shuying: "常胜",
     changsheng_shuying_info: "锁定技，你使用【杀】无距离限制。",
     shashen_shuying: "杀神",
-    shashen_shuying_info: "你可以将手牌中的任意牌当【杀】使用或打出。你使用的【杀】造成伤害后，摸三张牌。",
+    shashen_shuying_info: "你可以将手牌中的任意牌当【杀】使用或打出。每回合你使用的第一张【杀】造成伤害后，摸2张牌。",
     wuan_shuying: "武安",
-    wuan_shuying_info: "锁定技，你可使用的【杀】的次数+3，【杀】造成的伤害+1。",
+    wuan_shuying_info: "锁定技，你可使用的【杀】的次数+1，【杀】造成的伤害+1。",
 
-    kuafu_boss_shuying: "盘古",
+    kuafu_boss_shuying: "夸父",
     shenqu_shuying: "神躯",
     shenqu_shuying_info: "锁定技，当你受到伤害后，将所有红色手牌置于牌堆底，并摸等量的牌。",
     lieben_shuying: "烈奔",
-    lieben_shuying_info: "锁定技，当你使用【杀】指定目标后，使用牌堆底的牌进行一次判定：若判定结果为红色，则此杀不计入出牌阶段使用次数且伤害+1。",
+    lieben_shuying_info: "锁定技，当你使用【杀】指定目标后，使用牌堆底的牌进行一次判定：若判定结果为红色，则此杀不计入出牌阶段使用次数。",
     yinjiang_shuying: "饮江",
-    yinjiang_shuying_info: "锁定技，当你在出牌阶段摸牌后，获得牌堆底的1张牌。若该牌为红色，则对所有敌方角色造成1点伤害。当你在同一个阶段内以此法造成过两次活更多的伤害后，该技能失效直到回合结束。",
+    yinjiang_shuying_info: "锁定技，当你在出牌阶段摸牌后，获得牌堆底的牌。若该牌为红色，则随机对一名敌方角色造成1点伤害。当你在同一阶段内以此法造成过两次或更多的伤害后，该技能失效直到回合结束。",
     zhuri_shuying: "逐日",
-    zhuri_shuying_info: "锁定技，你使用红色牌时摸1张牌。当你成为【杀】或普通锦囊牌的目标后，结算完毕后将该牌放置在牌堆底。",
+    zhuri_shuying_info: "锁定技，你使用红色牌时摸一张牌。当你成为【杀】或普通锦囊牌的目标后，结算完毕后将该牌放置在牌堆底。",
 
     shaohao_boss_shuying: "少昊",
     baiyi_shuying: "白仪",
     baiyi_shuying_info: "锁定技，每名敌方角色的回合开始时，若当前轮数小于3，你随机获得其1张牌；若当前轮数小于5，对其造成1点雷电伤害；若当前轮数小于7，其随机弃置1张牌。",
     shenen_shuying: "神恩",
     shenen_shuying_info: "锁定技，所有己方角色使用牌锁定技，所有己方角色使用牌没有距离限制。",
-
 
     xuannv_boss_shuying: "玄女",
     xuanlie_shuying: "玄烈",
@@ -47,7 +54,6 @@ const translates = {
     zhiri_shuying_info: "锁定技，当敌方角色使用红色锦囊牌指定目标后，你摸1张牌。",
     fenshi_shuying: "焚世",
     fenshi_shuying_info: "锁定技，准备阶段，若你的手牌数小于体力值，则将手牌摸至于体力值相等；若你的手牌数大于体力值，则你对敌方角色造成共计X点伤害，点数随机分配（X为手牌数减体力值）。",
-
 };
 
 export default translates;

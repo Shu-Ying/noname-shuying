@@ -9,7 +9,7 @@ const characterSort = {
 };
 
 const characterSortTranslate = {
-    shuYing_pve_zhuoguiquxie: "捉鬼驱邪",
+    shuYing_pve_zhuoguiquxie: "驱鬼逐邪",
 };
 
 export { characterSort, characterSortTranslate };

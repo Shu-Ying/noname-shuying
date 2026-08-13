@@ -670,6 +670,516 @@ const skills = {
 		},
 	},
 
+	//袁术
+	yongsi_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		forced: true,
+		locked: true,
+		group: [
+			"yongsi_shuying_draw",
+			"yongsi_shuying_discard",
+		],
+		mod: {
+			maxHandcard(player, num) {
+				if (_status.currentPhase != player) return;
+
+				const damageNum = player
+					.getHistory("sourceDamage")
+					.reduce((sum, evt) => sum + (evt.num || 0), 0);
+
+				if (damageNum > 1) {
+					return player.getDamagedHp();
+				}
+			},
+		},
+		subSkill: {
+			draw: {
+				trigger: { player: "phaseDrawBegin2" },
+				forced: true,
+				locked: true,
+				filter(event, player) {
+					return !event.numFixed;
+				},
+				async content(event, trigger, player) {
+					trigger.num = game.countGroup();
+				},
+			},
+			discard: {
+				trigger: { player: "phaseDiscardBegin" },
+				forced: true,
+				locked: true,
+				filter(event, player) {
+					const damageNum = player
+						.getHistory("sourceDamage")
+						.reduce((sum, evt) => sum + (evt.num || 0), 0);
+
+					return (
+						damageNum == 0 &&
+						player.countCards("h") < player.hp
+					);
+				},
+				async content(event, trigger, player) {
+					await player.drawTo(player.hp);
+				},
+			},
+		},
+		ai: {
+			threaten: 1.8,
+		},
+	},
+	wangzun_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: { global: "phaseJieshuBegin" },
+		forced: true,
+		locked: true,
+		logTarget: "player",
+		filter(event, player) {
+			const target = event.player;
+			if (
+				!target?.isIn() ||
+				!player.getEnemies(null, false).includes(target)
+			) {
+				return false;
+			}
+
+			const damageNum = player
+				.getHistory("damage")
+				.reduce((sum, evt) => {
+					if (evt.source == target) {
+						return sum + (evt.num || 0);
+					}
+					return sum;
+				}, 0);
+
+			if (damageNum > 1) return true;
+
+			return (
+				damageNum == 0 &&
+				target.countDiscardableCards(target, "he") > 0
+			);
+		},
+		async content(event, trigger, player) {
+			const target = trigger.player;
+			const damageNum = player
+				.getHistory("damage")
+				.reduce((sum, evt) => {
+					if (evt.source == target) {
+						return sum + (evt.num || 0);
+					}
+					return sum;
+				}, 0);
+
+			player.line(target);
+
+			if (damageNum == 0) {
+				const discardNum =
+					getTianshuDifficulty() == "nightmare" ? 2 : 1;
+				const num = Math.min(
+					discardNum,
+					target.countDiscardableCards(target, "he")
+				);
+
+				if (num > 0) {
+					await target.chooseToDiscard(num, "he", true);
+				}
+			} else if (damageNum > 1 && target.isIn()) {
+				await target.damage(1, player);
+			}
+		},
+		ai: {
+			threaten: 1.6,
+		},
+	},
+	duoxi_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: { global: "phaseDrawBegin1" },
+		filter(event, player) {
+			return (
+				getTianshuDifficulty() != "normal" &&
+				!event.numFixed &&
+				event.player?.isIn() &&
+				event.player != player
+			);
+		},
+		async cost(event, trigger, player) {
+			const num =
+				getTianshuDifficulty() == "nightmare" ? 2 : 1;
+
+			event.result = await player
+				.chooseBool(
+					get.prompt(event.skill, trigger.player),
+					`失去1点体力，将${get.translation(trigger.player)}的摸牌阶段改为你与其各摸${get.cnNumber(num)}张牌`
+				)
+				.set("ai", () => {
+					const player = get.player();
+					const trigger = get.event().getTrigger();
+					const target = trigger.player;
+					const num =
+						getTianshuDifficulty() == "nightmare"
+							? 2
+							: 1;
+
+					if (player.hp <= 1) return false;
+
+					const isEnemy = player
+						.getEnemies(null, false)
+						.includes(target);
+
+					// 避免额外增加敌方摸牌，或削减友方原本的摸牌数
+					if (isEnemy && trigger.num < num) return false;
+					if (!isEnemy && trigger.num > num) return false;
+
+					return player.hp > 2;
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const target = trigger.player;
+			const num =
+				getTianshuDifficulty() == "nightmare" ? 2 : 1;
+
+			player.line(target);
+			trigger.changeToZero();
+
+			await player.loseHp();
+
+			const targets = [player, target].filter(
+				current => current.isIn()
+			);
+			if (targets.length) {
+				await game.asyncDraw(targets, num);
+			}
+		},
+		ai: {
+			threaten: 1.3,
+		},
+	},
+
+	//张角
+	guidao_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: { global: "judge" },
+		filter(event, player) {
+			return player.countCards("hes", {
+				color: "black",
+			}) > 0;
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseCard({
+					prompt:
+						`${get.translation(trigger.player)}的` +
+						`${trigger.judgestr || ""}判定为` +
+						`${get.translation(trigger.player.judging[0])}，` +
+						`${get.prompt(event.skill)}`,
+					position: "hes",
+					filterCard(card, player) {
+						if (get.color(card, player) != "black") {
+							return false;
+						}
+
+						const enabled = game.checkMod(
+							card,
+							player,
+							"unchanged",
+							"cardEnabled2",
+							player
+						);
+						if (enabled != "unchanged") {
+							return !!enabled;
+						}
+
+						const respondable = game.checkMod(
+							card,
+							player,
+							"unchanged",
+							"cardRespondable",
+							player
+						);
+						if (respondable != "unchanged") {
+							return !!respondable;
+						}
+
+						return true;
+					},
+					ai(card) {
+						const trigger = get.event().getTrigger();
+						const player = get.player();
+						const judging = get.event().judging;
+						const result =
+							trigger.judge(card) -
+							trigger.judge(judging);
+						const attitude = get.attitude(
+							player,
+							trigger.player
+						);
+
+						if (attitude == 0 || result == 0) {
+							return 0;
+						}
+
+						let value = get.value(card);
+						if (get.subtype(card) == "equip2") {
+							value /= 2;
+						} else {
+							value /= 6;
+						}
+
+						return attitude > 0
+							? result - value
+							: -result - value;
+					},
+				})
+				.set("judging", trigger.player.judging[0])
+				.forResult();
+		},
+		popup: false,
+		async content(event, trigger, player) {
+			const next = player.respond({
+				cards: event.cards,
+				skill: event.name,
+				highlight: true,
+				noOrdering: true,
+			});
+			await next;
+
+			const cards = next.cards;
+			if (!cards?.length) return;
+
+			const judgingCard = trigger.player.judging[0];
+			player.$gain2(judgingCard);
+			await player.gain(judgingCard);
+
+			trigger.player.judging[0] = cards[0];
+			trigger.orderingCards.addArray(cards);
+
+			game.log(trigger.player, "的判定牌改为", cards);
+			await game.delay(2);
+		},
+		ai: {
+			rejudge: true,
+			tag: {
+				rejudge: 1,
+			},
+		},
+	},
+	leiji_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: { player: ["useCard", "respond"] },
+		filter(event, player) {
+			return (
+				event.card.name == "shan" &&
+				player
+					.getEnemies(null, false)
+					.some(target => target.isIn())
+			);
+		},
+		line: "thunder",
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseTarget(
+					get.prompt2(event.skill),
+					(card, player, target) => {
+						return (
+							target != player &&
+							player
+								.getEnemies(null, false)
+								.includes(target)
+						);
+					}
+				)
+				.set("ai", target => {
+					const player = get.player();
+					if (target.hasSkill("hongyan")) return 0;
+
+					return get.damageEffect(
+						target,
+						player,
+						player,
+						"thunder"
+					);
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const target = event.targets[0];
+			const judge = target.judge(card => {
+				const suit = get.suit(card);
+				if (suit == "spade") return -4;
+				if (suit == "club") return -2;
+				return 0;
+			});
+			judge.judge2 = result => result.bool == false;
+
+			const result = await judge.forResult();
+
+			if (result.suit == "spade") {
+				await target.damage(2, "thunder", player);
+			} else if (result.suit == "club") {
+				if (player.isDamaged()) {
+					await player.recover();
+				}
+				if (target.isIn()) {
+					await target.damage(1, "thunder", player);
+				}
+			}
+		},
+		ai: {
+			useShan: true,
+			threaten: 1.8,
+		},
+	},
+	zhuzheng_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: { global: "useCard2" },
+		filter(event, player) {
+			const source = event.player;
+			if (
+				source == player ||
+				event.card.name != "sha" ||
+				!event.targets?.length ||
+				event.targets.includes(player) ||
+				!source.inRange(player) ||
+				player.countCards("h") == 0 ||
+				!player.getEnemies(null, false).includes(source)
+			) {
+				return false;
+			}
+
+			const enemies = player.getEnemies(null, false);
+			return event.targets.some(target => {
+				return target.isIn() && !enemies.includes(target);
+			});
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseCard(
+					"h",
+					get.prompt(event.skill, trigger.player),
+					"将一张手牌置于牌堆顶，取消此【杀】的所有目标"
+				)
+				.set("ai", card => {
+					const player = get.player();
+					const trigger = get.event().getTrigger();
+					const enemies = player.getEnemies(null, false);
+
+					const protectValue = trigger.targets
+						.filter(target => !enemies.includes(target))
+						.reduce((sum, target) => {
+							return (
+								sum -
+								get.effect(
+									target,
+									trigger.card,
+									trigger.player,
+									player
+								)
+							);
+						}, 0);
+
+					const becomeTarget =
+						getTianshuDifficulty() == "nightmare" ||
+						get.color(trigger.card) != "black";
+
+					const selfValue = becomeTarget
+						? get.effect(
+							player,
+							trigger.card,
+							trigger.player,
+							player
+						)
+						: 0;
+
+					if (protectValue + selfValue <= 0) {
+						return 0;
+					}
+
+					return 7 - get.value(card);
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			await player.lose(event.cards, ui.cardPile, "insert");
+
+			trigger.targets.length = 0;
+
+			const becomeTarget =
+				getTianshuDifficulty() == "nightmare" ||
+				get.color(trigger.card) != "black";
+
+			if (becomeTarget && player.isIn()) {
+				trigger.all_excluded = false;
+				trigger.targets.add(player);
+				game.log(player, "成为了", trigger.card, "的目标");
+			} else {
+				trigger.all_excluded = true;
+				game.log(trigger.card, "失去了所有目标");
+			}
+		},
+		ai: {
+			threaten: 1.5,
+		},
+	},
+	yinlei_shuying: {
+		mode: ["boss"],
+		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
+		trigger: {
+			player: "loseAfter",
+			global: [
+				"equipAfter",
+				"addJudgeAfter",
+				"gainAfter",
+				"loseAsyncAfter",
+				"addToExpansionAfter",
+			],
+		},
+		forced: true,
+		locked: true,
+		filter(event, player) {
+			if (
+				getTianshuDifficulty() == "normal" ||
+				_status.currentPhase == player
+			) {
+				return false;
+			}
+
+			const loseEvent = event.getl?.(player);
+			return (
+				loseEvent?.cards2?.length > 0 &&
+				game.hasPlayer(target => {
+					return target.isIn() && !target.isLinked();
+				})
+			);
+		},
+		logTarget(event, player) {
+			return game
+				.filterPlayer(target => {
+					return target.isIn() && !target.isLinked();
+				})
+				.randomGet();
+		},
+		async content(event, trigger, player) {
+			const targets = game.filterPlayer(target => {
+				return target.isIn() && !target.isLinked();
+			});
+			if (!targets.length) return;
+
+			const target = targets.randomGet();
+			if (target != player) {
+				player.line(target);
+			}
+			await target.link(true);
+		},
+		ai: {
+			threaten: 1.3,
+		},
+	},
 
 };
 
