@@ -50,15 +50,26 @@ const skills = {
 					skills = [skills.randomGet()];
 				}
 
-				player.line(target);
-				target.disableSkill(disableKey, skills);
-				player.storage.aotang_shuying_disabled.push({
-					target,
-					disableKey,
-				});
+                                player.line(target);
+                                target.disableSkill(disableKey, skills);
+                                player.storage.aotang_shuying_disabled.push({
+                                        target,
+                                        disableKey,
+                                });
 
-				game.log(
-					target,
+                                if (!Array.isArray(target.storage.aotang_shuying_mark)) {
+                                        target.storage.aotang_shuying_mark = [];
+                                }
+                                target.storage.aotang_shuying_mark.push({
+                                        source: player,
+                                        disableKey,
+                                        skills: skills.slice(),
+                                });
+                                target.addSkill("aotang_shuying_mark");
+                                target.markSkill("aotang_shuying_mark");
+
+                                game.log(
+                                        target,
 					"暂时遗忘了技能",
 					`#g${get.translation(skills)}`
 				);
@@ -84,15 +95,50 @@ const skills = {
 				async content(event, trigger, player) {
 					player.removeSkill("aotang_shuying_clear");
 				},
-				onremove(player) {
-					for (const record of player.getStorage("aotang_shuying_disabled")) {
-						record.target?.enableSkill(record.disableKey);
-					}
-					delete player.storage.aotang_shuying_disabled;
-				},
-			},
-		},
-	},
+                                onremove(player) {
+                                        for (const record of player.getStorage("aotang_shuying_disabled")) {
+                                                const target = record.target;
+                                                if (!target) continue;
+
+                                                target.enableSkill(record.disableKey);
+                                                const records = target
+                                                        .getStorage("aotang_shuying_mark")
+                                                        .filter(current => current.disableKey != record.disableKey);
+                                                if (records.length) {
+                                                        target.storage.aotang_shuying_mark = records;
+                                                        target.markSkill("aotang_shuying_mark");
+                                                } else {
+                                                        delete target.storage.aotang_shuying_mark;
+                                                        target.removeSkill("aotang_shuying_mark");
+                                                }
+                                        }
+                                        delete player.storage.aotang_shuying_disabled;
+                                },
+                        },
+                        mark: {
+                                charlotte: true,
+                                mark: true,
+                                marktext: "忘",
+                                intro: {
+                                        content(storage, player) {
+                                                const records = player.getStorage("aotang_shuying_mark");
+                                                if (!records.length) return "没有因【熬汤】遗忘技能";
+
+                                                return records
+                                                        .map(record => {
+                                                                const source = record.source
+                                                                        ? get.translation(record.source)
+                                                                        : "未知角色";
+                                                                return `${source}令你暂时遗忘：${get.translation(
+                                                                        record.skills
+                                                                )}`;
+                                                        })
+                                                        .join("<br>");
+                                        },
+                                },
+                        },
+                },
+        },
 	yunju_shuying: {
 		mode: ["boss"],
 		audio: "ext:术樱包/pve/audio/skill/驱鬼逐邪:1",

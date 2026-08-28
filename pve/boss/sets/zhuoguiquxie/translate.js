@@ -2,6 +2,7 @@ const translates = {
     mengpo_boss_shuying: "孟婆",
     aotang_shuying: "熬汤",
     aotang_shuying_info: "锁定技，你的回合开始时，令随机一名敌方角色随机遗忘1个武将技能直到你的下回合开始。",
+    aotang_shuying_mark: "忘技",
     yunju_shuying: "云飓",
     yunju_shuying_info: "锁定技，敌方角色的回合结束时，该角色随机弃置1张手牌。",
     guimei_shuying: "鬼魅",

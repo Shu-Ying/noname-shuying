@@ -172,13 +172,25 @@ const tianshuConfig = {
         stageRecover: 1,
         stageDraw: 2,
         skillChoiceCount: 6,
+        bondPreference: {
+            // 普通技能基础权重为1；这里只填写各羁绊实际等级对应的总权重。
+            levelWeights: {
+                1: 1.50,
+                2: 1.75,
+                3: 2.25,
+            },
+            excludedBondIds: ["shafa"],
+        },
     },
     settings: {
         virtualIdolConfigKey: "extension_术樱包_tianShu_Xvni",
         virtualIdolRandomPoolConfigKey: "extension_术樱包_tianShu_XvniRandomPool",
         virtualIdolReviveConfigKey: "extension_术樱包_tianShu_dead",
+        virtualIdolRewardConfigKey: "extension_术樱包_tianShu_XvniReward",
         addBossConfigKey: "extension_术樱包_tianShu_addBoss",
         revivePlayersConfigKey: "extension_术樱包_tianShu_revivePlayers",
+        legacyRoundConfigKey: "extension_术樱包_tianShu_legacyRound",
+        bondPreferenceConfigKey: "extension_术樱包_tianShu_bondPreference",
         difficultyStatusKey: "shuYing_tianshuDifficulty",
     },
     skillPool: {
@@ -194,7 +206,6 @@ const tianshuConfig = {
             "shencai", "wuling", "reshuishi", "mbtiantao", "mbxinghun", "qiexie", "yuli", "tingwei",    //神武再世
             "nzry_shicai", "remingce", "mizhao", "xinfu_tushe", "rejigong",                             //群雄逐鹿
             "xiaoji", "liangzhu", "mozhi", "olzhenlie", "zhiren",                                       //乱世佳人
-
         ],
         banned: ["huoxin", "jueqing", "qinqing", "beige", "huashen", "drlt_zhiti", "olzhiti", "xinfu_pdgyingshi", "rebeige"],
     },

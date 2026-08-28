@@ -553,6 +553,16 @@ const skill = {
             "shuYing_Tianshu_Skill_06_Skill1_damage",
             "shuYing_Tianshu_Skill_06_Skill1_exclude",
         ],
+        mod: {
+            targetEnabled(card, player, target) {
+                if (
+                    get.name(card, player) == "nanman" &&
+                    !player.getEnemies(null, false).includes(target)
+                ) {
+                    return false;
+                }
+            },
+        },
         subSkill: {
             damage: {
                 audio: false,
@@ -609,6 +619,14 @@ const skill = {
                     return "nanman";
                 }
             },
+            targetEnabled(card, player, target) {
+                if (
+                    get.name(card, player) == "nanman" &&
+                    !player.getEnemies(null, false).includes(target)
+                ) {
+                    return false;
+                }
+            },
         },
         subSkill: {
             damage: {
@@ -663,6 +681,14 @@ const skill = {
         mod: {
             cardname(card, player) {
                 if (get.position(card) == "h") return "nanman";
+            },
+            targetEnabled(card, player, target) {
+                if (
+                    get.name(card, player) == "nanman" &&
+                    !player.getEnemies(null, false).includes(target)
+                ) {
+                    return false;
+                }
             },
         },
         subSkill: {
@@ -1030,6 +1056,14 @@ const skill = {
                     return "wanjian";
                 }
             },
+            targetEnabled(card, player, target) {
+                if (
+                    get.name(card, player) == "wanjian" &&
+                    !player.getEnemies(null, false).includes(target)
+                ) {
+                    return false;
+                }
+            },
         },
         subSkill: {
             exclude: {
@@ -1067,6 +1101,14 @@ const skill = {
             cardname(card, player) {
                 if (get.type2(card, false) == "trick") {
                     return "wanjian";
+                }
+            },
+            targetEnabled(card, player, target) {
+                if (
+                    get.name(card, player) == "wanjian" &&
+                    !player.getEnemies(null, false).includes(target)
+                ) {
+                    return false;
                 }
             },
         },

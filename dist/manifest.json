@@ -1,9 +1,9 @@
 {
-  "version": "2.0.1.0",
-  "generated_at": "2026-08-13T09:28:20.285659+00:00",
+  "version": "2.0.1.1",
+  "generated_at": "2026-08-28T19:09:32.815143+00:00",
   "algorithm": "sha256",
-  "file_count": 276,
-  "folder_sha256": "ab1c54fd1136e50f96b2cec7a419fd22bde8cf8df8f0e40dab842f0d4fb3aaec",
+  "file_count": 282,
+  "folder_sha256": "09e932678b899ba89b5871fde641ab1f4e49d93082802ade6437b98065eca907",
   "core": [
     "extension.js",
     "menu.js",
@@ -16,13 +16,80 @@
     "tianshu/extension.js",
     "tianshu/config.js",
     "pve/boss/index.js",
+    "pve/boss/card.js",
     "pve/boss/character.js",
-    "pve/boss/skill.js",
+    "pve/boss/characterFilter.js",
+    "pve/boss/characterTitle.js",
     "pve/boss/dynamicTranslate.js",
-    "pve/boss/translate.js"
+    "pve/boss/intro.js",
+    "pve/boss/merge.js",
+    "pve/boss/perfectPairs.js",
+    "pve/boss/pinyin.js",
+    "pve/boss/sets.js",
+    "pve/boss/skill.js",
+    "pve/boss/sort.js",
+    "pve/boss/translate.js",
+    "pve/boss/voices.js",
+    "pve/boss/sets/shiershengxiao/index.js",
+    "pve/boss/sets/shiershengxiao/card.js",
+    "pve/boss/sets/shiershengxiao/character.js",
+    "pve/boss/sets/shiershengxiao/characterFilter.js",
+    "pve/boss/sets/shiershengxiao/characterTitle.js",
+    "pve/boss/sets/shiershengxiao/dynamicTranslate.js",
+    "pve/boss/sets/shiershengxiao/intro.js",
+    "pve/boss/sets/shiershengxiao/perfectPairs.js",
+    "pve/boss/sets/shiershengxiao/pinyin.js",
+    "pve/boss/sets/shiershengxiao/skill.js",
+    "pve/boss/sets/shiershengxiao/sort.js",
+    "pve/boss/sets/shiershengxiao/translate.js",
+    "pve/boss/sets/shiershengxiao/voices.js",
+    "pve/boss/sets/zhuoguiquxie/index.js",
+    "pve/boss/sets/zhuoguiquxie/card.js",
+    "pve/boss/sets/zhuoguiquxie/character.js",
+    "pve/boss/sets/zhuoguiquxie/characterFilter.js",
+    "pve/boss/sets/zhuoguiquxie/characterTitle.js",
+    "pve/boss/sets/zhuoguiquxie/dynamicTranslate.js",
+    "pve/boss/sets/zhuoguiquxie/intro.js",
+    "pve/boss/sets/zhuoguiquxie/perfectPairs.js",
+    "pve/boss/sets/zhuoguiquxie/pinyin.js",
+    "pve/boss/sets/zhuoguiquxie/skill.js",
+    "pve/boss/sets/zhuoguiquxie/sort.js",
+    "pve/boss/sets/zhuoguiquxie/translate.js",
+    "pve/boss/sets/zhuoguiquxie/voices.js",
+    "pve/boss/sets/qingqingzijin/index.js",
+    "pve/boss/sets/qingqingzijin/card.js",
+    "pve/boss/sets/qingqingzijin/character.js",
+    "pve/boss/sets/qingqingzijin/characterFilter.js",
+    "pve/boss/sets/qingqingzijin/characterTitle.js",
+    "pve/boss/sets/qingqingzijin/dynamicTranslate.js",
+    "pve/boss/sets/qingqingzijin/intro.js",
+    "pve/boss/sets/qingqingzijin/perfectPairs.js",
+    "pve/boss/sets/qingqingzijin/pinyin.js",
+    "pve/boss/sets/qingqingzijin/skill.js",
+    "pve/boss/sets/qingqingzijin/sort.js",
+    "pve/boss/sets/qingqingzijin/translate.js",
+    "pve/boss/sets/qingqingzijin/voices.js",
+    "pve/boss/sets/tianshu/index.js",
+    "pve/boss/sets/tianshu/card.js",
+    "pve/boss/sets/tianshu/character.js",
+    "pve/boss/sets/tianshu/characterFilter.js",
+    "pve/boss/sets/tianshu/characterTitle.js",
+    "pve/boss/sets/tianshu/dynamicTranslate.js",
+    "pve/boss/sets/tianshu/intro.js",
+    "pve/boss/sets/tianshu/perfectPairs.js",
+    "pve/boss/sets/tianshu/pinyin.js",
+    "pve/boss/sets/tianshu/skill.js",
+    "pve/boss/sets/tianshu/sort.js",
+    "pve/boss/sets/tianshu/translate.js",
+    "pve/boss/sets/tianshu/voices.js"
   ],
   "assets": [
     "LICENSE",
+    "character/audio/ganning/fenwei_shuying1.mp3",
+    "character/audio/ganning/fenwei_shuying2.mp3",
+    "character/audio/ganning/ganning_shuying.mp3",
+    "character/audio/ganning/qixi_shuying1.mp3",
+    "character/audio/ganning/qixi_shuying2.mp3",
     "character/audio/zuoci/huashen_shuying1.mp3",
     "character/audio/zuoci/huashen_shuying2.mp3",
     "character/audio/zuoci/jihun_shuying1.mp3",
@@ -34,6 +101,7 @@
     "character/characterFilter.js",
     "character/characterTitle.js",
     "character/dynamicTranslate.js",
+    "character/images/ganning_shuying.jpg",
     "character/images/zuoci_shuying.jpg",
     "character/index.js",
     "character/intro.js",
@@ -144,69 +212,7 @@
     "pve/audio/skill/驱鬼逐邪/yezhong_shuying1.mp3",
     "pve/audio/skill/驱鬼逐邪/yunju_shuying1.mp3",
     "pve/audio/skill/驱鬼逐邪/zhoucha_shuying1.mp3",
-    "pve/boss/card.js",
-    "pve/boss/characterFilter.js",
-    "pve/boss/characterTitle.js",
-    "pve/boss/intro.js",
-    "pve/boss/merge.js",
-    "pve/boss/perfectPairs.js",
-    "pve/boss/pinyin.js",
-    "pve/boss/sets.js",
-    "pve/boss/sets/qingqingzijin/card.js",
-    "pve/boss/sets/qingqingzijin/character.js",
-    "pve/boss/sets/qingqingzijin/characterFilter.js",
-    "pve/boss/sets/qingqingzijin/characterTitle.js",
-    "pve/boss/sets/qingqingzijin/dynamicTranslate.js",
-    "pve/boss/sets/qingqingzijin/index.js",
-    "pve/boss/sets/qingqingzijin/intro.js",
-    "pve/boss/sets/qingqingzijin/perfectPairs.js",
-    "pve/boss/sets/qingqingzijin/pinyin.js",
-    "pve/boss/sets/qingqingzijin/skill.js",
-    "pve/boss/sets/qingqingzijin/sort.js",
-    "pve/boss/sets/qingqingzijin/translate.js",
-    "pve/boss/sets/qingqingzijin/voices.js",
-    "pve/boss/sets/shiershengxiao/card.js",
-    "pve/boss/sets/shiershengxiao/character.js",
-    "pve/boss/sets/shiershengxiao/characterFilter.js",
-    "pve/boss/sets/shiershengxiao/characterTitle.js",
-    "pve/boss/sets/shiershengxiao/dynamicTranslate.js",
-    "pve/boss/sets/shiershengxiao/index.js",
-    "pve/boss/sets/shiershengxiao/intro.js",
-    "pve/boss/sets/shiershengxiao/perfectPairs.js",
-    "pve/boss/sets/shiershengxiao/pinyin.js",
-    "pve/boss/sets/shiershengxiao/skill.js",
-    "pve/boss/sets/shiershengxiao/sort.js",
-    "pve/boss/sets/shiershengxiao/translate.js",
-    "pve/boss/sets/shiershengxiao/voices.js",
-    "pve/boss/sets/tianshu/card.js",
-    "pve/boss/sets/tianshu/character.js",
-    "pve/boss/sets/tianshu/characterFilter.js",
-    "pve/boss/sets/tianshu/characterTitle.js",
-    "pve/boss/sets/tianshu/dynamicTranslate.js",
-    "pve/boss/sets/tianshu/index.js",
-    "pve/boss/sets/tianshu/intro.js",
-    "pve/boss/sets/tianshu/perfectPairs.js",
-    "pve/boss/sets/tianshu/pinyin.js",
-    "pve/boss/sets/tianshu/skill.js",
-    "pve/boss/sets/tianshu/sort.js",
-    "pve/boss/sets/tianshu/translate.js",
-    "pve/boss/sets/tianshu/voices.js",
-    "pve/boss/sets/zhuoguiquxie/card.js",
-    "pve/boss/sets/zhuoguiquxie/character.js",
-    "pve/boss/sets/zhuoguiquxie/characterFilter.js",
-    "pve/boss/sets/zhuoguiquxie/characterTitle.js",
-    "pve/boss/sets/zhuoguiquxie/dynamicTranslate.js",
-    "pve/boss/sets/zhuoguiquxie/index.js",
-    "pve/boss/sets/zhuoguiquxie/intro.js",
-    "pve/boss/sets/zhuoguiquxie/perfectPairs.js",
-    "pve/boss/sets/zhuoguiquxie/pinyin.js",
-    "pve/boss/sets/zhuoguiquxie/skill.js",
-    "pve/boss/sets/zhuoguiquxie/sort.js",
-    "pve/boss/sets/zhuoguiquxie/translate.js",
-    "pve/boss/sets/zhuoguiquxie/voices.js",
     "pve/boss/shared.js",
-    "pve/boss/sort.js",
-    "pve/boss/voices.js",
     "pve/images/tianshu.jpg",
     "pve/images/十二生肖/chenlong_boss_shuying.png",
     "pve/images/十二生肖/chouniu_boss_shuying.png",
@@ -291,6 +297,26 @@
       "size": 35147,
       "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
     },
+    "character/audio/ganning/fenwei_shuying1.mp3": {
+      "size": 83302,
+      "sha256": "5e57217928117db9fc854f0bf225b8ea2d84e85af691091ca9777256aee16a0f"
+    },
+    "character/audio/ganning/fenwei_shuying2.mp3": {
+      "size": 67942,
+      "sha256": "43cea55fa096bb0038fb49a446b5439086cca1c633fe717cb17ed5e81eacbb63"
+    },
+    "character/audio/ganning/ganning_shuying.mp3": {
+      "size": 185062,
+      "sha256": "886da7d390950e409e3b8257e029288761a42dadaff23afc061ec92aa5e2de38"
+    },
+    "character/audio/ganning/qixi_shuying1.mp3": {
+      "size": 61702,
+      "sha256": "aaa5f411e309f6274a1fda6d66e37f85850585e274a9a315054e1dac6d6bed5b"
+    },
+    "character/audio/ganning/qixi_shuying2.mp3": {
+      "size": 71302,
+      "sha256": "8e0642a4ee1a78d2cd592d22775f4b4dbabad3803a8c77b6bfba54ab38040dbf"
+    },
     "character/audio/zuoci/huashen_shuying1.mp3": {
       "size": 120863,
       "sha256": "6ba387a1629e1c20cb4c1cb654a99d9574d78a521f3f6bc93191dbf11e9985cc"
@@ -320,8 +346,8 @@
       "sha256": "f330d2665fd2c9bb85cd4a80f596f44a283c715333a1bf8aafffa5ef030c5126"
     },
     "character/character.js": {
-      "size": 360,
-      "sha256": "749cb31ca7b2f32f87f5a290b28009f14644d9b0f1a03a01530af1d12265a9da"
+      "size": 653,
+      "sha256": "6cbd7ec49ec9b9ec362f5dadb4251c219ecd468a099a082f17da86c61e0823f2"
     },
     "character/characterFilter.js": {
       "size": 63,
@@ -332,8 +358,12 @@
       "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
     },
     "character/dynamicTranslate.js": {
-      "size": 65,
-      "sha256": "d409295767b35e4867e5aa6fae92020f2a8943f71569af5539436648a345bd2f"
+      "size": 872,
+      "sha256": "63a56c336e881b15e08374656863b67b7465eedf6af683f8bade3d33b12f2704"
+    },
+    "character/images/ganning_shuying.jpg": {
+      "size": 1580990,
+      "sha256": "4ca2a65ab001b4247ba4fe0139a854eff1849c044ab87d50c1ea3193791d3747"
     },
     "character/images/zuoci_shuying.jpg": {
       "size": 222468,
@@ -352,16 +382,16 @@
       "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
     },
     "character/skill.js": {
-      "size": 15439,
-      "sha256": "ad6859ff3ed9e05e67b991f85961b85b21af4d486a76660d29305e962120bb94"
+      "size": 31285,
+      "sha256": "608ad1b6463bda8318b91f729dce0cdf98a223d0a72fd1fac35cf32b49e69c08"
     },
     "character/sort.js": {
       "size": 112,
       "sha256": "42cf6bb834aca4ff883aa196604f3d9d2d9047bb320cf56a633aae4ecbb5ce4c"
     },
     "character/translate.js": {
-      "size": 1126,
-      "sha256": "dd6e076e058514a11b5912c0893474494af825bc646e01e12c514296dc1390ab"
+      "size": 2091,
+      "sha256": "2a31d41939f1d636f9c1b2378d0f15cf7aa5c9e2caa35b465066deb4f877e4bb"
     },
     "character/voices.js": {
       "size": 43,
@@ -373,7 +403,7 @@
     },
     "extension.js": {
       "size": 14743,
-      "sha256": "3dae019a7941072f2c8b67ce14f697f9d4aa0a8bebc4187e913da5468bd88955"
+      "sha256": "16cbdcc2f8e2cdfab03a0fb6f80de865aa709d7058dbbbbcd5d3ccd523907cd2"
     },
     "function.js": {
       "size": 33746,
@@ -396,8 +426,8 @@
       "sha256": "fdce7bb71f7290254d984a35415e5012f829ae9992765d1f3282f35528c1b92b"
     },
     "menu.js": {
-      "size": 22310,
-      "sha256": "3a603a82bb80897cf809ba80ebd55bbf66634cdbe807ed33ad2e43d845d48211"
+      "size": 22235,
+      "sha256": "0920561e2b0214239dc81b1a54c955b96ea0750e57fa42f3b0e8935035c6fc84"
     },
     "pve/audio/dead/十二生肖/chenlong.mp3": {
       "size": 68757,
@@ -1040,16 +1070,16 @@
       "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
     },
     "pve/boss/sets/zhuoguiquxie/skill.js": {
-      "size": 43229,
-      "sha256": "81c625e3f4c1ec77dea2556dc391182e241811b84d92dbfa4b72ebb50b604817"
+      "size": 46766,
+      "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
     },
     "pve/boss/sets/zhuoguiquxie/sort.js": {
       "size": 390,
       "sha256": "3855904cdc28e6301b9f9177b6c8e04d943ef44fd002a2ce83de5aab7572930c"
     },
     "pve/boss/sets/zhuoguiquxie/translate.js": {
-      "size": 6787,
-      "sha256": "e714d7facef185ca0977521db78f327622a902c9b0659293d180c59f66179627"
+      "size": 6820,
+      "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
     },
     "pve/boss/sets/zhuoguiquxie/voices.js": {
       "size": 2115,
@@ -1272,16 +1302,16 @@
       "sha256": "15adcfb80bd22035c604703005ae22d1721eeafcc0a1ee09c89c73713cd3d03a"
     },
     "tianshu/bondSkills.js": {
-      "size": 40151,
-      "sha256": "c2a7925e56b9baeb8812e8762e8dc2b471908c9d2faf9a0b3ebb3f7792afacb4"
+      "size": 41604,
+      "sha256": "13fcda5805a7643144c55ae922f2406db2cba6e9822e086f4763f16063763e01"
     },
     "tianshu/config.js": {
-      "size": 29131,
-      "sha256": "5f23724ecad5141ed98674919282ec8fd53e666f23adb6f097dd14be466402ed"
+      "size": 29707,
+      "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
     },
     "tianshu/extension.js": {
-      "size": 64398,
-      "sha256": "3e6934e7281bf84e40fd28ea12bee02272573ee1dbba9421c45823677e45021c"
+      "size": 70478,
+      "sha256": "ff88e89a4067f18e10d1fbce72edc45aa89c95ee59e127520f5b2bed93023b98"
     },
     "tianshu/shuYing_Skill_Xvxiang1.mp3": {
       "size": 15451,
@@ -1292,8 +1322,8 @@
       "sha256": "7594c68dd1308de5fd13ea7e76fde665a296400a7505b32054bf0d149986bb05"
     },
     "update.txt": {
-      "size": 2901,
-      "sha256": "6ce45269f253f8fb42665ba3fc14a1ac8a5e48d60b9cb5c6fe5beccb9336cc2f"
+      "size": 3953,
+      "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
     },
     "voices.js": {
       "size": 1711,
@@ -1407,6 +1437,36 @@
           "audio": {
             "type": "directory",
             "children": {
+              "ganning": {
+                "type": "directory",
+                "children": {
+                  "fenwei_shuying1.mp3": {
+                    "type": "file",
+                    "size": 83302,
+                    "sha256": "5e57217928117db9fc854f0bf225b8ea2d84e85af691091ca9777256aee16a0f"
+                  },
+                  "fenwei_shuying2.mp3": {
+                    "type": "file",
+                    "size": 67942,
+                    "sha256": "43cea55fa096bb0038fb49a446b5439086cca1c633fe717cb17ed5e81eacbb63"
+                  },
+                  "ganning_shuying.mp3": {
+                    "type": "file",
+                    "size": 185062,
+                    "sha256": "886da7d390950e409e3b8257e029288761a42dadaff23afc061ec92aa5e2de38"
+                  },
+                  "qixi_shuying1.mp3": {
+                    "type": "file",
+                    "size": 61702,
+                    "sha256": "aaa5f411e309f6274a1fda6d66e37f85850585e274a9a315054e1dac6d6bed5b"
+                  },
+                  "qixi_shuying2.mp3": {
+                    "type": "file",
+                    "size": 71302,
+                    "sha256": "8e0642a4ee1a78d2cd592d22775f4b4dbabad3803a8c77b6bfba54ab38040dbf"
+                  }
+                }
+              },
               "zuoci": {
                 "type": "directory",
                 "children": {
@@ -1451,8 +1511,8 @@
           },
           "character.js": {
             "type": "file",
-            "size": 360,
-            "sha256": "749cb31ca7b2f32f87f5a290b28009f14644d9b0f1a03a01530af1d12265a9da"
+            "size": 653,
+            "sha256": "6cbd7ec49ec9b9ec362f5dadb4251c219ecd468a099a082f17da86c61e0823f2"
           },
           "characterFilter.js": {
             "type": "file",
@@ -1466,12 +1526,17 @@
           },
           "dynamicTranslate.js": {
             "type": "file",
-            "size": 65,
-            "sha256": "d409295767b35e4867e5aa6fae92020f2a8943f71569af5539436648a345bd2f"
+            "size": 872,
+            "sha256": "63a56c336e881b15e08374656863b67b7465eedf6af683f8bade3d33b12f2704"
           },
           "images": {
             "type": "directory",
             "children": {
+              "ganning_shuying.jpg": {
+                "type": "file",
+                "size": 1580990,
+                "sha256": "4ca2a65ab001b4247ba4fe0139a854eff1849c044ab87d50c1ea3193791d3747"
+              },
               "zuoci_shuying.jpg": {
                 "type": "file",
                 "size": 222468,
@@ -1496,8 +1561,8 @@
           },
           "skill.js": {
             "type": "file",
-            "size": 15439,
-            "sha256": "ad6859ff3ed9e05e67b991f85961b85b21af4d486a76660d29305e962120bb94"
+            "size": 31285,
+            "sha256": "608ad1b6463bda8318b91f729dce0cdf98a223d0a72fd1fac35cf32b49e69c08"
           },
           "sort.js": {
             "type": "file",
@@ -1506,8 +1571,8 @@
           },
           "translate.js": {
             "type": "file",
-            "size": 1126,
-            "sha256": "dd6e076e058514a11b5912c0893474494af825bc646e01e12c514296dc1390ab"
+            "size": 2091,
+            "sha256": "2a31d41939f1d636f9c1b2378d0f15cf7aa5c9e2caa35b465066deb4f877e4bb"
           },
           "voices.js": {
             "type": "file",
@@ -1524,7 +1589,7 @@
       "extension.js": {
         "type": "file",
         "size": 14743,
-        "sha256": "3dae019a7941072f2c8b67ce14f697f9d4aa0a8bebc4187e913da5468bd88955"
+        "sha256": "16cbdcc2f8e2cdfab03a0fb6f80de865aa709d7058dbbbbcd5d3ccd523907cd2"
       },
       "function.js": {
         "type": "file",
@@ -1558,8 +1623,8 @@
       },
       "menu.js": {
         "type": "file",
-        "size": 22310,
-        "sha256": "3a603a82bb80897cf809ba80ebd55bbf66634cdbe807ed33ad2e43d845d48211"
+        "size": 22235,
+        "sha256": "0920561e2b0214239dc81b1a54c955b96ea0750e57fa42f3b0e8935035c6fc84"
       },
       "pve": {
         "type": "directory",
@@ -2445,8 +2510,8 @@
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 43229,
-                        "sha256": "81c625e3f4c1ec77dea2556dc391182e241811b84d92dbfa4b72ebb50b604817"
+                        "size": 46766,
+                        "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
                       },
                       "sort.js": {
                         "type": "file",
@@ -2455,8 +2520,8 @@
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 6787,
-                        "sha256": "e714d7facef185ca0977521db78f327622a902c9b0659293d180c59f66179627"
+                        "size": 6820,
+                        "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
                       },
                       "voices.js": {
                         "type": "file",
@@ -2781,18 +2846,18 @@
         "children": {
           "bondSkills.js": {
             "type": "file",
-            "size": 40151,
-            "sha256": "c2a7925e56b9baeb8812e8762e8dc2b471908c9d2faf9a0b3ebb3f7792afacb4"
+            "size": 41604,
+            "sha256": "13fcda5805a7643144c55ae922f2406db2cba6e9822e086f4763f16063763e01"
           },
           "config.js": {
             "type": "file",
-            "size": 29131,
-            "sha256": "5f23724ecad5141ed98674919282ec8fd53e666f23adb6f097dd14be466402ed"
+            "size": 29707,
+            "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
           },
           "extension.js": {
             "type": "file",
-            "size": 64398,
-            "sha256": "3e6934e7281bf84e40fd28ea12bee02272573ee1dbba9421c45823677e45021c"
+            "size": 70478,
+            "sha256": "ff88e89a4067f18e10d1fbce72edc45aa89c95ee59e127520f5b2bed93023b98"
           },
           "shuYing_Skill_Xvxiang1.mp3": {
             "type": "file",
@@ -2808,8 +2873,8 @@
       },
       "update.txt": {
         "type": "file",
-        "size": 2901,
-        "sha256": "6ce45269f253f8fb42665ba3fc14a1ac8a5e48d60b9cb5c6fe5beccb9336cc2f"
+        "size": 3953,
+        "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
       },
       "voices.js": {
         "type": "file",

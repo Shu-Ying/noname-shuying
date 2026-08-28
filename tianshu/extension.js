@@ -71,6 +71,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     const getVirtualIdolConfig = () => lib.config[tianshuConfig.settings.virtualIdolConfigKey] || "random";
     // 判断是否启用虚拟偶像。
     const isVirtualIdolEnabled = () => getVirtualIdolConfig() != "off";
+    // 判断虚拟偶像是否参与过关技能选择和羁绊系统。
+    const canVirtualIdolReceiveRewards = () => Boolean(lib.config[tianshuConfig.settings.virtualIdolRewardConfigKey]);
     // 读取虚拟偶像随机池；仅在菜单选择“随机”时用于筛选可随机角色。
     const getVirtualIdolRandomPool = () => {
         const list = lib.config[tianshuConfig.settings.virtualIdolRandomPoolConfigKey];
@@ -190,8 +192,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (phase) {
             if (typeof game.resetSkills == "function") game.resetSkills();
             let current = _status.event;
-            let guard = 20;
-            while (current && current != phase && guard-- > 0) {
+            const visited = new Set();
+            while (current && current != phase && !visited.has(current)) {
+                visited.add(current);
                 current.finish();
                 current.untrigger(true);
                 current = current.getParent ? current.getParent() : current.parent;
@@ -216,6 +219,31 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 _status.paused = false;
             });
         }
+    };
+    // 新 Boss 入场并重排座位后，若当前行动者属于玩家方（含虚拟偶像）且实际下家为 Boss 或虚拟偶像，则启用旧轮次。
+    const shouldUseLegacyBossTurn = current => {
+        if (!lib.config[tianshuConfig.settings.legacyRoundConfigKey]) return false;
+        if (!current || !current.isIn?.() || !isCapturedPlayerSide(current)) return false;
+        const next = current.next || current.getNext?.();
+        return Boolean(next && (isCurrentStageBoss(next) || isVirtualIdol(next)));
+    };
+    // 从玩家方1号位沿上家方向查找当前关 Boss，作为旧轮次的行动者。
+    const getLegacyBossTurnPlayer = () => {
+        const roundStart = getTianshuRoundStartPlayer();
+        const getPrevious = player => game.players.includes(player) ? player.previous : player?.previousSeat;
+        let previous = getPrevious(roundStart);
+        const visited = new Set();
+        while (previous && previous != roundStart && !visited.has(previous)) {
+            if (isCurrentStageBoss(previous)) return previous;
+            visited.add(previous);
+            previous = getPrevious(previous);
+        }
+        return null;
+    };
+    const getNextStageTurnPlayer = current => {
+        const next = current?.next || null;
+        if (!shouldUseLegacyBossTurn(current)) return next;
+        return getLegacyBossTurnPlayer() || next;
     };
     // 开局捕获玩家方成员，避免后续 game.boss 变化导致阵营误判。
     const capturePlayerSide = () => {
@@ -614,7 +642,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     const getRewardSkillChooser = player => {
         const main = getMainControlPlayer();
         const underControl = Boolean(main && typeof player.isUnderControl == "function" && player.isUnderControl(true, main));
-        const tianshuSingleControl = Boolean(main && !_status.connectMode && lib.config.mode == "boss" && isCapturedPlayerSide(player) && !isVirtualIdol(player));
+        const tianshuSingleControl = Boolean(main && !_status.connectMode && lib.config.mode == "boss" && isCapturedPlayerSide(player));
         let chooser = player;
         if (lib.config.extension_术樱包_giveAiSkill && main && player != main && (underControl || tianshuSingleControl)) chooser = main;
         return chooser;
@@ -712,6 +740,36 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         }
         return null;
     };
+    // 判断候选技能是否属于某项羁绊条件；组合条件只提取正向技能要求，not 不参与概率提升。
+    const skillMatchesBondCondition = (player, skill, condition) => {
+        if (!condition || typeof condition != "object" || !skill) return false;
+        if (!condition.type && Array.isArray(condition.all)) return condition.all.some(item => skillMatchesBondCondition(player, skill, item));
+        if (!condition.type && Array.isArray(condition.any)) return condition.any.some(item => skillMatchesBondCondition(player, skill, item));
+        if (!condition.type && condition.not) return false;
+
+        const skillName = lib.translate[skill] || "";
+        if (condition.type == "keyword") {
+            if (!condition.keyword) return false;
+            const info = typeof get.skillInfoTranslation == "function" ? get.skillInfoTranslation(skill, player) : lib.translate[`${skill}_info`];
+            return String(info || "").includes(`【${condition.keyword}】`);
+        }
+        if (condition.type == "skill") return condition.skill == skill;
+        if (condition.type == "skillName") return condition.name == skillName;
+        if (condition.type == "skills") {
+            return [...(condition.all || []), ...(condition.any || [])].includes(skill);
+        }
+        if (condition.type == "skillNames") {
+            return [...(condition.all || []), ...(condition.any || [])].includes(skillName);
+        }
+        if (condition.type == "characterSkillNames") {
+            const characters = Array.from(new Set(
+                (Array.isArray(condition.characters) ? condition.characters : [condition.character]).filter(Boolean)
+            ));
+            if (characters.length && !characters.some(keyword => getBondCharacterNames(player).some(name => name.includes(keyword)))) return false;
+            return [...(condition.all || []), ...(condition.any || [])].includes(skillName);
+        }
+        return false;
+    };
     // 只选取条件成立且等级最高的一档，低等级效果不会与高等级叠加。
     const getActiveBondLevel = (player, bond) => {
         let active = null;
@@ -744,7 +802,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         createNode("h2", "shuYing-bond-overview-title", "已激活羁绊", dialog);
         const content = createNode("div", "shuYing-bond-overview-content", null, dialog);
         let total = 0;
-        for (const current of getPlayerSidePlayers({ aliveOnly: false, includeVirtual: false })) {
+        for (const current of getPlayerSidePlayers({ aliveOnly: false, includeVirtual: canVirtualIdolReceiveRewards() })) {
             const levels = current.storage?.shuYing_tianshu_bondLevels || {};
             const activeBonds = (tianshuConfig.bonds || []).map(bond => {
                 const rank = Number(levels[bond.id]) || 0;
@@ -822,7 +880,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     };
     // 依据当前真实技能所有权重算一名玩家的全部羁绊来源和隐藏等级缓存。
     const refreshTianshuBonds = player => {
-        if (!state.running || !player || !isCapturedPlayerSide(player) || isVirtualIdol(player) || bondSyncingPlayers.has(player)) return;
+        if (!state.running || !player || !isCapturedPlayerSide(player) || (isVirtualIdol(player) && !canVirtualIdolReceiveRewards()) || bondSyncingPlayers.has(player)) return;
         bondSyncingPlayers.add(player);
         try {
             delete player.storage.shuYing_tianshu_keywordBondLevels;
@@ -865,13 +923,53 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         };
         (lib.hooks.removeSkillCheck ||= []).push(hook);
     };
-    // 从当前奖励池随机生成候选；刷新时优先排除上一组技能。
+    // 在一次候选生成前缓存当前有效倾向，避免对奖励池里的每个技能重复计算羁绊等级。
+    const getActiveBondPreferences = player => {
+        const preference = tianshuConfig.reward.bondPreference || {};
+        if (!lib.config[tianshuConfig.settings.bondPreferenceConfigKey]) return [];
+        const levelWeights = preference.levelWeights || {};
+        const excludedBondIds = new Set(preference.excludedBondIds || []);
+        const activePreferences = [];
+        for (const bond of tianshuConfig.bonds || []) {
+            if (!bond?.id || excludedBondIds.has(bond.id)) continue;
+            const active = getActiveBondLevel(player, bond);
+            if (!active) continue;
+            // 只读取该羁绊实际激活等级的配置；没有对应项时不增加权重，也不会向更高等级回退。
+            const weight = Math.max(1, Number(levelWeights[active.rank]) || 1);
+            if (weight <= 1) continue;
+            const conditions = [bond.condition, ...(bond.levels || []).map(level => getBondLevelCondition(bond, level))].filter(Boolean);
+            activePreferences.push({ bonusWeight: weight - 1, conditions });
+        }
+        return activePreferences;
+    };
+    // 计算候选技能权重；同一技能关联多个有效羁绊时，各项温和增幅可以叠加。
+    const getRewardSkillWeight = (player, skill, activePreferences) => {
+        let bonus = 0;
+        for (const preference of activePreferences) {
+            if (preference.conditions.some(condition => skillMatchesBondCondition(player, skill, condition))) {
+                bonus += preference.bonusWeight;
+            }
+        }
+        return 1 + bonus;
+    };
+    const weightedRemoveRewardSkill = (pool, player, activePreferences) => {
+        const weights = pool.map(skill => getRewardSkillWeight(player, skill, activePreferences));
+        const total = weights.reduce((sum, weight) => sum + weight, 0);
+        let cursor = Math.random() * total;
+        for (let index = 0; index < pool.length; index++) {
+            cursor -= weights[index];
+            if (cursor <= 0) return pool.splice(index, 1)[0];
+        }
+        return pool.pop();
+    };
+    // 从当前奖励池按羁绊倾向权重生成候选；刷新时优先排除上一组技能。
     const createRewardSkillChoices = (player, excluded = []) => {
         const excludedSet = new Set(excluded);
         const pool = getAllSkillPool(player).filter(skill => !excludedSet.has(skill));
+        const activePreferences = getActiveBondPreferences(player);
         const choices = [];
         while (choices.length < tianshuConfig.reward.skillChoiceCount && pool.length) {
-            const choice = pool.randomRemove();
+            const choice = weightedRemoveRewardSkill(pool, player, activePreferences);
             if (choice) choices.push(choice);
         }
         return choices;
@@ -894,7 +992,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     };
     // 过关后让每个存活玩家方角色依次选择奖励技能。
     const chooseSkillsForStageClear = async () => {
-        for (const player of getPlayerSidePlayers({ aliveOnly: true, includeVirtual: false })) {
+        for (const player of getPlayerSidePlayers({ aliveOnly: true, includeVirtual: canVirtualIdolReceiveRewards() })) {
             let choices = createRewardSkillChoices(player);
             if (!choices.length) continue;
             let refreshed = false;
@@ -946,13 +1044,14 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             if (tianshuConfig.reward.stageDraw) await player.draw(tianshuConfig.reward.stageDraw);
         }
         await chooseSkillsForStageClear();
+        const currentTurnPlayer = getParentEvent("phase")?.player || _status.currentPhase;
         await game.washCard();
         hideCurrentStageBossCorpses();
-        const currentTurnPlayer = getParentEvent("phase")?.player || _status.currentPhase;
         state.stageIndex++;
         await spawnStage(state.stageIndex);
-        // 过关后立即结束当前回合，并将新关的首个行动权交给当前角色的实际下家。
-        if (currentTurnPlayer?.next) finishCurrentPhaseTo(currentTurnPlayer.next);
+        // 必须在新 Boss 召唤并完成座位重排后，再按新座位链决定控制权归属。
+        const nextTurnPlayer = getNextStageTurnPlayer(currentTurnPlayer);
+        if (nextTurnPlayer) finishCurrentPhaseTo(nextTurnPlayer);
     };
     // 处理 Boss 死亡事件：击杀奖励、隐藏尸体、判断是否清关。
     const handleBossDie = async event => {
@@ -1086,12 +1185,13 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             charlotte: true,
             firstDo: true,
             filter(event) {
-                if (!state.running || !event.player || !isCapturedPlayerSide(event.player) || isVirtualIdol(event.player)) return false;
+                if (!state.running || !event.player || !isCapturedPlayerSide(event.player)) return false;
+                if (isVirtualIdol(event.player) && !canVirtualIdolReceiveRewards()) return false;
                 const removed = Array.isArray(event.removeSkill) ? event.removeSkill : [];
                 const history = getTianshuRewardSkillHistory(event.player);
                 return removed.some(skill => history.includes(skill));
             },
-            content(event, trigger) {
+            async content(event, trigger) {
                 refreshTianshuBonds(trigger.player);
             },
         },

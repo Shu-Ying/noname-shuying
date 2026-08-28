@@ -7,6 +7,14 @@ const characters = {
         img: "extension/术樱包/character/images/zuoci_shuying.jpg",
         dieAudios: ["ext:术樱包/character/audio/zuoci/zuoci_shuying.mp3"]
     },
+    ganning_shuying: {
+        sex: "male",
+        group: "wu",
+        hp: 4,
+        skills: ["qixi_shuying", "fenwei_shuying"],
+        img: "extension/术樱包/character/images/ganning_shuying.jpg",
+        dieAudios: ["ext:术樱包/character/audio/ganning/ganning_shuying.mp3"]
+    },
 };
 
 export default characters;
