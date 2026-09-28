@@ -12,7 +12,8 @@ const act1Map = {
             contentId: "act1.battle.liubeiOpening",
         },
     ],
-    enemies: ["re_xiahoudun", "re_zhangliao", "re_xuzhu"],
+    enemies: ["mengsan_flyconid_shuying"],
+    eliteEnemies: ["re_xiahoudun", "re_zhangliao", "re_xuzhu"],
     boss: "re_lvbu",
     baseGold: 20,
 };

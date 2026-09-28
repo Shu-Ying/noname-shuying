@@ -979,6 +979,158 @@
 .mengsan-flow-panel-shuying .mengsan-choice-description-shuying { display: block; margin-top: 6px; color: var(--flow-muted); font-size: 14px; line-height: 1.6; }
 .mengsan-flow-panel-shuying .mengsan-choice-shuying:disabled { opacity: .5; cursor: not-allowed; }
 .mengsan-flow-panel-shuying .mengsan-choice-shuying.danger { border-color: #d89586; background: #853d3440; }
+
+/* Victory choices and card choices are independent, reusable ink-and-jade surfaces. */
+dialog.mengsan-victory-dialog-shuying, dialog.mengsan-card-choice-dialog-shuying {
+    --reward-ink: #101c20; --reward-jade: #32736c; --reward-celadon: #8db4a5;
+    --reward-bronze: #c7a477; --reward-paper: #eee2c9; --reward-muted: #cabda5;
+    position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100dvh !important;
+    max-width: none !important; max-height: none !important; margin: 0 !important; padding: 0 !important;
+    border: 0 !important; overflow: auto !important; transform: none !important; background: transparent !important;
+    color: var(--reward-paper); font: 16px/1.5 "Microsoft YaHei", sans-serif; text-align: left;
+}
+dialog.mengsan-victory-dialog-shuying::backdrop, dialog.mengsan-card-choice-dialog-shuying::backdrop {
+    background: rgba(4, 10, 13, .88);
+}
+.mengsan-victory-dialog-shuying *, .mengsan-card-choice-dialog-shuying *,
+.mengsan-victory-dialog-shuying *::before, .mengsan-card-choice-dialog-shuying *::before,
+.mengsan-victory-dialog-shuying *::after, .mengsan-card-choice-dialog-shuying *::after { box-sizing: border-box; }
+.mengsan-reward-overline-shuying {
+    display: block; color: var(--reward-celadon); font: 700 12px/1.4 "Microsoft YaHei",sans-serif;
+    letter-spacing: .22em;
+}
+.mengsan-victory-stage-shuying {
+    position: relative !important; display: grid !important; grid-template-columns: minmax(210px,260px) minmax(320px,520px);
+    grid-template-rows: auto auto; align-content: center; justify-content: center; gap: 0 32px;
+    min-height: 100%; width: 100%; padding: 48px 28px;
+}
+.mengsan-victory-stage-shuying::before {
+    content: ""; position: absolute !important; z-index: -1; inset: 0;
+    background: radial-gradient(ellipse at 48% 48%,rgba(46,88,80,.25),transparent 62%);
+    pointer-events: none;
+}
+.mengsan-victory-intro-shuying {
+    position: relative !important; grid-column: 1; grid-row: 1 / 3; align-self: center;
+    padding: 26px 26px 28px 0; border-right: 1px solid rgba(199,164,119,.45);
+}
+.mengsan-victory-intro-shuying::after {
+    content: ""; display: block; width: 66px; height: 3px; margin-top: 28px; background: var(--reward-bronze);
+}
+.mengsan-victory-seal-shuying {
+    display: grid !important; place-items: center; width: 88px; height: 88px; margin: 29px 0 24px;
+    border: 3px double var(--reward-bronze); border-radius: 8px; transform: rotate(-7deg);
+    color: var(--reward-paper); background: #6b302b; box-shadow: 0 8px 24px #0007;
+    font: 700 52px/1 "KaiTi","STKaiti",serif;
+}
+.mengsan-victory-intro-shuying h2 {
+    margin: 0 0 8px; color: var(--reward-paper); font: 700 clamp(32px,3.5vw,46px)/1.15 "KaiTi","STKaiti",serif;
+    letter-spacing: .09em;
+}
+.mengsan-victory-intro-shuying p { max-width: 17em; margin: 0; color: var(--reward-muted); font-size: 15px; line-height: 1.8; }
+.mengsan-victory-options-shuying {
+    position: relative !important; grid-column: 2; grid-row: 1; display: flex !important; flex-direction: column !important;
+    gap: 12px; max-height: min(66dvh,560px); padding: 24px; overflow-y: auto;
+    border: 1px solid rgba(199,164,119,.65); border-radius: 7px;
+    background: linear-gradient(145deg,#1e3435,#111f24 68%);
+    box-shadow: inset 0 0 0 5px rgba(9,19,22,.8),0 22px 50px #0008;
+}
+.mengsan-victory-eyebrow-shuying { color: var(--reward-bronze); font: 700 13px/1.4 "Microsoft YaHei",sans-serif; letter-spacing: .16em; margin: 0 0 5px; }
+button.mengsan-victory-option-shuying {
+    position: relative !important; display: flex !important; align-items: center; gap: 18px;
+    width: 100%; min-height: 94px; padding: 17px 18px; border: 1px solid #60857a;
+    border-left: 4px solid var(--reward-bronze); border-radius: 3px; color: var(--reward-paper);
+    background: linear-gradient(110deg,#254b49,#1a3238); text-align: left; cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+button.mengsan-victory-option-shuying:hover, button.mengsan-victory-option-shuying:focus-visible {
+    border-color: var(--reward-paper); background: linear-gradient(110deg,#346a60,#24434a);
+    box-shadow: inset 0 0 0 1px #9dbca9,0 6px 20px #0005;
+}
+button.mengsan-victory-option-shuying:focus-visible, button.mengsan-victory-skip-shuying:focus-visible,
+button.mengsan-card-choice-tile-shuying:focus-visible, button.mengsan-card-choice-skip-shuying:focus-visible {
+    outline: 3px solid #d9e9bb; outline-offset: 4px;
+}
+button.mengsan-victory-option-shuying:disabled { opacity: .6; cursor: wait; }
+.mengsan-victory-option-index-shuying { flex: 0 0 44px; color: var(--reward-bronze); font: 700 24px/1 "KaiTi",serif; }
+.mengsan-victory-option-copy-shuying { display: flex !important; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
+.mengsan-victory-option-copy-shuying strong { color: #fff1d5; font: 700 23px/1.2 "KaiTi",serif; }
+.mengsan-victory-option-copy-shuying small { color: #d3e0d4; font: 14px/1.5 "Microsoft YaHei",sans-serif; }
+.mengsan-victory-option-arrow-shuying { flex: 0 0 28px; color: var(--reward-bronze); font: 34px/1 "KaiTi",serif; text-align: center; }
+button.mengsan-victory-skip-shuying {
+    grid-column: 2; grid-row: 2; justify-self: end; min-height: 48px; margin-top: 16px; padding: 8px 4px;
+    border: 0; border-bottom: 1px solid var(--reward-muted); color: var(--reward-muted);
+    background: transparent; font: 16px/1.4 "Microsoft YaHei",sans-serif; cursor: pointer;
+}
+button.mengsan-victory-skip-shuying:hover { color: #fff1d5; border-color: #fff1d5; }
+.mengsan-card-choice-stage-shuying {
+    position: relative !important; display: flex !important; flex-direction: column !important; align-items: center;
+    justify-content: center; gap: clamp(20px,4vh,38px); min-height: 100%; width: 100%; padding: 36px 22px 48px;
+    background: radial-gradient(ellipse at 50% 48%,rgba(47,80,73,.21),transparent 68%);
+}
+.mengsan-card-choice-heading-shuying { width: min(620px,100%); text-align: center; }
+.mengsan-card-choice-heading-shuying::after { content: ""; display: block; width: 132px; height: 2px; margin: 15px auto 0; background: linear-gradient(90deg,transparent,var(--reward-bronze),transparent); }
+.mengsan-card-choice-heading-shuying h2 { margin: 7px 0 4px; color: var(--reward-paper); font: 700 clamp(28px,3vw,38px)/1.2 "KaiTi","STKaiti",serif; letter-spacing: .13em; }
+.mengsan-card-choice-heading-shuying p { margin: 0; color: var(--reward-muted); font-size: 14px; }
+.mengsan-card-choice-grid-shuying {
+    position: relative !important; display: grid !important; grid-template-columns: repeat(var(--choice-count),minmax(0,210px));
+    justify-content: center; align-items: stretch; gap: 18px; width: max-content; max-width: 100%;
+}
+button.mengsan-card-choice-tile-shuying {
+    position: relative !important; display: flex !important; flex-direction: column !important; align-items: stretch;
+    min-width: 0; min-height: 322px; padding: 11px; border: 1px solid #9e8261; border-radius: 6px;
+    color: var(--reward-paper); background: linear-gradient(155deg,#355550,#1b3034 48%,#182429);
+    box-shadow: inset 0 0 0 4px #1a282a,inset 0 0 0 5px #57746c,0 12px 25px #0009;
+    font: inherit; text-align: center; appearance: none; cursor: pointer;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+button.mengsan-card-choice-tile-shuying:hover, button.mengsan-card-choice-tile-shuying:focus-visible {
+    border-color: #f4d7a0; box-shadow: inset 0 0 0 4px #1a282a,inset 0 0 0 5px #b59667,0 16px 28px #000a;
+    transform: translateY(-4px);
+}
+.mengsan-card-choice-cost-shuying {
+    position: absolute !important; z-index: 2; top: -13px; left: -12px; display: grid !important; place-items: center;
+    width: 38px; height: 38px; border: 2px solid #e2c38c; border-radius: 50%; color: #fff1d5;
+    background: #7a3b31; font: 700 19px/1 "KaiTi",serif; box-shadow: 0 3px 9px #0009;
+}
+.mengsan-card-choice-name-shuying { display: block !important; min-height: 32px; padding: 2px 6px 5px; color: #f4e6c5; border-bottom: 1px solid #b69a6b; font: 700 20px/1.3 "KaiTi",serif; }
+.mengsan-card-choice-art-shuying {
+    position: relative !important; display: grid !important; place-items: center; height: 128px; margin: 10px 0 7px;
+    overflow: hidden; border: 1px solid #a98d68; border-radius: 3px;
+    background: radial-gradient(circle,#4f5f55,#192629 70%);
+}
+.mengsan-card-choice-art-shuying img { position: absolute !important; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #263333; }
+.mengsan-card-choice-glyph-shuying { color: #e9d4ae; font: 700 52px/1 "KaiTi",serif; }
+.mengsan-card-choice-kind-shuying { align-self: center; margin-bottom: 6px; padding: 1px 12px; border: 1px solid #b99a6b; color: #f0dfba; font-size: 12px; }
+.mengsan-card-choice-description-shuying { display: block !important; flex: 1; overflow: hidden; padding: 2px 3px 0; color: #e8e5d6; font-size: 13px; line-height: 1.55; }
+button.mengsan-card-choice-skip-shuying {
+    min-height: 48px; padding: 9px 28px; border: 1px solid #82978b; border-radius: 3px;
+    color: var(--reward-muted); background: #1a2b2f; font: 16px/1.4 "Microsoft YaHei",sans-serif; cursor: pointer;
+}
+button.mengsan-card-choice-skip-shuying:hover { color: #fff1d5; border-color: #d4bc91; background: #27433f; }
+@media (max-width: 1100px) { .mengsan-card-choice-grid-shuying { grid-template-columns: repeat(var(--choice-count),minmax(0,180px)); gap: 14px; } }
+@media (max-width: 700px) {
+    .mengsan-victory-stage-shuying { grid-template-columns: minmax(0,520px); gap: 18px; align-content: start; padding: 30px 18px; }
+    .mengsan-victory-intro-shuying { grid-column: 1; grid-row: 1; padding: 0 0 15px; border-right: 0; border-bottom: 1px solid rgba(199,164,119,.45); }
+    .mengsan-victory-seal-shuying { display: none !important; }
+    .mengsan-victory-intro-shuying::after { display: none; }
+    .mengsan-victory-intro-shuying h2 { margin-top: 8px; }
+    .mengsan-victory-options-shuying { grid-column: 1; grid-row: 2; max-height: none; padding: 18px; }
+    button.mengsan-victory-skip-shuying { grid-column: 1; grid-row: 3; }
+    .mengsan-card-choice-stage-shuying { justify-content: flex-start; }
+    .mengsan-card-choice-grid-shuying { grid-template-columns: repeat(3,minmax(0,1fr)); width: min(620px,100%); }
+}
+@media (max-width: 560px) {
+    .mengsan-card-choice-grid-shuying { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px; }
+    button.mengsan-card-choice-tile-shuying { min-height: 292px; }
+    .mengsan-card-choice-art-shuying { height: 105px; }
+    .mengsan-victory-option-index-shuying { flex-basis: 30px; font-size: 20px; }
+    button.mengsan-victory-option-shuying { gap: 10px; padding: 13px; }
+}
+@media (max-width: 350px) { .mengsan-card-choice-grid-shuying { grid-template-columns: minmax(0,210px); } }
+@media (prefers-reduced-motion: reduce) {
+    button.mengsan-victory-option-shuying, button.mengsan-card-choice-tile-shuying { transition: none; }
+    button.mengsan-card-choice-tile-shuying:hover, button.mengsan-card-choice-tile-shuying:focus-visible { transform: none; }
+}
 .mengsan-flow-menu-shuying {
     position: absolute !important; top: max(16px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));
     z-index: 4; min-width: 96px; min-height: 48px; padding: 8px 16px;
@@ -1123,10 +1275,13 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 .mengsan-gm-dialog-shuying .ms-gm-affixes button:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-height: 500px) { .mengsan-battle-piles-button-shuying { top: 70px; right: max(8px, env(safe-area-inset-right)); } }
 
-/* Only session-created Mengsan players; retain internal identity and side. */
+/* Only session-created Mengsan players; retain internal identity and seat order. */
 .player.mengsan-hide-identity-shuying > .identity {
     display: none !important;
     pointer-events: none !important;
+}
+.player.mengsan-hide-identity-shuying > .seat {
+    display: none !important;
 }
 .player > .mengsan-energy-shuying {
     position: absolute !important;
@@ -1146,17 +1301,77 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
     text-align: center;
     pointer-events: none;
 }
-.card[data-mengsan-cost]::after {
-    content: attr(data-mengsan-cost) "费";
-    position: absolute;
-    top: 1px;
-    left: 1px;
-    z-index: 5;
-    padding: 1px 3px;
-    border-radius: 3px;
-    background: #173b43e8;
-    color: #fff1c5;
-    font-size: 11px;
-    line-height: 1.2;
+/* The selected skill appears below an enemy's frame; number precedes the weapon icon. */
+.player > .mengsan-intent-shuying {
+    position: absolute !important;
+    bottom: -31px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9;
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    width: max-content !important;
+    max-width: 145px;
+    min-height: 25px;
+    padding: 2px 5px;
+    border: 1px solid #a87967;
+    border-radius: 6px;
+    background: #1b1719ef;
+    box-shadow: 0 2px 7px #0009;
+    color: #fff0e4;
+    font: 700 12px/1.2 "Microsoft YaHei", sans-serif;
+    white-space: nowrap;
     pointer-events: none;
+}
+.player > .mengsan-intent-shuying[hidden],
+.mengsan-intent-damage-shuying[hidden],
+.mengsan-intent-debuff-shuying[hidden] { display: none !important; }
+.mengsan-intent-name-shuying {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mengsan-intent-damage-shuying {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 1px;
+    color: #ffe4d1;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+}
+.mengsan-intent-debuff-shuying {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 1px;
+    color: #d8aee5;
+    font-size: 11px;
+}
+.mengsan-intent-icon-shuying {
+    display: block;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+/* Own a child badge, not card::after (which 十周年 UI reserves and hides). */
+.handcards > .card[data-mengsan-cost] > .mengsan-hand-cost-shuying {
+    position: absolute !important;
+    top: 55px !important;
+    left: 3px !important;
+    z-index: 7 !important;
+    display: grid !important;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d8ba83;
+    border-radius: 50%;
+    background: #234844f2;
+    box-shadow: 0 2px 4px #0008;
+    color: #fff1cb;
+    font: 700 14px/1 "Microsoft YaHei", sans-serif;
+    pointer-events: none;
+}
+.handcards > .card[data-mengsan-cost] > .mengsan-hand-cost-shuying::before {
+    content: attr(data-mengsan-cost);
 }

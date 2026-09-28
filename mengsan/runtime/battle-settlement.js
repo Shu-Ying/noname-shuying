@@ -19,7 +19,7 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
         // Persist fixed candidates before opening choice UI. No mutation of the live run.
         async prepare({run: snapshot, node, encounter, hp, outcome = "victory"}) {
             if (!["victory", "defeat"].includes(outcome)) throw new Error("Unknown battle outcome");
-            if (outcome === "victory" && (!Number.isFinite(hp) || !Number.isFinite(encounter.gold) || encounter.gold < 0)) throw new Error("Invalid battle result");
+            if (outcome === "victory" && (!Number.isFinite(hp) || (!encounter.skipRandomReward && (!Number.isSafeInteger(encounter.gold) || encounter.gold < 0)))) throw new Error("Invalid battle result");
             const id = idFor(snapshot, node);
             return store.update(storage => {
                 const run = current(storage, snapshot.runId);
@@ -36,12 +36,13 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
                 const base = copy(snapshot); delete base.battleFlow;
                 if (outcome === "victory") {
                     base.player.hp = Math.max(1, Math.min(hp, base.player.maxHp ?? hp));
-                    base.player.gold += encounter.gold;
-                    base.statistics.goldEarned += encounter.gold;
                     base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
                 }
-                const choices = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, encounter.rewardPool).filter(c => c.name) : [];
-                if (outcome === "victory" && !encounter.skipRandomReward && !choices.length) throw new Error("Empty battle reward pool");
+                const rewards = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, encounter.rewardPool).filter(c => c.name) : [];
+                if (outcome === "victory" && !encounter.skipRandomReward && !rewards.length) throw new Error("Empty battle reward pool");
+                // Persist the configured amount as a candidate, never as automatic victory income.
+                const choices = outcome === "victory" && !encounter.skipRandomReward
+                    ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
                 run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome};
                 return run.battleFlow.pending;
             });
@@ -57,9 +58,13 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
                 let route = "defeat";
                 if (item.outcome === "victory") {
                     const choice = item.choices.find(c => c.id === choiceId);
-                    if (item.choices.length) {
+                    if (item.choices.length && choiceId !== null) {
                         if (!choice) throw new Error("Reward is not a fixed candidate");
-                        applyReward(result, choice.effectId || choice.id);
+                        if (choice.kind === "gold") {
+                            if (!Number.isSafeInteger(choice.amount) || choice.amount < 0) throw new Error("Invalid pending gold reward");
+                            result.player.gold += choice.amount;
+                            result.statistics.goldEarned += choice.amount;
+                        } else applyReward(result, choice.effectId || choice.id);
                     } else if (choiceId !== null) throw new Error("Unexpected reward selection");
                     for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
                     if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");

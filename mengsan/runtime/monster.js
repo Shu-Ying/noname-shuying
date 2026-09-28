@@ -1,3 +1,5 @@
+import { createCardData } from "./card-data.js";
+
 // 梦三怪物规则只作用于敌方单位；子类可覆盖构造参数或 createDeck()。
 const TIER_RULES = Object.freeze({
     normal: Object.freeze({ draw: 1, handLimit: 3, energy: 2 }),
@@ -13,6 +15,7 @@ const BASE_DECKS = Object.freeze({
 
 const HEALTH = Object.freeze({
     mengsan_soldier_shuying: 24,
+    mengsan_flyconid_shuying: 48,
     re_xiahoudun: 30, re_zhangliao: 28, re_xuzhu: 34, re_lvbu: 120,
     re_ganning: 39, re_zhangfei: 42, re_huangzhong: 37, re_weiyan: 40,
     re_guanyu: 65, dianwei: 62, shen_guanyu: 165,
@@ -43,12 +46,12 @@ export class Monster {
     createDeck(prefix) {
         return this.deck.map((entry, index) => {
             const card = typeof entry === "string" ? { name: entry } : entry;
-            return {
+            return createCardData({
                 id: `${prefix}_${index}`, name: card.name,
                 suit: card.suit || ["spade", "heart", "club", "diamond"][index % 4],
                 number: card.number || index % 13 + 1,
                 nature: card.nature || null, affixes: Array.isArray(card.affixes) ? card.affixes.slice() : [], upgrade: card.upgrade || 0,
-            };
+            }, { enemy: true });
         });
     }
 }
@@ -57,9 +60,12 @@ export class Monster {
 export class OpeningSoldier extends Monster {
     constructor(options = {}) { super({ character: "mengsan_soldier_shuying", tier: "normal", hp: 24, ...options }); }
 }
+export class Flyconid extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_flyconid_shuying", tier: "normal", hp: 48 }); }
+}
 
 // 新怪物子类在这里注册，未注册的角色使用 Monster 的阶级默认值。
-export const MONSTER_TYPES = Object.freeze({ mengsan_soldier_shuying: OpeningSoldier });
+export const MONSTER_TYPES = Object.freeze({ mengsan_soldier_shuying: OpeningSoldier, mengsan_flyconid_shuying: Flyconid });
 
 export function createMonster(spec) {
     const Type = Object.hasOwn(MONSTER_TYPES, spec.character) ? MONSTER_TYPES[spec.character] : Monster;

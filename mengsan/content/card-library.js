@@ -1,3 +1,5 @@
+import { createCardData } from "../runtime/card-data.js";
+
 // Mode-owned starting decks. Existing saves always retain their actual player.deck.
 export const defaultDeck = Object.freeze([
     ["spade", 7, "sha"], ["heart", 10, "sha"],
@@ -24,8 +26,8 @@ export function getStartingDeck(character) {
 }
 
 export function createStartingDeck(character, prefix = `mengsan_card_${Date.now()}`) {
-    return getStartingDeck(character).map((entry, index) => ({
+    return getStartingDeck(character).map((entry, index) => createCardData({
         id: `${prefix}_${index}`, suit: entry[0], number: entry[1], name: entry[2],
         nature: entry[3] || null, affixes: entry[4] ? entry[4].slice() : [], upgrade: 0,
-    }));
+    }, { character }));
 }

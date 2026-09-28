@@ -2,3 +2,4 @@ log.txt
 dist/manifest.json
 tools/__pycache__/
 /mengsan/.planning/
+/mengsan/verification

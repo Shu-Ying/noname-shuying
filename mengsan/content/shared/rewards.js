@@ -5,6 +5,7 @@ export const rewards = {
     },
     "shared.reward.card.sha": { effectId: "card_sha", name: "获得一张【杀】", description: "加入独立永久牌组" },
     "shared.reward.card.tao": { effectId: "card_tao", name: "获得一张【桃】", description: "加入独立永久牌组" },
+    "shared.reward.card.wuzhong": { card: { name: "wuzhong" }, name: "获得一张【无中生有】", description: "加入独立永久牌组" },
     "shared.reward.card.upgrade": { effectId: "upgrade", name: "随机强化", description: "随机一张牌强化一级" },
     "shared.reward.heal": { effectId: "heal", name: "整顿伤势", description: "回复 8 点生命" },
     "shared.reward.item.handCharm": { effectId: "item_hand", name: "道具·束带", description: "基础手牌上限额外 +1" },
@@ -16,7 +17,7 @@ export const rewardPools = {
     "shared.pool.battle.normal": [
         "shared.reward.card.sha",
         "shared.reward.card.tao",
-        "shared.reward.card.upgrade",
+        "shared.reward.card.wuzhong",
     ],
     "shared.pool.boss.premium": [
         "shared.reward.skill.heroic",

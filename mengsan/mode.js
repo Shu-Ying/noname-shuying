@@ -3,6 +3,8 @@ import { createMengsanCards } from "./content/mode-cards.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./runtime/battle-director.js";
 import { installPersonalPiles } from "./runtime/personal-piles.js";
 import { createMonster } from "./runtime/monster.js";
+import { mountEnemyIntent } from "./runtime/intent-display.js";
+import { selectFlyconidMove, recordFlyconidAction } from "./runtime/flyconid-intent.js";
 import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
 import { mountBattlePiles } from "./runtime/card-library.js";
 import { mountGMManager } from "./runtime/gm-manager.js";
@@ -18,6 +20,9 @@ import { lib, game, ui, get, _status } from "../../../noname.js";
 import config from "./config.js";
 import { showMap } from "./map/index.js";
 import { getRandomRewardChoices } from "./runtime/reward.js";
+import { canAcquireCard } from "./content/card-definitions.js";
+import { addCardToDeck, createRandomCardData } from "./runtime/card-data.js";
+import { chooseBattleReward } from "./runtime/reward-ui.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./runtime/story.js";
 import { playDialogue } from "./runtime/dialogue.js";
 import { chooseButtons } from "./runtime/flow-ui.js";
@@ -71,31 +76,25 @@ const chooseCharacter = async () => {
     return chooseButtons("选择出征武将", [...(choices.length ? choices : [{ id: "mengsan_liubei_shuying", name: "界刘备" }]), { id: "back", name: "返回存档选择", description: "不会修改现有征程" }], "此武将将陪伴你完成本次征程。", { back: "back", eyebrow: "出征准备" });
 };
 
-const createCardInstance = (run, name = "sha", upgrade = 0, affixes = []) => ({
-    id: `mengsan_card_${Date.now()}_${Math.floor(nextRandom(run) * 1e6)}`,
-    suit: ["spade", "heart", "club", "diamond"][Math.floor(nextRandom(run) * 4)],
-    number: 1 + Math.floor(nextRandom(run) * 13),
-    name,
-    nature: null,
-    upgrade,
-    affixes: affixes.slice(),
-});
+const createCardInstance = (run, name = "sha", upgrade = 0, affixes = []) =>
+    createRandomCardData(run, name, { random: () => nextRandom(run), upgrade, affixes });
 
 const applyReward = (run, rewardId) => {
     const player = run.player;
     const cardReward = config.rewards[rewardId]?.card;
     if (cardReward) {
-        player.deck.push({ ...createCardInstance(run, cardReward.name), ...copy(cardReward) });
+        if (!canAcquireCard(player.character, cardReward.name)) throw new Error(`武将 ${player.character} 无法获得牌：${cardReward.name}`);
+        addCardToDeck(run, { ...createCardInstance(run, cardReward.name), ...copy(cardReward) });
         return;
     }
     const support = config.rewards[rewardId]?.support;
     if (support) { grantSupport(run, rewardId, support); return; }
     switch (rewardId) {
         case "card_sha":
-            player.deck.push(createCardInstance(run, "sha"));
+            addCardToDeck(run, createCardInstance(run, "sha"));
             break;
         case "card_tao":
-            player.deck.push(createCardInstance(run, "tao"));
+            addCardToDeck(run, createCardInstance(run, "tao"));
             break;
         case "upgrade": {
             const eligible = player.deck.filter(card => !card.affixes?.includes("eternal"));
@@ -176,13 +175,14 @@ const finishUtilityNode = async (run, node) => {
     else if (node.type == "shop") {
         const price = 20;
         const choice = await chooseButtons("商店 Demo", [
-            { id: "card_sha", name: `购买【杀】（${price}金币）`, description: "加入个人牌组", disabled: run.player.gold < price },
+            { id: "card_sha", name: `购买【杀】（${price}金币）`, description: "加入个人牌组", disabled: run.player.gold < price || !canAcquireCard(run.player.character, "sha") },
             { id: "heal", name: `恢复生命（${price}金币）`, description: "回复 8 点生命", disabled: run.player.gold < price },
             { id: "leave", name: "离开", description: "暂不购买" },
         ]);
-        if (choice != "leave") {
-            run.player.gold -= price;
+        if (choice != "leave" && choice != null) {
+            if (run.player.gold < price || (choice === "card_sha" && !canAcquireCard(run.player.character, "sha"))) throw new Error("梦三商店购买资格无效");
             applyReward(run, choice);
+            run.player.gold -= price;
         }
     }
     else {
@@ -258,6 +258,41 @@ const mountEnergy = (player, session) => {
     refresh();
     return refresh;
 };
+const isFlyconid = player => player?.name === "mengsan_flyconid_shuying" && player.storage?.mengsanCamp_shuying === "enemy";
+const planFlyconidIntent = (player, run) => {
+    if (!isFlyconid(player) || !player.isAlive() || player.storage.mengsanFlyconidIntent_shuying) return;
+    const move = selectFlyconidMove(player.storage.mengsanFlyconidState_shuying || {}, () => nextRandom(run));
+    player.storage.mengsanFlyconidIntent_shuying = move;
+    game.mengsanSetEnemyIntent_shuying(player, move);
+};
+const applyFlyconidDebuff = (target, move) => {
+    if (!move.debuff) return;
+    const frail = move.id === "frail";
+    const key = frail ? "mengsanFrail_shuying" : "mengsanVulnerable_shuying";
+    target.storage[key] = (target.storage[key] || 0) + move.stacks;
+    target.addSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
+    target.markSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
+};
+const executeFlyconidIntent = async player => {
+    const move = player.storage.mengsanFlyconidIntent_shuying;
+    if (!move) return;
+    player.storage.mengsanFlyconidIntent_shuying = null;
+    game.mengsanSetEnemyIntent_shuying(player, null);
+    const paid = player.storage.mengsanEnergy_shuying >= 1;
+    player.storage.mengsanFlyconidState_shuying = recordFlyconidAction(player.storage.mengsanFlyconidState_shuying || {}, move, paid);
+    if (!paid) { game.log(player, "费用不足，未发动", move.name); return; }
+    player.storage.mengsanEnergy_shuying--;
+    activeBattle?.energyUI.get(player)?.();
+    game.log(player, "消耗1费用发动", move.name);
+    const target = game.me;
+    if (!target?.isAlive() || !player.isAlive()) return;
+    if (move.damage != null) {
+        const hit = target.damage(move.damage, player);
+        hit.mengsanAttack_shuying = true;
+        await hit;
+    }
+    if (target.isAlive() && player.isAlive()) applyFlyconidDebuff(target, move);
+};
 const equipBattleUnit = async (player, spec, resources) => {
     for (const info of spec.equipment || []) {
         const card = resources.card(game.createCard(info.name, info.suit, info.number, info.nature));
@@ -279,11 +314,15 @@ const createScenario = (plan, current) => {
             join.setContent(async () => {
                 const monster = initBattleUnit(player, spec);
                 installMonsterPile(player, monster, current);
-                if (monster) current.energyUI.set(player, mountEnergy(player, current.session));
+                if (monster) {
+                    current.energyUI.set(player, mountEnergy(player, current.session));
+                    current.intentUI.set(player, mountEnemyIntent(player, current.session, STYLE_PATH, document));
+                }
                 for (const participant of [...game.players, ...game.dead]) participant.setSeatNum(Number(participant.dataset.position) + 1);
                 await equipBattleUnit(player, spec, current.resources);
                 await player.draw(spec.hand ?? 4);
                 await game.triggerEnter(player);
+                if (monster && current.session.active) planFlyconidIntent(player, _status.mengsanRun_shuying);
             });
             await join;
             game.log(player, "作为", spec.camp === "ally" ? "友方支援" : "敌方援军", "加入战斗");
@@ -358,6 +397,9 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     const participants = game.players.filter(player => player !== me);
     const monsters = plan.units.map((spec, index) => initBattleUnit(participants[index], spec));
     plan.units.forEach((spec, index) => installMonsterPile(participants[index], monsters[index], currentBattle));
+    participants.forEach((player, index) => {
+        if (monsters[index]) currentBattle.intentUI.set(player, mountEnemyIntent(player, session, STYLE_PATH, document));
+    });
     activeBattle.director = createScenario(plan, currentBattle);
     activeBattle.director.bind("player", me);
     plan.units.forEach((spec, index) => activeBattle.director.bind(spec.id, participants[index]));
@@ -376,7 +418,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
-    for (const skill of ["mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying"]) {
+    for (const skill of ["mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying", "mengsan_flyconid_action_shuying"]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
             session.ownResource({}, () => game.removeGlobalSkill(skill));
@@ -413,6 +455,9 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
             currentBattle.energyUI.get(player)?.();
         }
         await currentBattle.director.beforeTurn(player);
+        if (player === me && session.active) {
+            for (const enemy of game.players) planFlyconidIntent(enemy, run);
+        }
         game.checkResult();
     }}));
 };
@@ -437,7 +482,7 @@ const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
     releaseSkills,
     presentVictory: pending => playDialogue(pending.victoryDialogue, { run: pending.base, title: "战后剧情" }),
     settlement:createBattleSettlement({store:modeStorage, config, getRandomRewardChoices, applyReward, completeNode, enterNextAct}),
-    chooseReward:choices => chooseButtons("战斗奖励（三选一）", choices),
+    chooseReward:chooseBattleReward,
     showMap,
     showEnding:async route => { game.over(route === "victory"); },
     quiesce:() => quiesceEngine(_status),
@@ -480,7 +525,7 @@ const setupBattle = async (run, node, encounter = getNodeEncounter(run, node)) =
     const flow = makeFlow(() => current.releaseSkills?.());
     let finished;
     const signal = new Promise(resolve => { finished = resolve; });
-    current = {session, flow, finished, resources, players: new Set(), monsterPiles: new Map(), energyUI: new Map()};
+    current = {session, flow, finished, resources, players: new Set(), monsterPiles: new Map(), energyUI: new Map(), intentUI: new Map()};
     activeBattle = current;
     const root = new lib.element.GameEvent("mengsanBattle", false, _status.eventManager);
     const previousRoot = _status.eventManager.rootEvent;
@@ -551,6 +596,7 @@ const startJourney = async () => {
 const createMode = identityMode => {
     const identityElement = identityMode.element || {};
     const identityPlayer = identityElement.player || {};
+    const nativeChangeHujia = identityPlayer.changeHujia || lib.element.Player.prototype.changeHujia;
     const modeCards = createMengsanCards();
     return {
         ...identityMode,
@@ -574,6 +620,13 @@ const createMode = identityMode => {
                 isEnemyOf(player) { return Boolean(player && this.storage.mengsanCamp_shuying !== player.storage?.mengsanCamp_shuying); },
                 getEnemies(filter, includeDie) { return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => this.isEnemyOf(p) && (!filter || filter(p))); },
                 getFriends(filter, includeDie) { const self = filter === true; return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => (p !== this || self) && this.isFriendOf(p) && (typeof filter !== "function" || filter(p))); },
+                changeHujia(num, type, limit) {
+                    // 脆弱只削减正向获得的护甲，不改变受伤时消耗护甲的数值。
+                    if (this.storage?.mengsanFrail_shuying > 0 && (num == null || num > 0) && type !== "damage") {
+                        num = Math.floor((num ?? 1) * 0.75);
+                    }
+                    return nativeChangeHujia.call(this, num, type, limit);
+                },
                 getHandcardLimit() {
                     if (this.storage?.mengsanPlayer_shuying) {
                         const run = _status.mengsanRun_shuying;
@@ -591,6 +644,12 @@ const createMode = identityMode => {
         },
         game: {
             ...(identityMode.game || {}),
+            mengsanSetEnemyIntent_shuying(player, intent) {
+                const update = activeBattle?.intentUI.get(player);
+                if (!update) return false;
+                update(intent);
+                return true;
+            },
             async mengsanPersistRun_shuying(run) {
                 await saveRun(run);
             },
@@ -662,6 +721,46 @@ const createMode = identityMode => {
                 forced: true, silent: true, popup: false,
                 filter(event, player) { return Boolean(player.storage?.mengsanMonster_shuying); },
                 async content(event, trigger, player) { trigger.num = player.storage.mengsanMonster_shuying.draw; },
+            },
+            mengsan_flyconid_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) { return Boolean(activeBattle?.session.active && isFlyconid(event.player) && event.player.storage.mengsanFlyconidIntent_shuying); },
+                async content(event, trigger) { await executeFlyconidIntent(trigger.player); },
+            },
+            mengsan_frail_shuying: {
+                mark: true, marktext: "脆",
+                onremove(player) { delete player.storage.mengsanFrail_shuying; },
+                intro: { content(storage, player) { return `剩余${player.storage.mengsanFrail_shuying || 0}回合：获得护甲减少25%（向下取整）`; } },
+                trigger: { player: "phaseAfter" },
+                forced: true, silent: true, popup: false,
+                async content(event, trigger, player) {
+                    const remaining = Math.max(0, (player.storage.mengsanFrail_shuying || 0) - 1);
+                    player.storage.mengsanFrail_shuying = remaining;
+                    if (remaining) player.markSkill("mengsan_frail_shuying");
+                    else player.removeSkill("mengsan_frail_shuying");
+                },
+            },
+            mengsan_vulnerable_shuying: {
+                mark: true, marktext: "易",
+                onremove(player) { delete player.storage.mengsanVulnerable_shuying; },
+                intro: { content(storage, player) { return `剩余${player.storage.mengsanVulnerable_shuying || 0}回合：受到攻击伤害增加50%（向上取整）`; } },
+                trigger: { player: ["damageBegin1", "phaseAfter"] },
+                forced: true, silent: true, popup: false,
+                filter(event, player) {
+                    if (!player.storage?.mengsanVulnerable_shuying) return false;
+                    return event.name !== "damage" || Boolean(event.card || event.mengsanAttack_shuying);
+                },
+                async content(event, trigger, player) {
+                    if (event.triggername === "damageBegin1") {
+                        trigger.num = Math.ceil(trigger.num * 1.5);
+                        return;
+                    }
+                    const remaining = Math.max(0, (player.storage.mengsanVulnerable_shuying || 0) - 1);
+                    player.storage.mengsanVulnerable_shuying = remaining;
+                    if (remaining) player.markSkill("mengsan_vulnerable_shuying");
+                    else player.removeSkill("mengsan_vulnerable_shuying");
+                },
             },
             mengsan_scenario_shuying: {
                 trigger: { global: ["changeHpAfter", "gainAfter", "loseAfter", "dieAfter", "turnOverAfter", "linkAfter", "phaseAfter"] },
@@ -757,6 +856,11 @@ const createMode = identityMode => {
             mengsan_card_use_shuying: "梦三词缀",
             mengsan_yingyong_shuying: "英勇",
             mengsan_yingyong_shuying_info: "锁定技，每回合限一次，你于自己的回合内使用牌造成的伤害+1。",
+            mengsan_flyconid_action_shuying: "孢子行动",
+            mengsan_frail_shuying: "脆弱",
+            mengsan_frail_shuying_info: "接下来相应回合获得护甲减少25%（向下取整）。",
+            mengsan_vulnerable_shuying: "易伤",
+            mengsan_vulnerable_shuying_info: "接下来相应回合受到的攻击伤害增加50%（向上取整）。",
         },
         config: {},
         help: {
