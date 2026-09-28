@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXCLUDE_DIRS = {".git", ".update_tmp", "dist", "tools", "__pycache__"}
+EXCLUDE_DIRS = {".git", ".gitea", ".update_tmp", "dist", "tools", "__pycache__"}
 EXCLUDE_FILES = {".gitignore", "log.txt"}
 
 

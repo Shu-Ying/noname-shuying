@@ -1,5 +1,4 @@
 log.txt
 dist/manifest.json
-tools/
-
+tools/__pycache__/
 /mengsan/.planning/
