@@ -1,0 +1,154 @@
+name: Release extension
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  code: read
+  releases: write
+
+jobs:
+  release:
+    runs-on: shuying-windows
+    defaults:
+      run:
+        shell: powershell
+    env:
+      RELEASE_TAG: ${{ gitea.ref_name }}
+      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+
+    steps:
+      - name: Build manifest and ZIP
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = $env:RELEASE_TAG
+
+          if ($tag -notmatch '^v\d+\.\d+\.\d+\.\d+(-rc\.\d+)?$') {
+            throw "无效的版本标签：$tag"
+          }
+
+          $version = $tag.Substring(1)
+          $checkout = Join-Path $env:RUNNER_TEMP 'tag-checkout'
+          $snapshot = Join-Path $env:RUNNER_TEMP 'snapshot.zip'
+          $stage = Join-Path $env:RUNNER_TEMP 'release-source'
+          $package = Join-Path $env:RUNNER_TEMP "noname-shuying-$tag.zip"
+
+          git -c core.autocrlf=false clone --depth 1 `
+            --branch $tag `
+            https://gitea.diuse.work/Diuse/noname-shuying.git `
+            $checkout
+          if ($LASTEXITCODE -ne 0) { throw '克隆标签失败' }
+
+          git -C $checkout archive --format=zip `
+            "--output=$snapshot" HEAD
+          if ($LASTEXITCODE -ne 0) { throw '导出标签文件失败' }
+
+          Expand-Archive -LiteralPath $snapshot `
+            -DestinationPath $stage
+
+          $extension = Get-Content `
+            (Join-Path $stage 'extension.js') -Raw
+          $match = [regex]::Match(
+            $extension,
+            'shuYingLocalVersion\s*=\s*"([^"]+)"'
+          )
+          if (!$match.Success -or $match.Groups[1].Value -ne $version) {
+            throw "extension.js 的版本号必须为 $version"
+          }
+
+          python (Join-Path $stage 'tools/generate_manifest.py') `
+            --root $stage `
+            --version $version `
+            --out dist/manifest.json
+          if ($LASTEXITCODE -ne 0) { throw '生成清单失败' }
+
+          $manifestPath = Join-Path $stage 'dist/manifest.json'
+          $manifest = Get-Content $manifestPath -Raw |
+            ConvertFrom-Json
+          $workflowFiles = @(
+            $manifest.files.PSObject.Properties.Name |
+              Where-Object { $_ -like '.gitea/*' }
+          )
+          if ($workflowFiles.Count -gt 0) {
+            throw '清单包含 .gitea 文件，请先修改 EXCLUDE_DIRS'
+          }
+
+          @'
+          import json
+          import sys
+          import zipfile
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          output = Path(sys.argv[2])
+          manifest = json.loads(
+              (root / "dist/manifest.json").read_text(encoding="utf-8")
+          )
+          folder = "\u672f\u6a31\u5305/"
+          with zipfile.ZipFile(
+              output, "w", zipfile.ZIP_DEFLATED
+          ) as archive:
+              for name in manifest["files"]:
+                  archive.write(root / name, folder + name)
+              archive.write(
+                  root / "dist/manifest.json",
+                  folder + "manifest.json"
+              )
+          '@ | python - $stage $package
+          if ($LASTEXITCODE -ne 0) { throw '打包失败' }
+
+          Write-Host "版本：$version"
+          Write-Host "文件数：$($manifest.file_count)"
+          Write-Host "安装包：$package"
+
+      - name: Publish Release
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (!$env:GITEA_TOKEN) {
+            throw '工作流没有获得 GITEA_TOKEN'
+          }
+
+          $tag = $env:RELEASE_TAG
+          $stage = Join-Path $env:RUNNER_TEMP 'release-source'
+          $manifestPath = Join-Path $stage 'dist/manifest.json'
+          $package = Join-Path $env:RUNNER_TEMP `
+            "noname-shuying-$tag.zip"
+          $api = 'https://gitea.diuse.work/api/v1/repos/' +
+            'Diuse/noname-shuying/releases'
+          $headers = @{
+            Authorization = "token $env:GITEA_TOKEN"
+          }
+
+          $body = @{
+            tag_name = $tag
+            name = $tag
+            draft = $true
+            prerelease = $tag.Contains('-rc.')
+          } | ConvertTo-Json -Compress
+
+          $release = Invoke-RestMethod -Method Post `
+            -Uri $api `
+            -Headers $headers `
+            -ContentType 'application/json' `
+            -Body $body
+
+          $assetApi = "$api/$($release.id)/assets"
+          foreach ($file in @($manifestPath, $package)) {
+            curl.exe --fail --silent --show-error `
+              -H "Authorization: token $env:GITEA_TOKEN" `
+              -F "attachment=@$file" `
+              $assetApi | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+              throw "上传附件失败：$file"
+            }
+          }
+
+          Invoke-RestMethod -Method Patch `
+            -Uri "$api/$($release.id)" `
+            -Headers $headers `
+            -ContentType 'application/json' `
+            -Body '{"draft":false}' | Out-Null
+
+          Write-Host "发布完成：$tag"
