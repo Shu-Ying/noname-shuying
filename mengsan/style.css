@@ -49,6 +49,7 @@
 .mengsan-panel-shuying > .mengsan-description-shuying,
 .mengsan-panel-shuying > .mengsan-choice-list-shuying,
 .mengsan-panel-shuying > .mengsan-map-status-shuying,
+.mengsan-panel-shuying > .mengsan-map-viewport-shuying,
 .mengsan-panel-shuying > .mengsan-map-shuying,
 .mengsan-choice-list-shuying > .mengsan-choice-shuying,
 .mengsan-choice-shuying > .mengsan-choice-name-shuying,
@@ -105,19 +106,28 @@
     border: 1px solid rgba(242, 210, 142, 0.34);
     border-radius: 9px;
     background: rgba(255, 255, 255, 0.055);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    appearance: none;
     cursor: pointer;
-    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    touch-action: manipulation;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .mengsan-choice-shuying:hover {
     transform: translateY(-2px);
     border-color: rgba(242, 210, 142, 0.8);
     background: rgba(242, 210, 142, 0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .22);
 }
 
+.mengsan-choice-shuying:active { transform: translateY(0); background: rgba(242, 210, 142, 0.18); }
+.mengsan-choice-shuying:focus-visible { outline: 3px solid #f2d28e; outline-offset: 3px; }
+
 .mengsan-choice-shuying.disabled {
-    cursor: default;
-    opacity: 0.35;
+    cursor: not-allowed;
+    opacity: 0.45;
     filter: grayscale(1);
 }
 
@@ -138,121 +148,1009 @@
     font-size: 13px;
 }
 
+/* 行军图: 宣纸 #ded4b9 / 墨 #303b37 / 朱砂 #963c30 / 苔 #627365 / 绢 #b7a887 */
+.mengsan-map-overlay-shuying {
+    padding: 0 !important;
+    background: radial-gradient(ellipse at 50% 30%, #627365, #303b37 76%);
+    color: #ded4b9;
+}
 .mengsan-map-panel-shuying {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    min-width: 100%;
-    min-height: 100%;
     max-width: none !important;
     max-height: none !important;
-    padding: clamp(12px, 2vw, 24px);
+    padding: 18px 200px 0 28px;
     border: 0;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
     overflow: hidden;
 }
-
-.mengsan-map-overlay-shuying {
-    padding: 0 !important;
-    background:
-        radial-gradient(circle at 50% 18%, rgba(67, 59, 82, 0.82), rgba(9, 10, 16, 0.97)),
-        repeating-linear-gradient(12deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 12px);
-}
-
 .mengsan-map-panel-shuying > .mengsan-title-shuying {
-    margin-bottom: 6px;
-    font-size: clamp(24px, 3vw, 36px);
+    font: 30px/1.25 "STKaiti", "KaiTi", "SimSun", serif;
+    color: #ded4b9;
+    margin: 0 0 6px;
+    text-shadow: none;
+    letter-spacing: .12em;
 }
-
 .mengsan-map-panel-shuying > .mengsan-map-status-shuying {
-    margin-bottom: 10px;
+    color: #ded4b9;
+    font-size: 13px;
+    margin: 0 0 14px;
 }
-
+.mengsan-map-viewport-shuying {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: none;
+    scrollbar-color: #b7a887 transparent;
+}
 .mengsan-map-shuying {
     position: relative;
     display: block !important;
-    flex: 1 1 auto !important;
-    width: 100%;
-    height: auto !important;
-    min-height: 0;
+    width: min(100%, 860px);
+    height: max(1080px, 160vh) !important;
+    margin: 0 auto;
     overflow: hidden;
-    border-radius: 0;
-    background: transparent;
+    isolation: isolate;
+    border-inline: 5px double #b7a887;
+    background:
+        repeating-linear-gradient(93deg, #303b3705 0 1px, transparent 1px 7px),
+        radial-gradient(ellipse at 0 50%, #b7a88799, transparent 50%),
+        radial-gradient(ellipse at 100% 10%, #b7a88799, transparent 48%), #ded4b9;
+    box-shadow: 0 0 30px #141d1a66, inset 0 0 50px #b7a887;
+}
+.mengsan-ink-landscape-shuying {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    fill: #627365; stroke: #303b37; stroke-width: 2; opacity: .09;
+}
+.mengsan-lines-shuying {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+}
+.mengsan-lines-shuying path {
+    fill: none; vector-effect: non-scaling-stroke;
+    stroke: #303b3760; stroke-width: 2; stroke-dasharray: 3 8; stroke-linecap: round;
+}
+.mengsan-lines-shuying path.dynamic { stroke-dasharray: 2 5; }
+.mengsan-lines-shuying path.completed { stroke: #303b37; stroke-dasharray: none; stroke-width: 2.5; }
+.mengsan-lines-shuying path.available { stroke: #963c30; stroke-width: 2.5; }
+.mengsan-map-shuying .mengsan-node-shuying {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 52px; height: 52px; padding: 7px; margin: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid transparent; border-radius: 45% 51% 43% 49%;
+    background: #ded4b9; color: #303b37;
+    box-shadow: none; text-shadow: none; appearance: none;
+    font: 13px/1.3 "Microsoft YaHei", sans-serif;
+    cursor: default; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.mengsan-ink-icon-shuying {
+    display: block; width: 32px; height: 32px; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.mengsan-node-shuying > span {
+    position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+    width: max-content; max-width: 100px; padding: 1px 4px;
+    color: #303b37; background: #ded4b9e8; pointer-events: none;
+    opacity: 0;
+}
+.mengsan-node-shuying.selectable { border-color: #963c30; color: #963c30; cursor: pointer; }
+.mengsan-node-shuying.locked { color: #303b3799; }
+.mengsan-node-shuying.completed { color: #627365; }
+.mengsan-node-shuying.current::before {
+    content: "驻"; position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+    background: #963c30; color: #ded4b9; padding: 2px 5px; font-family: "KaiTi", serif;
+}
+.mengsan-node-shuying[data-type="boss"] { width: 66px; height: 66px; }
+.mengsan-node-shuying[data-type="boss"] .mengsan-ink-icon-shuying { width: 42px; height: 42px; }
+.mengsan-node-shuying.selectable > span,
+.mengsan-node-shuying.current > span,
+.mengsan-node-shuying:hover > span,
+.mengsan-node-shuying:focus-visible > span { opacity: 1; }
+.mengsan-map-shuying .mengsan-node-shuying:focus-visible { outline: 3px solid #963c30; outline-offset: 4px; }
+.mengsan-map-shuying .mengsan-node-shuying.selectable:hover { background: #b7a887; }
+.mengsan-ink-legend-shuying {
+    position: absolute; right: 26px; top: 24%; width: 150px; padding: 16px;
+    color: #303b37; background: #ded4b9; border-block: 4px double #b7a887;
+    box-shadow: 3px 6px 18px #141d1a33; z-index: 3;
+}
+.mengsan-ink-legend-shuying summary { cursor: pointer; font: 20px "KaiTi", "SimSun", serif; }
+.mengsan-ink-legend-shuying > div { position: relative; display: flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 13px; }
+.mengsan-ink-legend-shuying .mengsan-ink-icon-shuying { width: 24px; height: 24px; }
+.mengsan-ink-legend-shuying p { margin: 16px 0 0; font-size: 11px; line-height: 1.7; }
+@media (max-width: 899px) {
+    .mengsan-map-panel-shuying > .mengsan-title-shuying { font-size: 20px; padding-right: 108px; text-align: left; letter-spacing: 0; }
+    .mengsan-map-panel-shuying > .mengsan-map-status-shuying { font-size: 12px; margin-bottom: 10px; }
+    .mengsan-ink-legend-shuying { right: 8px; top: 12px; width: auto; padding: 6px 10px; }
+    .mengsan-ink-legend-shuying[open] { width: 148px; max-height: calc(100% - 24px); overflow-y: auto; }
+    .mengsan-ink-legend-shuying summary { font-size: 16px; }
+    .mengsan-map-shuying .mengsan-node-shuying { width: 46px; height: 46px; padding: 6px; }
+    .mengsan-map-shuying .mengsan-node-shuying[data-type="boss"] { width: 58px; height: 58px; }
 }
 
-.mengsan-lines-shuying {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
+
+.mengsan-dialogue-overlay-shuying {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 90;
+    overflow: hidden;
+    color: #f8eedb;
+    font-family: "Microsoft YaHei", sans-serif;
+    background:
+        linear-gradient(180deg, rgba(5, 7, 11, 0.22) 0%, rgba(5, 7, 11, 0.08) 46%, rgba(5, 7, 11, 0.64) 100%),
+        radial-gradient(circle at 28% 42%, rgba(112, 91, 63, 0.2), rgba(8, 10, 15, 0.68) 72%);
+}
+
+.mengsan-dialogue-overlay-shuying *,
+.mengsan-dialogue-overlay-shuying *::before,
+.mengsan-dialogue-overlay-shuying *::after {
+    box-sizing: border-box;
+}
+
+.mengsan-dialogue-stage-shuying {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.mengsan-dialogue-chapter-shuying {
+    position: absolute !important;
+    top: clamp(14px, 3vh, 30px) !important;
+    right: clamp(18px, 4vw, 54px) !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    color: rgba(245, 221, 174, 0.66);
+    font-size: clamp(12px, 1.5vw, 16px);
+    letter-spacing: 0.22em;
+    text-shadow: 0 2px 5px #000;
+}
+
+.mengsan-dialogue-portrait-frame-shuying {
+    position: absolute !important;
+    left: clamp(5vw, 10vw, 150px) !important;
+    bottom: clamp(150px, 27vh, 238px) !important;
+    top: auto !important;
+    width: 144px !important;
+    height: 202px !important;
+    padding: 5px;
+    border: 2px solid #a97a2c;
+    border-radius: 7px;
+    background: linear-gradient(145deg, #d6ad58, #6c4317 34%, #d9b761 66%, #583410);
+    opacity: 0;
+    transform: translateX(-18px) scale(0.98);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.58), inset 0 0 0 1px rgba(255, 230, 164, 0.48);
     pointer-events: none;
 }
 
-.mengsan-lines-shuying line {
-    vector-effect: non-scaling-stroke;
-    stroke: rgba(232, 219, 190, 0.68);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-dasharray: 6 5;
-}
-
-.mengsan-lines-shuying line.completed {
-    stroke: rgba(243, 207, 128, 0.95);
-}
-
-.mengsan-lines-shuying line.dynamic {
-    stroke: rgba(118, 205, 255, 0.95);
-    stroke-dasharray: 3 4;
-}
-
-.mengsan-node-shuying {
+.mengsan-dialogue-portrait-frame-shuying::before,
+.mengsan-dialogue-portrait-frame-shuying::after {
+    content: "";
     position: absolute;
-    width: 66px;
-    height: 40px;
-    transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    border: 2px solid var(--node-color);
-    border-radius: 50%;
-    background: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.2), transparent 42%), var(--node-color);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.42);
-    color: #fff4df;
-    font-size: 12px;
-    text-align: center;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    border-color: #efca70;
+    pointer-events: none;
+}
+
+.mengsan-dialogue-portrait-frame-shuying::before {
+    left: -5px;
+    top: -5px;
+    border-left: 3px solid #efca70;
+    border-top: 3px solid #efca70;
+    border-radius: 7px 0 0;
+}
+
+.mengsan-dialogue-portrait-frame-shuying::after {
+    right: -5px;
+    bottom: -5px;
+    border-right: 3px solid #efca70;
+    border-bottom: 3px solid #efca70;
+    border-radius: 0 0 7px;
+}
+
+.mengsan-dialogue-portrait-frame-shuying.visible {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.mengsan-dialogue-portrait-shuying {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+    border: 1px solid rgba(45, 25, 9, 0.9);
+    border-radius: 3px;
+    background-color: #21160f;
+    background-position: center 18% !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.28);
+    pointer-events: none !important;
+}
+
+.mengsan-dialogue-box-shuying {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: clamp(18px, 4vh, 42px) !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(1120px, 92vw) !important;
+    height: auto !important;
+    min-height: clamp(120px, 20vh, 180px);
+    padding: clamp(32px, 5vh, 46px) clamp(24px, 4vw, 52px) 28px;
+    border: 1px solid rgba(231, 205, 154, 0.45);
+    border-top-color: rgba(247, 219, 159, 0.85);
+    border-radius: 4px 4px 12px 12px;
+    background: linear-gradient(105deg, rgba(13, 16, 23, 0.91), rgba(23, 24, 31, 0.76));
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.56), inset 0 1px rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    cursor: pointer;
     user-select: none;
 }
 
-.mengsan-node-shuying.selectable {
-    cursor: pointer;
-    animation: mengsan-node-pulse-shuying 1.6s infinite;
+.mengsan-dialogue-speaker-shuying {
+    position: absolute !important;
+    left: clamp(20px, 4vw, 50px) !important;
+    top: -22px !important;
+    width: auto !important;
+    height: 44px !important;
+    min-width: 128px;
+    padding: 9px 24px;
+    border: 1px solid rgba(235, 205, 144, 0.65);
+    border-radius: 4px;
+    background: rgba(37, 30, 28, 0.94);
+    color: #f3d69d;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 24px;
+    text-align: center;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.38);
 }
 
-.mengsan-node-shuying.locked {
-    opacity: 0.45;
-    filter: grayscale(0.65);
+.mengsan-dialogue-text-shuying {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 3.4em;
+    color: rgba(255, 249, 238, 0.95);
+    font-size: clamp(17px, 2.1vw, 23px);
+    line-height: 1.7;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.mengsan-node-shuying.completed {
-    opacity: 0.72;
-    box-shadow: 0 0 0 3px rgba(244, 211, 139, 0.3);
+.mengsan-dialogue-stage-shuying[data-line-type="narrator"] .mengsan-dialogue-speaker-shuying,
+.mengsan-dialogue-stage-shuying[data-line-type="sound"] .mengsan-dialogue-speaker-shuying {
+    color: #d7dce7;
+    border-color: rgba(199, 208, 225, 0.42);
+    background: rgba(24, 29, 39, 0.94);
 }
 
-@keyframes mengsan-node-pulse-shuying {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(242, 207, 132, 0.18), 0 5px 15px rgba(0, 0, 0, 0.42); }
-    50% { box-shadow: 0 0 0 8px rgba(242, 207, 132, 0), 0 5px 18px rgba(0, 0, 0, 0.55); }
+.mengsan-dialogue-stage-shuying[data-line-type="sound"] .mengsan-dialogue-text-shuying {
+    color: rgba(208, 218, 233, 0.9);
+    font-style: italic;
+    letter-spacing: 0.08em;
+}
+
+.mengsan-dialogue-progress-shuying {
+    position: absolute !important;
+    right: 26px !important;
+    top: 13px !important;
+    width: auto !important;
+    height: auto !important;
+    color: rgba(255, 255, 255, 0.34);
+    font-size: 11px;
+}
+
+.mengsan-dialogue-indicator-shuying {
+    position: absolute !important;
+    right: 24px !important;
+    bottom: 14px !important;
+    width: auto !important;
+    height: auto !important;
+    color: #e9c77f;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateY(-3px);
+}
+
+.mengsan-dialogue-indicator-shuying.visible {
+    opacity: 0.9;
+    animation: mengsan-dialogue-indicator-shuying 1s ease-in-out infinite;
+}
+
+@keyframes mengsan-dialogue-indicator-shuying {
+    50% { transform: translateY(3px); }
 }
 
 @media (max-width: 600px) {
     .mengsan-overlay-shuying { padding: 7px; }
     .mengsan-panel-shuying { padding: 14px; }
     .mengsan-title-shuying { font-size: 24px; }
-    .mengsan-map-panel-shuying { padding: 8px; }
-    .mengsan-map-shuying { min-height: 0; }
-    .mengsan-node-shuying { width: 54px; height: 36px; font-size: 11px; }
+    .mengsan-dialogue-portrait-frame-shuying {
+        left: 5vw !important;
+        bottom: clamp(142px, 31vh, 206px) !important;
+        width: 104px !important;
+        height: 146px !important;
+        padding: 4px;
+    }
+    .mengsan-dialogue-box-shuying {
+        bottom: 8px !important;
+        width: 96vw !important;
+        min-height: 126px;
+        padding: 30px 18px 24px;
+    }
+    .mengsan-dialogue-speaker-shuying {
+        left: 14px !important;
+        min-width: 100px;
+        height: 38px !important;
+        padding: 6px 16px;
+        font-size: 15px;
+    }
+    .mengsan-dialogue-text-shuying { font-size: clamp(15px, 4vw, 18px); }
+    .mengsan-dialogue-chapter-shuying { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mengsan-dialogue-portrait-frame-shuying,
+    .mengsan-dialogue-indicator-shuying {
+        transition: none;
+        animation: none !important;
+    }
+}
+
+.mengsan-map-viewport-shuying::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.mengsan-map-viewport-shuying.dragging, .mengsan-map-viewport-shuying.dragging * { cursor: grabbing !important; }
+.mengsan-map-shuying .mengsan-node-shuying { touch-action: none; }
+/* 梦三行军图视觉系统：深墨舞台、宣纸路线、朱砂交互、铜金层级 */
+.mengsan-map-overlay-shuying {
+    --ms-ink-950: #111713;
+    --ms-ink-900: #19211c;
+    --ms-ink-800: #27332c;
+    --ms-paper-100: #eee5cc;
+    --ms-paper-200: #ded4b9;
+    --ms-paper-400: #b9aa86;
+    --ms-cinnabar-500: #a94438;
+    --ms-cinnabar-600: #8f342c;
+    --ms-gold-400: #d2af65;
+    --ms-gold-500: #aa7d38;
+    --ms-text-primary: #fff7e5;
+    --ms-text-secondary: #c9c3b1;
+    --ms-focus: #f0c86f;
+    --ms-motion-fast: 140ms;
+    --ms-motion-base: 220ms;
+    background:
+        radial-gradient(circle at 50% -15%, rgba(182, 147, 80, .20), transparent 42%),
+        radial-gradient(circle at 18% 75%, rgba(87, 111, 91, .20), transparent 36%),
+        linear-gradient(145deg, var(--ms-ink-800), var(--ms-ink-950) 72%);
+}
+
+.mengsan-map-panel-shuying {
+    padding: 0 !important;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
+
+.mengsan-map-header-shuying {
+    position: relative !important;
+    z-index: 8;
+    display: grid !important;
+    grid-template-columns: minmax(140px, 1fr) auto minmax(260px, 1fr);
+    align-items: center;
+    flex: none !important;
+    width: 100% !important;
+    min-height: 92px;
+    padding: 16px max(24px, env(safe-area-inset-right)) 16px max(24px, env(safe-area-inset-left));
+    border-bottom: 1px solid rgba(210, 175, 101, .24);
+    background: linear-gradient(180deg, rgba(17, 23, 19, .96), rgba(17, 23, 19, .84));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mengsan-map-title-group-shuying {
+    position: relative !important;
+    grid-column: 2;
+    min-width: min(390px, 42vw);
+    text-align: center;
+}
+
+.mengsan-map-eyebrow-shuying {
+    position: relative !important;
+    margin-bottom: 3px;
+    color: var(--ms-gold-400);
+    font: 600 10px/1.2 "Microsoft YaHei", sans-serif;
+    letter-spacing: .28em !important;
+    opacity: .78;
+}
+
+.mengsan-map-title-group-shuying > .mengsan-title-shuying {
+    position: relative !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: var(--ms-text-primary);
+    font: 700 clamp(22px, 2.4vw, 30px)/1.25 "STKaiti", "KaiTi", "SimSun", serif;
+    letter-spacing: .12em !important;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, .55);
+}
+
+.mengsan-map-menu-trigger-shuying {
+    position: relative;
+    grid-column: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-width: 112px;
+    min-height: 48px;
+    padding: 0 18px;
+    border: 1px solid rgba(210, 175, 101, .48);
+    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(238, 229, 204, .10), rgba(238, 229, 204, .04));
+    color: var(--ms-text-primary);
+    font: 600 16px/1 "Microsoft YaHei", sans-serif;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background var(--ms-motion-fast), border-color var(--ms-motion-fast), box-shadow var(--ms-motion-fast);
+}
+
+.mengsan-map-menu-trigger-shuying:hover,
+.mengsan-map-menu-trigger-shuying[aria-expanded="true"] {
+    border-color: var(--ms-gold-400);
+    background: rgba(210, 175, 101, .16);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
+}
+
+.mengsan-control-icon-shuying {
+    display: block;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.mengsan-map-header-shuying > .mengsan-map-status-shuying {
+    position: relative !important;
+    grid-column: 3;
+    justify-self: end;
+    display: flex !important;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto !important;
+    margin: 0 !important;
+    color: var(--ms-text-primary);
+}
+
+.mengsan-map-stat-shuying {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 72px;
+    min-height: 48px;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 6px;
+    background: rgba(255,255,255,.045);
+    text-align: left;
+}
+.mengsan-map-stat-label-shuying { position: relative !important; color: var(--ms-text-secondary); font-size: 11px; line-height: 1.2; }
+.mengsan-map-stat-value-shuying { position: relative !important; margin-top: 3px; color: var(--ms-text-primary); font: 700 15px/1.2 ui-monospace, "Microsoft YaHei", sans-serif; font-variant-numeric: tabular-nums; }
+
+.mengsan-map-panel-shuying > .mengsan-ink-legend-shuying { top: 116px; }
+.mengsan-map-viewport-shuying {
+    position: relative !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-height: 0;
+    padding: 24px 196px 32px 24px;
+    scroll-padding-block: 24px;
+}
+.mengsan-map-shuying {
+    width: min(100%, 900px);
+    border: 1px solid rgba(185, 170, 134, .78);
+    border-radius: 4px;
+    background:
+        linear-gradient(90deg, transparent 49.8%, rgba(70, 65, 50, .07) 50%, transparent 50.2%),
+        repeating-linear-gradient(96deg, rgba(48, 59, 55, .025) 0 1px, transparent 1px 8px),
+        radial-gradient(ellipse at 8% 52%, rgba(98, 115, 101, .20), transparent 48%),
+        radial-gradient(ellipse at 92% 12%, rgba(150, 60, 48, .10), transparent 38%),
+        var(--ms-paper-200);
+    box-shadow: 0 24px 55px rgba(0,0,0,.30), inset 0 0 72px rgba(91, 75, 47, .18);
+}
+.mengsan-ink-landscape-shuying { opacity: .12; }
+.mengsan-lines-shuying path { stroke: rgba(48, 59, 55, .36); stroke-width: 2.2; }
+.mengsan-lines-shuying path.completed { stroke: #516456; stroke-width: 3; }
+.mengsan-lines-shuying path.available { stroke: var(--ms-cinnabar-500); stroke-width: 3.2; filter: drop-shadow(0 0 3px rgba(169, 68, 56, .28)); }
+
+.mengsan-map-shuying .mengsan-node-shuying {
+    width: 58px;
+    height: 58px;
+    padding: 10px;
+    border: 1px solid var(--node-color);
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f3ead3, #d4c7a7);
+    color: var(--node-color);
+    box-shadow: 0 5px 14px rgba(49, 44, 31, .18), inset 0 0 0 3px rgba(255,255,255,.34);
+    transition: color var(--ms-motion-fast), background var(--ms-motion-fast), border-color var(--ms-motion-fast), box-shadow var(--ms-motion-fast), opacity var(--ms-motion-fast);
+    touch-action: manipulation;
+}
+.mengsan-map-shuying .mengsan-node-shuying > span {
+    top: calc(100% + 7px);
+    min-width: max-content;
+    padding: 3px 7px;
+    border: 1px solid rgba(48, 59, 55, .16);
+    border-radius: 3px;
+    background: rgba(238, 229, 204, .94);
+    color: #29332d;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(49, 44, 31, .12);
+}
+.mengsan-node-shuying.selectable {
+    border: 3px solid var(--ms-cinnabar-500) !important;
+    color: var(--ms-cinnabar-600) !important;
+    box-shadow: 0 0 0 5px rgba(169, 68, 56, .13), 0 8px 20px rgba(76, 35, 27, .24) !important;
+}
+.mengsan-node-shuying.selectable > span,
+.mengsan-node-shuying.current > span { opacity: 1; }
+.mengsan-node-shuying.locked { opacity: .56; filter: saturate(.45); }
+.mengsan-node-shuying.completed { color: #52675a; background: linear-gradient(145deg, #d8decf, #b7c1ad); }
+.mengsan-node-shuying.current::before {
+    min-width: 34px;
+    padding: 4px 7px;
+    border-radius: 3px;
+    background: var(--ms-cinnabar-600);
+    color: #fff8e7;
+    box-shadow: 0 4px 10px rgba(81, 29, 24, .28);
+}
+.mengsan-map-shuying .mengsan-node-shuying.selectable:hover {
+    background: #fff4d9;
+    box-shadow: 0 0 0 7px rgba(169, 68, 56, .16), 0 10px 24px rgba(76, 35, 27, .28) !important;
+}
+.mengsan-map-shuying .mengsan-node-shuying:active { filter: brightness(.92); }
+.mengsan-map-shuying .mengsan-node-shuying:focus-visible,
+.mengsan-map-menu-trigger-shuying:focus-visible,
+.mengsan-map-menu-action-shuying:focus-visible,
+.mengsan-map-icon-button-shuying:focus-visible,
+.mengsan-map-menu-back-shuying:focus-visible {
+    outline: 3px solid var(--ms-focus);
+    outline-offset: 3px;
+}
+
+.mengsan-ink-legend-shuying {
+    right: 24px;
+    width: 156px;
+    padding: 14px;
+    border: 1px solid rgba(210, 175, 101, .36);
+    border-radius: 6px;
+    background: rgba(25, 33, 28, .92);
+    color: var(--ms-text-secondary);
+    box-shadow: 0 16px 38px rgba(0,0,0,.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.mengsan-ink-legend-shuying summary { min-height: 28px; color: var(--ms-text-primary); font: 600 17px/1.5 "KaiTi", serif; }
+.mengsan-ink-legend-shuying > div { gap: 10px; margin-top: 10px; }
+.mengsan-ink-legend-shuying .mengsan-ink-icon-shuying { color: var(--ms-gold-400); }
+
+.mengsan-map-menu-layer-shuying {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 30;
+    display: flex !important;
+    align-items: stretch;
+}
+.mengsan-map-menu-layer-shuying[hidden] { display: none !important; }
+.mengsan-map-menu-scrim-shuying {
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(5, 9, 7, .72);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+.mengsan-map-menu-sheet-shuying {
+    position: relative !important;
+    z-index: 1;
+    display: block !important;
+    width: min(420px, calc(100vw - 32px));
+    height: 100% !important;
+    padding: 0 !important;
+    border: 0;
+    border-right: 1px solid rgba(210, 175, 101, .34);
+    background:
+        radial-gradient(circle at 10% 0, rgba(210, 175, 101, .14), transparent 34%),
+        linear-gradient(155deg, #222d26, #111713 76%);
+    color: var(--ms-text-primary);
+    box-shadow: 24px 0 70px rgba(0,0,0,.45);
+    animation: mengsan-menu-enter-shuying var(--ms-motion-base) ease-out both;
+}
+@keyframes mengsan-menu-enter-shuying { from { opacity: 0; transform: translateX(-20px); } }
+.mengsan-map-menu-header-shuying { position: absolute !important; z-index: 3; inset: max(20px, env(safe-area-inset-top)) 20px auto 20px !important; display: flex !important; align-items: center; justify-content: space-between; height: 74px !important; padding: 4px 4px 18px; border-bottom: 1px solid rgba(255,255,255,.09); visibility: visible !important; opacity: 1 !important; }
+.mengsan-map-menu-heading-group-shuying { position: relative !important; }
+.mengsan-map-menu-kicker-shuying { position: relative !important; color: var(--ms-gold-400); font-size: 11px; letter-spacing: .2em !important; }
+.mengsan-map-menu-title-shuying { position: relative !important; margin-top: 5px; color: var(--ms-text-primary); font: 700 28px/1.2 "STKaiti", "KaiTi", serif; }
+.mengsan-map-icon-button-shuying {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 50%;
+    background: rgba(255,255,255,.055);
+    color: var(--ms-text-primary);
+    cursor: pointer;
+}
+.mengsan-map-menu-content-shuying { position: absolute !important; z-index: 2; inset: calc(max(20px, env(safe-area-inset-top)) + 88px) 20px calc(max(20px, env(safe-area-inset-bottom)) + 98px) 20px !important; display: flex !important; flex-direction: column; gap: 10px; min-height: 0; padding: 0 4px 10px; overflow-y: auto; visibility: visible !important; opacity: 1 !important; }
+.mengsan-map-menu-action-shuying {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 68px;
+    padding: 11px 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 7px;
+    background: rgba(255,255,255,.045);
+    color: var(--ms-text-primary);
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background var(--ms-motion-fast), border-color var(--ms-motion-fast);
+}
+.mengsan-map-menu-action-shuying:hover { border-color: rgba(210,175,101,.48); background: rgba(210,175,101,.10); }
+.mengsan-map-menu-action-shuying:active { background: rgba(210,175,101,.18); }
+.mengsan-map-menu-action-shuying:disabled { cursor: not-allowed; opacity: .42; }
+.mengsan-map-menu-action-shuying > .mengsan-control-icon-shuying { width: 26px; height: 26px; color: var(--ms-gold-400); }
+.mengsan-map-menu-action-copy-shuying { position: relative !important; min-width: 0; }
+.mengsan-map-menu-action-name-shuying { position: relative !important; color: var(--ms-text-primary); font-size: 16px; font-weight: 700; }
+.mengsan-map-menu-action-description-shuying { position: relative !important; margin-top: 4px; color: var(--ms-text-secondary); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+.mengsan-map-menu-action-shuying.danger { margin-top: auto; border-color: rgba(189,75,63,.30); color: #ffd7ce; }
+.mengsan-map-menu-action-shuying.danger > .mengsan-control-icon-shuying { color: #e58d7e; }
+.mengsan-map-menu-action-shuying.danger:hover { border-color: rgba(229,141,126,.65); background: rgba(169,68,56,.16); }
+.mengsan-map-menu-divider-shuying { position: relative !important; height: 1px; margin: 6px 0; background: rgba(255,255,255,.09); }
+.mengsan-map-menu-footer-shuying {
+    position: absolute !important;
+    z-index: 12;
+    left: 20px !important;
+    right: 20px !important;
+    bottom: max(18px, env(safe-area-inset-bottom)) !important;
+    height: 80px !important;
+    padding: 14px 4px 0;
+    border-top: 1px solid rgba(255,255,255,.09);
+    background: #111713;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.mengsan-map-exit-fixed-shuying {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 14px !important;
+    width: 100% !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    margin: 0 !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(229,141,126,.58) !important;
+    border-radius: 7px !important;
+    background: rgba(169,68,56,.18) !important;
+    box-shadow: none !important;
+    color: #ffe2da !important;
+    font-family: "Microsoft YaHei", sans-serif !important;
+    text-align: left !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    transform: none !important;
+    touch-action: manipulation;
+}
+.mengsan-map-exit-fixed-shuying:hover { border-color: #e58d7e !important; background: rgba(169,68,56,.30) !important; }
+.mengsan-map-exit-fixed-shuying:focus-visible { outline: 3px solid var(--ms-focus) !important; outline-offset: 3px !important; }
+.mengsan-map-exit-fixed-shuying > .mengsan-control-icon-shuying { position: relative !important; width: 26px !important; height: 26px !important; color: #efa394 !important; }
+.mengsan-map-exit-copy-shuying { position: relative !important; display: flex !important; flex-direction: column !important; min-width: 0 !important; color: inherit !important; visibility: visible !important; opacity: 1 !important; }
+.mengsan-map-exit-copy-shuying > strong { position: relative !important; display: block !important; color: #ffe2da !important; font-size: 16px !important; line-height: 1.25 !important; }
+.mengsan-map-exit-copy-shuying > small { position: relative !important; display: block !important; margin-top: 4px !important; color: #d9aea5 !important; font-size: 12px !important; line-height: 1.3 !important;
+}
+.mengsan-map-menu-page-intro-shuying { position: relative !important; margin-bottom: 4px; color: var(--ms-text-secondary); font-size: 14px; line-height: 1.6; }
+.mengsan-map-menu-back-shuying { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; margin-top: auto; border: 1px solid rgba(210,175,101,.34); border-radius: 6px; background: rgba(210,175,101,.08); color: var(--ms-text-primary); cursor: pointer; }
+.mengsan-map-inventory-summary-shuying { position: relative !important; display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mengsan-map-inventory-count-shuying { position: relative !important; padding: 13px 8px; border: 1px solid rgba(255,255,255,.09); border-radius: 6px; background: rgba(255,255,255,.04); text-align: center; }
+.mengsan-map-inventory-count-shuying > div:first-child { position: relative !important; color: var(--ms-gold-400); font: 700 22px/1.2 ui-monospace, monospace; }
+.mengsan-map-inventory-count-shuying > div:last-child { position: relative !important; margin-top: 4px; color: var(--ms-text-secondary); font-size: 12px; }
+.mengsan-map-inventory-list-shuying, .mengsan-map-record-list-shuying { position: relative !important; display: grid !important; gap: 8px; margin-top: 4px; }
+.mengsan-map-inventory-section-title-shuying { position: relative !important; margin-top: 10px; color: var(--ms-gold-400); font-size: 13px; font-weight: 700; letter-spacing: .08em !important; }
+.mengsan-map-inventory-row-shuying { position: relative !important; display: flex !important; justify-content: space-between; gap: 16px; min-height: 44px; padding: 11px 13px; border-bottom: 1px solid rgba(255,255,255,.08); color: var(--ms-text-primary); }
+.mengsan-map-inventory-row-shuying > div { position: relative !important; }
+.mengsan-map-empty-shuying { position: relative !important; padding: 24px; color: var(--ms-text-secondary); text-align: center; }
+.mengsan-map-placeholder-shuying { position: relative !important; display: flex !important; flex-direction: column; align-items: center; justify-content: center; min-height: 220px; padding: 28px; border: 1px dashed rgba(210,175,101,.28); border-radius: 8px; background: rgba(255,255,255,.025); text-align: center; }
+.mengsan-map-placeholder-shuying > .mengsan-control-icon-shuying { width: 38px; height: 38px; color: var(--ms-gold-400); opacity: .72; }
+.mengsan-map-placeholder-title-shuying { position: relative !important; margin-top: 14px; color: var(--ms-text-primary); font-size: 18px; font-weight: 700; }
+.mengsan-map-placeholder-text-shuying { position: relative !important; max-width: 260px; margin-top: 7px; color: var(--ms-text-secondary); font-size: 13px; line-height: 1.6; }
+
+@media (max-width: 899px) {
+    .mengsan-map-header-shuying { grid-template-columns: 48px minmax(0, 1fr); min-height: 78px; padding: 10px 12px; gap: 10px; }
+    .mengsan-map-menu-trigger-shuying { grid-column: 1; min-width: 48px; width: 48px; min-height: 48px; padding: 0; }
+    .mengsan-map-menu-trigger-shuying > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .mengsan-map-title-group-shuying { grid-column: 2; min-width: 0; text-align: left; }
+    .mengsan-map-eyebrow-shuying { display: none !important; }
+    .mengsan-map-title-group-shuying > .mengsan-title-shuying { font-size: clamp(17px, 5vw, 22px); letter-spacing: .05em !important; }
+    .mengsan-map-header-shuying > .mengsan-map-status-shuying { grid-column: 1 / -1; justify-self: stretch; justify-content: stretch; gap: 6px; }
+    .mengsan-map-stat-shuying { flex: 1; min-width: 0; min-height: 42px; padding: 5px 9px; }
+    .mengsan-map-stat-label-shuying { font-size: 10px; }
+    .mengsan-map-stat-value-shuying { font-size: 13px; }
+    .mengsan-map-viewport-shuying { padding: 16px 8px 28px; }
+    .mengsan-map-shuying { width: 100%; border-radius: 3px; }
+    .mengsan-map-panel-shuying > .mengsan-ink-legend-shuying { top: 12px; right: 12px; }
+    .mengsan-ink-legend-shuying { display: none; }
+    .mengsan-map-shuying .mengsan-node-shuying { width: 52px; height: 52px; padding: 9px; }
+    .mengsan-map-menu-layer-shuying { align-items: flex-end; }
+    .mengsan-map-menu-sheet-shuying { width: 100%; height: min(82dvh, 680px) !important; border-right: 0; border-top: 1px solid rgba(210,175,101,.34); border-radius: 16px 16px 0 0; animation-name: mengsan-menu-enter-mobile-shuying; }
+    @keyframes mengsan-menu-enter-mobile-shuying { from { opacity: 0; transform: translateY(24px); } }
+    .mengsan-map-menu-title-shuying { font-size: 24px; }
+    .mengsan-map-menu-header-shuying { inset: 14px 14px auto 14px !important; }
+    .mengsan-map-menu-content-shuying { inset: 102px 14px calc(max(14px, env(safe-area-inset-bottom)) + 92px) 14px !important; padding-top: 0; }
+    .mengsan-map-menu-footer-shuying { left: 14px !important; right: 14px !important; bottom: max(12px, env(safe-area-inset-bottom)) !important; }
+    .mengsan-map-menu-action-shuying { min-height: 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mengsan-map-menu-sheet-shuying { animation: none !important; }
+    .mengsan-map-menu-trigger-shuying,
+    .mengsan-map-menu-action-shuying,
+    .mengsan-map-shuying .mengsan-node-shuying { transition: none !important; }
+    .mengsan-choice-shuying { transition: none !important; }
+    .mengsan-choice-shuying:hover,
+    .mengsan-choice-shuying:active { transform: none !important; }
+}
+
+/* Shared flow tokens: paper, ink, antique gold, cinnabar. Scoped to Mengsan only. */
+.mengsan-flow-overlay-shuying, .mengsan-dialogue-overlay-shuying, .mengsan-menu-dialog-shuying {
+    --flow-ink: #172724;
+    --flow-paper: #efe5cf;
+    --flow-muted: #cbbfa4;
+    --flow-gold: #c4a568;
+    --flow-danger: #853d34;
+    color: var(--flow-paper);
+    font-family: "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+.mengsan-flow-overlay-shuying {
+    background: radial-gradient(ellipse at 18% 20%, #53635766, transparent 55%), linear-gradient(120deg, #172724f5, #101b1df5);
+    padding: 80px 24px 28px;
+}
+.mengsan-flow-panel-shuying {
+    width: min(680px, 100%) !important;
+    max-height: 100% !important;
+    padding: clamp(24px, 4vw, 48px);
+    border: 1px solid var(--flow-gold);
+    border-top: 4px double var(--flow-gold);
+    border-radius: 3px;
+    background: var(--flow-ink);
+    box-shadow: 0 20px 70px #0005;
+    scrollbar-width: thin;
+}
+.mengsan-flow-eyebrow-shuying {
+    position: relative !important; margin: 0 0 12px; color: var(--flow-gold); font-size: 13px; letter-spacing: .16em !important;
+}
+.mengsan-flow-panel-shuying > .mengsan-title-shuying {
+    text-align: left; font: 38px/1.3 "KaiTi", "STKaiti", "SimSun", serif; color: var(--flow-paper); margin-bottom: 12px;
+}
+.mengsan-flow-panel-shuying > .mengsan-description-shuying { text-align: left; color: var(--flow-muted); font-size: 14px; margin-bottom: 28px; }
+.mengsan-flow-panel-shuying .mengsan-choice-shuying {
+    min-height: 76px; padding: 16px 20px; border-radius: 3px; border-color: #c4a56866; background: #ffffff05; transition: background .15s, border-color .15s;
+}
+.mengsan-flow-panel-shuying .mengsan-choice-shuying:hover { transform: none; background: #c4a56818; box-shadow: none; }
+.mengsan-flow-panel-shuying .mengsan-choice-name-shuying { color: var(--flow-paper); font-size: 19px; }
+.mengsan-flow-panel-shuying .mengsan-choice-description-shuying { display: block; margin-top: 6px; color: var(--flow-muted); font-size: 14px; line-height: 1.6; }
+.mengsan-flow-panel-shuying .mengsan-choice-shuying:disabled { opacity: .5; cursor: not-allowed; }
+.mengsan-flow-panel-shuying .mengsan-choice-shuying.danger { border-color: #d89586; background: #853d3440; }
+.mengsan-flow-menu-shuying {
+    position: absolute !important; top: max(16px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));
+    z-index: 4; min-width: 96px; min-height: 48px; padding: 8px 16px;
+    border: 1px solid #c4a568; border-radius: 4px; color: #efe5cf; background: #172724; font: 17px/1.5 "Microsoft YaHei", sans-serif; cursor: pointer;
+}
+.mengsan-flow-menu-shuying:hover { background: #344840; }
+.mengsan-flow-menu-shuying { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.mengsan-flow-menu-shuying svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.mengsan-flow-menu-shuying:focus-visible, .mengsan-menu-dialog-shuying button:focus-visible { outline: 3px solid #efe5cf; outline-offset: 3px; }
+.mengsan-menu-dialog-shuying {
+    position: fixed; inset: 0; box-sizing: border-box; width: min(460px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+    margin: auto; padding: 28px; overflow: auto; border: 1px solid var(--flow-gold); border-radius: 4px; background: var(--flow-ink);
+}
+.mengsan-menu-dialog-shuying::backdrop { background: #08120fe0; }
+.mengsan-menu-dialog-shuying h2 { margin: 0 0 12px; font: 28px/1.3 "KaiTi", "SimSun", serif; }
+.mengsan-menu-dialog-shuying p { margin: 0 0 24px; color: var(--flow-muted); }
+.mengsan-menu-dialog-shuying button { display: block; width: 100%; min-height: 48px; margin-top: 12px; border: 1px solid #c4a56888; border-radius: 3px; padding: 10px; font: inherit; color: var(--flow-paper); background: #ffffff08; cursor: pointer; }
+.mengsan-menu-dialog-shuying button.danger { background: var(--flow-danger); border-color: #d89586; }
+.mengsan-dialogue-overlay-shuying { background: radial-gradient(ellipse at 35% 25%, #62736544, transparent 60%), linear-gradient(120deg, #172724ee, #101b1dee); }
+.mengsan-dialogue-chapter-shuying { top: 26px !important; left: 24px !important; max-width: calc(100% - 160px); color: var(--flow-muted); }
+.mengsan-dialogue-box-shuying { border-radius: 4px; border-color: var(--flow-gold); background: #172724f5; padding-bottom: 34px; }
+.mengsan-dialogue-speaker-shuying { border-radius: 2px; color: #172724; background: #efe5cf; font-family: "KaiTi", "SimSun", serif; }
+.mengsan-dialogue-text-shuying { color: var(--flow-paper); font-size: clamp(17px, 2vw, 22px); line-height: 1.85; max-height: 30vh; overflow: auto; }
+.mengsan-dialogue-help-shuying { position: absolute !important; bottom: 8px; left: 16px; right: 16px; text-align: center; font-size: 12px; color: var(--flow-muted); pointer-events: none; }
+.mengsan-dialogue-choices-shuying { position: absolute !important; left: 50%; bottom: clamp(210px, 32vh, 290px); transform: translateX(-50%); width: min(580px, 88vw); display: grid; gap: 10px; z-index: 5; }
+.mengsan-dialogue-skip-shuying { position: absolute !important; top: max(18px, env(safe-area-inset-top)); left: max(18px, env(safe-area-inset-left)); z-index: 6; padding: 8px 14px; border: 1px solid var(--flow-gold); border-radius: 4px; color: var(--flow-paper); background: #172724e8; font: inherit; cursor: pointer; }
+.mengsan-dialogue-skip-shuying:hover, .mengsan-dialogue-skip-shuying:focus-visible { background: #304540; outline: 2px solid var(--flow-gold); outline-offset: 2px; }
+.mengsan-dialogue-choice-shuying { padding: 12px 18px; border: 1px solid var(--flow-gold); border-radius: 4px; color: var(--flow-paper); background: #172724f5; text-align: left; font: inherit; cursor: pointer; }
+.mengsan-dialogue-choice-shuying:hover, .mengsan-dialogue-choice-shuying:focus-visible { background: #304540; outline: 2px solid var(--flow-gold); outline-offset: 2px; }
+@media (max-width: 600px) {
+    .mengsan-dialogue-chapter-shuying { display: block !important; font-size: 14px; }
+    .mengsan-flow-overlay-shuying { padding: 78px 12px 16px; }
+    .mengsan-flow-panel-shuying { padding: 24px 18px; }
+    .mengsan-flow-panel-shuying > .mengsan-title-shuying { font-size: 30px; }
+    .mengsan-flow-panel-shuying .mengsan-choice-shuying { padding: 14px; }
+    .mengsan-dialogue-box-shuying { bottom: 36px !important; }
+    .mengsan-dialogue-portrait-frame-shuying { bottom: clamp(186px, 36vh, 242px) !important; }
+}
+@media (max-height: 500px) {
+    .mengsan-flow-overlay-shuying { padding-top: 70px; padding-bottom: 12px; }
+    .mengsan-flow-panel-shuying { padding: 18px 24px; }
+    .mengsan-flow-panel-shuying > .mengsan-description-shuying { margin-bottom: 16px; }
+    .mengsan-dialogue-box-shuying { bottom: 28px !important; min-height: 100px; max-height: 50vh; padding: 24px 20px 20px; }
+    .mengsan-dialogue-text-shuying { max-height: 24vh; }
+    .mengsan-dialogue-portrait-frame-shuying { bottom: 48% !important; height: 110px !important; width: 80px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .mengsan-flow-panel-shuying *, .mengsan-flow-menu-shuying { animation: none !important; transition: none !important; }
+}
+
+/* Mode-owned card library: no engine .card nodes or third-party UI dependency. */
+dialog.mengsan-deck-dialog-shuying {
+    --ms-ink: #f4e7cc;
+    --ms-muted: #c6b89e;
+    --ms-gold: #dcb578;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    box-sizing: border-box;
+    width: min(1020px, calc(100vw - 32px));
+    height: min(760px, calc(100dvh - 32px));
+    max-height: calc(100dvh - 32px);
+    padding: 22px;
+    overflow: hidden;
+    border: 1px solid #ad8956;
+    border-radius: 12px;
+    color: var(--ms-ink);
+    background: radial-gradient(ellipse at top left, #4b3628, #221d19 70%);
+    box-shadow: 0 24px 80px #000a, inset 0 0 0 4px #dfbd7320;
+    font: 15px/1.5 "Microsoft YaHei", sans-serif;
+    text-align: left;
+    text-shadow: none;
+}
+dialog.mengsan-deck-dialog-shuying[open] { display: flex !important; flex-direction: column; gap: 14px; }
+dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
+.mengsan-deck-dialog-shuying *, .mengsan-deck-dialog-shuying *::before, .mengsan-deck-dialog-shuying *::after {
+    box-sizing: border-box; position: static; float: none; writing-mode: horizontal-tb;
+    text-shadow: none; letter-spacing: normal;
+}
+.mengsan-deck-dialog-shuying [hidden] { display: none !important; }
+.mengsan-deck-dialog-shuying h2, .mengsan-deck-dialog-shuying h3, .mengsan-deck-dialog-shuying h4,
+.mengsan-deck-dialog-shuying p { margin: 0; }
+.mengsan-deck-dialog-shuying button {
+    font: inherit; cursor: pointer; touch-action: manipulation;
+    border-radius: 6px; transform: none; height: auto; margin: 0;
+}
+.mengsan-deck-dialog-shuying button:focus-visible { outline: 3px solid #ffe0a1; outline-offset: 3px; }
+.mengsan-deck-dialog-shuying .ms-deck-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0; }
+.mengsan-deck-dialog-shuying .ms-deck-title { font: 700 28px/1.3 "STKaiti", "KaiTi", serif; }
+.mengsan-deck-dialog-shuying .ms-deck-eyebrow { color: var(--ms-gold); font-size: 12px; }
+.mengsan-deck-dialog-shuying .ms-deck-tabs { display: flex; gap: 10px; flex-shrink: 0; }
+.mengsan-deck-dialog-shuying .ms-deck-button { min-height: 44px; padding: 8px 18px; background: #392c23; color: var(--ms-ink); border: 1px solid #96754e; }
+.mengsan-deck-dialog-shuying .ms-deck-button[aria-pressed="true"] { background: #dcb578; color: #241a10; border-color: #f9dda6; }
+.mengsan-deck-dialog-shuying .ms-deck-summary, .mengsan-deck-dialog-shuying .ms-deck-footer { color: var(--ms-muted); font-size: 13px; flex-shrink: 0; }
+.mengsan-deck-dialog-shuying .ms-deck-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 5px; scrollbar-gutter: stable; }
+.mengsan-deck-dialog-shuying .ms-deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; align-items: stretch; }
+.mengsan-deck-dialog-shuying .ms-deck-card { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; padding: 8px; border: 1px solid #9e7b49; background: #e4d0aa; color: #2e2419; text-align: left; box-shadow: 0 4px 10px #0005; }
+.mengsan-deck-dialog-shuying .ms-deck-card:hover { border-color: #ffe3a5; background: #f0ddb7; }
+.mengsan-deck-dialog-shuying .ms-deck-face { display: flex; flex-direction: column; gap: 5px; min-width: 0; color: #2e2419; background: #e4d0aa; }
+.mengsan-deck-dialog-shuying .ms-deck-corner { font-size: 14px; font-weight: 700; }
+.mengsan-deck-dialog-shuying .ms-deck-red { color: #9b2920; }
+.mengsan-deck-dialog-shuying .ms-deck-art { position: relative; display: grid; place-items: center; height: 116px; overflow: hidden; background: linear-gradient(145deg, #8a765b, #c0aa83); border: 1px solid #8b734f; border-radius: 3px; }
+.mengsan-deck-dialog-shuying .ms-deck-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.mengsan-deck-dialog-shuying .ms-deck-glyph { font: 700 28px "KaiTi", serif; text-align: center; }
+.mengsan-deck-dialog-shuying .ms-deck-name { font: 700 21px/1.4 "KaiTi", serif; }
+.mengsan-deck-dialog-shuying .ms-deck-meta, .mengsan-deck-dialog-shuying .ms-deck-tags { font-size: 12px; }
+.mengsan-deck-dialog-shuying .ms-deck-tags { color: #813d18; font-weight: 700; }
+.mengsan-deck-dialog-shuying .ms-deck-excerpt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 12px; line-height: 1.5; }
+.mengsan-deck-dialog-shuying .ms-deck-detail-content { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 28px; margin-top: 18px; }
+.mengsan-deck-dialog-shuying .ms-deck-detail-content > .ms-deck-face { padding: 14px; border-radius: 6px; align-self: start; }
+.mengsan-deck-dialog-shuying .ms-deck-detail-content .ms-deck-art { height: 190px; }
+.mengsan-deck-dialog-shuying .ms-deck-detail-copy { display: flex; flex-direction: column; gap: 14px; min-width: 0; overflow-wrap: anywhere; }
+.mengsan-deck-dialog-shuying .ms-deck-detail-copy h3 { font-size: 26px; }
+.mengsan-deck-dialog-shuying .ms-deck-rules { white-space: pre-line; line-height: 1.85; }
+.mengsan-deck-dialog-shuying .ms-deck-instance { color: var(--ms-muted); font-size: 12px; }
+.mengsan-deck-dialog-shuying .ms-deck-warning { color: #ffcf80; }
+.mengsan-deck-dialog-shuying .ms-deck-empty { padding: 24px; grid-column: 1 / -1; }
+@media (max-width: 600px) {
+    dialog.mengsan-deck-dialog-shuying { width: calc(100vw - 12px); height: calc(100dvh - 12px); max-height: calc(100dvh - 12px); padding: 14px; gap: 10px !important; }
+    .mengsan-deck-dialog-shuying .ms-deck-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .mengsan-deck-dialog-shuying .ms-deck-detail-content { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .mengsan-deck-dialog-shuying .ms-deck-detail-content > .ms-deck-face { width: 190px; justify-self: center; }
+    .mengsan-deck-dialog-shuying .ms-deck-summary { font-size: 12px; }
+}
+
+/* Battle-only control; removed with its owning session. */
+.mengsan-battle-piles-button-shuying {
+    position: fixed !important; right: max(14px, env(safe-area-inset-right)); top: 110px;
+    z-index: 35; min-width: 64px; min-height: 44px; padding: 8px 14px;
+    border: 1px solid #dcb578; border-radius: 8px; background: #30251eee;
+    color: #f4e7cc; font: 16px/1.4 "Microsoft YaHei", sans-serif;
+    cursor: pointer; touch-action: manipulation;
+}
+.mengsan-battle-piles-button-shuying:focus-visible { outline: 3px solid #ffe0a1; outline-offset: 3px; }
+.mengsan-deck-dialog-shuying .ms-deck-section { grid-column: 1 / -1; color: var(--ms-gold); font-size: 18px; padding-top: 8px; }
+.mengsan-deck-dialog-shuying .ms-deck-order { color: #6b341b; font-weight: 700; font-size: 13px; }
+@media (max-height: 500px) { .mengsan-battle-piles-button-shuying { top: 70px; right: max(8px, env(safe-area-inset-right)); } }
+
+/* Only session-created Mengsan players; retain internal identity and side. */
+.player.mengsan-hide-identity-shuying > .identity {
+    display: none !important;
+    pointer-events: none !important;
+}
+.player > .mengsan-energy-shuying {
+    position: absolute !important;
+    top: -22px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 8;
+    width: max-content !important;
+    min-width: 52px;
+    padding: 2px 5px;
+    border: 1px solid #d6b977;
+    border-radius: 4px;
+    background: #152b2bef;
+    color: #fff0c9;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: center;
+    pointer-events: none;
+}
+.card[data-mengsan-cost]::after {
+    content: attr(data-mengsan-cost) "费";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    z-index: 5;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background: #173b43e8;
+    color: #fff1c5;
+    font-size: 11px;
+    line-height: 1.2;
+    pointer-events: none;
 }

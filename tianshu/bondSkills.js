@@ -1015,18 +1015,17 @@ const skill = {
         },
         async content(event, trigger, player) {
             const target = trigger.player;
-            const loseEvent = target.loseHp(trigger.num);
-            loseEvent.shuYing_Tianshu_Skill_09_Skill3 = true;
-            loseEvent.shuYing_source = player;
-            await loseEvent;
+            await target.loseHp(trigger.num);
 
             if (!target.isIn()) return;
 
-            const loseHpNum = target
-                .getHistory("loseHp", evt => {
+            // 体力变化记录在全局历史中，只累计本回合该目标流失的体力。
+            const loseHpNum = game
+                .getGlobalHistory("changeHp", evt => {
                     return (
-                        evt.shuYing_Tianshu_Skill_09_Skill3 &&
-                        evt.shuYing_source == player
+                        evt.player == target &&
+                        evt.getParent().name == "loseHp" &&
+                        evt.num < 0
                     );
                 })
                 .reduce((sum, evt) => {

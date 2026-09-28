@@ -24,6 +24,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         corpseChooseCleanup: null,
         corpseChooseEvent: null,
         initialBoss: null,
+        defending: false,
         virtualIdol: null,
         running: false,
         pendingSpawn: false,
@@ -100,6 +101,27 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     const isVirtualIdol = player => Boolean(player && (getVirtualIdolIds().includes(player.name1) || getVirtualIdolIds().includes(player.name)));
     // 判断指定角色是否为当前关卡实际召唤的 Boss；玩家变身为同名动态武将时不会被误判。
     const isCurrentStageBoss = player => Boolean(player?.storage?.shuYing_tianshu_stageBoss && player.storage.shuYing_tianshu_stageIndex == state.stageIndex);
+    // 应战身份独立于 game.me/game.boss，避免动态换控后误判阵营和胜负。
+    const swapDefendingBoss = target => {
+        if (!state.defending || !target || !game.players.includes(target) || !isCurrentStageBoss(target)) return;
+        game.swapControl(target);
+        game.onSwapControl?.();
+        // 应战开局沿用主 Boss UI，会隐藏 fakeme；换成动态 Boss 后必须恢复代理头像。
+        // 直接复用已经显示正确的角色头像，不按克隆 ID 拼接图片路径。
+        if (ui.fakeme) {
+            game.singleHandcard = true;
+            ui.arena?.classList.add("single-handcard");
+            ui.window?.classList.add("single-handcard");
+            ui.fakeme.style.display = "";
+            ui.fakeme.current = target.name;
+            ui.fakeme.style.backgroundImage = target.node.avatar.style.backgroundImage;
+            ui.updatehl?.();
+        }
+    };
+    const getNextDefendingBoss = dead => {
+        const bosses = game.players.filter(isCurrentStageBoss).sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
+        return bosses.find(boss => Number(boss.dataset.position) > Number(dead?.dataset.position ?? -1)) || bosses[0];
+    };
     // 判断指定角色是否属于开局捕获的玩家方。
     const isCapturedPlayerSide = player => Boolean(getPlayerKey(player) && state.playerSideIds[getPlayerKey(player)]);
     // 获取玩家方角色列表，可按是否存活、是否包含虚拟偶像过滤。
@@ -188,6 +210,20 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     // 结束当前 phase 事件，把后续行动权交给指定角色；保留旧版重置轮数与阶段的做法。
     const finishCurrentPhaseTo = target => {
         if (!target) return;
+        // 清剿把弃牌事件挂在上层队列；finish 不会清空队列，不能让旧关结算弃掉新关奖励。
+        let pendingParent = _status.event;
+        const pendingVisited = new Set();
+        while (pendingParent && !pendingVisited.has(pendingParent)) {
+            pendingVisited.add(pendingParent);
+            for (const queue of [pendingParent.next, pendingParent.after]) {
+                if (!Array.isArray(queue)) continue;
+                for (let i = queue.length - 1; i >= 0; i--) {
+                    if (queue[i]?.name == "qingjiao_discard") queue.splice(i, 1);
+                }
+            }
+            if (pendingParent.name == "phaseLoop") break;
+            pendingParent = pendingParent.getParent ? pendingParent.getParent() : pendingParent.parent;
+        }
         const phase = _status.event?.getParent ? _status.event.getParent("phase") : getParentEvent("phase");
         if (phase) {
             if (typeof game.resetSkills == "function") game.resetSkills();
@@ -314,6 +350,16 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         boss.storage.shuYing_tianshu_stageBoss = true;
         boss.storage.shuYing_tianshu_stageIndex = state.stageIndex;
         boss.storage.shuYing_tianshu_originalBossName = originalName;
+        if (state.defending) {
+            const originalIsUnderControl = boss.isUnderControl;
+            boss.isUnderControl = function (self, me = game.me) {
+                if (state.running && state.defending && isCurrentStageBoss(this) && isCurrentStageBoss(me)
+                    && !_status.connectMode && !game.notMe && !this.isMad() && get.config("single_control")) {
+                    return this == me ? Boolean(self) : true;
+                }
+                return originalIsUnderControl.call(this, self, me);
+            };
+        }
         game.addVideo("setIdentity", boss, boss.identity);
         if (game.playerMap) game.playerMap[boss.dataset.position] = boss;
         game.arrangePlayers();
@@ -591,6 +637,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 player._start_cards.addArray(cards);
             }
         }
+        if (state.defending) swapDefendingBoss(getNextDefendingBoss());
     };
     // 读取玩家当前武将牌上自带的技能，避免过关奖励重复刷出本体技能。
     const getCharacterCardSkills = player => {
@@ -976,6 +1023,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
     };
     // 让指定玩家从 UI 中选择一个奖励技能，并返回刷新请求或最终技能。
     const chooseRewardSkill = async (player, choices, canRefresh) => {
+        // 应战者不能代替敌方选奖励；沿用无人类操作时的自动选择路径。
+        if (state.defending) return choices[0] || null;
         const chooser = getRewardSkillChooser(player);
         const canChoose = chooser == game.me || chooser?.isUnderControl?.();
         if (!canChoose || typeof shuYing.chooseSkillRewardDialog != "function") return choices[0] || null;
@@ -1019,7 +1068,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (state.clearingStage) return;
         state.clearingStage = true;
         if (state.stageIndex >= tianshuConfig.stages.length - 1) {
-            game.over(game.me !== game.boss);
+            game.over(!state.defending);
             return;
         }
         await reviveVirtualIdolIfNeeded();
@@ -1059,6 +1108,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (!isCurrentStageBoss(deadBoss)) return;
         if (deadBoss.storage.shuYing_tianshu_bossDieHandled) return;
         deadBoss.storage.shuYing_tianshu_bossDieHandled = true;
+        if (state.defending && game.me == deadBoss) swapDefendingBoss(getNextDefendingBoss(deadBoss));
         const stageCleared = !game.players.some(current => isCurrentStageBoss(current));
         const finalCleared = stageCleared && state.stageIndex >= tianshuConfig.stages.length - 1;
         if (!finalCleared && event.source && event.source.isIn()) {
@@ -1073,6 +1123,22 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (state.running) return;
         state.running = true;
         state.initialBoss = game.boss || null;
+        state.defending = Boolean(state.initialBoss && game.me == state.initialBoss);
+        if (state.defending) {
+            // 应战原生布局是 0/2/4/6；先恢复挑战者 1/2/3，再安排 Boss 和偶像，避免重叠。
+            game.players.filter(current => current != state.initialBoss && current.side === false)
+                .sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position))
+                .forEach((current, index) => { current.dataset.position = index + 1; });
+            game.arrangePlayers();
+            const originalModeSwapPlayer = game.modeSwapPlayer;
+            game.modeSwapPlayer = function (target) {
+                if (state.running && state.defending && isCurrentStageBoss(target)) {
+                    swapDefendingBoss(target);
+                    return;
+                }
+                return originalModeSwapPlayer.apply(this, arguments);
+            };
+        }
         installHiddenBossCorpseCheckHook();
         spawnVirtualIdol();
         capturePlayerSide();
@@ -1116,7 +1182,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         canReceiveOpeningProtection: player => Boolean(player && player.isIn() && !isCurrentStageBoss(player) && (isCapturedPlayerSide(player) || isVirtualIdol(player))),
         // 玩家死亡后检查是否达到失败条件。
         checkPlayerDefeat() {
-            if (this.isPlayerSideDefeated()) game.over(game.me === game.boss);
+            if (this.isPlayerSideDefeated()) game.over(state.defending);
         },
         refreshBonds: refreshTianshuBonds,
         queueBondRefresh: queueTianshuBondRefresh,
@@ -1173,7 +1239,23 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 game.addGlobalSkill("shuYing_Tianshu_NewSpawnStage");
                 game.addGlobalSkill("shuYing_Tianshu_NewBossDie");
                 game.addGlobalSkill("shuYing_Tianshu_NewPlayerDie");
+                game.addGlobalSkill("shuYing_Tianshu_DefendingControl");
                 game.addGlobalSkill("shuYing_Tianshu_BondManager");
+            },
+        },
+        shuYing_Tianshu_DefendingControl: {
+            trigger: { global: "phaseBefore" },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            forceDie: true,
+            firstDo: true,
+            filter(event) {
+                return state.running && state.defending && !_status.connectMode
+                    && get.config("single_control") && isCurrentStageBoss(event.player);
+            },
+            async content(event, trigger) {
+                swapDefendingBoss(trigger.player);
             },
         },
         shuYing_Tianshu_BondManager: {

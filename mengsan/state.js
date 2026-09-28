@@ -1,3 +1,4 @@
+import { createStartingDeck } from "./content/card-library.js";
 import config from "./config.js";
 
 const hashText = text => {
@@ -71,7 +72,24 @@ const getFloorRoutes = (run, act, floor, lastFloor) => {
         const target = Math.floor(nextRandom(run) * (index + 1));
         [routes[index], routes[target]] = [routes[target], routes[index]];
     }
-    return routes.slice(0, count).sort((left, right) => left - right);
+    const selectedRoutes = routes.slice(0, count);
+    const fixedRoutes = [...new Set((act.fixedNodes || [])
+        .filter(node => node.floor == floor)
+        .map(node => node.routeIndex)
+        .filter(routeIndex => Number.isInteger(routeIndex) && routeIndex >= 0 && routeIndex < routeCount))];
+    fixedRoutes.forEach(routeIndex => {
+        if (selectedRoutes.includes(routeIndex)) return;
+        let replaceIndex = -1;
+        for (let index = selectedRoutes.length - 1; index >= 0; index--) {
+            if (!fixedRoutes.includes(selectedRoutes[index])) {
+                replaceIndex = index;
+                break;
+            }
+        }
+        if (replaceIndex >= 0) selectedRoutes[replaceIndex] = routeIndex;
+        else if (selectedRoutes.length < routeCount) selectedRoutes.push(routeIndex);
+    });
+    return selectedRoutes.sort((left, right) => left - right);
 };
 
 export const generateActMap = (run, actIndex) => {
@@ -84,8 +102,14 @@ export const generateActMap = (run, actIndex) => {
         const floorNodes = [];
         const routes = getFloorRoutes(run, act, floor, lastFloor);
         routes.forEach((routeIndex, index) => {
+            const fixedNode = act.fixedNodes?.find(node => {
+                if (node.floor != floor) return false;
+                if (node.position == "start") return floor == 0;
+                return node.routeIndex == routeIndex;
+            });
             let type;
             if (floor == lastFloor) type = "boss";
+            else if (fixedNode?.type) type = fixedNode.type;
             else if (floor == 0) type = "battle";
             else type = weightedType(run, act.nodeWeights);
             const id = `${act.id}_f${floor}_n${index}_${Math.floor(nextRandom(run) * 1e6)}`;
@@ -93,6 +117,7 @@ export const generateActMap = (run, actIndex) => {
                 id,
                 floor,
                 type,
+                contentId: fixedNode?.contentId || null,
                 routeIndex,
                 x: Math.round((routeIndex + 1) * 100 / (config.routeCount + 1)),
                 y: Math.round(90 - floor * 80 / Math.max(1, lastFloor)),
@@ -118,16 +143,6 @@ export const generateActMap = (run, actIndex) => {
     };
 };
 
-const createDeck = () => config.startingDeck.map((entry, index) => ({
-    id: `mengsan_card_${Date.now()}_${index}`,
-    suit: entry[0],
-    number: entry[1],
-    name: entry[2],
-    nature: entry[3] || null,
-    affixes: entry[4] ? entry[4].slice() : [],
-    upgrade: 0,
-}));
-
 export const createRun = character => {
     const seed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
     const run = {
@@ -145,7 +160,7 @@ export const createRun = character => {
             hp: null,
             maxHp: null,
             gold: 0,
-            deck: createDeck(),
+            deck: createStartingDeck(character),
             permanentSkills: [],
             temporarySkills: [],
             items: [],
@@ -156,6 +171,7 @@ export const createRun = character => {
             defeatedEnemies: 0,
             goldEarned: 0,
         },
+        storyFlags: {},
     };
     run.map = generateActMap(run, 0);
     return run;
@@ -184,21 +200,23 @@ export const completeNode = (run, nodeId) => {
 export const insertStoryNode = (run, sourceId) => {
     const map = run.map;
     const source = map.nodes.find(node => node.id == sourceId);
-    const edgeIndex = map.edges.findIndex(edge => edge[0] == sourceId);
-    if (!source || edgeIndex < 0) return null;
-    const oldEdge = map.edges[edgeIndex];
-    const target = map.nodes.find(node => node.id == oldEdge[1]);
-    if (!target) return null;
+    const outgoingEdges = map.edges.filter(edge => edge[0] == sourceId);
+    if (!source || !outgoingEdges.length) return null;
+    const targets = outgoingEdges.map(edge => map.nodes.find(node => node.id == edge[1])).filter(Boolean);
+    if (!targets.length) return null;
+    const averageTargetX = targets.reduce((sum, target) => sum + target.x, 0) / targets.length;
+    const averageTargetY = targets.reduce((sum, target) => sum + target.y, 0) / targets.length;
     const node = {
         id: `story_${hashText(`${run.runId}_${sourceId}_${run.revision}`)}`,
         floor: source.floor + 0.45,
         type: "story",
-        x: Math.max(8, Math.min(92, Math.round((source.x + target.x) / 2 + (nextRandom(run) - 0.5) * 16))),
-        y: Math.round((source.y + target.y) / 2),
+        x: Math.max(8, Math.min(92, Math.round((source.x + averageTargetX) / 2 + (nextRandom(run) - 0.5) * 16))),
+        y: Math.round((source.y + averageTargetY) / 2),
         completed: false,
         dynamic: true,
     };
-    map.edges.splice(edgeIndex, 1, [source.id, node.id], [node.id, target.id]);
+    map.edges = map.edges.filter(edge => edge[0] != sourceId);
+    map.edges.push([source.id, node.id], ...targets.map(target => [node.id, target.id]));
     map.nodes.push(node);
     return node;
 };
@@ -214,14 +232,31 @@ export const enterNextAct = run => {
     return true;
 };
 
-export const getNodeEncounter = (run, node) => {
+export const getNodeEncounter = (run, node, override = null) => {
     const act = config.acts[run.actIndex];
-    let pool = act.enemies;
+    const content = node.contentId ? config.nodeContents?.[node.contentId] : null;
+    const encounter = override || content;
+    let pool = encounter?.enemies || act.enemies;
     if (node.type == "elite" || node.type == "story") pool = act.eliteEnemies?.length ? act.eliteEnemies : act.enemies;
-    if (node.type == "boss") return { enemy: act.boss, gold: act.baseGold * 3, boss: true };
+    if (encounter?.enemies?.length) pool = encounter.enemies;
+    if (node.type == "boss") {
+        return { battlePlan: encounter?.battlePlan || act.bossBattlePlan || null, enemy: act.boss, tier: "boss", gold: act.baseGold * 3, boss: true, rewardPool: "shared.pool.boss.premium" };
+    }
     return {
+        name: encounter?.name || "",
+        requiredCharacter: encounter?.requiredCharacter || null,
+        openingDialogue: encounter?.openingDialogue || [],
+        fixedRewards: encounter?.fixedRewards || [],
+        skipRandomReward: encounter?.skipRandomReward === true,
+        victoryDialogue: encounter?.victoryDialogue || [],
+        battlePlan: encounter?.battlePlan || null,
+        tier: encounter?.tier || (node.type === "elite" ? "elite" : "normal"),
         enemy: randomGet(run, pool.filter(Boolean)),
-        gold: node.type == "elite" || node.type == "story" ? act.baseGold * 2 : act.baseGold,
+        gold: encounter?.gold ?? (node.type == "elite" || node.type == "story" ? act.baseGold * 2 : act.baseGold),
         boss: false,
+        contentId: node.contentId || null,
+        description: encounter?.description || "",
+        rewardPool: encounter?.rewardPool || "shared.pool.battle.normal",
+        rewardTitle: encounter?.rewardTitle || "战斗奖励（三选一）",
     };
 };

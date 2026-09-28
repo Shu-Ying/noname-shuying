@@ -247,10 +247,10 @@ shuYing.precontent = async () => {
     shuYing.initCSS();
     shuYing.initFunction();
     shuYing.initConfig();
-    // const initMengsan = await shuYing.loadModule("./mengsan/mode.js", "梦三模式", true);
-    // if (typeof initMengsan == "function") {
-    //     await initMengsan();
-    // }
+    const registerMengsan = await shuYing.loadModule("./mengsan/register.js", "梦三模式", true);
+    if (typeof registerMengsan == "function") {
+        registerMengsan();
+    }
     initShuYingMenu({ lib, game, ui, shuYing, updater });
     shuYing.getVersion();
     await shuYing.initCharacter();
