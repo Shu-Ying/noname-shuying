@@ -1,0 +1,26 @@
+name: Check Windows runner
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: shuying-windows
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: builtin:checkout
+
+      - name: Check tools and source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python --version
+          git --version
+          if (!(Test-Path tools/generate_manifest.py)) {
+            throw 'generate_manifest.py not found'
+          }
+          git ls-files --eol update.js
