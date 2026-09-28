@@ -1,8 +1,9 @@
 import { lib, get, ui } from "../../../../noname.js";
+import { AFFIX_INFO } from "../content/affixes.js";
 
 const suits = { spade: "♠ 黑桃", heart: "♥ 红桃", club: "♣ 梅花", diamond: "♦ 方块" };
 const types = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" };
-const affixes = { annihilate: "湮灭：使用后进入本场湮灭区，不再参与本场个人弃牌堆洗切。" };
+const affixes = Object.fromEntries(Object.entries(AFFIX_INFO).map(([key, info]) => [key, `${info.name}：${info.description}`]));
 const text = value => {
     const template = document.createElement("template");
     // Translation markup is parsed inertly; only plain text is inserted into the UI.
@@ -20,7 +21,7 @@ export function describeLibraryCard(card) {
         nature: nature || "无属性", type: types[info?.type] || "未知类别",
         red: card.suit === "heart" || card.suit === "diamond",
         description: text(lib.translate[`${card.name}_info`] || "暂无卡牌介绍。"),
-        affixes: (Array.isArray(card.affixes) ? card.affixes : []).map(key => affixes[key] || `词缀：${translate(key)}`),
+        affixes: (Array.isArray(card.affixes) ? card.affixes : []).filter(key => key !== "annihilate").map(key => affixes[key] || `词缀：${translate(key)}`),
         upgrade: Number.isFinite(card.upgrade) ? card.upgrade : 0,
         available: Boolean(info),
     };
@@ -150,7 +151,7 @@ export function openCardLibrary(run, options = {}) {
     return close;
 }
 
-// Only the player's two mode-owned piles are exposed. No hand/equipment/exhaust/global pile.
+// The battle view exposes only this player's own piles, including consumed cards.
 export function mountBattlePiles(session, battle) {
     let closeDialog = null, disposed = false;
     const control = button("牌堆", ui.window, () => {
@@ -161,6 +162,7 @@ export function mountBattlePiles(session, battle) {
             sections: () => [
                 { title: "剩余牌堆", cards: battle.drawPile, ordered: true },
                 { title: "弃牌堆", cards: battle.discardPile, ordered: false },
+                { title: "消耗牌堆", cards: battle.exhaustPile, ordered: false },
             ],
         });
     }, "mengsan-battle-piles-button-shuying");

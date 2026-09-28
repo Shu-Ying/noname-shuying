@@ -1,6 +1,8 @@
 // Mode-owned piles use real Card nodes so native searches/gain/insert operations agree.
 // DIY must access ui piles inside the acting player's engine event, never cache global nodes.
 import { cardCost } from "./combat-rules.js";
+import { AFFIX_INFO } from "../content/affixes.js";
+
 
 export function installPersonalPiles(session, owner, battle, run, resources, env) {
     const { game, ui, get, _status, document, MutationObserver, shuffle } = env;
@@ -29,7 +31,12 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         if (owned.has(card)) return;
         owned.add(card); resources.card(card);
         card.storage ||= {};
-        if (data) card.storage.mengsanCard_shuying = JSON.parse(JSON.stringify(data));
+        card.storage.mengsanOwnerId_shuying = owner.playerid;
+        if (data) {
+            card.storage.mengsanCard_shuying = JSON.parse(JSON.stringify(data));
+            // Retired affixes from old saves must not acquire new battle behaviour.
+            card.storage.mengsanCard_shuying.affixes = (card.storage.mengsanCard_shuying.affixes || []).filter(key => key !== "annihilate");
+        }
         if (data && env.showCosts) {
             card.dataset.mengsanCost = String(cardCost(data));
         }
@@ -37,14 +44,17 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         if (!data) return;
         card.destroyLog = false;
         card.destroyed = (current, position) => {
-            if (released || position !== "discardPile") return false;
-            if (data.affixes?.includes("annihilate") && current.storage.mengsanUsed_shuying) {
+            if (released || !["discardPile", "equip", "judge"].includes(position)) return false;
+            if (current.storage.mengsanCard_shuying.affixes.includes("exhaust") && current.storage.mengsanConsumed_shuying) {
+                if (current.storage.mengsanExhausted_shuying) return true;
+                current.storage.mengsanExhausted_shuying = true;
                 battle.exhaustPile.push(snapshot(current));
+                refresh();
                 return true;
             }
             return false; // Actual discarded cards remain available to native skills.
         };
-        if (data.affixes?.includes("annihilate")) card.addGaintag("湮灭");
+        for (const key of card.storage.mengsanCard_shuying.affixes) card.addGaintag(AFFIX_INFO[key]?.name || key);
         if (data.upgrade) card.addGaintag(`强化+${data.upgrade}`);
     }
     function snapshot(card) {
@@ -122,6 +132,15 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
     });
     return {
         take,
+        addAffix(card, key) {
+            if (released || !Object.hasOwn(AFFIX_INFO, key) || !owned.has(card) || !owner.getCards("h").includes(card)) return false;
+            const affixes = card.storage?.mengsanCard_shuying?.affixes;
+            if (!Array.isArray(affixes) || affixes.includes(key)) return false;
+            affixes.push(key);
+            card.addGaintag(AFFIX_INFO[key].name);
+            refresh();
+            return true;
+        },
         // Engine/mod opening draws must not stack with the mode's four-card opening hand.
         resetOpeningHand() {
             for (const card of owner.getCards("h")) {
@@ -131,11 +150,17 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             refresh();
         },
         trimOpeningHand(limit = 4) {
-            for (const card of owner.getCards("h").slice(limit)) {
+            for (const card of owner.getCards("h").filter(card => !card.storage?.mengsanCard_shuying?.affixes?.includes("innate")).slice(limit)) {
                 if (owned.has(card)) draw.insertBefore(card, draw.firstChild);
                 else card.remove();
             }
             refresh();
+        },
+        drawInnate() {
+            const cards = Array.from(draw.childNodes).filter(card => card.storage?.mengsanCard_shuying?.affixes?.includes("innate") && !owner.getCards("h").includes(card));
+            if (cards.length) owner.directgain(cards);
+            refresh();
+            return cards;
         },
         withOwner(callback) { const before = forcedOwner; forcedOwner = true; try { return callback(); } finally { forcedOwner = before; } },
     };

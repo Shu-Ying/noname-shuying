@@ -4,7 +4,7 @@ export const defaultDeck = Object.freeze([
     ["club", 4, "sha"], ["diamond", 6, "sha"],
     ["heart", 2, "shan"], ["diamond", 7, "shan"], ["club", 2, "shan"],
     ["heart", 3, "tao"], ["spade", 3, "guohe"], ["heart", 7, "wuzhong"],
-    ["spade", 2, "bagua"], ["club", 6, "sha", null, Object.freeze(["annihilate"])],
+    ["spade", 2, "bagua"], ["club", 6, "sha"],
 ].map(Object.freeze));
 
 // Character ID -> [suit, number, card name, optional nature, optional affixes].
@@ -14,7 +14,7 @@ export const characterDecks = {
         ["spade", 7, "sha"], ["heart", 10, "sha"], ["club", 4, "sha"], ["diamond", 6, "sha"],
         ["heart", 2, "shan"], ["diamond", 7, "shan"], ["club", 2, "shan"],
         ["heart", 3, "tao"], ["heart", 7, "wuzhong"], ["spade", 1, "juedou"],
-        ["spade", 2, "bagua"], ["club", 6, "sha", null, ["annihilate"]],
+        ["spade", 2, "bagua"], ["club", 6, "sha"],
     ],
 };
 

@@ -1115,6 +1115,12 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 .mengsan-battle-piles-button-shuying:focus-visible { outline: 3px solid #ffe0a1; outline-offset: 3px; }
 .mengsan-deck-dialog-shuying .ms-deck-section { grid-column: 1 / -1; color: var(--ms-gold); font-size: 18px; padding-top: 8px; }
 .mengsan-deck-dialog-shuying .ms-deck-order { color: #6b341b; font-weight: 700; font-size: 13px; }
+.mengsan-gm-dialog-shuying { width: min(780px, calc(100vw - 32px)) !important; }
+.mengsan-gm-dialog-shuying .ms-gm-hand { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; overflow: auto; min-height: 80px; max-height: 38%; padding: 4px; }
+.mengsan-gm-dialog-shuying .ms-gm-card { text-align: left; overflow-wrap: anywhere; }
+.mengsan-gm-dialog-shuying .ms-gm-editor { overflow: auto; flex: 1; min-height: 0; border-top: 1px solid #96754e; padding: 12px 4px; }
+.mengsan-gm-dialog-shuying .ms-gm-affixes { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px; margin-top: 12px; }
+.mengsan-gm-dialog-shuying .ms-gm-affixes button:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-height: 500px) { .mengsan-battle-piles-button-shuying { top: 70px; right: max(8px, env(safe-area-inset-right)); } }
 
 /* Only session-created Mengsan players; retain internal identity and side. */

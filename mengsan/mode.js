@@ -3,8 +3,9 @@ import { createMengsanCards } from "./content/mode-cards.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./runtime/battle-director.js";
 import { installPersonalPiles } from "./runtime/personal-piles.js";
 import { createMonster } from "./runtime/monster.js";
-import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
+import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
 import { mountBattlePiles } from "./runtime/card-library.js";
+import { mountGMManager } from "./runtime/gm-manager.js";
 import { createPlayerTeardown } from "./runtime/skill-teardown.js";
 import { createBattleResources } from "./runtime/battle-resources.js";
 import { createModeStorage } from "./runtime/mode-storage.js";
@@ -97,7 +98,8 @@ const applyReward = (run, rewardId) => {
             player.deck.push(createCardInstance(run, "tao"));
             break;
         case "upgrade": {
-            const card = player.deck[Math.floor(nextRandom(run) * player.deck.length)];
+            const eligible = player.deck.filter(card => !card.affixes?.includes("eternal"));
+            const card = eligible[Math.floor(nextRandom(run) * eligible.length)];
             if (card) card.upgrade = Number(card.upgrade || 0) + 1;
             break;
         }
@@ -238,7 +240,7 @@ const initBattleUnit = (player, spec) => {
 const installMonsterPile = (player, monster, current) => {
     if (!monster) return;
     const run = _status.mengsanRun_shuying;
-    const battle = { drawPile: monster.createDeck(`${run.runId}_${player.playerid}`), discardPile: [] };
+    const battle = { drawPile: monster.createDeck(`${run.runId}_${player.playerid}`), discardPile: [], exhaustPile: [] };
     for (const card of battle.drawPile) if (!lib.card[card.name]) throw new Error("怪物牌堆中的牌未加载：" + card.name);
     shuffleBattlePile(run, battle.drawPile);
     current.monsterPiles.set(player, installPersonalPiles(current.session, player, battle, run, current.resources, {
@@ -305,6 +307,8 @@ const createScenario = (plan, current) => {
 };
 
 const prepareBattle = async (run, node, encounter, session, resources) => {
+    // Old saves keep their deck instances, but the retired affix no longer exists.
+    for (const card of run.player.deck) if (Array.isArray(card.affixes)) card.affixes = card.affixes.filter(key => key !== "annihilate");
     if (encounter.requiredCharacter && run.player.character !== encounter.requiredCharacter) throw new Error("该关卡仅限指定主角，请开始刘备的新征程");
     const plan = buildBattlePlan(encounter, run);
     for (const spec of [...plan.units, ...plan.rules.flatMap(r => r.effects.filter(e => e.type === "spawn").map(e => e.unit))]) {
@@ -372,21 +376,24 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
-    for (const skill of ["mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_scenario_shuying", "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying"]) {
+    for (const skill of ["mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying"]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
             session.ownResource({}, () => game.removeGlobalSkill(skill));
         }
     }
     activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying);
+    activeBattle.gmUI = mountGMManager(session, me, activeBattle.personalPiles, _status.mengsanBattle_shuying, resources, game);
     for (let index = 0; index < plan.units.length; index++) await equipBattleUnit(participants[index], plan.units[index], resources);
     game.syncState();
     _status.event.trigger("gameStart");
     for (const participant of participants) await participant.draw(participant.storage.mengsanInitialHand_shuying ?? 4);
+    for (const participant of participants) currentBattle.monsterPiles.get(participant)?.drawInnate();
     if (!session.active) return;
     activeBattle.personalPiles.resetOpeningHand();
     await game.mengsanDraw_shuying(me, 4);
     if (!session.active) return;
+    activeBattle.personalPiles.drawInnate();
     await playDialogue(encounter.openingDialogue, { run, title: encounter.name || "开场剧情" });
     if (!session.active) return;
     await currentBattle.director.start();
@@ -441,6 +448,7 @@ const requestBattleFinish = outcome => {
     const accepted = current.flow.requestFinish({session:current.session, hp:game.me?.hp || 0, outcome, defeatedEnemies:current.director?.defeatedEnemies ?? 1});
     if (accepted) {
         current.pilesUI?.dispose();
+        current.gmUI?.dispose();
         stopBattleTurn(current.session, _status.eventManager);
         if (_status.mengsanBattle_shuying) _status.mengsanBattle_shuying.resolving = true;
         current.finished();
@@ -681,17 +689,52 @@ const createMode = identityMode => {
                 },
             },
             mengsan_card_use_shuying: {
-                trigger: { global: "useCard1" },
+                trigger: { global: ["useCard1", "respond"] },
                 forced: true,
                 silent: true,
                 popup: false,
                 filter(event) {
-                    return event.player?.storage?.mengsanPlayer_shuying && event.cards?.some(card => card.storage?.mengsanCard_shuying);
+                    return Boolean(activeBattle?.session.active && event.cards?.some(card => card.storage?.mengsanCard_shuying));
                 },
                 async content(event, trigger) {
                     trigger.cards.forEach(card => {
-                        if (card.storage?.mengsanCard_shuying) card.storage.mengsanUsed_shuying = true;
+                        if (card.storage?.mengsanCard_shuying) card.storage.mengsanConsumed_shuying = true;
                     });
+                },
+            },
+            mengsan_card_affixes_shuying: {
+                forced: true, silent: true, popup: false, priority: 100,
+                trigger: { global: ["phaseDiscardBegin", "cardsDiscardAfter"] },
+                filter(event) {
+                    if (!activeBattle?.session.active) return false;
+                    if (event.name === "phaseDiscard") return event.player?.getCards("h").some(card => card.storage?.mengsanCard_shuying?.affixes?.includes("void"));
+                    return event.cards?.some(card => card.storage?.mengsanCard_shuying?.affixes?.includes("ingenious"));
+                },
+                async content(event, trigger) {
+                    if (event.triggername === "phaseDiscardBegin") {
+                        const cards = trigger.player.getCards("h").filter(card => card.storage?.mengsanCard_shuying?.affixes?.includes("void"));
+                        if (cards.length) {
+                            await trigger.player.lose(cards, ui.special);
+                            for (const card of cards) card.remove();
+                            activeBattle.pilesUI?.refresh();
+                        }
+                        return;
+                    }
+                    if (trigger.getParent("phaseDiscard")) return;
+                    for (const card of trigger.cards || []) {
+                        if (!activeBattle?.session.active || get.position(card, true) !== "d" || !card.storage?.mengsanCard_shuying?.affixes?.includes("ingenious") || card.storage.mengsanIngeniousResolving_shuying) continue;
+                        const use = trigger.getParent("useCard"), respond = trigger.getParent("respond");
+                        if (use?.cards?.includes(card) || respond?.cards?.includes(card)) continue;
+                        const owner = game.playerMap[card.storage.mengsanOwnerId_shuying];
+                        if (!owner?.isAlive() || !lib.filter.cardEnabled(card, owner) || !canPayCard(owner, card) || !owner.hasUseTarget(card)) continue;
+                        card.storage.mengsanIngeniousResolving_shuying = true;
+                        try { await owner.chooseUseTarget({ card, cards: [card], forced: true, prompt: "奇巧：使用此牌" }); }
+                        finally { card.storage.mengsanIngeniousResolving_shuying = false; }
+                    }
+                },
+                mod: {
+                    ignoredHandcard(card) { if (card.storage?.mengsanCard_shuying?.affixes?.includes("retain")) return true; },
+                    cardEnabled2(card) { if (card.storage?.mengsanCard_shuying?.affixes?.includes("unplayable")) return false; },
                 },
             },
             mengsan_yingyong_shuying: {
