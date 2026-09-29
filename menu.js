@@ -206,6 +206,39 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         nopointer: true,
     };
 
+    const channelText = channel => `更新通道：${channel == "preview" ? "测试版" : "正式版"}（点击切换）`;
+    menu.update_channel = {
+        name: channelText(updater.getUpdateChannel()),
+        clear: true,
+        intro: "切换后立即从 Gitea 对应标签下载并校验文件，完成后需重启游戏。测试版可能回退到较早的内容。",
+        async onclick() {
+            if (!shuYing.m_bIsDownload) {
+                alert("有其他文件正在下载，请稍后再试吧。");
+                return;
+            }
+
+            const current = updater.getUpdateChannel();
+            const next = current == "preview" ? "stable" : "preview";
+            shuYing.m_bIsDownload = false;
+            this.innerHTML = `正在切换到${next == "preview" ? "测试版" : "正式版"}…`;
+            try {
+                const version = await updater.checkVersion(shuYing, {
+                    channel: next,
+                    switchChannel: true,
+                });
+                if (version) {
+                    game.saveConfig("shuYing_update_channel", next);
+                    shuYing.updateOnlineVersionMenu(version);
+                }
+            }
+            finally {
+                const text = channelText(updater.getUpdateChannel());
+                menu.update_channel.name = text;
+                this.innerHTML = text;
+            }
+        },
+    };
+
     menu.updateLog = {
         name: '<div class="hth_menu">▶更新日志</div>',
         clear: true,

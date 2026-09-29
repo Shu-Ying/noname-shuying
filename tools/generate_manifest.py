@@ -7,7 +7,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXCLUDE_DIRS = {".git", ".gitea", ".update_tmp", "dist", "tools", "__pycache__"}
+EXCLUDE_DIRS = {
+    ".git",
+    ".gitea",
+    ".github",
+    ".update_tmp",
+    "dist",
+    "tools",
+    "__pycache__",
+}
 EXCLUDE_FILES = {".gitignore", "log.txt"}
 
 
@@ -159,6 +167,7 @@ def build_manifest(root: Path, version: str, config: dict) -> dict:
         "version": version,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "algorithm": "sha256",
+        "update_channels": True,
         "file_count": len(flat_files),
         "folder_sha256": folder_digest.hexdigest(),
         "core": core_files,
