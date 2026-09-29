@@ -167,6 +167,7 @@ def build_manifest(root: Path, version: str, config: dict) -> dict:
         "version": version,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "algorithm": "sha256",
+        "update_channels": True,
         "file_count": len(flat_files),
         "folder_sha256": folder_digest.hexdigest(),
         "core": core_files,

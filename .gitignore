@@ -1,3 +1,4 @@
 log.txt
 dist/manifest.json
 tools/__pycache__/
+tools/test_update.mjs

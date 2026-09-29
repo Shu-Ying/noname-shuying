@@ -1,24 +1,62 @@
 import { lib, game } from "../../noname.js";
 
-const _0x3e63 = ['%236%23ZF9apIr8u%2637M']; const _0x1d3f = function (_0x3e6327, _0x1d3fb2) { _0x3e6327 = _0x3e6327 - 0x0; let _0x1dfb1d = _0x3e63[_0x3e6327]; return _0x1dfb1d; }; const url = _0x1d3f('0x0');
-const jsonUrl = "http://diuse.work:7994/json/";
-const downloadUrl = "http://diuse.work:7994/download/";
+const repositoryApi = "https://gitea.diuse.work/api/v1/repos/Diuse/noname-shuying";
 const coreTempDir = "extension/术樱包/.update_tmp";
 
-function getTokenQuery() {
-    if (!url) return "";
-    if (url.startsWith("?")) return url.slice(1);
-    if (url.startsWith("&")) return url.slice(1);
-    if (url.includes("=")) return url;
-    return `token=${url}`;
+function parseVersion(version) {
+    const match = /^(\d+)\.(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$/.exec(version);
+    if (!match) return null;
+    return {
+        parts: match.slice(1, 5).map(Number),
+        rc: match[5] == null ? null : Number(match[5]),
+    };
 }
 
-function getRemoteUrl(base, path) {
-    const filePath = path.replace(/^\/+/, "");
-    const tokenQuery = getTokenQuery();
-    const query = tokenQuery ? `${tokenQuery}&time=${Date.now()}` : `time=${Date.now()}`;
+function compareVersions(left, right) {
+    const a = parseVersion(left);
+    const b = parseVersion(right);
+    if (!a || !b) throw new Error("版本号格式错误");
+    for (let i = 0; i < 4; i++) {
+        if (a.parts[i] != b.parts[i]) return a.parts[i] - b.parts[i];
+    }
+    if (a.rc == null) return b.rc == null ? 0 : 1;
+    if (b.rc == null) return -1;
+    return a.rc - b.rc;
+}
 
-    return `${base}${filePath}?${query}`;
+function getUpdateChannel() {
+    return lib.config.shuYing_update_channel
+        || (/-rc\.\d+$/.test(lib.config.shuYing_local_version || "")
+            ? "preview" : "stable");
+}
+
+function getRemoteUrl(tag, path) {
+    const filePath = path.split("/").map(encodeURIComponent).join("/");
+    return `${repositoryApi}/raw/${filePath}?ref=${encodeURIComponent(tag)}`;
+}
+
+async function getLatestTag(channel = getUpdateChannel()) {
+    let latest = null;
+    for (let page = 1; ; page++) {
+        const response = await fetch(`${repositoryApi}/tags?page=${page}&limit=50`);
+        if (!response.ok) throw new Error(`标签请求失败：${response.status}`);
+        const tags = await response.json();
+        if (!Array.isArray(tags)) throw new Error("标签列表格式错误");
+
+        for (const tag of tags) {
+            const name = tag?.name || "";
+            const isPreview = /^v\d+\.\d+\.\d+\.\d+-rc\.\d+$/.test(name);
+            const isStable = /^v\d+\.\d+\.\d+\.\d+$/.test(name);
+            if (channel == "preview" ? !isPreview : !isStable) continue;
+            const version = name.slice(1);
+            if (!latest || compareVersions(version, latest.version) > 0) {
+                latest = { name, version };
+            }
+        }
+        if (tags.length < 50) break;
+    }
+    if (!latest) throw new Error(`Gitea 镜像尚无${channel == "preview" ? "测试版" : "正式版"}标签`);
+    return latest;
 }
 
 function getByteLength(data) {
@@ -154,8 +192,8 @@ function splitPath(path) {
     };
 }
 
-async function fetchFile(path) {
-    const response = await fetch(getRemoteUrl(downloadUrl, path));
+async function fetchFile(path, tag) {
+    const response = await fetch(getRemoteUrl(tag, path));
     if (!response.ok) throw new Error(`${path} 下载失败：${response.status}`);
 
     return await response.arrayBuffer();
@@ -171,7 +209,7 @@ async function writeTargetFile(data, target) {
 }
 
 async function downloadFile(path, target, manifest) {
-    const data = await fetchFile(path);
+    const data = await fetchFile(path, manifest.tag_name);
     if (manifest?.files?.[path]) {
         await verifyFile(path, data, manifest);
     }
@@ -179,19 +217,40 @@ async function downloadFile(path, target, manifest) {
     return data;
 }
 
-async function getManifest() {
-    const response = await fetch(getRemoteUrl(jsonUrl, "manifest.json"));
+async function getManifestFromTag(tag, requireChannels = true) {
+    const response = await fetch(getRemoteUrl(tag.name, "dist/manifest.json"));
     if (!response.ok) throw new Error(`校验清单请求失败：${response.status}`);
     const manifest = await response.json();
 
-    if (!manifest || manifest.algorithm != "sha256" || !manifest.files) {
+    if (requireChannels && manifest?.update_channels !== true) {
+        throw new Error("目标标签尚未包含新版更新器，请发布支持通道切换的版本");
+    }
+    if (!manifest || manifest.algorithm != "sha256"
+        || !manifest.files || Array.isArray(manifest.files)
+        || typeof manifest.files != "object"
+        || manifest.version != tag.version) {
         throw new Error("校验清单格式错误");
     }
 
+    const files = getManifestFileKeys(manifest);
+    if (!files.length || files.some(file => {
+        const info = manifest.files[file];
+        return !info || !Number.isSafeInteger(info.size) || info.size < 0
+            || !/^[a-f0-9]{64}$/.test(info.sha256);
+    })) {
+        throw new Error("校验清单包含无效文件信息");
+    }
+    const coreFiles = getManifestCoreFiles(manifest);
+    getManifestAssetFiles(manifest, coreFiles);
     getManifestRemoveFiles(manifest);
     getManifestRemoveDirectories(manifest);
 
+    manifest.tag_name = tag.name;
     return manifest;
+}
+
+async function getManifest(channel = getUpdateChannel()) {
+    return getManifestFromTag(await getLatestTag(channel));
 }
 
 function normalizeManifestPath(path) {
@@ -203,6 +262,9 @@ function uniqueManifestList(files) {
     const seen = new Set();
 
     for (const file of files || []) {
+        if (!isSafeManifestPath(file)) {
+            throw new Error(`校验清单包含不安全路径：${String(file)}`);
+        }
         const path = normalizeManifestPath(file);
         if (!path || seen.has(path)) continue;
         seen.add(path);
@@ -251,7 +313,9 @@ function getManifestRemoveFiles(manifest) {
         throw new Error(`校验清单 remove 包含不安全路径：${unsafe.join("、")}`);
     }
 
-    const conflicts = files.filter(file => manifest?.files?.[file]);
+    const manifestFiles = getManifestFileKeys(manifest);
+    const conflicts = files.filter(file => manifestFiles.some(current =>
+        current == file || current.startsWith(`${file}/`)));
     if (conflicts.length) {
         throw new Error(`待删除文件仍存在于新版清单：${conflicts.join("、")}`);
     }
@@ -260,7 +324,9 @@ function getManifestRemoveFiles(manifest) {
 }
 
 function isSafeManifestPath(path) {
-    const parts = normalizeManifestPath(path).split("/");
+    const normalized = normalizeManifestPath(path);
+    if (typeof path != "string" || path != normalized) return false;
+    const parts = normalized.split("/");
     return parts.length > 0
         && parts.every(part => part && part != "." && part != "..")
         && !parts.some(part => part.includes(":"));
@@ -405,7 +471,12 @@ async function removeManifestFiles(shuYing, manifest) {
 
     for (const file of files) {
         await addLog(shuYing, `删除旧文件：${file}`);
-        await removeFile(`extension/术樱包/${file}`);
+        const target = `extension/术樱包/${file}`;
+        await removeFile(target);
+        if (typeof game.checkFile == "function"
+            && await safeCheckFile(target) == 1) {
+            throw new Error(`旧文件删除失败：${file}`);
+        }
     }
 }
 
@@ -507,6 +578,114 @@ async function downloadCoreFiles(shuYing, manifest) {
     }
 }
 
+async function getChangedFiles(manifest) {
+    if (typeof game.readFile != "function") {
+        throw new Error("当前环境不支持校验本地文件");
+    }
+    const changed = [];
+    for (const file of getManifestFileKeys(manifest)) {
+        try {
+            const data = await readFile(`extension/术樱包/${file}`);
+            await verifyFile(file, data, manifest);
+        }
+        catch (error) {
+            changed.push(file);
+        }
+    }
+    return changed;
+}
+
+async function getObsoleteFiles(manifest) {
+    const existing = [];
+    for (const file of getManifestRemoveFiles(manifest)) {
+        const target = `extension/术樱包/${file}`;
+        if (typeof game.checkFile == "function") {
+            if (await safeCheckFile(target) == 1) existing.push(file);
+        }
+        else {
+            try {
+                await readFile(target);
+                existing.push(file);
+            }
+            catch (error) { }
+        }
+    }
+    return existing;
+}
+
+async function updateAllFiles(shuYing, manifest, files) {
+    if (typeof game.writeFile != "function") {
+        throw new Error("当前环境不支持写入文件");
+    }
+    const newRoot = `${coreTempDir}/new`;
+    const oldRoot = `${coreTempDir}/old`;
+    const backedUp = new Set();
+    const installed = [];
+    let filesInstalled = false;
+    try {
+        ensureProgressNode(shuYing);
+        await createDir(`${newRoot}/`);
+        await createDir(`${oldRoot}/`);
+        await createFolders(`${newRoot}/`, files);
+        await createFolders(`${oldRoot}/`, files);
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            setProgress(shuYing, {
+                title: "版本更新", status: "下载并校验", file,
+                current: i, total: files.length * 2,
+            });
+            await downloadFile(file, `${newRoot}/${file}`, manifest);
+        }
+
+        await createFolders("extension/术樱包/", files);
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const target = `extension/术樱包/${file}`;
+            try {
+                const original = await readFile(target);
+                await writeTargetFile(original, `${oldRoot}/${file}`);
+                backedUp.add(file);
+            }
+            catch (error) {
+                if (await safeCheckFile(target) == 1) throw error;
+            }
+
+            setProgress(shuYing, {
+                title: "版本更新", status: "写入中", file,
+                current: files.length + i, total: files.length * 2,
+            });
+            installed.push(file);
+            await writeTargetFile(await readFile(`${newRoot}/${file}`), target);
+        }
+        filesInstalled = true;
+        await removeManifestOldPaths(shuYing, manifest);
+    }
+    catch (error) {
+        for (const file of filesInstalled ? [] : installed.reverse()) {
+            const target = `extension/术樱包/${file}`;
+            try {
+                if (backedUp.has(file)) {
+                    await writeTargetFile(await readFile(`${oldRoot}/${file}`), target);
+                }
+                else {
+                    await removeFile(target);
+                }
+            }
+            catch (rollbackError) {
+                console.error("文件回滚失败：", file, rollbackError);
+            }
+        }
+        throw error;
+    }
+    finally {
+        for (const file of files) {
+            await removeFile(`${newRoot}/${file}`);
+            if (backedUp.has(file)) await removeFile(`${oldRoot}/${file}`);
+        }
+    }
+}
+
 async function downloadList(shuYing, files, manifest) {
     let finished = 0;
     const total = files.length;
@@ -518,11 +697,17 @@ async function downloadList(shuYing, files, manifest) {
             setProgress(shuYing, { title: "查漏补缺", status: "检查本地文件", file: target, current: finished, total });
             const exists = typeof game.checkFile == "function" ? await safeCheckFile(target) : 0;
 
-            if (exists == 1) {
-                finished++;
-                await addLog(shuYing, `跳过：${file}`);
-                setProgress(shuYing, { title: "查漏补缺", status: "已存在，跳过", file: target, current: finished, total });
-                continue;
+            if (exists == 1 && typeof game.readFile == "function") {
+                try {
+                    await verifyFile(file, await readFile(target), manifest);
+                    finished++;
+                    await addLog(shuYing, `校验通过，跳过：${file}`);
+                    setProgress(shuYing, { title: "查漏补缺", status: "校验通过", file: target, current: finished, total });
+                    continue;
+                }
+                catch (error) {
+                    await addLog(shuYing, `本地文件需修复：${file}；${getErrorMessage(error)}`);
+                }
             }
 
             await addLog(shuYing, `下载：${file}`);
@@ -542,37 +727,64 @@ async function downloadList(shuYing, files, manifest) {
     }
 }
 
-async function getOnlineVersion() {
-    const response = await fetch(getRemoteUrl(jsonUrl, "online_version.json"));
-    if (!response.ok) throw new Error(`版本请求失败：${response.status}`);
-    const result = await response.json();
-    console.log("术樱包在线版本：", result.online_version);
-    return result;
+async function getOnlineVersion(channel = getUpdateChannel()) {
+    const manifest = await getManifest(channel);
+    return { online_version: manifest.version, manifest };
 }
 
-async function checkVersion(shuYing) {
+async function checkVersion(shuYing, options = {}) {
     try {
-        const onlineVersion = await getOnlineVersion();
+        shuYing._updateLogs = [];
+        await addLog(shuYing, "版本检查开始");
+        const onlineVersion = await getOnlineVersion(options.channel);
         const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
+        const manifest = onlineVersion.manifest;
+        if (!options.switchChannel && parseVersion(localVersion)
+            && compareVersions(onlineVersion.online_version, localVersion) < 0) {
+            throw new Error("Gitea 镜像尚未同步到本地版本，请稍后重试");
+        }
+        if (options.switchChannel && parseVersion(localVersion)
+            && localVersion != manifest.version) {
+            const previous = await getManifestFromTag({
+                name: `v${localVersion}`,
+                version: localVersion,
+            }, false);
+            const targetFiles = new Set(getManifestFileKeys(manifest));
+            const removed = getManifestFileKeys(previous)
+                .filter(file => !targetFiles.has(file));
+            manifest.remove = [...new Set([...(manifest.remove || []), ...removed])];
+            getManifestRemoveFiles(manifest);
+        }
+        const changed = await getChangedFiles(manifest);
+        const obsolete = await getObsoleteFiles(manifest);
+        await addLog(shuYing, `Gitea 标签：${manifest.tag_name}；待更新文件：${changed.length}；待删除文件：${obsolete.length}`);
 
-        game.saveConfig("shuYing_online_version", onlineVersion.online_version);
-
-        if (localVersion == onlineVersion.online_version) {
+        if (localVersion == onlineVersion.online_version
+            && !changed.length && !obsolete.length) {
+            game.saveConfig("shuYing_online_version", onlineVersion.online_version);
             alert("本地版本为最新版");
-            return;
+            return onlineVersion.online_version;
         }
 
-        if (!confirm(`检测到最新版本为:${onlineVersion.online_version}, 本地版本为:${localVersion}，是否更新`)) {
-            return;
+        const message = localVersion == onlineVersion.online_version
+            ? `当前版本有 ${changed.length} 个文件需修复、${obsolete.length} 个旧文件需删除，是否继续？`
+            : `检测到最新版本为:${onlineVersion.online_version}, 本地版本为:${localVersion}，是否更新？`;
+        if (!options.switchChannel && !confirm(message)) {
+            return null;
         }
 
-        await downloadCoreFiles(shuYing);
+        await updateAllFiles(shuYing, manifest, changed);
         game.saveConfig("shuYing_local_version", onlineVersion.online_version);
+        game.saveConfig("shuYing_online_version", onlineVersion.online_version);
+        await addLog(shuYing, "版本更新完成");
         alert("下载完成，重启生效");
+        return onlineVersion.online_version;
     }
     catch (error) {
         console.error(error);
+        await addLog(shuYing, `版本更新失败：${getErrorMessage(error)}`);
         alert("版本检测或下载失败，请检查网络或服务器配置。");
+        return null;
     }
     finally {
         removeProgressNode(shuYing);
@@ -672,6 +884,7 @@ async function repairCoreFiles(shuYing) {
 
 export default {
     getOnlineVersion,
+    getUpdateChannel,
     checkVersion,
     repairMissingFiles,
     repairCoreFiles,
