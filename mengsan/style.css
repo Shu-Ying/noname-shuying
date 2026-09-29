@@ -197,7 +197,7 @@
 .mengsan-map-shuying {
     position: relative;
     display: block !important;
-    width: min(100%, 860px);
+    width: min(100%, 980px);
     height: max(1080px, 160vh,
         var(--mengsan-map-min-height, 1080px)) !important;
     margin: 0 auto;
@@ -673,7 +673,7 @@
     scroll-padding-block: 24px;
 }
 .mengsan-map-shuying {
-    width: min(100%, 900px);
+    width: min(100%, 980px);
     border: 1px solid rgba(185, 170, 134, .78);
     border-radius: 4px;
     background:
@@ -1283,6 +1283,16 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 .player.mengsan-hide-identity-shuying > .seat {
     display: none !important;
 }
+/* 十周年 UI 侧边按钮只在梦三战斗期间隐藏，不影响其他模式。 */
+body.mengsan-battle-ui-shuying :is(
+    .jiluButton_new, .jiluButton_new1,
+    .huanfuButton_new, .huanfuButton_new1,
+    .meiguiButton_new, .meiguiButton_new1,
+    .xiaolianButton_new, .xiaolianButton_new1
+) {
+    display: none !important;
+    pointer-events: none !important;
+}
 .player > .mengsan-energy-shuying {
     position: absolute !important;
     top: -22px !important;
@@ -1326,7 +1336,9 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 }
 .player > .mengsan-intent-shuying[hidden],
 .mengsan-intent-damage-shuying[hidden],
-.mengsan-intent-debuff-shuying[hidden] { display: none !important; }
+.mengsan-intent-debuff-shuying[hidden],
+.mengsan-intent-block-shuying[hidden],
+.mengsan-intent-buff-shuying[hidden] { display: none !important; }
 .mengsan-intent-damage-shuying {
     display: inline-flex;
     flex: none;
@@ -1336,7 +1348,9 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
     font-size: 15px;
     font-variant-numeric: tabular-nums;
 }
-.mengsan-intent-debuff-shuying {
+.mengsan-intent-debuff-shuying,
+.mengsan-intent-block-shuying,
+.mengsan-intent-buff-shuying {
     display: inline-flex;
     flex: none;
     align-items: center;
@@ -1344,6 +1358,8 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
     color: #d8aee5;
     font-size: 11px;
 }
+.mengsan-intent-block-shuying { color: #b8daf5; }
+.mengsan-intent-buff-shuying { color: #f5d6a5; }
 .mengsan-intent-icon-shuying {
     display: block;
     width: 22px;

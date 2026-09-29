@@ -16,6 +16,11 @@ const BASE_DECKS = Object.freeze({
 const HEALTH = Object.freeze({
     mengsan_soldier_shuying: 24,
     mengsan_flyconid_shuying: 48,
+    mengsan_raider_brute_shuying: 32,
+    mengsan_raider_assassin_shuying: 21,
+    mengsan_raider_axe_shuying: 21,
+    mengsan_raider_crossbow_shuying: 20,
+    mengsan_raider_tracker_shuying: 23,
     re_xiahoudun: 30, re_zhangliao: 28, re_xuzhu: 34, re_lvbu: 120,
     re_ganning: 39, re_zhangfei: 42, re_huangzhong: 37, re_weiyan: 40,
     re_guanyu: 65, dianwei: 62, shen_guanyu: 165,
@@ -63,9 +68,25 @@ export class OpeningSoldier extends Monster {
 export class Flyconid extends Monster {
     constructor(options = {}) { super({ ...options, character: "mengsan_flyconid_shuying", tier: "normal", hp: 48 }); }
 }
+const raiderClass = (character, hp) => class extends Monster {
+    constructor(options = {}) { super({ ...options, character, tier: "normal", hp }); }
+};
+export const RaiderBrute = raiderClass("mengsan_raider_brute_shuying", 32);
+export const RaiderAssassin = raiderClass("mengsan_raider_assassin_shuying", 21);
+export const RaiderAxe = raiderClass("mengsan_raider_axe_shuying", 21);
+export const RaiderCrossbow = raiderClass("mengsan_raider_crossbow_shuying", 20);
+export const RaiderTracker = raiderClass("mengsan_raider_tracker_shuying", 23);
 
 // 新怪物子类在这里注册，未注册的角色使用 Monster 的阶级默认值。
-export const MONSTER_TYPES = Object.freeze({ mengsan_soldier_shuying: OpeningSoldier, mengsan_flyconid_shuying: Flyconid });
+export const MONSTER_TYPES = Object.freeze({
+    mengsan_soldier_shuying: OpeningSoldier,
+    mengsan_flyconid_shuying: Flyconid,
+    mengsan_raider_brute_shuying: RaiderBrute,
+    mengsan_raider_assassin_shuying: RaiderAssassin,
+    mengsan_raider_axe_shuying: RaiderAxe,
+    mengsan_raider_crossbow_shuying: RaiderCrossbow,
+    mengsan_raider_tracker_shuying: RaiderTracker,
+});
 
 export function createMonster(spec) {
     const Type = Object.hasOwn(MONSTER_TYPES, spec.character) ? MONSTER_TYPES[spec.character] : Monster;

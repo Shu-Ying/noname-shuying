@@ -393,7 +393,7 @@ export const showMap = run => new Promise(resolve => {
     const floorCount = Math.max(...run.map.nodes.map(node =>
         Math.floor(node.floor))) + 1;
     map.style.setProperty("--mengsan-map-min-height",
-        `${floorCount * 100}px`);
+        `${floorCount * 150}px`);
     const landscape = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     landscape.classList.add("mengsan-ink-landscape-shuying");
     landscape.setAttribute("viewBox", "0 0 800 1200");

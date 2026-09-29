@@ -39,7 +39,25 @@ export function mountEnemyIntent(player, session, assetBase, document,
     debuffIcon.src = `${assetBase}/assets/intent/Intent_debuff.png`;
     const debuffAmount = document.createElement("span");
     debuffLine.append(debuffIcon, debuffAmount);
-    badge.append(damageLine, debuffLine);
+    const blockLine = document.createElement("span");
+    blockLine.className = "mengsan-intent-block-shuying";
+    const blockIcon = document.createElement("img");
+    blockIcon.className = "mengsan-intent-icon-shuying";
+    blockIcon.alt = "Block";
+    blockIcon.decoding = "async";
+    blockIcon.src = `${assetBase}/assets/intent/Intent_defend.png`;
+    const blockAmount = document.createElement("span");
+    blockLine.append(blockIcon, blockAmount);
+    const buffLine = document.createElement("span");
+    buffLine.className = "mengsan-intent-buff-shuying";
+    const buffIcon = document.createElement("img");
+    buffIcon.className = "mengsan-intent-icon-shuying";
+    buffIcon.alt = "Buff";
+    buffIcon.decoding = "async";
+    buffIcon.src = `${assetBase}/assets/intent/Intent_buff.png`;
+    const buffAmount = document.createElement("span");
+    buffLine.append(buffIcon, buffAmount);
+    badge.append(damageLine, debuffLine, blockLine, buffLine);
     player.appendChild(badge);
     let currentIntent = null;
     let timer;
@@ -56,6 +74,8 @@ export function mountEnemyIntent(player, session, assetBase, document,
         if (isStunIntent(intent)) {
             damageLine.hidden = false;
             debuffLine.hidden = true;
+            blockLine.hidden = true;
+            buffLine.hidden = true;
             amount.textContent = "";
             const src = `${assetBase}/assets/intent/Intent_stun.png`;
             if (icon.getAttribute("src") !== src) icon.src = src;
@@ -76,13 +96,20 @@ export function mountEnemyIntent(player, session, assetBase, document,
             Number.isInteger(intent.stacks) && intent.stacks > 0;
         debuffLine.hidden = !hasDebuff;
         if (hasDebuff) {
-            const label = intent.id === "frail" ? "Frail" :
-                intent.id === "vulnerable" ? "Vulnerable" : "Debuff";
+            const label = intent.debuff === "脆弱" ? "Frail" :
+                intent.debuff === "易伤" ? "Vulnerable" : "Debuff";
             const debuffText = `${label} ×${intent.stacks}`;
             if (debuffAmount.textContent !== debuffText) {
                 debuffAmount.textContent = debuffText;
             }
         }
+        const hasBlock = Number.isInteger(intent.block) && intent.block > 0;
+        const hasStrength = Number.isInteger(intent.strength) && intent.strength > 0;
+        blockLine.hidden = !hasBlock;
+        buffLine.hidden = !hasStrength;
+        if (hasBlock) blockAmount.textContent = String(intent.block);
+        if (hasStrength) buffAmount.textContent = `力量 ×${intent.strength}`;
+        const effects = [];
         if (hasDamage) {
             const hits = attackHitCount(intent);
             if (deathBlow && hits !== 1) {
@@ -101,19 +128,13 @@ export function mountEnemyIntent(player, session, assetBase, document,
                 `${assetBase}/assets/intent/Intent_attack_${tier}.png`;
             if (icon.getAttribute("src") !== src) icon.src = src;
             icon.alt = deathBlow ? "Death Blow" : "Attack";
-            const label = `${deathBlow ? "Death Blow" : "Attack"}: ` +
-                `${damage} damage${hits > 1 ?
-                ` × ${hits} hits` : ""}${hasDebuff ?
-                `, ${debuffAmount.textContent}` : ""}`;
-            if (badge.getAttribute("aria-label") !== label) {
-                badge.setAttribute("aria-label", label);
-            }
-        } else {
-            const label = debuffAmount.textContent;
-            if (badge.getAttribute("aria-label") !== label) {
-                badge.setAttribute("aria-label", label);
-            }
+            effects.push(`${deathBlow ? "Death Blow" : "Attack"}: ${damage} damage${hits > 1 ? ` × ${hits} hits` : ""}`);
         }
+        if (hasDebuff) effects.push(debuffAmount.textContent);
+        if (hasBlock) effects.push(`Block ${intent.block}`);
+        if (hasStrength) effects.push(`Strength +${intent.strength}`);
+        const label = effects.join(", ") || intent.name || "Intent";
+        if (badge.getAttribute("aria-label") !== label) badge.setAttribute("aria-label", label);
         badge.hidden = false;
     };
     timer = setInterval(refresh, 100);

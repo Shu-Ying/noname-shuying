@@ -1,5 +1,6 @@
 import { createStartingDeck } from "./content/card-library.js";
 import config from "./config.js";
+import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "./content/acts/act1/raider-trio.js";
 
 const hashText = text => {
     let value = 2166136261;
@@ -245,16 +246,18 @@ export const getNodeEncounter = (run, node, override = null) => {
     if (node.type == "boss") {
         return { battlePlan: encounter?.battlePlan || act.bossBattlePlan || null, enemy: act.boss, tier: "boss", gold: act.baseGold * 3, boss: true, rewardPool: "shared.pool.boss.premium" };
     }
+    const enemy = randomGet(run, pool.filter(Boolean));
     return {
-        name: encounter?.name || "",
+        name: encounter?.name || (enemy === RAIDER_TRIO_ENCOUNTER ? "劫掠者团伙" : ""),
         requiredCharacter: encounter?.requiredCharacter || null,
         openingDialogue: encounter?.openingDialogue || [],
         fixedRewards: encounter?.fixedRewards || [],
         skipRandomReward: encounter?.skipRandomReward === true,
         victoryDialogue: encounter?.victoryDialogue || [],
-        battlePlan: encounter?.battlePlan || null,
+        battlePlan: encounter?.battlePlan || (enemy === RAIDER_TRIO_ENCOUNTER ?
+            createRaiderTrioBattlePlan(() => nextRandom(run)) : null),
         tier: encounter?.tier || (node.type === "elite" ? "elite" : "normal"),
-        enemy: randomGet(run, pool.filter(Boolean)),
+        enemy,
         gold: encounter?.gold ?? (node.type == "elite" || node.type == "story" ? act.baseGold * 2 : act.baseGold),
         boss: false,
         contentId: node.contentId || null,

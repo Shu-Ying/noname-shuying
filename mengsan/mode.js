@@ -20,6 +20,7 @@ import {
     skipStunnedAction,
 } from "./runtime/stun-intent.js";
 import { selectFlyconidMove, recordFlyconidAction } from "./runtime/flyconid-intent.js";
+import { isRaiderCharacter, selectRaiderMove, recordRaiderAction } from "./runtime/raider-intent.js";
 import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
 import { mountBattlePiles } from "./runtime/card-library.js";
 import { mountGMManager } from "./runtime/gm-manager.js";
@@ -287,19 +288,38 @@ const mountEnergy = (player, session) => {
     return refresh;
 };
 const isFlyconid = player => player?.name === "mengsan_flyconid_shuying" && player.storage?.mengsanCamp_shuying === "enemy";
-const planFlyconidIntent = (player, run) => {
-    if (!isFlyconid(player) || !player.isAlive() || player.storage.mengsanFlyconidIntent_shuying) return;
-    const move = selectFlyconidMove(player.storage.mengsanFlyconidState_shuying || {}, () => nextRandom(run));
-    player.storage.mengsanFlyconidIntent_shuying = move;
-    game.mengsanSetEnemyIntent_shuying(player, move);
+const isRaider = player => player?.storage?.mengsanCamp_shuying === "enemy" && isRaiderCharacter(player.name);
+const planEnemyIntent = (player, run) => {
+    if (!player?.isAlive() || isStunned(player)) return;
+    if (isFlyconid(player)) {
+        if (player.storage.mengsanFlyconidIntent_shuying) return;
+        const move = selectFlyconidMove(player.storage.mengsanFlyconidState_shuying || {}, () => nextRandom(run));
+        player.storage.mengsanFlyconidIntent_shuying = move;
+        game.mengsanSetEnemyIntent_shuying(player, move);
+    } else if (isRaider(player)) {
+        if (player.storage.mengsanRaiderIntent_shuying) return;
+        const move = selectRaiderMove(player.name, player.storage.mengsanRaiderState_shuying || {});
+        player.storage.mengsanRaiderIntent_shuying = move;
+        game.mengsanSetEnemyIntent_shuying(player, move);
+    }
 };
-const applyFlyconidDebuff = (target, move) => {
+const applyIntentDebuff = (target, move) => {
     if (!move.debuff) return;
-    const frail = move.id === "frail";
+    const frail = move.debuff === "脆弱";
     const key = frail ? "mengsanFrail_shuying" : "mengsanVulnerable_shuying";
     target.storage[key] = (target.storage[key] || 0) + move.stacks;
     target.addSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
     target.markSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
+};
+const dealIntentDamage = async (source, target, move) => {
+    if (move.damage == null) return;
+    for (let index = 0; index < attackHitCount(move); index++) {
+        if (!target.isAlive() || !source.isAlive()) break;
+        const hit = target.damage(outgoingAttackDamage(move, source), source);
+        hit.mengsanAttack_shuying = true;
+        hit.mengsanScriptedSkill_shuying = true;
+        await hit;
+    }
 };
 const executeFlyconidIntent = async player => {
     const move = player.storage.mengsanFlyconidIntent_shuying;
@@ -318,15 +338,33 @@ const executeFlyconidIntent = async player => {
         await beginDeathBlow(player, target, move);
         return;
     }
-    if (move.damage != null) {
-        for (let index = 0; index < attackHitCount(move); index++) {
-            if (!target.isAlive() || !player.isAlive()) break;
-            const hit = target.damage(outgoingAttackDamage(move, player), player);
-            hit.mengsanAttack_shuying = true;
-            await hit;
-        }
+    await dealIntentDamage(player, target, move);
+    if (target.isAlive() && player.isAlive()) applyIntentDebuff(target, move);
+};
+const executeRaiderIntent = async player => {
+    const move = player.storage.mengsanRaiderIntent_shuying;
+    if (!move) return;
+    player.storage.mengsanRaiderIntent_shuying = null;
+    game.mengsanSetEnemyIntent_shuying(player, null);
+    player.storage.mengsanRaiderState_shuying = recordRaiderAction(player.storage.mengsanRaiderState_shuying || {});
+    if (player.storage.mengsanEnergy_shuying < 1) {
+        game.log(player, "费用不足，未发动", move.name);
+        return;
     }
-    if (target.isAlive() && player.isAlive()) applyFlyconidDebuff(target, move);
+    player.storage.mengsanEnergy_shuying--;
+    activeBattle?.energyUI.get(player)?.();
+    game.log(player, "消耗1费用发动", move.name);
+    const target = game.me;
+    if (!target?.isAlive() || !player.isAlive()) return;
+    await dealIntentDamage(player, target, move);
+    if (target.isAlive() && player.isAlive()) applyIntentDebuff(target, move);
+    if (!player.isAlive() || !activeBattle?.session.active) return;
+    if (move.block) await player.changeHujia(move.block);
+    if (move.strength) {
+        player.storage.mengsanStrength_shuying = (player.storage.mengsanStrength_shuying || 0) + move.strength;
+        player.addSkill("mengsan_raider_strength_shuying");
+        player.markSkill("mengsan_raider_strength_shuying");
+    }
 };
 const equipBattleUnit = async (player, spec, resources) => {
     for (const info of spec.equipment || []) {
@@ -358,7 +396,7 @@ const createScenario = (plan, current) => {
                 await equipBattleUnit(player, spec, current.resources);
                 await player.draw(spec.hand ?? 4);
                 await game.triggerEnter(player);
-                if (monster && current.session.active) planFlyconidIntent(player, _status.mengsanRun_shuying);
+                if (monster && current.session.active) planEnemyIntent(player, _status.mengsanRun_shuying);
             });
             await join;
             game.log(player, "作为", spec.camp === "ally" ? "友方支援" : "敌方援军", "加入战斗");
@@ -400,6 +438,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         if (effect.type === "skill" && !lib.skill[effect.skill]) throw new Error("关卡增益技能未加载：" + effect.skill);
     }
     consumeSupports(run);
+    document.body.classList.add("mengsan-battle-ui-shuying");
+    session.ownResource({}, () => document.body.classList.remove("mengsan-battle-ui-shuying"));
     resources.field(_status, "mengsanRun_shuying", run);
     resources.field(_status, "mengsanNode_shuying", node);
     resources.field(_status, "mengsanEncounter_shuying", encounter);
@@ -460,7 +500,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         "mengsan_draw_shuying", "mengsan_card_use_shuying",
         "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
-        "mengsan_flyconid_action_shuying",
+        "mengsan_flyconid_action_shuying", "mengsan_raider_action_shuying",
+        "mengsan_raider_card_strength_shuying",
         "mengsan_death_blow_finish_shuying",
         "mengsan_stun_skip_shuying", "mengsan_stun_recover_shuying",
         "mengsan_stun_clear_shuying",
@@ -496,13 +537,14 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
             openingHandChecked = true;
             currentBattle.personalPiles.trimOpeningHand(4);
         }
+        if (isRaider(player) && player.hujia > 0) await player.changeHujia(-player.hujia);
         if (player.storage.mengsanMaxEnergy_shuying != null) {
             player.storage.mengsanEnergy_shuying = player.storage.mengsanMaxEnergy_shuying;
             currentBattle.energyUI.get(player)?.();
         }
         await currentBattle.director.beforeTurn(player);
         if (player === me && session.active) {
-            for (const enemy of game.players) planFlyconidIntent(enemy, run);
+            for (const enemy of game.players) planEnemyIntent(enemy, run);
         }
         game.checkResult();
     }}));
@@ -586,6 +628,7 @@ const setupBattle = async (run, node, encounter = getNodeEncounter(run, node)) =
     await signal; // External controller, never an engine event content await.
     if (current.engineError) {
         session.requestStop();
+        document.body.classList.remove("mengsan-battle-ui-shuying");
         await chooseButtons("战斗流程异常", [{id:"exit",name:"保留存档并返回模式选择"}], "无法确认旧事件已退出，已停止继续开战。上次成功存档仍保留。");
         await openModeSelection(); return;
     }
@@ -709,8 +752,10 @@ const createMode = identityMode => {
                 if (isStunned(player)) return false;
                 const { resume = "advance", recover } = options;
                 const flyconid = isFlyconid(player);
+                const raider = isRaider(player);
                 const intent = options.intent ?? (flyconid ?
-                    player.storage.mengsanFlyconidIntent_shuying : null);
+                    player.storage.mengsanFlyconidIntent_shuying : raider ?
+                    player.storage.mengsanRaiderIntent_shuying : null);
                 const restore = recover || (flyconid ?
                     (choice, original) => {
                         const state =
@@ -719,6 +764,11 @@ const createMode = identityMode => {
                             recordFlyconidAction(state, null, false);
                         const next = choice === "retry" ? original : null;
                         player.storage.mengsanFlyconidIntent_shuying = next;
+                        return next;
+                    } : raider ? (choice, original) => {
+                        player.storage.mengsanRaiderState_shuying = recordRaiderAction(player.storage.mengsanRaiderState_shuying || {});
+                        const next = choice === "retry" ? original : null;
+                        player.storage.mengsanRaiderIntent_shuying = next;
                         return next;
                     } : null);
                 const onRecover = async (choice, original) => {
@@ -817,6 +867,29 @@ const createMode = identityMode => {
                     !isStunned(event.player) && isFlyconid(event.player) &&
                     event.player.storage.mengsanFlyconidIntent_shuying); },
                 async content(event, trigger) { await executeFlyconidIntent(trigger.player); },
+            },
+            mengsan_raider_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) { return Boolean(activeBattle?.session.active &&
+                    !isStunned(event.player) && isRaider(event.player) &&
+                    event.player.storage.mengsanRaiderIntent_shuying); },
+                async content(event, trigger) { await executeRaiderIntent(trigger.player); },
+            },
+            mengsan_raider_card_strength_shuying: {
+                trigger: { source: "damageBegin1" },
+                forced: true, silent: true, popup: false, priority: 90,
+                filter(event, player) { return Boolean(activeBattle?.session.active &&
+                    isRaider(player) && player.storage.mengsanStrength_shuying > 0 &&
+                    event.card && !event.mengsanScriptedSkill_shuying); },
+                async content(event, trigger, player) {
+                    trigger.num += player.storage.mengsanStrength_shuying;
+                },
+            },
+            mengsan_raider_strength_shuying: {
+                mark: true, marktext: "力",
+                intro: { content(storage, player) { return `攻击伤害增加${player.storage.mengsanStrength_shuying || 0}点`; } },
+                onremove(player) { delete player.storage.mengsanStrength_shuying; },
             },
             mengsan_stun_skip_shuying: {
                 trigger: { global: "phaseUseBefore" },
@@ -988,6 +1061,10 @@ const createMode = identityMode => {
             mengsan_yingyong_shuying: "英勇",
             mengsan_yingyong_shuying_info: "锁定技，每回合限一次，你于自己的回合内使用牌造成的伤害+1。",
             mengsan_flyconid_action_shuying: "孢子行动",
+            mengsan_raider_action_shuying: "劫掠行动",
+            mengsan_raider_card_strength_shuying: "力量加成",
+            mengsan_raider_strength_shuying: "力量",
+            mengsan_raider_strength_shuying_info: "攻击造成的伤害按力量层数增加。",
             mengsan_frail_shuying: "脆弱",
             mengsan_frail_shuying_info: "接下来相应回合获得护甲减少25%（向下取整）。",
             mengsan_vulnerable_shuying: "易伤",
