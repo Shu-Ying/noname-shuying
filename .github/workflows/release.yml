@@ -1,0 +1,210 @@
+name: Release extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号，例如 2.0.1.2 或 2.0.1.2-rc.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-extension
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Generate manifest and create tag
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:RELEASE_VERSION
+          $tag = "v$version"
+
+          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(-rc\.\d+)?$') {
+            throw "无效的版本号：$version"
+          }
+          if ($env:GITHUB_REF -ne "refs/heads/$env:DEFAULT_BRANCH") {
+            throw '请从默认分支运行发布工作流'
+          }
+
+          $existingTag = git ls-remote --tags origin "refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw '检查远端标签失败' }
+          if ($existingTag) { throw "标签已存在：$tag" }
+
+          $sourceArchive = Join-Path $env:RUNNER_TEMP 'source.zip'
+          $source = Join-Path $env:RUNNER_TEMP 'source-for-manifest'
+
+          git -c core.autocrlf=false archive --format=zip `
+            "--output=$sourceArchive" HEAD
+          if ($LASTEXITCODE -ne 0) { throw '导出源码失败' }
+
+          Expand-Archive -LiteralPath $sourceArchive `
+            -DestinationPath $source
+
+          $extension = Get-Content `
+            (Join-Path $source 'extension.js') -Raw
+          $match = [regex]::Match(
+            $extension,
+            'shuYingLocalVersion\s*=\s*"([^"]+)"'
+          )
+          if (!$match.Success -or $match.Groups[1].Value -ne $version) {
+            throw "extension.js 的版本号必须为 $version"
+          }
+
+          python (Join-Path $source 'tools/generate_manifest.py') `
+            --root $source `
+            --version $version `
+            --out dist/manifest.json
+          if ($LASTEXITCODE -ne 0) { throw '生成清单失败' }
+
+          $manifestPath = Join-Path $source 'dist/manifest.json'
+          $manifest = Get-Content $manifestPath -Raw |
+            ConvertFrom-Json
+          $workflowFiles = @(
+            $manifest.files.PSObject.Properties.Name |
+              Where-Object { $_ -like '.gitea/*' -or $_ -like '.github/*' }
+          )
+          if ($workflowFiles.Count -gt 0) {
+            throw '清单包含工作流文件，请先修改 EXCLUDE_DIRS'
+          }
+
+          Copy-Item -LiteralPath $manifestPath `
+            -Destination (Join-Path $env:GITHUB_WORKSPACE `
+              'dist/manifest.json') -Force
+          git config user.name 'github-actions[bot]'
+          git config user.email `
+            '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dist/manifest.json
+          if ($LASTEXITCODE -ne 0) { throw '暂存清单失败' }
+          git commit -m "Prepare manifest for $tag"
+          if ($LASTEXITCODE -ne 0) { throw '提交清单失败' }
+          git tag -a $tag -m "Release $tag"
+          if ($LASTEXITCODE -ne 0) { throw '创建标签失败' }
+          git push origin "refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw '推送标签失败' }
+
+          Write-Host "已创建包含清单的标签：$tag"
+
+      - name: Build ZIP from tag
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:RELEASE_VERSION
+          $tag = "v$version"
+          $snapshot = Join-Path $env:RUNNER_TEMP 'tag-snapshot.zip'
+          $stage = Join-Path $env:RUNNER_TEMP 'release-source'
+          $package = Join-Path $env:RUNNER_TEMP "noname-shuying-$tag.zip"
+
+          git -c core.autocrlf=false archive --format=zip `
+            "--output=$snapshot" $tag
+          if ($LASTEXITCODE -ne 0) { throw '导出标签文件失败' }
+          Expand-Archive -LiteralPath $snapshot `
+            -DestinationPath $stage
+
+          $manifestPath = Join-Path $stage 'dist/manifest.json'
+          $manifest = Get-Content $manifestPath -Raw |
+            ConvertFrom-Json
+          if ($manifest.version -ne $version) {
+            throw "清单版本号必须为 $version"
+          }
+
+          @'
+          import json
+          import sys
+          import zipfile
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          output = Path(sys.argv[2])
+          manifest = json.loads(
+              (root / "dist/manifest.json").read_text(encoding="utf-8")
+          )
+          folder = "\u672f\u6a31\u5305/"
+          with zipfile.ZipFile(
+              output, "w", zipfile.ZIP_DEFLATED
+          ) as archive:
+              for name in manifest["files"]:
+                  archive.write(root / name, folder + name)
+              archive.write(
+                  root / "dist/manifest.json",
+                  folder + "manifest.json"
+              )
+          '@ | python - $stage $package
+          if ($LASTEXITCODE -ne 0) { throw '打包失败' }
+
+          Write-Host "版本：$version"
+          Write-Host "文件数：$($manifest.file_count)"
+          Write-Host "安装包：$package"
+
+      - name: Publish GitHub Release
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (!$env:GITHUB_TOKEN) {
+            throw '工作流没有获得 GITHUB_TOKEN'
+          }
+
+          $tag = "v$env:RELEASE_VERSION"
+          $stage = Join-Path $env:RUNNER_TEMP 'release-source'
+          $manifestPath = Join-Path $stage 'dist/manifest.json'
+          $package = Join-Path $env:RUNNER_TEMP `
+            "noname-shuying-$tag.zip"
+          $api = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+          }
+
+          $body = @{
+            tag_name = $tag
+            name = $tag
+            draft = $true
+            prerelease = $tag.Contains('-rc.')
+          } | ConvertTo-Json -Compress
+
+          $release = Invoke-RestMethod -Method Post `
+            -Uri $api `
+            -Headers $headers `
+            -ContentType 'application/json' `
+            -Body $body
+
+          foreach ($file in @($manifestPath, $package)) {
+            $name = [uri]::EscapeDataString([IO.Path]::GetFileName($file))
+            $uploadUri = $release.upload_url.Split('{')[0] + "?name=$name"
+            $contentType = if ($file -like '*.zip') {
+              'application/zip'
+            } else {
+              'application/json'
+            }
+            Invoke-RestMethod -Method Post `
+              -Uri $uploadUri `
+              -Headers $headers `
+              -ContentType $contentType `
+              -InFile $file | Out-Null
+          }
+
+          Invoke-RestMethod -Method Patch `
+            -Uri "$api/$($release.id)" `
+            -Headers $headers `
+            -ContentType 'application/json' `
+            -Body '{"draft":false}' | Out-Null
+
+          Write-Host "发布完成：$tag"
