@@ -36,7 +36,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
     debuffIcon.className = "mengsan-intent-icon-shuying";
     debuffIcon.alt = "Debuff";
     debuffIcon.decoding = "async";
-    debuffIcon.src = `${assetBase}/assets/intent/Intent_debuff.webp`;
+    debuffIcon.src = `${assetBase}/assets/intent/Intent_debuff.png`;
     const debuffAmount = document.createElement("span");
     debuffLine.append(debuffIcon, debuffAmount);
     badge.append(damageLine, debuffLine);
@@ -98,7 +98,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
             }
             const src = deathBlow ?
                 `${assetBase}/assets/intent/Intent_death_blow.png` :
-                `${assetBase}/assets/intent/Intent_attack_${tier}.webp`;
+                `${assetBase}/assets/intent/Intent_attack_${tier}.png`;
             if (icon.getAttribute("src") !== src) icon.src = src;
             icon.alt = deathBlow ? "Death Blow" : "Attack";
             const label = `${deathBlow ? "Death Blow" : "Attack"}: ` +

@@ -30,8 +30,9 @@ export const playDialogue = (lines, options = {}) => new Promise(resolve => {
     const overlay = ui.create.div(".mengsan-dialogue-overlay-shuying", ui.window);
     const stage = ui.create.div(".mengsan-dialogue-stage-shuying", overlay);
     ui.create.div(".mengsan-dialogue-chapter-shuying", options.title || "剧情", stage);
-    const portraitFrame = ui.create.div(".mengsan-dialogue-portrait-frame-shuying", stage);
     const textBox = ui.create.div(".mengsan-dialogue-box-shuying", stage);
+    const portraitFrame = ui.create.div(
+        ".mengsan-dialogue-portrait-frame-shuying", textBox);
     const speaker = ui.create.div(".mengsan-dialogue-speaker-shuying", textBox);
     const text = ui.create.div(".mengsan-dialogue-text-shuying", textBox);
     const progress = ui.create.div(".mengsan-dialogue-progress-shuying", textBox);
