@@ -1,6 +1,8 @@
 import { lib, game } from "../../noname.js";
 
-const repositoryApi = "https://gitea.diuse.work/api/v1/repos/Diuse/noname-shuying";
+const giteaRepositoryApi = "https://gitea.diuse.work/api/v1/repos/Diuse/noname-shuying";
+const githubRepositoryApi = "https://api.github.com/repos/Shu-Ying/noname-shuying";
+const githubRawBase = "https://raw.githubusercontent.com/Shu-Ying/noname-shuying";
 const coreTempDir = "extension/术樱包/.update_tmp";
 
 function parseVersion(version) {
@@ -30,15 +32,25 @@ function getUpdateChannel() {
             ? "preview" : "stable");
 }
 
-function getRemoteUrl(tag, path) {
-    const filePath = path.split("/").map(encodeURIComponent).join("/");
-    return `${repositoryApi}/raw/${filePath}?ref=${encodeURIComponent(tag)}`;
+function getUpdateSource() {
+    return lib.config.shuYing_update_source == "github" ? "github" : "gitea";
 }
 
-async function getLatestTag(channel = getUpdateChannel()) {
+function getRemoteUrl(tag, path, source = getUpdateSource()) {
+    const filePath = path.split("/").map(encodeURIComponent).join("/");
+    if (source == "github") {
+        return `${githubRawBase}/${encodeURIComponent(tag)}/${filePath}`;
+    }
+    return `${giteaRepositoryApi}/raw/${filePath}?ref=${encodeURIComponent(tag)}`;
+}
+
+async function getLatestTag(channel = getUpdateChannel(), source = getUpdateSource()) {
     let latest = null;
     for (let page = 1; ; page++) {
-        const response = await fetch(`${repositoryApi}/tags?page=${page}&limit=50`);
+        const tagsUrl = source == "github"
+            ? `${githubRepositoryApi}/tags?page=${page}&per_page=50`
+            : `${giteaRepositoryApi}/tags?page=${page}&limit=50`;
+        const response = await fetch(tagsUrl);
         if (!response.ok) throw new Error(`标签请求失败：${response.status}`);
         const tags = await response.json();
         if (!Array.isArray(tags)) throw new Error("标签列表格式错误");
@@ -55,7 +67,7 @@ async function getLatestTag(channel = getUpdateChannel()) {
         }
         if (tags.length < 50) break;
     }
-    if (!latest) throw new Error(`Gitea 镜像尚无${channel == "preview" ? "测试版" : "正式版"}标签`);
+    if (!latest) throw new Error(`更新源尚无${channel == "preview" ? "测试版" : "正式版"}标签`);
     return latest;
 }
 
@@ -192,8 +204,8 @@ function splitPath(path) {
     };
 }
 
-async function fetchFile(path, tag) {
-    const response = await fetch(getRemoteUrl(tag, path));
+async function fetchFile(path, tag, source) {
+    const response = await fetch(getRemoteUrl(tag, path, source));
     if (!response.ok) throw new Error(`${path} 下载失败：${response.status}`);
 
     return await response.arrayBuffer();
@@ -209,7 +221,7 @@ async function writeTargetFile(data, target) {
 }
 
 async function downloadFile(path, target, manifest) {
-    const data = await fetchFile(path, manifest.tag_name);
+    const data = await fetchFile(path, manifest.tag_name, manifest.source);
     if (manifest?.files?.[path]) {
         await verifyFile(path, data, manifest);
     }
@@ -217,8 +229,9 @@ async function downloadFile(path, target, manifest) {
     return data;
 }
 
-async function getManifestFromTag(tag, requireChannels = true) {
-    const response = await fetch(getRemoteUrl(tag.name, "dist/manifest.json"));
+async function getManifestFromTag(tag, requireChannels = true,
+    source = getUpdateSource()) {
+    const response = await fetch(getRemoteUrl(tag.name, "dist/manifest.json", source));
     if (!response.ok) throw new Error(`校验清单请求失败：${response.status}`);
     const manifest = await response.json();
 
@@ -246,11 +259,12 @@ async function getManifestFromTag(tag, requireChannels = true) {
     getManifestRemoveDirectories(manifest);
 
     manifest.tag_name = tag.name;
+    manifest.source = source;
     return manifest;
 }
 
-async function getManifest(channel = getUpdateChannel()) {
-    return getManifestFromTag(await getLatestTag(channel));
+async function getManifest(channel = getUpdateChannel(), source = getUpdateSource()) {
+    return getManifestFromTag(await getLatestTag(channel, source), true, source);
 }
 
 function normalizeManifestPath(path) {
@@ -727,8 +741,9 @@ async function downloadList(shuYing, files, manifest) {
     }
 }
 
-async function getOnlineVersion(channel = getUpdateChannel()) {
-    const manifest = await getManifest(channel);
+async function getOnlineVersion(channel = getUpdateChannel(),
+    source = getUpdateSource()) {
+    const manifest = await getManifest(channel, source);
     return { online_version: manifest.version, manifest };
 }
 
@@ -736,19 +751,19 @@ async function checkVersion(shuYing, options = {}) {
     try {
         shuYing._updateLogs = [];
         await addLog(shuYing, "版本检查开始");
-        const onlineVersion = await getOnlineVersion(options.channel);
+        const onlineVersion = await getOnlineVersion(options.channel, options.source);
         const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
         const manifest = onlineVersion.manifest;
         if (!options.switchChannel && parseVersion(localVersion)
             && compareVersions(onlineVersion.online_version, localVersion) < 0) {
-            throw new Error("Gitea 镜像尚未同步到本地版本，请稍后重试");
+            throw new Error("目标更新源的版本落后于本地版本，请稍后重试");
         }
         if (options.switchChannel && parseVersion(localVersion)
             && localVersion != manifest.version) {
             const previous = await getManifestFromTag({
                 name: `v${localVersion}`,
                 version: localVersion,
-            }, false);
+            }, false, manifest.source);
             const targetFiles = new Set(getManifestFileKeys(manifest));
             const removed = getManifestFileKeys(previous)
                 .filter(file => !targetFiles.has(file));
@@ -757,7 +772,7 @@ async function checkVersion(shuYing, options = {}) {
         }
         const changed = await getChangedFiles(manifest);
         const obsolete = await getObsoleteFiles(manifest);
-        await addLog(shuYing, `Gitea 标签：${manifest.tag_name}；待更新文件：${changed.length}；待删除文件：${obsolete.length}`);
+        await addLog(shuYing, `更新源：${manifest.source}；标签：${manifest.tag_name}；待更新文件：${changed.length}；待删除文件：${obsolete.length}`);
 
         if (localVersion == onlineVersion.online_version
             && !changed.length && !obsolete.length) {
@@ -885,6 +900,7 @@ async function repairCoreFiles(shuYing) {
 export default {
     getOnlineVersion,
     getUpdateChannel,
+    getUpdateSource,
     checkVersion,
     repairMissingFiles,
     repairCoreFiles,

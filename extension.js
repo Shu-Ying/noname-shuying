@@ -49,12 +49,10 @@ shuYing.initFunction = () => {
 };
 
 shuYing.getOnlineVersionText = () => `最新版本：${lib.config.shuYing_online_version || "检测中..."}`;
-shuYing.updateOnlineVersionMenu = (version) => {
-    if (!version) return;
+shuYing.updateOnlineVersionMenu = (version, status = "检测中...") => {
+    if (version) game.saveConfig("shuYing_online_version", version);
 
-    game.saveConfig("shuYing_online_version", version);
-
-    const text = `最新版本：${version}`;
+    const text = `最新版本：${version || status}`;
     if (lib.extensionMenu.extension_术樱包?.online_version) {
         lib.extensionMenu.extension_术樱包.online_version.name = text;
     }
@@ -113,8 +111,11 @@ shuYing.mergeCharacterPack = function (target, source, sourceName = "附加模�
 };
 
 shuYing.getVersion = (callback) => {
+    const requestId = (shuYing.versionRequestId || 0) + 1;
+    shuYing.versionRequestId = requestId;
     return updater.getOnlineVersion()
         .then(version => {
+            if (requestId != shuYing.versionRequestId) return null;
             shuYing.updateOnlineVersionMenu(version?.online_version);
             if (typeof callback == "function") {
                 callback(version);
@@ -122,7 +123,9 @@ shuYing.getVersion = (callback) => {
             return version;
         })
         .catch(error => {
+            if (requestId != shuYing.versionRequestId) return null;
             console.error("术樱包获取在线版本失败：", error);
+            shuYing.updateOnlineVersionMenu(null, "获取失败");
             return null;
         });
 }

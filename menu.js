@@ -210,7 +210,7 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
     menu.update_channel = {
         name: channelText(updater.getUpdateChannel()),
         clear: true,
-        intro: "切换后立即从 Gitea 对应标签下载并校验文件，完成后需重启游戏。测试版可能回退到较早的内容。",
+        intro: "切换后立即从当前下载源的对应标签下载并校验文件，完成后需重启游戏。测试版可能回退到较早的内容。",
         async onclick() {
             if (!shuYing.m_bIsDownload) {
                 alert("有其他文件正在下载，请稍后再试吧。");
@@ -236,6 +236,28 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
                 menu.update_channel.name = text;
                 this.innerHTML = text;
             }
+        },
+    };
+
+    const sourceText = source => `下载源：${source == "github" ? "GitHub" : "Gitea"}（点击切换）`;
+    menu.update_source = {
+        name: sourceText(updater.getUpdateSource()),
+        clear: true,
+        intro: "选择从 GitHub 或 Gitea 获取标签与文件；切换后刷新在线版本，实际下载由版本检测触发。",
+        onclick() {
+            if (!shuYing.m_bIsDownload) {
+                alert("有其他文件正在下载，请稍后再试吧。");
+                return;
+            }
+
+            const next = updater.getUpdateSource() == "github" ? "gitea" : "github";
+            game.saveConfig("shuYing_update_source", next);
+            const text = sourceText(next);
+            menu.update_source.name = text;
+            this.innerHTML = text;
+            game.saveConfig("shuYing_online_version", null);
+            shuYing.updateOnlineVersionMenu(null, "检测中...");
+            shuYing.getVersion();
         },
     };
 
