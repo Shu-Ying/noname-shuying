@@ -188,7 +188,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    touch-action: none;
+    touch-action: pan-y;
     cursor: grab;
     user-select: none;
     scrollbar-width: none;
@@ -198,7 +198,8 @@
     position: relative;
     display: block !important;
     width: min(100%, 860px);
-    height: max(1080px, 160vh) !important;
+    height: max(1080px, 160vh,
+        var(--mengsan-map-min-height, 1080px)) !important;
     margin: 0 auto;
     overflow: hidden;
     isolation: isolate;
@@ -520,7 +521,6 @@
 
 .mengsan-map-viewport-shuying::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .mengsan-map-viewport-shuying.dragging, .mengsan-map-viewport-shuying.dragging * { cursor: grabbing !important; }
-.mengsan-map-shuying .mengsan-node-shuying { touch-action: none; }
 /* 梦三行军图视觉系统：深墨舞台、宣纸路线、朱砂交互、铜金层级 */
 .mengsan-map-overlay-shuying {
     --ms-ink-950: #111713;
@@ -1301,7 +1301,7 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
     text-align: center;
     pointer-events: none;
 }
-/* The selected skill appears below an enemy's frame; number precedes the weapon icon. */
+/* The selected intent appears below an enemy's frame. */
 .player > .mengsan-intent-shuying {
     position: absolute !important;
     bottom: -31px !important;
@@ -1327,10 +1327,6 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 .player > .mengsan-intent-shuying[hidden],
 .mengsan-intent-damage-shuying[hidden],
 .mengsan-intent-debuff-shuying[hidden] { display: none !important; }
-.mengsan-intent-name-shuying {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 .mengsan-intent-damage-shuying {
     display: inline-flex;
     flex: none;

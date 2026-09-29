@@ -250,9 +250,22 @@ shuYing.precontent = async () => {
     shuYing.initCSS();
     shuYing.initFunction();
     shuYing.initConfig();
-    const registerMengsan = await shuYing.loadModule("./mengsan/register.js", "梦三模式", true);
-    if (typeof registerMengsan == "function") {
-        registerMengsan();
+    const mengsanState = lib.config.shuYing_mengsan_installed_version;
+    let hasMengsan = !!mengsanState && mengsanState != "disabled";
+    if (!mengsanState && typeof game.checkFile != "function") {
+        hasMengsan = true;
+    }
+    else if (!mengsanState && typeof game.checkFile == "function") {
+        hasMengsan = await new Promise(resolve => {
+            game.checkFile("extension/术樱包/mengsan/register.js",
+                result => resolve(result == 1), () => resolve(false));
+        });
+    }
+    if (hasMengsan) {
+        const registerMengsan = await shuYing.loadModule(
+            "./mengsan/register.js", "梦三模式", true
+        );
+        if (typeof registerMengsan == "function") registerMengsan();
     }
     initShuYingMenu({ lib, game, ui, shuYing, updater });
     shuYing.getVersion();

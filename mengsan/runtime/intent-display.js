@@ -1,6 +1,12 @@
 // 只呈现已经选定的预测技能；不从手牌或原生技能猜测意图。
+import { attackHitCount, previewAttackDamage } from "./intent-damage.js";
+import { isDeathBlowIntent } from "./death-blow.js";
+import { isStunIntent } from "./stun-intent.js";
+
 export function attackIconForDamage(damage) {
-    if (!Number.isInteger(damage) || damage < 0) throw new RangeError("预测伤害必须是非负整数");
+    if (!Number.isInteger(damage) || damage < 0) {
+        throw new RangeError("预测伤害必须是非负整数");
+    }
     if (damage < 5) return 1;
     if (damage < 10) return 2;
     if (damage < 20) return 3;
@@ -8,56 +14,111 @@ export function attackIconForDamage(damage) {
     return 5;
 }
 
-export function mountEnemyIntent(player, session, assetBase, document) {
+export function mountEnemyIntent(player, session, assetBase, document,
+    getTarget = () => null) {
     const badge = document.createElement("div");
     badge.className = "mengsan-intent-shuying";
     badge.hidden = true;
     badge.setAttribute("aria-live", "polite");
-    const name = document.createElement("span");
-    name.className = "mengsan-intent-name-shuying";
+    badge.setAttribute("aria-atomic", "true");
     const damageLine = document.createElement("span");
     damageLine.className = "mengsan-intent-damage-shuying";
     const amount = document.createElement("span");
     amount.className = "mengsan-intent-amount-shuying";
     const icon = document.createElement("img");
     icon.className = "mengsan-intent-icon-shuying";
-    icon.alt = "预计伤害";
+    icon.alt = "Attack";
     icon.decoding = "async";
-    damageLine.append(amount, icon);
+    damageLine.append(icon, amount);
     const debuffLine = document.createElement("span");
     debuffLine.className = "mengsan-intent-debuff-shuying";
     const debuffIcon = document.createElement("img");
     debuffIcon.className = "mengsan-intent-icon-shuying";
-    debuffIcon.alt = "预计施加负面状态";
+    debuffIcon.alt = "Debuff";
     debuffIcon.decoding = "async";
     debuffIcon.src = `${assetBase}/assets/intent/Intent_debuff.webp`;
     const debuffAmount = document.createElement("span");
     debuffLine.append(debuffIcon, debuffAmount);
-    badge.append(name, damageLine, debuffLine);
+    badge.append(damageLine, debuffLine);
     player.appendChild(badge);
-    session.ownResource(badge, () => badge.remove());
-    return intent => {
+    let currentIntent = null;
+    let timer;
+    session.ownResource(badge, () => {
+        clearInterval(timer);
+        badge.remove();
+    });
+    const refresh = () => {
+        const intent = currentIntent;
         if (!intent) {
             badge.hidden = true;
-            badge.removeAttribute("title");
             return;
         }
-        if (typeof intent.name !== "string" || !intent.name.trim()) throw new TypeError("预测技能必须有名称");
-        name.textContent = intent.name;
-        const hasDamage = intent.damage != null;
-        damageLine.hidden = !hasDamage;
-        const hasDebuff = typeof intent.debuff === "string" && Number.isInteger(intent.stacks) && intent.stacks > 0;
-        debuffLine.hidden = !hasDebuff;
-        if (hasDebuff) debuffAmount.textContent = `${intent.debuff}×${intent.stacks}`;
-        if (hasDamage) {
-            const tier = attackIconForDamage(intent.damage);
-            amount.textContent = String(intent.damage);
-            const src = `${assetBase}/assets/intent/Intent_attack_${tier}.webp`;
+        if (isStunIntent(intent)) {
+            damageLine.hidden = false;
+            debuffLine.hidden = true;
+            amount.textContent = "";
+            const src = `${assetBase}/assets/intent/Intent_stun.png`;
             if (icon.getAttribute("src") !== src) icon.src = src;
-            badge.title = `${intent.name}：预计造成 ${intent.damage} 点伤害（非最终伤害）${hasDebuff ? `，施加${intent.stacks}层${intent.debuff}` : ""}`;
+            icon.alt = "Stunned";
+            if (badge.getAttribute("aria-label") !== "Stunned") {
+                badge.setAttribute("aria-label", "Stunned");
+            }
+            badge.hidden = false;
+            return;
+        }
+        const hasDamage = intent.damage != null;
+        const deathBlow = isDeathBlowIntent(intent);
+        if (deathBlow && !hasDamage) {
+            throw new TypeError("濒死一击必须有伤害数值");
+        }
+        damageLine.hidden = !hasDamage;
+        const hasDebuff = typeof intent.debuff === "string" &&
+            Number.isInteger(intent.stacks) && intent.stacks > 0;
+        debuffLine.hidden = !hasDebuff;
+        if (hasDebuff) {
+            const label = intent.id === "frail" ? "Frail" :
+                intent.id === "vulnerable" ? "Vulnerable" : "Debuff";
+            const debuffText = `${label} ×${intent.stacks}`;
+            if (debuffAmount.textContent !== debuffText) {
+                debuffAmount.textContent = debuffText;
+            }
+        }
+        if (hasDamage) {
+            const hits = attackHitCount(intent);
+            if (deathBlow && hits !== 1) {
+                throw new RangeError("濒死一击只能造成一次伤害");
+            }
+            const damage = previewAttackDamage(intent, player, getTarget());
+            const tier = deathBlow ? null :
+                attackIconForDamage(damage * hits);
+            const damageText = hits > 1 ? `${damage}×${hits}` :
+                String(damage);
+            if (amount.textContent !== damageText) {
+                amount.textContent = damageText;
+            }
+            const src = deathBlow ?
+                `${assetBase}/assets/intent/Intent_death_blow.png` :
+                `${assetBase}/assets/intent/Intent_attack_${tier}.webp`;
+            if (icon.getAttribute("src") !== src) icon.src = src;
+            icon.alt = deathBlow ? "Death Blow" : "Attack";
+            const label = `${deathBlow ? "Death Blow" : "Attack"}: ` +
+                `${damage} damage${hits > 1 ?
+                ` × ${hits} hits` : ""}${hasDebuff ?
+                `, ${debuffAmount.textContent}` : ""}`;
+            if (badge.getAttribute("aria-label") !== label) {
+                badge.setAttribute("aria-label", label);
+            }
         } else {
-            badge.title = hasDebuff ? `${intent.name}：施加${intent.stacks}层${intent.debuff}` : intent.name;
+            const label = debuffAmount.textContent;
+            if (badge.getAttribute("aria-label") !== label) {
+                badge.setAttribute("aria-label", label);
+            }
         }
         badge.hidden = false;
+    };
+    timer = setInterval(refresh, 100);
+    return intent => {
+        currentIntent = intent;
+        refresh();
     };
 }

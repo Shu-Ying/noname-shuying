@@ -90,10 +90,19 @@ jobs:
           Copy-Item -LiteralPath $manifestPath `
             -Destination (Join-Path $env:GITHUB_WORKSPACE `
               'dist/manifest.json') -Force
+          $moduleManifestDir = Join-Path $source 'dist/modules'
+          if (Test-Path $moduleManifestDir) {
+            New-Item -ItemType Directory -Force `
+              (Join-Path $env:GITHUB_WORKSPACE 'dist/modules') | Out-Null
+            Copy-Item -Path (Join-Path $moduleManifestDir '*.json') `
+              -Destination (Join-Path $env:GITHUB_WORKSPACE 'dist/modules') `
+              -Force
+          }
           git config user.name 'github-actions[bot]'
           git config user.email `
             '41898282+github-actions[bot]@users.noreply.github.com'
           git add dist/manifest.json
+          git add dist/modules
           if ($LASTEXITCODE -ne 0) { throw '暂存清单失败' }
           git commit -m "Prepare manifest for $tag"
           if ($LASTEXITCODE -ne 0) { throw '提交清单失败' }
@@ -143,10 +152,13 @@ jobs:
           ) as archive:
               for name in manifest["files"]:
                   archive.write(root / name, folder + name)
-              archive.write(
-                  root / "dist/manifest.json",
-                  folder + "manifest.json"
-              )
+              for descriptor in manifest.get("modules", {}).values():
+                  component = json.loads(
+                      (root / descriptor["manifest"]).read_text(encoding="utf-8")
+                  )
+                  for name in component["files"]:
+                      archive.write(root / name, folder + name)
+              archive.write(root / "dist/manifest.json", folder + "manifest.json")
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }
 

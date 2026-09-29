@@ -1,4 +1,9 @@
 export const rewardPools = {
+    "act1.pool.chest": [
+        "shared.reward.item.handCharm",
+        "shared.reward.maxHp",
+        "shared.reward.support.scout",
+    ],
     "act1.pool.story.scoutGift": [
         "shared.reward.support.scout",
         "shared.reward.card.sha",

@@ -4,6 +4,21 @@ import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } 
 import { installPersonalPiles } from "./runtime/personal-piles.js";
 import { createMonster } from "./runtime/monster.js";
 import { mountEnemyIntent } from "./runtime/intent-display.js";
+import { attackHitCount, outgoingAttackDamage } from "./runtime/intent-damage.js";
+import {
+    beginDeathBlow,
+    finishDeathBlow,
+    hasPendingDeathBlow,
+    isDeathBlowIntent,
+} from "./runtime/death-blow.js";
+import {
+    STUN_INTENT,
+    applyStun,
+    clearStun,
+    finishStunnedTurn,
+    isStunned,
+    skipStunnedAction,
+} from "./runtime/stun-intent.js";
 import { selectFlyconidMove, recordFlyconidAction } from "./runtime/flyconid-intent.js";
 import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
 import { mountBattlePiles } from "./runtime/card-library.js";
@@ -172,6 +187,13 @@ const finishUtilityNode = async (run, node) => {
         ]);
         applyReward(run, choice);
     }
+    else if (node.type == "chest") {
+        await chooseReward(run, {
+            rewardPool: config.acts[run.actIndex].chestRewardPool ||
+                "shared.pool.boss.premium",
+            rewardTitle: "宝箱奖励（三选一）",
+        });
+    }
     else if (node.type == "shop") {
         const price = 20;
         const choice = await chooseButtons("商店 Demo", [
@@ -186,12 +208,18 @@ const finishUtilityNode = async (run, node) => {
         }
     }
     else {
-        const choice = await chooseButtons("随机事件", [
-            { id: "branch", name: "调查异象", description: "在当前路线后插入一个额外剧情战斗节点" },
+        const choices = [
             { id: "gold", name: "收下钱袋", description: "获得 15 金币" },
-        ]);
+        ];
+        if (run.actIndex !== 0) {
+            choices.unshift({
+                id: "branch", name: "调查异象",
+                description: "在当前路线后插入一个额外剧情战斗节点",
+            });
+        }
+        const choice = await chooseButtons("随机事件", choices);
         if (choice == "branch") insertStoryNode(run, node.id);
-        else {
+        else if (choice == "gold") {
             run.player.gold += 15;
             run.statistics.goldEarned += 15;
         }
@@ -286,10 +314,17 @@ const executeFlyconidIntent = async player => {
     game.log(player, "消耗1费用发动", move.name);
     const target = game.me;
     if (!target?.isAlive() || !player.isAlive()) return;
+    if (isDeathBlowIntent(move)) {
+        await beginDeathBlow(player, target, move);
+        return;
+    }
     if (move.damage != null) {
-        const hit = target.damage(move.damage, player);
-        hit.mengsanAttack_shuying = true;
-        await hit;
+        for (let index = 0; index < attackHitCount(move); index++) {
+            if (!target.isAlive() || !player.isAlive()) break;
+            const hit = target.damage(outgoingAttackDamage(move, player), player);
+            hit.mengsanAttack_shuying = true;
+            await hit;
+        }
     }
     if (target.isAlive() && player.isAlive()) applyFlyconidDebuff(target, move);
 };
@@ -316,7 +351,8 @@ const createScenario = (plan, current) => {
                 installMonsterPile(player, monster, current);
                 if (monster) {
                     current.energyUI.set(player, mountEnergy(player, current.session));
-                    current.intentUI.set(player, mountEnemyIntent(player, current.session, STYLE_PATH, document));
+                    current.intentUI.set(player, mountEnemyIntent(player,
+                        current.session, STYLE_PATH, document, () => game.me));
                 }
                 for (const participant of [...game.players, ...game.dead]) participant.setSeatNum(Number(participant.dataset.position) + 1);
                 await equipBattleUnit(player, spec, current.resources);
@@ -398,7 +434,9 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     const monsters = plan.units.map((spec, index) => initBattleUnit(participants[index], spec));
     plan.units.forEach((spec, index) => installMonsterPile(participants[index], monsters[index], currentBattle));
     participants.forEach((player, index) => {
-        if (monsters[index]) currentBattle.intentUI.set(player, mountEnemyIntent(player, session, STYLE_PATH, document));
+        if (monsters[index]) currentBattle.intentUI.set(player,
+            mountEnemyIntent(player, session, STYLE_PATH, document,
+                () => game.me));
     });
     activeBattle.director = createScenario(plan, currentBattle);
     activeBattle.director.bind("player", me);
@@ -418,7 +456,15 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
-    for (const skill of ["mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying", "mengsan_flyconid_action_shuying"]) {
+    for (const skill of [
+        "mengsan_draw_shuying", "mengsan_card_use_shuying",
+        "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
+        "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
+        "mengsan_flyconid_action_shuying",
+        "mengsan_death_blow_finish_shuying",
+        "mengsan_stun_skip_shuying", "mengsan_stun_recover_shuying",
+        "mengsan_stun_clear_shuying",
+    ]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
             session.ownResource({}, () => game.removeGlobalSkill(skill));
@@ -552,7 +598,10 @@ const routeRun = async (run, selected = null, supplied = false) => {
         const node = supplied ? selected : await showMap(run);
         supplied = false;
         if (!node) { await openModeSelection(); return; }
-        if (["event", "rest", "shop"].includes(node.type)) { await finishUtilityNode(run, node); continue; }
+        if (["event", "rest", "shop", "chest"].includes(node.type)) {
+            await finishUtilityNode(run, node);
+            continue;
+        }
         if (node.type === "story" && config.nodeContents?.[node.contentId]?.kind === "dialogue") {
             if (await finishStoryNode(run, node)) continue;
             return;
@@ -650,6 +699,42 @@ const createMode = identityMode => {
                 update(intent);
                 return true;
             },
+            mengsanStunEnemy_shuying(player, options = {}) {
+                const update = activeBattle?.intentUI.get(player);
+                if (!activeBattle?.session.active || !update ||
+                    !player?.isAlive() ||
+                    player.storage?.mengsanCamp_shuying !== "enemy") {
+                    return false;
+                }
+                if (isStunned(player)) return false;
+                const { resume = "advance", recover } = options;
+                const flyconid = isFlyconid(player);
+                const intent = options.intent ?? (flyconid ?
+                    player.storage.mengsanFlyconidIntent_shuying : null);
+                const restore = recover || (flyconid ?
+                    (choice, original) => {
+                        const state =
+                            player.storage.mengsanFlyconidState_shuying || {};
+                        player.storage.mengsanFlyconidState_shuying =
+                            recordFlyconidAction(state, null, false);
+                        const next = choice === "retry" ? original : null;
+                        player.storage.mengsanFlyconidIntent_shuying = next;
+                        return next;
+                    } : null);
+                const onRecover = async (choice, original) => {
+                    const next = await restore(choice, original);
+                    update(next === undefined ?
+                        (choice === "retry" ? original : null) : next);
+                };
+                if (typeof restore !== "function") {
+                    throw new TypeError("此怪物需要击晕恢复回调");
+                }
+                if (!applyStun(player, intent, { resume, recover: onRecover })) {
+                    return false;
+                }
+                update(STUN_INTENT);
+                return true;
+            },
             async mengsanPersistRun_shuying(run) {
                 await saveRun(run);
             },
@@ -720,13 +805,59 @@ const createMode = identityMode => {
                 trigger: { player: "phaseDrawBegin2" },
                 forced: true, silent: true, popup: false,
                 filter(event, player) { return Boolean(player.storage?.mengsanMonster_shuying); },
-                async content(event, trigger, player) { trigger.num = player.storage.mengsanMonster_shuying.draw; },
+                async content(event, trigger, player) {
+                    trigger.num = isStunned(player) ? 0 :
+                        player.storage.mengsanMonster_shuying.draw;
+                },
             },
             mengsan_flyconid_action_shuying: {
                 trigger: { global: "phaseUseBefore" },
                 forced: true, silent: true, popup: false, priority: 100,
-                filter(event) { return Boolean(activeBattle?.session.active && isFlyconid(event.player) && event.player.storage.mengsanFlyconidIntent_shuying); },
+                filter(event) { return Boolean(activeBattle?.session.active &&
+                    !isStunned(event.player) && isFlyconid(event.player) &&
+                    event.player.storage.mengsanFlyconidIntent_shuying); },
                 async content(event, trigger) { await executeFlyconidIntent(trigger.player); },
+            },
+            mengsan_stun_skip_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 200,
+                filter(event) {
+                    return Boolean(activeBattle?.session.active &&
+                        isStunned(event.player));
+                },
+                async content(event, trigger) {
+                    skipStunnedAction(trigger.player, trigger);
+                },
+            },
+            mengsan_stun_recover_shuying: {
+                trigger: { global: "phaseAfter" },
+                forced: true, silent: true, popup: false, priority: 200,
+                filter(event) {
+                    return Boolean(activeBattle?.session.active &&
+                        isStunned(event.player));
+                },
+                async content(event, trigger) {
+                    await finishStunnedTurn(trigger.player);
+                },
+            },
+            mengsan_stun_clear_shuying: {
+                trigger: { global: "dieAfter" },
+                forced: true, silent: true, popup: false,
+                filter(event) { return isStunned(event.player); },
+                async content(event, trigger) {
+                    clearStun(trigger.player);
+                },
+            },
+            mengsan_death_blow_finish_shuying: {
+                trigger: { global: "phaseUseAfter" },
+                forced: true, silent: true, popup: false,
+                filter(event) {
+                    return Boolean(activeBattle?.session.active &&
+                        hasPendingDeathBlow(event.player));
+                },
+                async content(event, trigger) {
+                    await finishDeathBlow(trigger.player);
+                },
             },
             mengsan_frail_shuying: {
                 mark: true, marktext: "脆",

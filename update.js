@@ -165,6 +165,12 @@ function escapeHTML(text) {
     }[char]));
 }
 
+function formatBytes(bytes) {
+    const value = Math.max(0, Number(bytes) || 0);
+    if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
+    return `${(value / 1024 / 1024).toFixed(1)} MB`;
+}
+
 function setProgress(shuYing, options = {}) {
     if (!shuYing?.text) return;
 
@@ -238,14 +244,26 @@ async function getManifestFromTag(tag, requireChannels = true,
     if (requireChannels && manifest?.update_channels !== true) {
         throw new Error("目标标签尚未包含新版更新器，请发布支持通道切换的版本");
     }
+    validateManifest(manifest, tag.version);
+
+    manifest.tag_name = tag.name;
+    manifest.source = source;
+    return manifest;
+}
+
+function validateManifest(manifest, version, moduleId = "") {
     if (!manifest || manifest.algorithm != "sha256"
         || !manifest.files || Array.isArray(manifest.files)
         || typeof manifest.files != "object"
-        || manifest.version != tag.version) {
+        || manifest.version != version
+        || (moduleId && manifest.module_id != moduleId)) {
         throw new Error("校验清单格式错误");
     }
 
     const files = getManifestFileKeys(manifest);
+    if (moduleId && files.some(file => !file.startsWith(`${moduleId}/`))) {
+        throw new Error(`校验清单包含越界的 ${moduleId} 模块文件`);
+    }
     if (!files.length || files.some(file => {
         const info = manifest.files[file];
         return !info || !Number.isSafeInteger(info.size) || info.size < 0
@@ -257,7 +275,27 @@ async function getManifestFromTag(tag, requireChannels = true,
     getManifestAssetFiles(manifest, coreFiles);
     getManifestRemoveFiles(manifest);
     getManifestRemoveDirectories(manifest);
+    return manifest;
+}
 
+async function getModuleManifest(tag, rootManifest, moduleId,
+    source = rootManifest?.source || getUpdateSource()) {
+    const descriptor = rootManifest?.modules?.[moduleId];
+    if (!descriptor || !isSafeManifestPath(descriptor.manifest)) {
+        throw new Error(`更新清单未提供 ${moduleId} 模块`);
+    }
+    if (typeof descriptor.entry != "string"
+        || !isSafeManifestPath(descriptor.entry)
+        || !descriptor.entry.startsWith(`${moduleId}/`)) {
+        throw new Error(`${moduleId} 模块入口配置无效`);
+    }
+    const response = await fetch(getRemoteUrl(tag.name, descriptor.manifest, source));
+    if (!response.ok) throw new Error(`${moduleId} 模块清单请求失败：${response.status}`);
+    const manifest = await response.json();
+    validateManifest(manifest, tag.version, moduleId);
+    if (!manifest.files[descriptor.entry]) {
+        throw new Error(`${moduleId} 模块清单缺少入口文件`);
+    }
     manifest.tag_name = tag.name;
     manifest.source = source;
     return manifest;
@@ -609,6 +647,89 @@ async function getChangedFiles(manifest) {
     return changed;
 }
 
+function makeLegacyModuleManifest(manifest, moduleId) {
+    const prefix = `${moduleId}/`;
+    const files = Object.fromEntries(Object.entries(manifest.files || {})
+        .filter(([file]) => file.startsWith(prefix)));
+    if (!Object.keys(files).length) return null;
+    const entry = `${moduleId}/register.js`;
+    return {
+        ...manifest,
+        module_id: moduleId,
+        files,
+        core: files[entry] ? [entry] : [],
+        assets: Object.keys(files).filter(file => file != entry),
+        remove: [],
+        removeDirectories: [],
+    };
+}
+
+async function getInstalledModuleManifest(moduleId, version, source) {
+    const tag = { name: `v${version}`, version };
+    const oldRoot = await getManifestFromTag(tag, false, source);
+    if (oldRoot.modules?.[moduleId]) {
+        return await getModuleManifest(tag, oldRoot, moduleId, source);
+    }
+    return makeLegacyModuleManifest(oldRoot, moduleId);
+}
+
+async function getLegacyModuleManifest(moduleId, rootManifest) {
+    const path = rootManifest?.modules?.[moduleId]?.legacy_manifest;
+    if (!path) return null;
+    if (!isSafeManifestPath(path)) {
+        throw new Error(`${moduleId} 迁移清单路径无效`);
+    }
+    const response = await fetch(getRemoteUrl(
+        rootManifest.tag_name, path, rootManifest.source
+    ));
+    if (!response.ok) throw new Error(`${moduleId} 迁移清单请求失败：${response.status}`);
+    const snapshot = await response.json();
+    if (snapshot.version != rootManifest.version
+        || snapshot.module_id != moduleId
+        || snapshot.snapshot != "legacy"
+        || !Array.isArray(snapshot.files)) {
+        throw new Error(`${moduleId} 迁移清单格式错误`);
+    }
+    const files = uniqueManifestList(snapshot.files);
+    if (files.some(file => !file.startsWith(`${moduleId}/`))) {
+        throw new Error(`${moduleId} 迁移清单包含越界文件`);
+    }
+    return { files: Object.fromEntries(files.map(file => [file, {}])) };
+}
+
+async function isMengsanInstalled(localVersion, previousManifest,
+    currentManifest) {
+    const saved = lib.config.shuYing_mengsan_installed_version;
+    if (saved == "disabled") return false;
+    if (saved) return true;
+    const entryPath = "extension/术樱包/mengsan/register.js";
+    if (typeof game.checkFile == "function"
+        && await safeCheckFile(entryPath) == 1) {
+        return true;
+    }
+    if (typeof game.checkFile != "function" && typeof game.readFile == "function") {
+        try {
+            await readFile(entryPath);
+            return true;
+        }
+        catch (error) { }
+    }
+    const oldManifest = previousManifest || (parseVersion(localVersion)
+        ? await getManifestFromTag({
+            name: `v${localVersion}`, version: localVersion,
+        }, false, currentManifest.source).catch(() => null)
+        : null);
+    return !!oldManifest?.files?.["mengsan/register.js"];
+}
+
+function mergeRemovedFiles(manifest, oldFiles, retainedFiles = []) {
+    const current = new Set(getManifestFileKeys(manifest));
+    const retained = new Set(retainedFiles);
+    manifest.remove = [...new Set([...(manifest.remove || []),
+        ...oldFiles.filter(file => !current.has(file) && !retained.has(file))])];
+    getManifestRemoveFiles(manifest);
+}
+
 async function getObsoleteFiles(manifest) {
     const existing = [];
     for (const file of getManifestRemoveFiles(manifest)) {
@@ -635,13 +756,15 @@ async function updateAllFiles(shuYing, manifest, files) {
     const oldRoot = `${coreTempDir}/old`;
     const backedUp = new Set();
     const installed = [];
+    const obsoleteBackups = [];
+    const obsoleteFiles = getManifestRemoveFiles(manifest);
     let filesInstalled = false;
     try {
         ensureProgressNode(shuYing);
         await createDir(`${newRoot}/`);
         await createDir(`${oldRoot}/`);
         await createFolders(`${newRoot}/`, files);
-        await createFolders(`${oldRoot}/`, files);
+        await createFolders(`${oldRoot}/`, [...files, ...obsoleteFiles]);
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -672,11 +795,25 @@ async function updateAllFiles(shuYing, manifest, files) {
             installed.push(file);
             await writeTargetFile(await readFile(`${newRoot}/${file}`), target);
         }
-        filesInstalled = true;
+        for (const file of obsoleteFiles) {
+            const target = `extension/术樱包/${file}`;
+            try {
+                const original = await readFile(target);
+                await writeTargetFile(original, `${oldRoot}/${file}`);
+                backedUp.add(file);
+                obsoleteBackups.push(file);
+            }
+            catch (error) {
+                if (await safeCheckFile(target) == 1) throw error;
+            }
+        }
         await removeManifestOldPaths(shuYing, manifest);
+        filesInstalled = true;
     }
     catch (error) {
-        for (const file of filesInstalled ? [] : installed.reverse()) {
+        const rollbackFiles = filesInstalled ? []
+            : [...installed, ...obsoleteBackups].reverse();
+        for (const file of rollbackFiles) {
             const target = `extension/术樱包/${file}`;
             try {
                 if (backedUp.has(file)) {
@@ -693,7 +830,7 @@ async function updateAllFiles(shuYing, manifest, files) {
         throw error;
     }
     finally {
-        for (const file of files) {
+        for (const file of new Set([...files, ...backedUp])) {
             await removeFile(`${newRoot}/${file}`);
             if (backedUp.has(file)) await removeFile(`${oldRoot}/${file}`);
         }
@@ -758,41 +895,124 @@ async function checkVersion(shuYing, options = {}) {
             && compareVersions(onlineVersion.online_version, localVersion) < 0) {
             throw new Error("目标更新源的版本落后于本地版本，请稍后重试");
         }
-        if (options.switchChannel && parseVersion(localVersion)
-            && localVersion != manifest.version) {
-            const previous = await getManifestFromTag({
-                name: `v${localVersion}`,
-                version: localVersion,
-            }, false, manifest.source);
-            const targetFiles = new Set(getManifestFileKeys(manifest));
-            const removed = getManifestFileKeys(previous)
-                .filter(file => !targetFiles.has(file));
-            manifest.remove = [...new Set([...(manifest.remove || []), ...removed])];
-            getManifestRemoveFiles(manifest);
+        let previousManifest = null;
+        if (parseVersion(localVersion) && localVersion != manifest.version) {
+            previousManifest = await getManifestFromTag({
+                name: `v${localVersion}`, version: localVersion,
+            }, false, manifest.source).catch(error => {
+                console.warn("读取本地旧版清单失败，跳过旧文件差集清理：", error);
+                return null;
+            });
         }
+
+        const installedMengsan = await isMengsanInstalled(
+            localVersion, previousManifest, manifest
+        );
+        if (installedMengsan
+            && !lib.config.shuYing_mengsan_installed_version
+            && parseVersion(localVersion)) {
+            game.saveConfig("shuYing_mengsan_installed_version",
+                localVersion == manifest.version ? "legacy" : localVersion);
+        }
+        if (previousManifest) {
+            const retainedModuleFiles = manifest.modules?.mengsan
+                ? getManifestFileKeys(previousManifest)
+                    .filter(file => file.startsWith("mengsan/"))
+                : [];
+            mergeRemovedFiles(
+                manifest,
+                getManifestFileKeys(previousManifest),
+                retainedModuleFiles
+            );
+        }
+
         const changed = await getChangedFiles(manifest);
         const obsolete = await getObsoleteFiles(manifest);
-        await addLog(shuYing, `更新源：${manifest.source}；标签：${manifest.tag_name}；待更新文件：${changed.length}；待删除文件：${obsolete.length}`);
+        let mengsanManifest = null;
+        let mengsanChanged = [];
+        let mengsanObsolete = [];
+        let mengsanUpdateError = null;
+        let previousMengsan = null;
+        if (installedMengsan && manifest.modules?.mengsan) {
+            try {
+                mengsanManifest = await getModuleManifest({
+                    name: manifest.tag_name, version: manifest.version,
+                }, manifest, "mengsan");
+                const installedModuleVersion =
+                    lib.config.shuYing_mengsan_installed_version;
+                if (installedModuleVersion
+                    && installedModuleVersion != "disabled"
+                    && parseVersion(installedModuleVersion)
+                    && installedModuleVersion != manifest.version) {
+                    previousMengsan = await getInstalledModuleManifest(
+                        "mengsan", installedModuleVersion, manifest.source
+                    );
+                }
+                else if (previousManifest && previousManifest.modules?.mengsan) {
+                    previousMengsan = await getModuleManifest({
+                        name: `v${localVersion}`, version: localVersion,
+                    }, previousManifest, "mengsan", manifest.source);
+                }
+                else if (previousManifest) {
+                    previousMengsan = makeLegacyModuleManifest(
+                        previousManifest, "mengsan"
+                    );
+                }
+                if (!previousMengsan
+                    && (!installedModuleVersion || installedModuleVersion == "legacy")) {
+                    previousMengsan = await getLegacyModuleManifest(
+                        "mengsan", manifest
+                    );
+                }
+                if (previousMengsan) {
+                    mergeRemovedFiles(
+                        mengsanManifest,
+                        getManifestFileKeys(previousMengsan)
+                    );
+                }
+                mengsanChanged = await getChangedFiles(mengsanManifest);
+                mengsanObsolete = await getObsoleteFiles(mengsanManifest);
+            }
+            catch (error) {
+                mengsanUpdateError = error;
+                await addLog(shuYing, `梦三模块更新暂不可用：${getErrorMessage(error)}`);
+            }
+        }
+        const allChangedCount = changed.length + mengsanChanged.length;
+        const allObsoleteCount = obsolete.length + mengsanObsolete.length;
+        await addLog(shuYing, `更新源：${manifest.source}；标签：${manifest.tag_name}；待更新文件：${allChangedCount}；待删除文件：${allObsoleteCount}`);
 
         if (localVersion == onlineVersion.online_version
-            && !changed.length && !obsolete.length) {
+            && !allChangedCount && !allObsoleteCount && !mengsanUpdateError) {
             game.saveConfig("shuYing_online_version", onlineVersion.online_version);
             alert("本地版本为最新版");
             return onlineVersion.online_version;
         }
 
         const message = localVersion == onlineVersion.online_version
-            ? `当前版本有 ${changed.length} 个文件需修复、${obsolete.length} 个旧文件需删除，是否继续？`
+            ? `当前版本有 ${allChangedCount} 个文件需修复、${allObsoleteCount} 个旧文件需删除，是否继续？`
             : `检测到最新版本为:${onlineVersion.online_version}, 本地版本为:${localVersion}，是否更新？`;
         if (!options.switchChannel && !confirm(message)) {
             return null;
         }
 
         await updateAllFiles(shuYing, manifest, changed);
+        if (mengsanManifest && !mengsanUpdateError) {
+            try {
+                await updateAllFiles(shuYing, mengsanManifest, mengsanChanged);
+                game.saveConfig("shuYing_mengsan_installed_version", manifest.version);
+            }
+            catch (error) {
+                mengsanUpdateError = error;
+                await addLog(shuYing, `梦三模块更新失败：${getErrorMessage(error)}`);
+            }
+        }
         game.saveConfig("shuYing_local_version", onlineVersion.online_version);
         game.saveConfig("shuYing_online_version", onlineVersion.online_version);
         await addLog(shuYing, "版本更新完成");
-        alert("下载完成，重启生效");
+        alert(mengsanUpdateError
+            ? "主包更新完成；梦三模块未完成更新，可稍后重试。"
+            : "下载完成，重启生效");
         return onlineVersion.online_version;
     }
     catch (error) {
@@ -821,6 +1041,69 @@ async function repairMissingFiles(shuYing) {
         setProgress(shuYing, { title: "查漏补缺", status: "获取校验清单", current: 0, total: 1 });
         const manifest = await getManifest();
         const files = getManifestDownloadFiles(manifest);
+        const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
+        let previousManifest = null;
+        if (parseVersion(localVersion) && localVersion != manifest.version) {
+            previousManifest = await getManifestFromTag({
+                name: `v${localVersion}`, version: localVersion,
+            }, false, manifest.source).catch(() => null);
+            if (previousManifest) {
+                const retainedModuleFiles = manifest.modules?.mengsan
+                    ? getManifestFileKeys(previousManifest)
+                        .filter(file => file.startsWith("mengsan/"))
+                    : [];
+                mergeRemovedFiles(
+                    manifest,
+                    getManifestFileKeys(previousManifest),
+                    retainedModuleFiles
+                );
+            }
+        }
+        const installedMengsan = await isMengsanInstalled(
+            localVersion, previousManifest, manifest
+        );
+        let mengsanManifest = null;
+        let previousMengsan = null;
+        if (installedMengsan && manifest.modules?.mengsan) {
+            mengsanManifest = await getModuleManifest({
+                name: manifest.tag_name, version: manifest.version,
+            }, manifest, "mengsan");
+            const installedModuleVersion =
+                lib.config.shuYing_mengsan_installed_version;
+            if (installedModuleVersion == "legacy") {
+                previousMengsan = await getLegacyModuleManifest(
+                    "mengsan", manifest
+                );
+            }
+            else if (installedModuleVersion
+                && parseVersion(installedModuleVersion)
+                && installedModuleVersion != manifest.version) {
+                previousMengsan = await getInstalledModuleManifest(
+                    "mengsan", installedModuleVersion, manifest.source
+                );
+            }
+            else if (previousManifest?.modules?.mengsan) {
+                previousMengsan = await getModuleManifest({
+                    name: `v${localVersion}`, version: localVersion,
+                }, previousManifest, "mengsan", manifest.source);
+            }
+            else if (previousManifest) {
+                previousMengsan = makeLegacyModuleManifest(
+                    previousManifest, "mengsan"
+                );
+            }
+            else if (!installedModuleVersion) {
+                previousMengsan = await getLegacyModuleManifest(
+                    "mengsan", manifest
+                );
+            }
+            if (previousMengsan) {
+                mergeRemovedFiles(
+                    mengsanManifest,
+                    getManifestFileKeys(previousMengsan)
+                );
+            }
+        }
         await addLog(shuYing, `待检查文件数：${files.length}`);
         await addLog(shuYing, `校验清单版本：${manifest.version || "未知"}；清单文件数：${Object.keys(manifest.files || {}).length}`);
 
@@ -830,6 +1113,11 @@ async function repairMissingFiles(shuYing) {
 
         await downloadList(shuYing, files, manifest);
         await removeManifestOldPaths(shuYing, manifest);
+        if (mengsanManifest) {
+            const moduleChanged = await getChangedFiles(mengsanManifest);
+            await updateAllFiles(shuYing, mengsanManifest, moduleChanged);
+            game.saveConfig("shuYing_mengsan_installed_version", manifest.version);
+        }
 
         setProgress(shuYing, { title: "查漏补缺", status: "完成", current: files.length, total: files.length });
         await addLog(shuYing, "查漏补缺完成");
@@ -839,6 +1127,104 @@ async function repairMissingFiles(shuYing) {
         console.error(error);
         await addLog(shuYing, `查漏补缺失败：${getErrorMessage(error)}`);
         alert("查漏补缺失败，请查看 extension/术樱包/log.txt");
+    }
+    finally {
+        removeProgressNode(shuYing);
+        setBusy(shuYing, false);
+    }
+}
+
+async function manageMengsanModule(shuYing) {
+    setBusy(shuYing, true);
+    try {
+        shuYing._updateLogs = [];
+        const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
+        const rootManifest = await getManifest();
+        const installed = await isMengsanInstalled(
+            localVersion, null, rootManifest
+        );
+        if (installed) {
+            if (!confirm("确认卸载梦三模式？只删除梦三模块清单拥有的文件。")) return;
+            let moduleManifest;
+            const moduleVersion = lib.config.shuYing_mengsan_installed_version;
+            if (moduleVersion == "legacy" || !moduleVersion) {
+                const legacyManifest = await getLegacyModuleManifest(
+                    "mengsan", rootManifest
+                ).catch(() => null);
+                const currentManifest = await getModuleManifest({
+                    name: rootManifest.tag_name, version: rootManifest.version,
+                }, rootManifest, "mengsan");
+                let localManifest = null;
+                if (parseVersion(localVersion)
+                    && localVersion != rootManifest.version) {
+                    localManifest = await getInstalledModuleManifest(
+                        "mengsan", localVersion, rootManifest.source
+                    ).catch(() => null);
+                }
+                moduleManifest = {
+                    files: Object.fromEntries([...new Set([
+                        ...getManifestFileKeys(legacyManifest || { files: {} }),
+                        ...getManifestFileKeys(localManifest || { files: {} }),
+                        ...getManifestFileKeys(currentManifest),
+                    ])].map(file => [file, {}])),
+                };
+            }
+            else if (parseVersion(moduleVersion || "")) {
+                moduleManifest = await getInstalledModuleManifest(
+                    "mengsan", moduleVersion, rootManifest.source
+                ).catch(async error => {
+                    await addLog(shuYing, `读取已安装模块清单失败：${getErrorMessage(error)}`);
+                    return null;
+                });
+            }
+            if (!moduleManifest && parseVersion(localVersion)) {
+                moduleManifest = await getInstalledModuleManifest(
+                    "mengsan", localVersion, rootManifest.source
+                ).catch(() => null);
+            }
+            if (!moduleManifest) {
+                moduleManifest = await getModuleManifest({
+                    name: rootManifest.tag_name, version: rootManifest.version,
+                }, rootManifest, "mengsan");
+            }
+            const files = getManifestFileKeys(moduleManifest);
+            if (typeof game.removeFile != "function") {
+                throw new Error("当前环境不支持安全卸载文件");
+            }
+            for (const file of files) {
+                await addLog(shuYing, `卸载梦三文件：${file}`);
+                await removeFile(`extension/术樱包/${file}`);
+                if (typeof game.checkFile == "function"
+                    && await safeCheckFile(`extension/术樱包/${file}`) == 1) {
+                    throw new Error(`梦三文件删除失败：${file}`);
+                }
+            }
+            game.saveConfig("shuYing_mengsan_installed_version", "disabled");
+            alert("梦三模式文件已卸载，请重启游戏生效。");
+            return;
+        }
+
+        const moduleInfo = rootManifest.modules?.mengsan;
+        const sizeText = moduleInfo?.size_bytes
+            ? `，约 ${formatBytes(moduleInfo.size_bytes)}` : "";
+        if (!confirm(`梦三模式尚未安装，是否下载并校验全部梦三资源${sizeText}？`)) return;
+        const moduleManifest = await getModuleManifest({
+            name: rootManifest.tag_name, version: rootManifest.version,
+        }, rootManifest, "mengsan");
+        const files = getManifestFileKeys(moduleManifest);
+        ensureProgressNode(shuYing);
+        setProgress(shuYing, {
+            title: "安装梦三模式", status: "准备下载", current: 0,
+            total: files.length * 2,
+        });
+        await updateAllFiles(shuYing, moduleManifest, files);
+        game.saveConfig("shuYing_mengsan_installed_version", rootManifest.version);
+        alert("梦三模式下载完成，请重启游戏生效。");
+    }
+    catch (error) {
+        console.error(error);
+        await addLog(shuYing, `梦三模块操作失败：${getErrorMessage(error)}`);
+        alert("梦三模式操作失败，请检查网络或 extension/术樱包/log.txt。");
     }
     finally {
         removeProgressNode(shuYing);
@@ -904,4 +1290,5 @@ export default {
     checkVersion,
     repairMissingFiles,
     repairCoreFiles,
+    manageMengsanModule,
 };

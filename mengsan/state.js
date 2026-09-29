@@ -110,6 +110,9 @@ export const generateActMap = (run, actIndex) => {
             let type;
             if (floor == lastFloor) type = "boss";
             else if (fixedNode?.type) type = fixedNode.type;
+            else if (act.requiredFloors?.[floor + 1]) {
+                type = act.requiredFloors[floor + 1];
+            }
             else if (floor == 0) type = "battle";
             else type = weightedType(run, act.nodeWeights);
             const id = `${act.id}_f${floor}_n${index}_${Math.floor(nextRandom(run) * 1e6)}`;

@@ -1,9 +1,17 @@
 const act1Map = {
     id: "act1",
     name: "第一关·初梦",
-    floorNodes: [1, 4, 4, 4, 1],
-    minFloorNodes: [1, 3, 3, 3, 1],
+    floorNodes: [
+        1, 4, 4, 4, 4, 4, 4, 4, 4,
+        4, 4, 4, 4, 4, 4, 4, 1,
+    ],
+    minFloorNodes: [
+        1, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 1,
+    ],
     nodeWeights: { battle: 65, event: 15, rest: 10, shop: 10 },
+    requiredFloors: { 2: "battle", 10: "chest", 16: "rest" },
+    chestRewardPool: "act1.pool.chest",
     fixedNodes: [
         {
             floor: 0,

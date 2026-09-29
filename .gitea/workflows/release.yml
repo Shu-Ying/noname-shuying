@@ -92,10 +92,13 @@ jobs:
           ) as archive:
               for name in manifest["files"]:
                   archive.write(root / name, folder + name)
-              archive.write(
-                  root / "dist/manifest.json",
-                  folder + "manifest.json"
-              )
+              for descriptor in manifest.get("modules", {}).values():
+                  component = json.loads(
+                      (root / descriptor["manifest"]).read_text(encoding="utf-8")
+                  )
+                  for name in component["files"]:
+                      archive.write(root / name, folder + name)
+              archive.write(root / "dist/manifest.json", folder + "manifest.json")
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }
 
@@ -135,7 +138,14 @@ jobs:
             -Body $body
 
           $assetApi = "$api/$($release.id)/assets"
-          foreach ($file in @($manifestPath, $package)) {
+          $moduleManifests = @(
+            Get-ChildItem (Join-Path $stage 'dist/modules') `
+              -Filter '*.json' -ErrorAction SilentlyContinue
+          )
+          $releaseFiles = @($manifestPath)
+          $releaseFiles += $moduleManifests
+          $releaseFiles += $package
+          foreach ($file in $releaseFiles) {
             curl.exe --fail --silent --show-error `
               -H "Authorization: token $env:GITEA_TOKEN" `
               -F "attachment=@$file" `

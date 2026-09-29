@@ -1,6 +1,13 @@
 log.txt
+findings.md
+progress.md
+task_plan.md
+
 dist/manifest.json
+
 tools/__pycache__/
 tools/test_update.mjs
+tools/test_intent.mjs
+
 /mengsan/.planning/
 /mengsan/verification

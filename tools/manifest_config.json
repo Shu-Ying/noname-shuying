@@ -4,10 +4,6 @@
     "menu.js",
     "function.js",
     "update.js",
-    "mengsan/mode.js",
-    "mengsan/config.js",
-    "mengsan/state.js",
-    "mengsan/style.css",
     "tianshu/extension.js",
     "tianshu/config.js",
     "pve/boss/index.js",
@@ -79,5 +75,13 @@
     "pve/boss/sets/tianshu/voices.js"
   ],
   "remove": [],
-  "removeDirectories": []
+  "removeDirectories": [],
+  "modules": {
+    "mengsan": {
+      "root": "mengsan",
+      "entry": "mengsan/register.js",
+      "title": "梦三模式",
+      "legacy_files_from": "tools/legacy/mengsan-files.json"
+    }
+  }
 }

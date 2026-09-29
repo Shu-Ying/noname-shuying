@@ -339,6 +339,19 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         },
     };
 
+    menu.mengsanModule = {
+        name: "梦三模式（按需安装/卸载）",
+        clear: true,
+        onclick() {
+            if (shuYing.m_bIsDownload) {
+                shuYing.m_bIsDownload = false;
+                updater.manageMengsanModule(shuYing);
+            } else {
+                alert("有其他文件正在下载，请稍后再试吧。");
+            }
+        },
+    };
+
     menu.repairBug = {
         name: "本地资源修复",
         clear: true,

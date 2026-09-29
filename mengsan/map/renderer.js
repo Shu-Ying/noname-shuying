@@ -10,6 +10,8 @@ const iconPaths = {
     elite: "M16 3l10 5v9c0 6-10 12-10 12S6 23 6 17V8zM10 13l6 4 6-4M16 17v7M11 5l5-3 5 3",
     event: "M10 10c0-9 15-8 15 0 0 5-9 5-9 10M16 25v1",
     story: "M8 5h18v20H10c-5 0-5-6 0-6h16M8 5c-5 0-5 6 0 6h3V5M12 10h10M12 14h8",
+    chest: "M4 13h24v15H4zM2 8h28v6H2zM16 8v20" +
+        "M9 8c-4-3-1-7 3-5l4 5M23 8c4-3 1-7-3-5l-4 5",
     rest: "M3 26L16 5l13 21zM10 26l6-11 6 11M16 5V2M7 28h19",
     shop: "M4 12l3-7h18l3 7M4 12v4h24v-4M7 16v12h18V16M12 28v-8h8v8M3 28h26M11 6v6M21 6v6",
     boss: "M6 28V5M6 6c8-8 12 6 22-1v16c-10 7-14-7-22 1M11 10l11 7M22 10l-11 7M3 28h9",
@@ -60,6 +62,7 @@ const nodeColor = {
     elite: "#7e3f79",
     event: "#477aa6",
     story: "#8c6a34",
+    chest: "#a27b35",
     rest: "#3f8560",
     shop: "#a27b35",
     boss: "#a62727",
@@ -353,6 +356,7 @@ export const showMap = run => new Promise(resolve => {
     viewport.addEventListener("pointerdown", event => {
         if (!event.isPrimary || event.button !== 0) return;
         suppressClick = false;
+        if (event.pointerType !== "mouse") return;
         drag = { id: event.pointerId, y: event.clientY, top: viewport.scrollTop, moved: false };
     });
     viewport.addEventListener("pointermove", event => {
@@ -386,6 +390,10 @@ export const showMap = run => new Promise(resolve => {
         }
     }, true);
     const map = ui.create.div(".mengsan-map-shuying", viewport);
+    const floorCount = Math.max(...run.map.nodes.map(node =>
+        Math.floor(node.floor))) + 1;
+    map.style.setProperty("--mengsan-map-min-height",
+        `${floorCount * 100}px`);
     const landscape = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     landscape.classList.add("mengsan-ink-landscape-shuying");
     landscape.setAttribute("viewBox", "0 0 800 1200");
