@@ -1,6 +1,7 @@
 import { lib, get } from "../../../../noname.js";
 import { cardCost } from "../battle/combat-rules.js";
 import { cardUpgradeRule } from "../cards/upgrades.js";
+import { getRelic } from "../relics/definitions.js";
 import { chooseButtons } from "./flow-ui.js";
 
 const element = (tag, className, text, parent) => {
@@ -42,14 +43,39 @@ const viewCard = choice => {
 };
 
 const restoreFocus = previous => { if (previous?.isConnected) previous.focus(); };
-const RETURN_TO_VICTORY = Symbol("return to victory choice");
+export const RETURN_TO_VICTORY = Symbol("return to victory choice");
 
 // Reusable card-only selector. It accepts three cards today and can lay out four or five later.
 // Callers supply stable choice IDs; this UI never creates or awards cards itself.
-export function chooseCardDialog(choices, { title = "选择一张牌", allowSkip = true, skipLabel = "跳过" } = {}) {
+export function chooseCardDialog(choices, options = {}) {
     if (!Array.isArray(choices) || !choices.length || choices.some(choice => !choice?.id || !isCardReward(choice))) {
         return Promise.reject(new TypeError("chooseCardDialog requires nonempty card choices with IDs"));
     }
+    return chooseTilesDialog(choices, options, viewCard);
+}
+
+export function chooseRelicDialog(choices, options = {}) {
+    if (!Array.isArray(choices) || !choices.length || choices.some(choice =>
+        !choice?.id || !getRelic(choice.relic))) {
+        return Promise.reject(new TypeError("遗物候选无效"));
+    }
+    return chooseTilesDialog(choices, {
+        title: "择一件遗物",
+        description: `${choices.length} 件珍藏，择一伴你远行。`,
+        actionLabel: "携此遗物",
+        ...options,
+    }, choice => {
+        const relic = getRelic(choice.relic);
+        return { name: relic.name, type: "遗物", image: null, cost: null,
+            description: relic.description };
+    });
+}
+
+function chooseTilesDialog(choices, {
+    title = "选择一张牌", allowSkip = true, skipLabel = "跳过",
+    description = "择一入阵，余者留于身后", describeChoice,
+    actionLabel = "选择此牌",
+} = {}, viewChoice) {
     return new Promise((resolve, reject) => {
         const previousFocus = document.activeElement;
         const dialog = element("dialog", "mengsan-card-choice-dialog-shuying", null);
@@ -58,7 +84,7 @@ export function chooseCardDialog(choices, { title = "选择一张牌", allowSkip
         const banner = element("header", "mengsan-card-choice-heading-shuying", null, stage);
         element("span", "mengsan-reward-overline-shuying", "梦三 · 战利品", banner);
         element("h2", "", title, banner);
-        element("p", "", "择一入阵，余者留于身后", banner);
+        element("p", "", description, banner);
         const cards = element("div", "mengsan-card-choice-grid-shuying", null, stage);
         cards.style.setProperty("--choice-count", String(Math.min(choices.length, 5)));
         let settled = false;
@@ -71,12 +97,15 @@ export function chooseCardDialog(choices, { title = "选择一张牌", allowSkip
             resolve(id);
         };
         for (const choice of choices) {
-            const view = viewCard(choice);
+            const view = viewChoice(choice);
+            if (describeChoice) view.description = describeChoice(choice);
             const card = element("button", "mengsan-card-choice-tile-shuying", null, cards);
             card.type = "button";
-            card.setAttribute("aria-label", `${view.name}，${view.type}，${view.description}。选择此牌`);
+            card.setAttribute("aria-label", `${view.name}，${view.type}，${view.description}。${actionLabel}`);
             card.addEventListener("click", () => finish(choice.id));
-            element("span", "mengsan-card-choice-cost-shuying", String(view.cost), card);
+            if (view.cost !== null) {
+                element("span", "mengsan-card-choice-cost-shuying", String(view.cost), card);
+            }
             element("span", "mengsan-card-choice-name-shuying", view.name, card);
             const artwork = element("span", "mengsan-card-choice-art-shuying", null, card);
             if (view.image) {
@@ -87,6 +116,7 @@ export function chooseCardDialog(choices, { title = "选择一张牌", allowSkip
             element("span", "mengsan-card-choice-glyph-shuying", view.name.slice(0, 1), artwork);
             element("span", "mengsan-card-choice-kind-shuying", view.type, card);
             element("span", "mengsan-card-choice-description-shuying", view.description, card);
+            element("span", "mengsan-reward-tile-action-shuying", actionLabel, card);
         }
         if (allowSkip) {
             const skip = element("button", "mengsan-card-choice-skip-shuying", skipLabel, stage);
@@ -125,6 +155,15 @@ export function chooseVictoryOptions(options, {
         const board = element("div", "mengsan-victory-options-shuying", null, stage);
         element("span", "mengsan-victory-eyebrow-shuying", rewardLabel, board);
         let settled = false, choosing = false;
+        const entries = [];
+        const refresh = () => {
+            for (const { option, entry, label, detail } of entries) {
+                label.textContent = option.label;
+                detail.textContent = option.description || "";
+                entry.disabled = Boolean(option.isDisabled?.());
+                entry.setAttribute("aria-label", `${option.label}。${option.description || ""}`);
+            }
+        };
         const finish = id => {
             if (settled) return;
             settled = true;
@@ -139,19 +178,20 @@ export function chooseVictoryOptions(options, {
             entry.setAttribute("aria-label", `${option.label}。${option.description || ""}`);
             element("span", "mengsan-victory-option-index-shuying", String(index + 1).padStart(2, "0"), entry);
             const copy = element("span", "mengsan-victory-option-copy-shuying", null, entry);
-            element("strong", "", option.label, copy);
-            if (option.description) element("small", "", option.description, copy);
+            const label = element("strong", "", option.label, copy);
+            const detail = element("small", "", option.description || "", copy);
+            entries.push({ option, entry, label, detail });
             element("span", "mengsan-victory-option-arrow-shuying", "›", entry).setAttribute("aria-hidden", "true");
             entry.addEventListener("click", async () => {
-                if (settled || choosing) return;
+                if (settled || choosing || entry.disabled) return;
                 choosing = true;
                 entry.disabled = true;
                 if (dialog.open) dialog.close();
                 try {
                     const selected = option.choose ? await option.choose() : option.id;
                     if (selected === RETURN_TO_VICTORY) {
+                        refresh();
                         dialog.showModal();
-                        entry.disabled = false;
                         choosing = false;
                         entry.focus();
                     } else finish(selected);
@@ -161,6 +201,7 @@ export function chooseVictoryOptions(options, {
                 }
             });
         }
+        refresh();
         if (allowSkip) {
             const skip = element("button", "mengsan-victory-skip-shuying", "放弃本次选择", stage);
             skip.type = "button";
@@ -169,7 +210,10 @@ export function chooseVictoryOptions(options, {
         dialog.addEventListener("cancel", event => event.preventDefault());
         dialog.addEventListener("keydown", event => event.stopPropagation());
         document.documentElement.appendChild(dialog);
-        try { dialog.showModal(); board.querySelector("button")?.focus(); }
+        try {
+            dialog.showModal();
+            entries.find(({ entry }) => !entry.disabled)?.entry.focus();
+        }
         catch (error) { dialog.remove(); restoreFocus(previousFocus); reject(error); }
     });
 }

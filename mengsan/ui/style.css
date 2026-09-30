@@ -1100,6 +1100,11 @@ button.mengsan-card-choice-tile-shuying:hover, button.mengsan-card-choice-tile-s
 .mengsan-card-choice-glyph-shuying { color: #e9d4ae; font: 700 52px/1 "KaiTi",serif; }
 .mengsan-card-choice-kind-shuying { align-self: center; margin-bottom: 6px; padding: 1px 12px; border: 1px solid #b99a6b; color: #f0dfba; font-size: 12px; }
 .mengsan-card-choice-description-shuying { display: block !important; flex: 1; overflow: hidden; padding: 2px 3px 0; color: #e8e5d6; font-size: 13px; line-height: 1.55; }
+.mengsan-reward-tile-action-shuying {
+    display: block !important; margin-top: 12px; padding: 10px 8px;
+    border-top: 1px solid #9e8261; color: #f4d7a0;
+    font: 700 16px/1.4 "KaiTi", "STKaiti", serif;
+}
 button.mengsan-card-choice-skip-shuying {
     min-height: 48px; padding: 9px 28px; border: 1px solid #82978b; border-radius: 3px;
     color: var(--reward-muted); background: #1a2b2f; font: 16px/1.4 "Microsoft YaHei",sans-serif; cursor: pointer;

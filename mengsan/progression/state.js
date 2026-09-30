@@ -254,6 +254,7 @@ export const getNodeEncounter = (run, node, override = null) => {
         requiredCharacter: encounter?.requiredCharacter || null,
         openingDialogue: encounter?.openingDialogue || [],
         fixedRewards: encounter?.fixedRewards || [],
+        rewardPackage: encounter?.rewardPackage || null,
         skipRandomReward: encounter?.skipRandomReward === true,
         victoryDialogue: encounter?.victoryDialogue || [],
         battlePlan: encounter?.battlePlan || (enemy === RAIDER_TRIO_ENCOUNTER ?

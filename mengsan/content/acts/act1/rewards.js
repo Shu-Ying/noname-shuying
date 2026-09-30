@@ -1,6 +1,7 @@
 import { relicRewardIds } from "../../../relics/definitions.js";
 
 export const rewardPools = {
+    "act1.pool.liubeiOpening.relics": [...relicRewardIds],
     "act1.pool.chest": [
         ...relicRewardIds,
         "shared.reward.item.handCharm",

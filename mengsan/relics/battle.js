@@ -1,6 +1,6 @@
 import { heldRelics } from "./definitions.js";
 
-export function createRelicBattle(run, { active, draw, log }) {
+export function createRelicBattle(run, { active, draw, log, effect }) {
     const relics = heldRelics(run);
     let started = false, turns = 0, firstLoss = false;
     let openingHandBonus = 0, pendingHpDraw = null;
@@ -24,6 +24,15 @@ export function createRelicBattle(run, { active, draw, log }) {
             for (const relic of relics) {
                 if (relic.effect === "openingDraw") await drawEffect(relic);
             }
+            for (const relic of relics.filter(item =>
+                ["openingVulnerable", "openingWeak", "openingStrength",
+                    "openingDamage"].includes(item.effect))
+                .sort((a, b) => Number(a.effect === "openingDamage") -
+                    Number(b.effect === "openingDamage"))) {
+                if (!usable()) break;
+                log(relic, relic.description);
+                await effect(relic);
+            }
             if (pendingHpDraw) {
                 const relic = pendingHpDraw;
                 pendingHpDraw = null;
@@ -35,6 +44,11 @@ export function createRelicBattle(run, { active, draw, log }) {
             seenTurns.add(event);
             turns++;
             for (const relic of relics) {
+                if (relic.effect === "firstTurnEnergy" && turns === 1 &&
+                    usable()) {
+                    log(relic, `获得${relic.amount}点临时费用`);
+                    await effect(relic);
+                }
                 if ((relic.effect === "earlyTurnDraw" &&
                     turns <= relic.turns) ||
                     (relic.effect === "periodicTurnDraw" &&
@@ -63,8 +77,11 @@ export function createRelicBattle(run, { active, draw, log }) {
             if (relic.effect === "periodicTurnDraw") {
                 return `回合计数：${turns % relic.turns}/${relic.turns}`;
             }
-            if (relic.effect === "openingDraw") {
+            if (relic.effect.startsWith("opening")) {
                 return started ? "本场已触发" : "等待战斗开始";
+            }
+            if (relic.effect === "firstTurnEnergy") {
+                return turns ? "本场已触发" : "等待首个自身回合";
             }
             return "持续持有";
         },

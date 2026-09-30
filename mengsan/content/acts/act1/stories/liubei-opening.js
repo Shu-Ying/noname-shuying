@@ -46,8 +46,9 @@ export const openingRewards = {
 export default {
     id: "act1.battle.liubeiOpening", kind: "battle", name: "刘备初始剧情", mapName: "初识的卢",
     requiredCharacter: "mengsan_liubei_shuying",
-    enemies: ["mengsan_soldier_shuying"], gold: 20,
+    enemies: ["mengsan_soldier_shuying"], gold: 400,
     skipRandomReward: true, fixedRewards: ["act1.reward.dilu"], openingDialogue, victoryDialogue,
+    rewardPackage: { gold: 400, relicPool: "act1.pool.liubeiOpening.relics" },
     battlePlan: {
         units: [{
             id: "soldier", character: "mengsan_soldier_shuying", camp: "enemy",

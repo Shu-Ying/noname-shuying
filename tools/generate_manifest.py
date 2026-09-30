@@ -18,6 +18,7 @@ EXCLUDE_DIRS = {
     "__pycache__",
 }
 EXCLUDE_FILES = {".gitignore", "log.txt"}
+EXCLUDE_EXTENSIONS = {".md", ".mjs"}
 
 
 def sha256_file(path: Path) -> str:
@@ -33,6 +34,7 @@ def should_include(path: Path, root: Path) -> bool:
     return (
         path.is_file()
         and relative.name not in EXCLUDE_FILES
+        and path.suffix.lower() not in EXCLUDE_EXTENSIONS
         and not any(part in EXCLUDE_DIRS for part in relative.parts)
     )
 

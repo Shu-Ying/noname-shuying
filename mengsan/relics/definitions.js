@@ -17,6 +17,30 @@ const entries = [
     { id: "mengsan_hand_charm_shuying", name: "束带",
         description: "基础手牌上限额外+1；重复获得不叠加。",
         effect: "handLimit", amount: 1 },
+    { id: "mengsan_meal_ticket_shuying", name: "餐券",
+        description: "进入商店房间时回复15点生命。",
+        effect: "shopHeal", amount: 15 },
+    { id: "mengsan_strawberry_shuying", name: "草莓",
+        description: "获得时最大生命值提升7；不额外回复生命。",
+        effect: "gainMaxHp", amount: 7 },
+    { id: "mengsan_bag_of_marbles_shuying", name: "弹珠袋",
+        description: "每场战斗开始时给予所有敌人1层易伤。",
+        effect: "openingVulnerable", amount: 1 },
+    { id: "mengsan_lantern_shuying", name: "灯笼",
+        description: "每场战斗首个自身回合额外获得1点临时费用。",
+        effect: "firstTurnEnergy", amount: 1 },
+    { id: "mengsan_red_mask_shuying", name: "红面具",
+        description: "每场战斗开始时给予所有敌人1层虚弱。",
+        effect: "openingWeak", amount: 1 },
+    { id: "mengsan_regal_pillow_shuying", name: "皇家枕头",
+        description: "选择休息回血时额外回复15点生命。",
+        effect: "restHeal", amount: 15 },
+    { id: "mengsan_festive_poppers_shuying", name: "节日拉炮",
+        description: "每场战斗开始时对所有敌人造成9点伤害。",
+        effect: "openingDamage", amount: 9 },
+    { id: "mengsan_vajra_shuying", name: "金刚杵",
+        description: "每场战斗开始时获得1点力量。",
+        effect: "openingStrength", amount: 1 },
 ];
 
 export const relicDefinitions = Object.freeze(Object.fromEntries(
@@ -39,14 +63,29 @@ export function canAcquireRelic(run, id) {
 export function grantRelic(run, id) {
     if (!getRelic(id)) throw new Error(`梦三遗物未注册：${id}`);
     if (!canAcquireRelic(run, id)) return false;
+    const relic = getRelic(id);
     run.player.items ||= [];
     run.player.items.push(id);
-    const relic = getRelic(id);
     if (relic.effect === "handLimit") {
         run.player.handLimitBonus = (run.player.handLimitBonus || 0) +
             relic.amount;
     }
+    if (relic.effect === "gainMaxHp") {
+        if (Number.isFinite(run.player.maxHp)) {
+            run.player.maxHp += relic.amount;
+        } else {
+            run.player.pendingRelicMaxHp =
+                (run.player.pendingRelicMaxHp || 0) + relic.amount;
+        }
+    }
     return true;
+}
+
+export function initializeRelicMaxHp(run) {
+    const amount = run.player.pendingRelicMaxHp || 0;
+    if (!amount || !Number.isFinite(run.player.maxHp)) return;
+    run.player.maxHp += amount;
+    delete run.player.pendingRelicMaxHp;
 }
 
 export const relicRewardIds = entries.filter(entry =>

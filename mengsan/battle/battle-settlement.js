@@ -1,10 +1,15 @@
 // Candidate settlement adapter. Dependencies are the current mode/state reward functions.
 import { applyBattleEndRelics } from "../relics/battle.js";
 import { settleBondBattle } from "../bonds/state.js";
+import { prepareRewardPackage, applyRewardPackage }
+    from "../progression/reward-package.js";
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const idFor = (run, node) => JSON.stringify([run.runId, run.actIndex, node.id]);
-export function createBattleSettlement({store, config, getRandomRewardChoices, applyReward, completeNode, enterNextAct, now = Date.now}) {
+export function createBattleSettlement({
+    store, config, getRandomRewardChoices, applyReward, completeNode,
+    enterNextAct, now = Date.now, logRewardPackage = () => {},
+}) {
     const readRun = () => store.read()[config.saveKey];
     function current(storage, runId) {
         const run = storage[config.saveKey];
@@ -49,7 +54,11 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
                 // Persist the configured amount as a candidate, never as automatic victory income.
                 const choices = outcome === "victory" && !encounter.skipRandomReward
                     ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
+                const rewardPackage = outcome === "victory" && encounter.rewardPackage
+                    ? prepareRewardPackage(base, encounter.rewardPackage,
+                        getRandomRewardChoices) : null;
                 run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome, relicRecovery, bondGrowth};
+                run.battleFlow.pending.rewardPackage = copy(rewardPackage);
                 return run.battleFlow.pending;
             });
         },
@@ -57,21 +66,29 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
             return store.update(storage => {
                 const {item} = pending(storage, runId, id);
                 if (item.state === "chosen") {
-                    if (item.choiceId !== choiceId) throw new Error("Choice already locked");
+                    const sameChoice = item.rewardPackage
+                        ? item.choiceId?.cardId === choiceId?.cardId &&
+                            item.choiceId?.relicId === choiceId?.relicId
+                        : item.choiceId === choiceId;
+                    if (!sameChoice) throw new Error("Choice already locked");
                     return item;
                 }
                 const result = copy(item.base);
                 let route = "defeat";
                 if (item.outcome === "victory") {
+                    if (item.rewardPackage) {
+                        applyRewardPackage(result, item.rewardPackage, choiceId,
+                            applyReward);
+                    }
                     const choice = item.choices.find(c => c.id === choiceId);
-                    if (item.choices.length && choiceId !== null) {
+                    if (!item.rewardPackage && item.choices.length && choiceId !== null) {
                         if (!choice) throw new Error("Reward is not a fixed candidate");
                         if (choice.kind === "gold") {
                             if (!Number.isSafeInteger(choice.amount) || choice.amount < 0) throw new Error("Invalid pending gold reward");
                             result.player.gold += choice.amount;
                             result.statistics.goldEarned += choice.amount;
                         } else applyReward(result, choice.effectId || choice.id);
-                    } else if (choiceId !== null) throw new Error("Unexpected reward selection");
+                    } else if (!item.rewardPackage && choiceId !== null) throw new Error("Unexpected reward selection");
                     for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
                     if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");
                     route = item.boss && !enterNextAct(result) ? "victory" : "map";
@@ -79,6 +96,9 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
                 // Save the exact result (including random card ID/target) before final commit.
                 item.state = "chosen"; item.choiceId = choiceId; item.result = result;
                 item.route = route; item.completedAt = now();
+                if (item.rewardPackage && item.outcome === "victory") {
+                    logRewardPackage(item.rewardPackage, choiceId);
+                }
                 return item;
             });
         },

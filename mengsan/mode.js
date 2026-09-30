@@ -1,8 +1,12 @@
 import { createScenarioCharacters, scenarioTranslations } from "./content/scenario-characters.js";
 import { createMengsanCards } from "./cards/mode-cards.js";
 import { createRelicBattle, createRelicSkills } from "./relics/battle.js";
-import { grantRelic, getRelic } from "./relics/definitions.js";
+import { grantRelic, getRelic, initializeRelicMaxHp }
+    from "./relics/definitions.js";
 import { mountRelics } from "./ui/relics.js";
+import { createOpeningEffects, createRelicCombatSkills }
+    from "./relics/combat.js";
+import { applyRoomRelics, restRecovery } from "./relics/rooms.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./battle/battle-director.js";
 import { installPersonalPiles } from "./cards/personal-piles.js";
 import { createMonster } from "./monsters/monster.js";
@@ -51,6 +55,7 @@ import { canAcquireCard } from "./cards/card-definitions.js";
 import { addCardToDeck, createRandomCardData } from "./cards/card-data.js";
 import { hasUpgradeableCard, upgradeRandomCard } from "./cards/upgrades.js";
 import { chooseBattleReward } from "./ui/reward-ui.js";
+import { chooseRewardPackage } from "./ui/reward-package.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
 import { playDialogue } from "./ui/dialogue.js";
 import { chooseButtons } from "./ui/flow-ui.js";
@@ -201,14 +206,19 @@ const finishStoryNode = async (run, node) => {
 const finishUtilityNode = async (run, node) => {
     if (node.type == "rest") {
         const choice = await chooseButtons("休息节点", [
-            { id: "heal", name: "休息", description: "回复 8 点生命" },
+            { id: "heal", name: "休息",
+                description: `回复 ${restRecovery(run)} 点生命` },
             { id: "upgrade", name: "磨砺",
                 description: hasUpgradeableCard(run.player.deck)
                     ? "随机强化一张尚未满级的可强化牌"
                     : "没有可强化卡牌",
                 disabled: !hasUpgradeableCard(run.player.deck) },
         ]);
-        applyReward(run, choice);
+        if (choice === "heal") {
+            const result = applyRoomRelics(run, node, choice);
+            if (result) game.log(`休息回复${result.recovered}点生命`,
+                ...result.relics.map(relic => relic.name));
+        } else applyReward(run, choice);
     }
     else if (node.type == "chest") {
         await chooseReward(run, {
@@ -218,6 +228,11 @@ const finishUtilityNode = async (run, node) => {
         });
     }
     else if (node.type == "shop") {
+        const result = applyRoomRelics(run, node, "enter");
+        if (result) {
+            game.log(`遗物【餐券】进入商店回复${result.recovered}点生命`);
+            await saveRun(run);
+        }
         const price = 20;
         const choice = await chooseButtons("商店 Demo", [
             { id: "card_sha", name: `购买【杀】（${price}金币）`, description: "加入个人牌组", disabled: run.player.gold < price || !canAcquireCard(run.player.character, "sha") },
@@ -448,12 +463,15 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         run.player.maxHp = me.maxHp;
         run.player.hp = me.hp;
     }
+    initializeRelicMaxHp(run);
     me.maxHp = run.player.maxHp;
     me.hp = Math.max(1, Math.min(run.player.hp, me.maxHp));
     me.update();
     currentBattle.relics = createRelicBattle(run, {
         active: () => session.active && me.hp > 0,
         draw: number => game.mengsanDraw_shuying(me, number),
+        effect: createOpeningEffects(game, me,
+            () => currentBattle.energyUI.get(me)?.()),
         log: (relic, effect) => {
             game.log(me, `遗物【${relic.name}】发动：${effect}`);
             currentBattle.relicUI?.refresh();
@@ -473,6 +491,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         "mengsan_stun_skip_shuying", "mengsan_stun_recover_shuying",
         "mengsan_stun_clear_shuying",
         "mengsan_relics_shuying",
+        "mengsan_relic_attack_shuying",
     ]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
@@ -556,8 +575,17 @@ const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
         return playDialogue(pending.victoryDialogue,
             { run: pending.base, title: "战后剧情" });
     },
-    settlement:createBattleSettlement({store:modeStorage, config, getRandomRewardChoices, applyReward, completeNode, enterNextAct}),
-    chooseReward: (choices, options) => chooseBattleReward(choices, {
+    settlement:createBattleSettlement({store:modeStorage, config,
+        getRandomRewardChoices, applyReward, completeNode, enterNextAct,
+        logRewardPackage: (pack, selection) => {
+            const card = pack.upgradeChoices.find(card =>
+                card.id === selection.cardId);
+            game.log(`梦三：过关奖励 ${pack.gold} 金币，` +
+                (card ? `强化【${get.translation(card.name)}】` : "无可强化牌"));
+        },
+    }),
+    chooseReward: (choices, options) => (options.rewardPackage
+        ? chooseRewardPackage : chooseBattleReward)(choices, {
         ...options,
         fixedRewards: options.fixedRewards.map(id => ({
             ...config.rewards[id], id,
@@ -839,6 +867,7 @@ const createMode = identityMode => {
         skill: {
             ...(identityMode.skill || {}),
             ...createRelicSkills(() => activeBattle, () => game.me),
+            ...createRelicCombatSkills(() => activeBattle, () => game.me),
             mengsan_taoyuan_bond_shuying: {
                 locked: true, mark: true, marktext: "义",
                 intro: { content: "先天结识关羽、张飞，初始羁绊均为8级。助战角色在行军菜单中选择。" },
@@ -1088,6 +1117,10 @@ const createMode = identityMode => {
             mengsan_yingyong_shuying_info: "锁定技，每回合限一次，你于自己的回合内使用牌造成的伤害+1。",
             mengsan_flyconid_action_shuying: "孢子行动",
             mengsan_raider_action_shuying: "劫掠行动",
+            mengsan_weak_shuying: "虚弱",
+            mengsan_weak_shuying_info:
+                "攻击伤害减少25%（向下取整），自身回合结束减少1层。",
+            mengsan_relic_attack_shuying: "遗物攻击修正",
             mengsan_raider_card_strength_shuying: "力量加成",
             mengsan_raider_strength_shuying: "力量",
             mengsan_raider_strength_shuying_info: "攻击造成的伤害按力量层数增加。",

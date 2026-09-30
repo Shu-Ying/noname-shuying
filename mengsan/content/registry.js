@@ -66,6 +66,13 @@ Object.entries(nodeContents).forEach(([contentId, content]) => {
     validateDialogue(content.victoryDialogue, contentId + " 战后");
     validateDialogue(content.openingDialogue, contentId + " 开场");
     for (const id of content.fixedRewards || []) if (!rewards[id]) throw new Error("固定奖励不存在：" + id);
+    if (content.rewardPackage) {
+        const pack = content.rewardPackage;
+        if (!Number.isSafeInteger(pack.gold) || pack.gold < 0 ||
+            !rewardPools[pack.relicPool]?.every(id => rewards[id].relic)) {
+            throw new Error(`梦三奖励包配置无效：${contentId}`);
+        }
+    }
     if (content.battlePlan) validateBattlePlan(content.battlePlan);
     (content.choices || []).forEach(choice => {
         if (!choice.id) throw new Error(`梦三剧情选项缺少ID：${contentId}`);

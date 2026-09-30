@@ -6,11 +6,12 @@ task_plan.md
 dist/manifest.json
 
 tools/__pycache__/
-tools/test_update.mjs
-tools/test_intent.mjs
+tools/*.mjs
 
 /mengsan/.planning/
 /mengsan/verification
 /mengsan/assets/sts2/
 
 /Slay the Spire 2
+
+*.mjs
