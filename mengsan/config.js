@@ -1,4 +1,4 @@
-import { defaultDeck } from "./content/card-library.js";
+import { defaultDeck } from "./cards/starting-deck.js";
 import contentRegistry from "./content/registry.js";
 
 const mengsanConfig = {

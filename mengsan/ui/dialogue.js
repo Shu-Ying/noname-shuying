@@ -1,6 +1,6 @@
 import { mountMenu } from "./navigation.js";
 import { ui, get } from "../../../../noname.js";
-import { isDialogueLineVisible, applyDialogueChoice, applySkippedDialogueChoices } from "./dialogue-choice.js";
+import { isDialogueLineVisible, applyDialogueChoice, applySkippedDialogueChoices } from "../progression/dialogue-choice.js";
 
 const TYPE_NAMES = {
     character: "角色",

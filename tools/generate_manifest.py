@@ -12,6 +12,7 @@ EXCLUDE_DIRS = {
     ".gitea",
     ".github",
     ".update_tmp",
+    ".planning",
     "dist",
     "tools",
     "__pycache__",

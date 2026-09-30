@@ -1,8 +1,8 @@
-import { openCardLibrary } from "../runtime/card-library.js";
-import { askMenu, openModeSelection } from "../runtime/navigation.js";
-import { ui, get } from "../../../../noname.js";
-import config from "../config.js";
-import { getSelectableNodes } from "../state.js";
+import { openCardLibrary } from "../card-library.js";
+import { askMenu, openModeSelection } from "../navigation.js";
+import { ui, get } from "../../../../../noname.js";
+import config from "../../config.js";
+import { getSelectableNodes } from "../../progression/state.js";
 
 // Original vector pictograms; no external image/font requests.
 const iconPaths = {

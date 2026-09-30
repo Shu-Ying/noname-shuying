@@ -1,5 +1,5 @@
 import { lib, get } from "../../../../noname.js";
-import { cardCost } from "./combat-rules.js";
+import { cardCost } from "../battle/combat-rules.js";
 import { chooseButtons } from "./flow-ui.js";
 
 const element = (tag, className, text, parent) => {

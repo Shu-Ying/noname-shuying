@@ -1,4 +1,4 @@
-import { cardDefinitions, canAcquireCard } from "../content/card-definitions.js";
+import { cardDefinitions, canAcquireCard } from "./card-definitions.js";
 
 const suits = ["spade", "heart", "club", "diamond"];
 

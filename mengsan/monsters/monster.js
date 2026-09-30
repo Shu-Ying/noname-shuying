@@ -1,4 +1,4 @@
-import { createCardData } from "./card-data.js";
+import { createCardData } from "../cards/card-data.js";
 
 // 梦三怪物规则只作用于敌方单位；子类可覆盖构造参数或 createDeck()。
 const TIER_RULES = Object.freeze({

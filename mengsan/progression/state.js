@@ -1,6 +1,6 @@
-import { createStartingDeck } from "./content/card-library.js";
-import config from "./config.js";
-import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "./content/acts/act1/raider-trio.js";
+import { createStartingDeck } from "../cards/starting-deck.js";
+import config from "../config.js";
+import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "../content/acts/act1/raider-trio.js";
 
 const hashText = text => {
     let value = 2166136261;

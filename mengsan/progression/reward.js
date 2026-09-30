@@ -1,6 +1,6 @@
 import config from "../config.js";
-import { nextRandom } from "../state.js";
-import { canAcquireCard } from "../content/card-definitions.js";
+import { nextRandom } from "./state.js";
+import { canAcquireCard } from "../cards/card-definitions.js";
 
 export const rewardCardName = reward => reward?.card?.name || ({ card_sha: "sha", card_tao: "tao" })[reward?.effectId] || null;
 export const canAcquireReward = (run, reward) => {

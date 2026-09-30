@@ -1,16 +1,19 @@
 import { createScenarioCharacters, scenarioTranslations } from "./content/scenario-characters.js";
-import { createMengsanCards } from "./content/mode-cards.js";
-import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./runtime/battle-director.js";
-import { installPersonalPiles } from "./runtime/personal-piles.js";
-import { createMonster } from "./runtime/monster.js";
-import { mountEnemyIntent } from "./runtime/intent-display.js";
-import { attackHitCount, outgoingAttackDamage } from "./runtime/intent-damage.js";
+import { createMengsanCards } from "./cards/mode-cards.js";
+import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./battle/battle-director.js";
+import { installPersonalPiles } from "./cards/personal-piles.js";
+import { createMonster } from "./monsters/monster.js";
 import {
-    beginDeathBlow,
+    createMonsterIntentActions,
+    isFlyconid,
+    isRaider,
+} from "./monsters/actions.js";
+import { mountEnemyIntent } from "./ui/intent-display.js";
+import { mountEnergy } from "./ui/energy-display.js";
+import {
     finishDeathBlow,
     hasPendingDeathBlow,
-    isDeathBlowIntent,
-} from "./runtime/death-blow.js";
+} from "./battle/death-blow.js";
 import {
     STUN_INTENT,
     applyStun,
@@ -18,31 +21,31 @@ import {
     finishStunnedTurn,
     isStunned,
     skipStunnedAction,
-} from "./runtime/stun-intent.js";
-import { selectFlyconidMove, recordFlyconidAction } from "./runtime/flyconid-intent.js";
-import { isRaiderCharacter, selectRaiderMove, recordRaiderAction } from "./runtime/raider-intent.js";
-import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./runtime/combat-rules.js";
-import { mountBattlePiles } from "./runtime/card-library.js";
-import { mountGMManager } from "./runtime/gm-manager.js";
-import { createPlayerTeardown } from "./runtime/skill-teardown.js";
-import { createBattleResources } from "./runtime/battle-resources.js";
-import { createModeStorage } from "./runtime/mode-storage.js";
-import { createBattleSession } from "./runtime/battle-session.js";
-import { observeFreshEvent } from "./runtime/engine-session.js";
-import { runPhaseLoop, stopBattleTurn } from "./runtime/battle-loop.js";
-import { createBattleSettlement } from "./runtime/battle-settlement.js";
-import { createBattleFlow, quiesceEngine } from "./runtime/battle-flow.js";
+} from "./battle/stun-intent.js";
+import { recordFlyconidAction } from "./monsters/flyconid-intent.js";
+import { recordRaiderAction } from "./monsters/raider-intent.js";
+import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./battle/combat-rules.js";
+import { mountBattlePiles } from "./ui/card-library.js";
+import { mountGMManager } from "./ui/gm-manager.js";
+import { createPlayerTeardown } from "./battle/skill-teardown.js";
+import { createBattleResources } from "./battle/battle-resources.js";
+import { createModeStorage } from "./progression/mode-storage.js";
+import { createBattleSession } from "./battle/battle-session.js";
+import { observeFreshEvent } from "./battle/engine-session.js";
+import { runPhaseLoop, stopBattleTurn } from "./battle/battle-loop.js";
+import { createBattleSettlement } from "./battle/battle-settlement.js";
+import { createBattleFlow, quiesceEngine } from "./battle/battle-flow.js";
 import { lib, game, ui, get, _status } from "../../../noname.js";
 import config from "./config.js";
-import { showMap } from "./map/index.js";
-import { getRandomRewardChoices } from "./runtime/reward.js";
-import { canAcquireCard } from "./content/card-definitions.js";
-import { addCardToDeck, createRandomCardData } from "./runtime/card-data.js";
-import { chooseBattleReward } from "./runtime/reward-ui.js";
-import { applyStoryOutcome, getAvailableStoryChoices } from "./runtime/story.js";
-import { playDialogue } from "./runtime/dialogue.js";
-import { chooseButtons } from "./runtime/flow-ui.js";
-import { openModeSelection } from "./runtime/navigation.js";
+import { showMap } from "./ui/map/index.js";
+import { getRandomRewardChoices } from "./progression/reward.js";
+import { canAcquireCard } from "./cards/card-definitions.js";
+import { addCardToDeck, createRandomCardData } from "./cards/card-data.js";
+import { chooseBattleReward } from "./ui/reward-ui.js";
+import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
+import { playDialogue } from "./ui/dialogue.js";
+import { chooseButtons } from "./ui/flow-ui.js";
+import { openModeSelection } from "./ui/navigation.js";
 import {
     completeNode,
     createRun,
@@ -51,7 +54,7 @@ import {
     getNodeEncounter,
     insertStoryNode,
     nextRandom,
-} from "./state.js";
+} from "./progression/state.js";
 
 const MODE_ID = config.modeId;
 const STYLE_PATH = `${lib.assetURL}extension/术樱包/mengsan`;
@@ -278,94 +281,11 @@ const installMonsterPile = (player, monster, current) => {
     }));
 };
 
-const mountEnergy = (player, session) => {
-    const badge = document.createElement("div");
-    badge.className = "mengsan-energy-shuying";
-    const refresh = () => { badge.textContent = `费用 ${player.storage.mengsanEnergy_shuying}/${player.storage.mengsanMaxEnergy_shuying}`; };
-    player.appendChild(badge);
-    session.ownResource(badge, () => badge.remove());
-    refresh();
-    return refresh;
-};
-const isFlyconid = player => player?.name === "mengsan_flyconid_shuying" && player.storage?.mengsanCamp_shuying === "enemy";
-const isRaider = player => player?.storage?.mengsanCamp_shuying === "enemy" && isRaiderCharacter(player.name);
-const planEnemyIntent = (player, run) => {
-    if (!player?.isAlive() || isStunned(player)) return;
-    if (isFlyconid(player)) {
-        if (player.storage.mengsanFlyconidIntent_shuying) return;
-        const move = selectFlyconidMove(player.storage.mengsanFlyconidState_shuying || {}, () => nextRandom(run));
-        player.storage.mengsanFlyconidIntent_shuying = move;
-        game.mengsanSetEnemyIntent_shuying(player, move);
-    } else if (isRaider(player)) {
-        if (player.storage.mengsanRaiderIntent_shuying) return;
-        const move = selectRaiderMove(player.name, player.storage.mengsanRaiderState_shuying || {});
-        player.storage.mengsanRaiderIntent_shuying = move;
-        game.mengsanSetEnemyIntent_shuying(player, move);
-    }
-};
-const applyIntentDebuff = (target, move) => {
-    if (!move.debuff) return;
-    const frail = move.debuff === "脆弱";
-    const key = frail ? "mengsanFrail_shuying" : "mengsanVulnerable_shuying";
-    target.storage[key] = (target.storage[key] || 0) + move.stacks;
-    target.addSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
-    target.markSkill(frail ? "mengsan_frail_shuying" : "mengsan_vulnerable_shuying");
-};
-const dealIntentDamage = async (source, target, move) => {
-    if (move.damage == null) return;
-    for (let index = 0; index < attackHitCount(move); index++) {
-        if (!target.isAlive() || !source.isAlive()) break;
-        const hit = target.damage(outgoingAttackDamage(move, source), source);
-        hit.mengsanAttack_shuying = true;
-        hit.mengsanScriptedSkill_shuying = true;
-        await hit;
-    }
-};
-const executeFlyconidIntent = async player => {
-    const move = player.storage.mengsanFlyconidIntent_shuying;
-    if (!move) return;
-    player.storage.mengsanFlyconidIntent_shuying = null;
-    game.mengsanSetEnemyIntent_shuying(player, null);
-    const paid = player.storage.mengsanEnergy_shuying >= 1;
-    player.storage.mengsanFlyconidState_shuying = recordFlyconidAction(player.storage.mengsanFlyconidState_shuying || {}, move, paid);
-    if (!paid) { game.log(player, "费用不足，未发动", move.name); return; }
-    player.storage.mengsanEnergy_shuying--;
-    activeBattle?.energyUI.get(player)?.();
-    game.log(player, "消耗1费用发动", move.name);
-    const target = game.me;
-    if (!target?.isAlive() || !player.isAlive()) return;
-    if (isDeathBlowIntent(move)) {
-        await beginDeathBlow(player, target, move);
-        return;
-    }
-    await dealIntentDamage(player, target, move);
-    if (target.isAlive() && player.isAlive()) applyIntentDebuff(target, move);
-};
-const executeRaiderIntent = async player => {
-    const move = player.storage.mengsanRaiderIntent_shuying;
-    if (!move) return;
-    player.storage.mengsanRaiderIntent_shuying = null;
-    game.mengsanSetEnemyIntent_shuying(player, null);
-    player.storage.mengsanRaiderState_shuying = recordRaiderAction(player.storage.mengsanRaiderState_shuying || {});
-    if (player.storage.mengsanEnergy_shuying < 1) {
-        game.log(player, "费用不足，未发动", move.name);
-        return;
-    }
-    player.storage.mengsanEnergy_shuying--;
-    activeBattle?.energyUI.get(player)?.();
-    game.log(player, "消耗1费用发动", move.name);
-    const target = game.me;
-    if (!target?.isAlive() || !player.isAlive()) return;
-    await dealIntentDamage(player, target, move);
-    if (target.isAlive() && player.isAlive()) applyIntentDebuff(target, move);
-    if (!player.isAlive() || !activeBattle?.session.active) return;
-    if (move.block) await player.changeHujia(move.block);
-    if (move.strength) {
-        player.storage.mengsanStrength_shuying = (player.storage.mengsanStrength_shuying || 0) + move.strength;
-        player.addSkill("mengsan_raider_strength_shuying");
-        player.markSkill("mengsan_raider_strength_shuying");
-    }
-};
+const {
+    planEnemyIntent,
+    executeFlyconidIntent,
+    executeRaiderIntent,
+} = createMonsterIntentActions(game, () => activeBattle);
 const equipBattleUnit = async (player, spec, resources) => {
     for (const info of spec.equipment || []) {
         const card = resources.card(game.createCard(info.name, info.suit, info.number, info.nature));
@@ -388,7 +308,8 @@ const createScenario = (plan, current) => {
                 const monster = initBattleUnit(player, spec);
                 installMonsterPile(player, monster, current);
                 if (monster) {
-                    current.energyUI.set(player, mountEnergy(player, current.session));
+                    current.energyUI.set(player,
+                        mountEnergy(player, current.session, document));
                     current.intentUI.set(player, mountEnemyIntent(player,
                         current.session, STYLE_PATH, document, () => game.me));
                 }
@@ -484,7 +405,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     me.storage.mengsanPlayer_shuying = true;
     me.storage.mengsanMaxEnergy_shuying = PLAYER_ENERGY;
     me.storage.mengsanEnergy_shuying = PLAYER_ENERGY;
-    currentBattle.energyUI.set(me, mountEnergy(me, session));
+    currentBattle.energyUI.set(me, mountEnergy(me, session, document));
     game.zhu = me;
     if (run.player.maxHp == null) {
         run.player.maxHp = me.maxHp;
@@ -1085,7 +1006,7 @@ export async function createMengsanMode() {
         ] });
     }
     await new Promise(resolve => {
-        const style = lib.init.css(STYLE_PATH, "style", resolve);
+        const style = lib.init.css(`${STYLE_PATH}/ui`, "style", resolve);
         style.addEventListener("error", resolve, { once: true });
     });
     const identityMode = await game.loadModeAsync("identity");

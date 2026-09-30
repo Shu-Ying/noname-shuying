@@ -1,4 +1,4 @@
-import { validateBattlePlan } from "../runtime/battle-director.js";
+import { validateBattlePlan } from "../battle/battle-director.js";
 import act1 from "./acts/act1/index.js";
 import act2 from "./acts/act2/index.js";
 import act3 from "./acts/act3/index.js";

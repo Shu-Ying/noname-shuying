@@ -1,5 +1,5 @@
 import { lib, get, ui } from "../../../../noname.js";
-import { AFFIX_INFO } from "../content/affixes.js";
+import { AFFIX_INFO } from "../cards/affixes.js";
 
 const suits = { spade: "♠ 黑桃", heart: "♥ 红桃", club: "♣ 梅花", diamond: "♦ 方块" };
 const types = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" };

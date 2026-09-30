@@ -1,4 +1,4 @@
-import { AFFIX_INFO } from "../content/affixes.js";
+import { AFFIX_INFO } from "../cards/affixes.js";
 import { describeLibraryCard } from "./card-library.js";
 
 const node = (tag, className, label, parent) => {

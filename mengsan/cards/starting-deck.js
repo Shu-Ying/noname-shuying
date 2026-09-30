@@ -1,4 +1,4 @@
-import { createCardData } from "../runtime/card-data.js";
+import { createCardData } from "./card-data.js";
 
 // Mode-owned starting decks. Existing saves always retain their actual player.deck.
 export const defaultDeck = Object.freeze([

@@ -1,7 +1,7 @@
 // Mode-owned piles use real Card nodes so native searches/gain/insert operations agree.
 // DIY must access ui piles inside the acting player's engine event, never cache global nodes.
-import { cardCost } from "./combat-rules.js";
-import { AFFIX_INFO } from "../content/affixes.js";
+import { cardCost } from "../battle/combat-rules.js";
+import { AFFIX_INFO } from "./affixes.js";
 
 
 export function installPersonalPiles(session, owner, battle, run, resources, env) {

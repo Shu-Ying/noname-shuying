@@ -20,7 +20,7 @@
 - 提前击败敌人允许正常获胜，此时未到第四次回合的支援不会触发。不强行等待、不添加免死。
 
 ## 新角色立绘
-`assets/sushuang-zhangshiping.png` 为本次 image_gen 生成的原创双人立绘，不是官方素材。
+`assets/portraits/sushuang-zhangshiping.png` 为本次 image_gen 生成的原创双人立绘，不是官方素材。
 
 ## 验证边界
 隔离脚本检查配置、回合计数、效果顺序及奖励幂等，不等于游戏/十周年UI验收。请开始新征程检查真实引擎的装备、座次、AI和剧情显示。

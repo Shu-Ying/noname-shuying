@@ -3,7 +3,7 @@
 import standard from "../../../../card/standard.js";
 import extra from "../../../../card/extra.js";
 import { _status } from "../../../../noname.js";
-import { cardCost, canPayCard, isActiveCardUse, SHA_DAMAGE } from "../runtime/combat-rules.js";
+import { cardCost, canPayCard, isActiveCardUse, SHA_DAMAGE } from "../battle/combat-rules.js";
 
 const packs = [standard, extra];
 const names = [...new Set(packs.flatMap(pack => pack.list.map(entry => entry[2])))];
