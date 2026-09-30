@@ -1,0 +1,111 @@
+.mengsan-hand-zone-shuying {
+  --mengsan-hand-gold: #d8ba83;
+  --mengsan-hand-jade: #234844;
+  --mengsan-hand-ink: #fff1cb;
+}
+.mengsan-hand-scroll-shuying {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: #d8ba83 #234844;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+}
+.mengsan-hand-scroll-shuying:focus-visible {
+  outline: 2px solid #d8ba83;
+  outline-offset: -2px;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying {
+  position: relative !important;
+  display: flex !important;
+  align-items: flex-end;
+  gap: 8px;
+  width: max-content !important;
+  min-width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  top: auto !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 24px 8px 6px !important;
+  box-sizing: border-box;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
+  position: relative !important;
+  flex: 0 0 auto;
+  width: 90px !important;
+  height: 110px !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  transition: transform 120ms ease-out !important;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.selected {
+  transform: translateY(-18px) !important;
+  outline: 2px solid var(--mengsan-hand-gold);
+  outline-offset: -2px;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.removing,
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.display-none {
+  display: none !important;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card > .info,
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card > .name {
+  transform: none !important;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card > .info > span {
+  display: inline !important;
+}
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-cost-shuying,
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-upgrade-shuying {
+  position: absolute !important;
+  display: grid !important;
+  place-items: center;
+  z-index: 8 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+  pointer-events: none;
+  writing-mode: horizontal-tb !important;
+  font: 700 13px/1 "Microsoft YaHei", sans-serif;
+  box-shadow: 0 2px 4px #0008;
+}
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-cost-shuying {
+  top: 48% !important;
+  left: 3px !important;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--mengsan-hand-gold);
+  border-radius: 50%;
+  background: var(--mengsan-hand-jade);
+  color: var(--mengsan-hand-ink);
+}
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-cost-shuying::before {
+  content: attr(data-mengsan-cost);
+}
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-upgrade-shuying {
+  top: 4px !important;
+  right: 4px !important;
+  width: 26px;
+  height: 20px;
+  border: 1px solid #86bd85;
+  border-radius: 4px;
+  background: #214f36;
+  color: #f5ffea;
+}
+.mengsan-hand-zone-shuying > .card > .mengsan-hand-upgrade-shuying::before {
+  content: "+" attr(data-mengsan-upgrade);
+}
+@media (max-width: 640px), (max-height: 500px) {
+  .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
+    width: 80px !important;
+    height: 100px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
+    transition: none !important;
+  }
+}

@@ -12,12 +12,16 @@
 | `progression/` | 征程状态、存档、剧情选择和奖励逻辑 |
 | `content/` | 章节、遭遇、剧本、角色与内容注册表 |
 | `ui/` | 地图、对话、意图、奖励、图鉴及样式 |
+| `ui/hand/` | 梦三必需手牌 UI 子扩展：真实卡牌原位排列、覆盖层及生命周期 |
 | `assets/intent/` | 意图图标 |
 | `assets/cards/` | 梦三专属卡面 |
 | `assets/portraits/` | 角色立绘 |
 | `docs/` | 战斗和关卡配置说明 |
 
 新增功能优先放入所属领域；界面代码放在 `ui/`，怪物行动逻辑放在 `monsters/`。跨领域引用使用相对路径，避免新增一个涵盖所有功能的扁平 `runtime/` 目录。模块资源文件随 `tools/generate_manifest.py` 自动收录，发布入口仍为 `mengsan/register.js`。
+
+手牌 UI 子扩展没有单独关闭开关；实现边界、日志位置和验证结果见
+[手牌 UI 子扩展说明](docs/ui-hand-subextension.md)。
 
 梦三【杀】消耗 1 费用，基础伤害为 6；其他锦囊的基础伤害仍为 4。
 【重杀】（`mengsan_zhongsha`）是普通战斗奖励池中的通用基本牌：

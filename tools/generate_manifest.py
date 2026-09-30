@@ -16,6 +16,7 @@ EXCLUDE_DIRS = {
     "dist",
     "tools",
     "__pycache__",
+    "verification",
 }
 EXCLUDE_FILES = {".gitignore", "log.txt"}
 EXCLUDE_EXTENSIONS = {".md", ".mjs"}

@@ -22,6 +22,7 @@ import {
 } from "./monsters/actions.js";
 import { mountEnemyIntent } from "./ui/intent-display.js";
 import { mountEnergy } from "./ui/energy-display.js";
+import { mountHandUI } from "./ui/hand/index.js";
 import {
     finishDeathBlow,
     hasPendingDeathBlow,
@@ -36,7 +37,10 @@ import {
 } from "./battle/stun-intent.js";
 import { recordFlyconidAction } from "./monsters/flyconid-intent.js";
 import { recordRaiderAction } from "./monsters/raider-intent.js";
-import { PLAYER_ENERGY, PLAYER_HAND_LIMIT, canPayCard, payCard, isActiveCardUse } from "./battle/combat-rules.js";
+import {
+    PLAYER_ENERGY, PLAYER_HAND_LIMIT, cardCost,
+    canPayCard, payCard, isActiveCardUse,
+} from "./battle/combat-rules.js";
 import { mountBattlePiles } from "./ui/card-library.js";
 import { mountGMManager } from "./ui/gm-manager.js";
 import { createPlayerTeardown } from "./battle/skill-teardown.js";
@@ -431,7 +435,6 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
 
     activeBattle.personalPiles = installPersonalPiles(session, me, _status.mengsanBattle_shuying, run, resources, {
         game, ui, get, _status, document, MutationObserver, shuffle: shuffleBattlePile,
-        showCosts: true,
         refresh: () => activeBattle?.session === session && activeBattle.pilesUI?.refresh(),
     });
     activeBattle.personalPiles.withOwner(() => me.init(run.player.character));
@@ -458,6 +461,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     me.storage.mengsanMaxEnergy_shuying = PLAYER_ENERGY;
     me.storage.mengsanEnergy_shuying = PLAYER_ENERGY;
     currentBattle.energyUI.set(me, mountEnergy(me, session, document));
+    currentBattle.handUI = await mountHandUI(me, session, {
+        game, ui, document, window, cardCost,
+        styleURL: `${STYLE_PATH}/ui/hand/style.css`,
+        log: message => game.log(message),
+    });
+    if (!session.active) return;
     game.zhu = me;
     if (run.player.maxHp == null) {
         run.player.maxHp = me.maxHp;
@@ -607,6 +616,7 @@ const requestBattleFinish = outcome => {
         current.pilesUI?.dispose();
         current.gmUI?.dispose();
         current.relicUI?.dispose();
+        current.handUI?.dispose();
         stopBattleTurn(current.session, _status.eventManager);
         if (_status.mengsanBattle_shuying) _status.mengsanBattle_shuying.resolving = true;
         current.finished();
@@ -653,6 +663,7 @@ const setupBattle = async (run, node, encounter = getNodeEncounter(run, node)) =
     await signal; // External controller, never an engine event content await.
     if (current.engineError) {
         session.requestStop();
+        current.handUI?.dispose();
         document.body.classList.remove("mengsan-battle-ui-shuying");
         await chooseButtons("战斗流程异常", [{id:"exit",name:"保留存档并返回模式选择"}], "无法确认旧事件已退出，已停止继续开战。上次成功存档仍保留。");
         await openModeSelection(); return;
