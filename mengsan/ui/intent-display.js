@@ -114,11 +114,17 @@ export function mountEnemyIntent(player, session, assetBase, document,
             if (deathBlow && hits !== 1) {
                 throw new RangeError("濒死一击只能造成一次伤害");
             }
-            const damage = previewAttackDamage(intent, player, getTarget());
+            const target = getTarget();
+            const targets = Array.isArray(target) ? target : [target];
+            const damages = (targets.length ? targets : [null]).map(
+                current => previewAttackDamage(intent, player, current));
+            const damage = Math.max(...damages);
+            const minimum = Math.min(...damages);
+            const range = minimum === damage ? String(damage) :
+                `${minimum}～${damage}`;
             const tier = deathBlow ? null :
                 attackIconForDamage(damage * hits);
-            const damageText = hits > 1 ? `${damage}×${hits}` :
-                String(damage);
+            const damageText = hits > 1 ? `${range}×${hits}` : range;
             if (amount.textContent !== damageText) {
                 amount.textContent = damageText;
             }
@@ -126,7 +132,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
                 `${assetBase}/assets/intent/Intent_death_blow.png` :
                 `${assetBase}/assets/intent/Intent_attack_${tier}.png`;
             if (icon.getAttribute("src") !== src) icon.src = src;
-            effects.push(`${deathBlow ? "Death Blow" : "Attack"}: ${damage} damage${hits > 1 ? ` × ${hits} hits` : ""}`);
+            effects.push(`${deathBlow ? "Death Blow" : "Attack"}: ${range} damage${hits > 1 ? ` × ${hits} hits` : ""}`);
         }
         if (hasDebuff) {
             const label = intent.debuff === "脆弱" ? "Frail" :
@@ -143,6 +149,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
             effects.push("Unknown");
         }
         const label = effects.join(", ");
+        badge.title = "攻击与负面效果作用于所有存活敌对角色；伤害按各目标状态计算，护甲另行抵扣。";
         if (badge.getAttribute("aria-label") !== label) badge.setAttribute("aria-label", label);
         badge.hidden = false;
     };

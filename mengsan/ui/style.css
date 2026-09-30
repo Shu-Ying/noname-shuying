@@ -1387,3 +1387,79 @@ body.mengsan-battle-ui-shuying :is(
 .handcards > .card[data-mengsan-cost] > .mengsan-hand-cost-shuying::before {
     content: attr(data-mengsan-cost);
 }
+.handcards > .card[data-mengsan-upgrade] > .mengsan-hand-upgrade-shuying {
+    position: absolute !important;
+    top: 4px !important;
+    right: 4px !important;
+    z-index: 8 !important;
+    display: grid !important;
+    place-items: center;
+    width: 26px;
+    height: 20px;
+    border: 1px solid #86bd85;
+    border-radius: 4px;
+    background: #214f36;
+    box-shadow: 0 1px 3px #0008;
+    color: #f5ffea;
+    font: 700 13px/1 "Microsoft YaHei", sans-serif;
+    pointer-events: none;
+}
+.handcards > .card[data-mengsan-upgrade] > .mengsan-hand-upgrade-shuying::before {
+    content: "+" attr(data-mengsan-upgrade);
+}
+.mengsan-battle-relics-button-shuying { top: 162px; }
+.mengsan-relic-dialog-shuying { max-width: 620px; }
+.mengsan-relic-list-shuying { overflow-y: auto; padding: 12px 0; }
+.mengsan-relic-list-shuying section {
+    padding: 14px 0;
+    border-bottom: 1px solid #b9975d55;
+}
+.mengsan-relic-list-shuying h3 { margin: 0 0 8px; color: #ffe0a1; }
+.mengsan-relic-list-shuying p { margin: 0 0 6px; line-height: 1.7; }
+.mengsan-relic-list-shuying small { color: #d1bd9c; }
+@media (max-height: 500px) {
+    .mengsan-battle-relics-button-shuying { top: 122px; }
+}
+.mengsan-bonds-shuying {
+    display: grid;
+    gap: 12px;
+}
+.mengsan-bond-card-shuying {
+    border: 1px solid rgba(116, 89, 56, .35);
+    border-radius: 10px;
+    padding: 16px;
+    overflow-wrap: anywhere;
+}
+.mengsan-bonds-shuying p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+.mengsan-bonds-shuying h3 {
+    margin: 0 0 8px;
+}
+.mengsan-bonds-shuying progress {
+    width: 100%;
+    accent-color: #8c6a34;
+}
+.mengsan-bonds-shuying button {
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+.mengsan-bonds-shuying button[aria-pressed="true"] {
+    background: rgba(140, 106, 52, .18);
+    font-weight: bold;
+}
+.mengsan-bonds-shuying button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+.mengsan-bonds-shuying button:focus-visible {
+    outline: 2px solid #8c6a34;
+    outline-offset: 3px;
+}

@@ -1,5 +1,8 @@
+import { relicRewardIds } from "../../../relics/definitions.js";
+
 export const rewardPools = {
     "act1.pool.chest": [
+        ...relicRewardIds,
         "shared.reward.item.handCharm",
         "shared.reward.maxHp",
         "shared.reward.support.scout",

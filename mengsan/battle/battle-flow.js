@@ -16,7 +16,11 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
             if (job.pending.state !== "chosen") {
                 state = "choosing";
                 if (!job.hasChoice) {
-                    job.choiceId = job.pending.outcome === "defeat" || !job.pending.choices.length ? null : await chooseReward(copy(job.pending.choices), { boss: job.pending.boss });
+                    job.choiceId = job.pending.outcome === "defeat" ? null
+                        : await chooseReward(copy(job.pending.choices), {
+                            boss: job.pending.boss,
+                            fixedRewards: copy(job.pending.fixedRewards || []),
+                        });
                     if (job.pending.outcome !== "defeat" && job.pending.choices.length && job.choiceId !== null && !job.pending.choices.some(c => c.id === job.choiceId)) throw new Error("Invalid reward selection");
                     job.hasChoice = true;
                 }
@@ -37,7 +41,11 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
             await quiesce();
             if (!job.delivered) {
                 state = "presenting";
-                if (job.committed.route === "map") job.nextNode = await showMap(copy(job.committed.run));
+                if (job.committed.route === "map") {
+                    const mapRun = copy(job.committed.run);
+                    job.nextNode = await showMap(mapRun);
+                    job.committed.run = mapRun;
+                }
                 else await showEnding(job.committed.route, copy(job.committed.run));
                 job.delivered = true;
             }

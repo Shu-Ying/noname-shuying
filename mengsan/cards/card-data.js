@@ -1,4 +1,5 @@
 import { cardDefinitions, canAcquireCard } from "./card-definitions.js";
+import { cardUpgradeRule } from "./upgrades.js";
 
 const suits = ["spade", "heart", "club", "diamond"];
 
@@ -14,6 +15,7 @@ export function createCardData(spec, { character, enemy = false, registry = card
         !Number.isInteger(spec.number) || spec.number < 1 || spec.number > 13 ||
         (spec.nature != null && typeof spec.nature !== "string") ||
         !Number.isInteger(spec.upgrade ?? 0) || (spec.upgrade ?? 0) < 0 ||
+        (spec.upgrade ?? 0) > (cardUpgradeRule(spec.name)?.maxLevel || 0) ||
         !Array.isArray(spec.affixes ?? []) || !(spec.affixes ?? []).every(value => typeof value === "string")) {
         throw new Error(`梦三牌数据无效：${spec.name}`);
     }

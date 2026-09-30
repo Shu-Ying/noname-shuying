@@ -2,9 +2,11 @@
 import { _status } from "../../../../noname.js";
 export const PLAYER_ENERGY = 3;
 export const PLAYER_HAND_LIMIT = 3;
-export const SHA_DAMAGE = 4;
+export const SHA_DAMAGE = 6;
+export const TRICK_DAMAGE = 4;
 
-const COSTS = Object.freeze({ sha: 1, tao: 1, jiu: 1, shan: 0, wuxie: 0,
+const COSTS = Object.freeze({ sha: 1, mengsan_zhongsha: 2,
+    tao: 1, jiu: 1, shan: 0, wuxie: 0,
     juedou: 2, nanman: 2, wanjian: 2, taoyuan: 2 });
 
 export const cardCost = card => COSTS[card?.name] ?? 1;

@@ -2,6 +2,8 @@ import { openCardLibrary } from "../card-library.js";
 import { askMenu, openModeSelection } from "../navigation.js";
 import { ui, get } from "../../../../../noname.js";
 import config from "../../config.js";
+import { getRelic } from "../../relics/definitions.js";
+import { renderBonds } from "../bonds.js";
 import { getSelectableNodes } from "../../progression/state.js";
 
 // Original vector pictograms; no external image/font requests.
@@ -88,15 +90,16 @@ const getTraversedEdgeIds = map => {
     return traversed;
 };
 
-export const showMap = run => new Promise(resolve => {
+export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
     const act = config.acts[run.actIndex];
     const selectable = getSelectableNodes(run);
     const selectableIds = new Set(selectable.map(node => node.id));
     const traversedEdgeIds = getTraversedEdgeIds(run.map);
     const { overlay, panel, header } = createMapOverlay(act.name);
     let closeCardLibrary = null;
+    let savingBonds = false;
     const finish = result => {
-        if (overlay.dataset.resolved) return;
+        if (overlay.dataset.resolved || savingBonds) return;
         overlay.dataset.resolved = "true";
         document.removeEventListener("keydown", handleEscape);
         closeCardLibrary?.();
@@ -173,7 +176,7 @@ export const showMap = run => new Promise(resolve => {
     exitCopy.append(exitName, exitDescription);
     exitButton.appendChild(exitCopy);
     exitButton.addEventListener("click", async () => {
-        if (exitButton.disabled) return;
+        if (exitButton.disabled || savingBonds) return;
         exitButton.disabled = true;
         try {
             const result = await askMenu("返回模式选择？", "保留上次完成节点的存档，未完成内容不会提交。", [
@@ -189,6 +192,7 @@ export const showMap = run => new Promise(resolve => {
     menuFooter.appendChild(exitButton);
 
     const setMenuOpen = open => {
+        if (savingBonds) return;
         if (open) renderMainMenu();
         menuLayer.hidden = !open;
         menuTrigger.setAttribute("aria-expanded", String(open));
@@ -214,7 +218,7 @@ export const showMap = run => new Promise(resolve => {
         return button;
     };
 
-    const showMenuPage = (title, subtitle, render) => {
+    const showMenuPage = (title, subtitle, render, focusSelector = null) => {
         menuTitle.textContent = title;
         menuContent.replaceChildren();
         const intro = ui.create.div(".mengsan-map-menu-page-intro-shuying", menuContent);
@@ -229,7 +233,11 @@ export const showMap = run => new Promise(resolve => {
         back.appendChild(label);
         back.addEventListener("click", renderMainMenu);
         menuContent.appendChild(back);
-        requestAnimationFrame(() => back.focus());
+        requestAnimationFrame(() => {
+            const target = focusSelector ?
+                menuContent.querySelector(focusSelector) : back;
+            target?.focus({ preventScroll: Boolean(focusSelector) });
+        });
     };
 
     const renderBackpack = parent => {
@@ -260,8 +268,9 @@ export const showMap = run => new Promise(resolve => {
             }
             values.forEach(value => {
                 const row = ui.create.div(".mengsan-map-inventory-row-shuying", list);
-                createText("", get.translation(value) || value, row);
-                createText("", "已获得", row);
+                const relic = getRelic(value);
+                createText("", relic?.name || get.translation(value) || value, row);
+                createText("", relic?.description || "已获得", row);
             });
         };
         const supports = run.player.supports || [];
@@ -273,7 +282,7 @@ export const showMap = run => new Promise(resolve => {
             createText("", config.rewards[support.rewardId]?.name || get.translation(support.unit.character), row);
             createText("", support.battles === -1 ? "本次征程持续生效" : `剩余 ${support.battles} 场`, row);
         }
-        appendNames("永久道具", run.player.items, "尚未获得永久道具。");
+        appendNames("遗物（道具）", run.player.items, "尚未获得遗物。");
         appendNames("永久技能", run.player.permanentSkills, "尚未获得永久技能。");
     };
 
@@ -289,6 +298,13 @@ export const showMap = run => new Promise(resolve => {
         menuContent.replaceChildren();
         createMenuAction({ icon: "map", name: "继续行军", description: "关闭菜单并返回当前路线", onClick: () => setMenuOpen(false) });
         createMenuAction({ icon: "bag", name: "行囊", description: `查看牌组、道具与永久技能 · ${run.player.deck.length}张牌`, onClick: () => showMenuPage("行囊", "本次征程携带的资源", renderBackpack) });
+        createMenuAction({ icon: "book", name: "羁绊", description: "查看羁绊等级、成长进度与助战角色", onClick: () => showMenuPage("羁绊", "本次征程的同行之谊 · 仅可指定一名助战", parent => renderBonds(parent, run, saveRun, busy => {
+            savingBonds = busy;
+            closeMenu.disabled = busy;
+            exitButton.disabled = busy;
+            const back = menuContent.querySelector(".mengsan-map-menu-back-shuying");
+            if (back) back.disabled = busy;
+        }), ".mengsan-bonds-shuying button") });
         createMenuAction({ icon: "book", name: "图鉴", description: "查看已发现的敌人、事件与奖励 · 开发中", onClick: () => showMenuPage("图鉴", "征程见闻与收集记录", parent => renderPlaceholder(parent, "后续将收录已发现的节点、敌人和奖励。")) });
         createMenuAction({ icon: "record", name: "征程记录", description: `已通过 ${run.statistics?.completedNodes || 0} 个节点`, onClick: () => showMenuPage("征程记录", "本次征程的阶段统计", parent => {
             const list = ui.create.div(".mengsan-map-record-list-shuying", parent);

@@ -1,4 +1,7 @@
 // Candidate settlement adapter. Dependencies are the current mode/state reward functions.
+import { applyBattleEndRelics } from "../relics/battle.js";
+import { settleBondBattle } from "../bonds/state.js";
+
 const copy = value => JSON.parse(JSON.stringify(value));
 const idFor = (run, node) => JSON.stringify([run.runId, run.actIndex, node.id]);
 export function createBattleSettlement({store, config, getRandomRewardChoices, applyReward, completeNode, enterNextAct, now = Date.now}) {
@@ -34,16 +37,19 @@ export function createBattleSettlement({store, config, getRandomRewardChoices, a
                 }
                 // Battle may have changed RNG/card state since the last checkpoint.
                 const base = copy(snapshot); delete base.battleFlow;
+                const bondGrowth = settleBondBattle(base);
                 if (outcome === "victory") {
                     base.player.hp = Math.max(1, Math.min(hp, base.player.maxHp ?? hp));
                     base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
                 }
+                const relicRecovery = hp > 0
+                    ? applyBattleEndRelics(base, outcome) : 0;
                 const rewards = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, encounter.rewardPool).filter(c => c.name) : [];
                 if (outcome === "victory" && !encounter.skipRandomReward && !rewards.length) throw new Error("Empty battle reward pool");
                 // Persist the configured amount as a candidate, never as automatic victory income.
                 const choices = outcome === "victory" && !encounter.skipRandomReward
                     ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
-                run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome};
+                run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome, relicRecovery, bondGrowth};
                 return run.battleFlow.pending;
             });
         },

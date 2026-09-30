@@ -8,9 +8,9 @@ const TIER_RULES = Object.freeze({
 });
 
 const BASE_DECKS = Object.freeze({
-    normal: Object.freeze(["sha", "sha", "sha", "sha", "shan", "shan", "tao", "jiu", "guohe", "sha"]),
+    normal: Object.freeze(["sha", "sha", "sha", "sha", "shan", "shan", "tao", "jiu", "sha"]),
     elite: Object.freeze(["sha", "sha", "sha", "sha", "shan", "shan", "shan", "tao", "jiu", "juedou", "wuzhong", "guohe"]),
-    boss: Object.freeze(["sha", "sha", "sha", "sha", "sha", "shan", "shan", "shan", "tao", "tao", "jiu", "jiu", "juedou", "wuzhong", "guohe"]),
+    boss: Object.freeze(["sha", "sha", "sha", "sha", "sha", "shan", "shan", "shan", "tao", "jiu", "juedou", "wuzhong", "guohe"]),
 });
 
 const HEALTH = Object.freeze({

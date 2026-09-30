@@ -1,5 +1,6 @@
 import { lib, get } from "../../../../noname.js";
 import { cardCost } from "../battle/combat-rules.js";
+import { cardUpgradeRule } from "../cards/upgrades.js";
 import { chooseButtons } from "./flow-ui.js";
 
 const element = (tag, className, text, parent) => {
@@ -23,11 +24,20 @@ const viewCard = choice => {
     const name = cardNameOf(choice);
     const info = lib.card[name];
     const imageName = info?.cardimage || name;
-    const image = /^[a-zA-Z0-9_]+$/.test(imageName) ? `${lib.assetURL || ""}image/card/${imageName}.png` : null;
+    const modeImage = info?.image;
+    const localArt = typeof modeImage === "string" &&
+        /^ext:术樱包\/mengsan\/assets\/cards\/[a-z0-9_]+\.png$/.test(modeImage)
+        ? modeImage.replace(/^ext:/, "extension/") : null;
+    const image = localArt ? `${lib.assetURL || ""}${localArt}` :
+        /^[a-zA-Z0-9_]+$/.test(imageName)
+            ? `${lib.assetURL || ""}image/card/${imageName}.png` : null;
     const type = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" }[info?.type] || "卡牌";
     return {
         name: get.translation(name), type, image, cost: cardCost({ name }),
-        description: plainText(lib.translate[`${name}_info`] || choice.description || "暂无卡牌介绍。"),
+        description: plainText(cardUpgradeRule(name) && info?.cardPrompt
+            ? info.cardPrompt(choice.card || { name })
+            : lib.translate[`${name}_info`] || choice.description ||
+                "暂无卡牌介绍。"),
     };
 };
 
@@ -94,7 +104,11 @@ export function chooseCardDialog(choices, { title = "选择一张牌", allowSkip
 
 // Reusable post-battle choice surface. Each option owns its follow-up; the surface
 // only resolves a stable candidate ID (or null) and never awards a reward itself.
-export function chooseVictoryOptions(options, { title = "战后抉择", allowSkip = true } = {}) {
+export function chooseVictoryOptions(options, {
+    title = "战后抉择", allowSkip = true,
+    description = "此役已定，选择下一段征途的收获。",
+    rewardLabel = "可选战利品",
+} = {}) {
     if (!Array.isArray(options) || !options.length || options.some(option => !option?.id || !option?.label)) {
         return Promise.reject(new TypeError("chooseVictoryOptions requires nonempty options with IDs and labels"));
     }
@@ -107,9 +121,9 @@ export function chooseVictoryOptions(options, { title = "战后抉择", allowSki
         element("span", "mengsan-reward-overline-shuying", "梦三 · 战后", intro);
         element("span", "mengsan-victory-seal-shuying", "胜", intro);
         element("h2", "", title, intro);
-        element("p", "", "此役已定，选择下一段征途的收获。", intro);
+        element("p", "", description, intro);
         const board = element("div", "mengsan-victory-options-shuying", null, stage);
-        element("span", "mengsan-victory-eyebrow-shuying", "可选战利品", board);
+        element("span", "mengsan-victory-eyebrow-shuying", rewardLabel, board);
         let settled = false, choosing = false;
         const finish = id => {
             if (settled) return;
@@ -162,8 +176,26 @@ export function chooseVictoryOptions(options, { title = "战后抉择", allowSki
 
 // Gold is a persisted candidate, not an automatic reward. The card pool remains
 // a separate Dialog; skipping that Dialog returns to the victory choices.
-export function chooseBattleReward(choices) {
-    if (!Array.isArray(choices) || !choices.length) return Promise.resolve(null);
+export function chooseBattleReward(choices, { fixedRewards = [] } = {}) {
+    if (!Array.isArray(choices)) return Promise.resolve(null);
+    const fixedDescription = fixedRewards.map(reward =>
+        `${reward.name || reward.id}${reward.description
+            ? `：${plainText(reward.description)}` : ""}`
+    ).join("；");
+    if (!choices.length) {
+        if (!fixedRewards.length) return Promise.resolve(null);
+        return chooseVictoryOptions([{
+            id: "claim-fixed-rewards",
+            label: "领取固定奖励",
+            description: fixedDescription,
+            choose: () => null,
+        }], {
+            title: "过关奖励",
+            description: "此役已定，以下固定奖励将全部获得。",
+            rewardLabel: "固定战利品",
+            allowSkip: false,
+        });
+    }
     const gold = choices.find(choice => choice.kind === "gold");
     const rewards = choices.filter(choice => choice.kind !== "gold");
     const options = [];
@@ -186,5 +218,10 @@ export function chooseBattleReward(choices) {
             },
         });
     }
-    return chooseVictoryOptions(options);
+    return chooseVictoryOptions(options, {
+        title: "过关奖励",
+        description: fixedRewards.length
+            ? `固定奖励：${fixedDescription}。另可选择一项战利品。`
+            : "此役已定，可选择一项战利品，也可放弃本次选择。",
+    });
 }

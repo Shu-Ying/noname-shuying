@@ -1,9 +1,18 @@
 import config from "../config.js";
 import { nextRandom } from "./state.js";
 import { canAcquireCard } from "../cards/card-definitions.js";
+import { hasUpgradeableCard } from "../cards/upgrades.js";
+import { canAcquireRelic } from "../relics/definitions.js";
 
 export const rewardCardName = reward => reward?.card?.name || ({ card_sha: "sha", card_tao: "tao" })[reward?.effectId] || null;
 export const canAcquireReward = (run, reward) => {
+    if (reward?.relic) return canAcquireRelic(run, reward.relic);
+    if (reward?.effectId === "item_hand") {
+        return canAcquireRelic(run, "mengsan_hand_charm_shuying");
+    }
+    if (reward?.effectId === "upgrade") {
+        return hasUpgradeableCard(run?.player?.deck);
+    }
     const name = rewardCardName(reward);
     return !name || canAcquireCard(run?.player?.character, name);
 };

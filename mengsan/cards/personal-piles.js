@@ -2,6 +2,7 @@
 // DIY must access ui piles inside the acting player's engine event, never cache global nodes.
 import { cardCost } from "../battle/combat-rules.js";
 import { AFFIX_INFO } from "./affixes.js";
+import { createHandUpgradeBadges } from "../ui/hand-upgrade.js";
 
 
 export function installPersonalPiles(session, owner, battle, run, resources, env) {
@@ -14,6 +15,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
     // Detached nodes: engine get.position recognises these IDs; no duplicate document IDs.
     draw.id = "cardPile"; discard.id = "discardPile";
     const owned = new Set(), restores = [], costBadges = new Map();
+    const upgradeBadges = createHandUpgradeBadges(document);
     const strict = env.strict !== false;
     let released = false, forcedOwner = false;
     const personal = () => {
@@ -47,6 +49,10 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         badge.textContent = "";
         badge.dataset.mengsanCost = cost;
     }
+    function showHandBadges(card) {
+        showCost(card);
+        if (env.showCosts) upgradeBadges.refresh(card);
+    }
     function adopt(card, data) {
         if (owned.has(card)) return;
         owned.add(card); resources.card(card);
@@ -57,7 +63,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             // Retired affixes from old saves must not acquire new battle behaviour.
             card.storage.mengsanCard_shuying.affixes = (card.storage.mengsanCard_shuying.affixes || []).filter(key => key !== "annihilate");
         }
-        if (data) showCost(card);
+        if (data) showHandBadges(card);
         // Existing foreign/generated cards retain their original destruction semantics.
         if (!data) return;
         card.destroyLog = false;
@@ -90,11 +96,13 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
     const handObserver = new MutationObserver(mutations => {
         if (released) return;
         for (const mutation of mutations) for (const card of mutation.addedNodes) {
-            if (card.classList?.contains("card")) showCost(card);
+            if (card.classList?.contains("card")) showHandBadges(card);
         }
     });
     for (const zone of handZones) {
-        for (const card of zone.childNodes) if (card.classList?.contains("card")) showCost(card);
+        for (const card of zone.childNodes) {
+            if (card.classList?.contains("card")) showHandBadges(card);
+        }
         handObserver.observe(zone, { childList: true });
     }
     session.ownResource(handObserver, () => {
@@ -104,6 +112,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             delete card.dataset.mengsanCost;
         }
         costBadges.clear();
+        upgradeBadges.dispose();
     });
     const publicDiscard = ui.discardPile;
     for (const [key, node] of [["cardPile", draw], ["discardPile", discard]]) {

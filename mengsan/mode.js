@@ -1,10 +1,18 @@
 import { createScenarioCharacters, scenarioTranslations } from "./content/scenario-characters.js";
 import { createMengsanCards } from "./cards/mode-cards.js";
+import { createRelicBattle, createRelicSkills } from "./relics/battle.js";
+import { grantRelic, getRelic } from "./relics/definitions.js";
+import { mountRelics } from "./ui/relics.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./battle/battle-director.js";
 import { installPersonalPiles } from "./cards/personal-piles.js";
 import { createMonster } from "./monsters/monster.js";
+import { prepareBondBattle } from "./bonds/state.js";
+import { initializeBondUnit, recordBondDeath } from "./bonds/battle.js";
+import { bondDefinitions } from "./bonds/definitions.js";
+import { createBondIntentActions } from "./bonds/intents.js";
 import {
     createMonsterIntentActions,
+    getIntentHostiles,
     isFlyconid,
     isRaider,
 } from "./monsters/actions.js";
@@ -37,10 +45,11 @@ import { createBattleSettlement } from "./battle/battle-settlement.js";
 import { createBattleFlow, quiesceEngine } from "./battle/battle-flow.js";
 import { lib, game, ui, get, _status } from "../../../noname.js";
 import config from "./config.js";
-import { showMap } from "./ui/map/index.js";
+import { showMap as renderMap } from "./ui/map/index.js";
 import { getRandomRewardChoices } from "./progression/reward.js";
 import { canAcquireCard } from "./cards/card-definitions.js";
 import { addCardToDeck, createRandomCardData } from "./cards/card-data.js";
+import { hasUpgradeableCard, upgradeRandomCard } from "./cards/upgrades.js";
 import { chooseBattleReward } from "./ui/reward-ui.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
 import { playDialogue } from "./ui/dialogue.js";
@@ -72,6 +81,7 @@ const saveRun = async run => {
     }
 };
 const clearRun = modeStorage.clearRun;
+const showMap = run => renderMap(run, { saveRun });
 let battleSequence = 0;
 let activeBattle = null;
 const reportFlowError = error => { console.error("梦三流程暂停，未自动清档：", error); };
@@ -100,6 +110,13 @@ const createCardInstance = (run, name = "sha", upgrade = 0, affixes = []) =>
 
 const applyReward = (run, rewardId) => {
     const player = run.player;
+    const relicId = config.rewards[rewardId]?.relic;
+    if (relicId) {
+        if (grantRelic(run, relicId)) {
+            game.log(`获得遗物【${getRelic(relicId).name}】`);
+        }
+        return;
+    }
     const cardReward = config.rewards[rewardId]?.card;
     if (cardReward) {
         if (!canAcquireCard(player.character, cardReward.name)) throw new Error(`武将 ${player.character} 无法获得牌：${cardReward.name}`);
@@ -116,9 +133,10 @@ const applyReward = (run, rewardId) => {
             addCardToDeck(run, createCardInstance(run, "tao"));
             break;
         case "upgrade": {
-            const eligible = player.deck.filter(card => !card.affixes?.includes("eternal"));
-            const card = eligible[Math.floor(nextRandom(run) * eligible.length)];
-            if (card) card.upgrade = Number(card.upgrade || 0) + 1;
+            const card = upgradeRandomCard(player.deck, () => nextRandom(run));
+            if (card) game.log("梦三：", get.translation(card.name),
+                "强化至", card.upgrade, "级");
+            else game.log("梦三：没有可强化卡牌");
             break;
         }
         case "heal":
@@ -129,10 +147,7 @@ const applyReward = (run, rewardId) => {
             player.hp += 5;
             break;
         case "item_hand":
-            if (!player.items.includes("mengsan_hand_charm_shuying")) {
-                player.items.push("mengsan_hand_charm_shuying");
-                player.handLimitBonus++;
-            }
+            grantRelic(run, "mengsan_hand_charm_shuying");
             break;
         case "skill_yingyong":
             if (!player.permanentSkills.includes("mengsan_yingyong_shuying")) {
@@ -187,7 +202,11 @@ const finishUtilityNode = async (run, node) => {
     if (node.type == "rest") {
         const choice = await chooseButtons("休息节点", [
             { id: "heal", name: "休息", description: "回复 8 点生命" },
-            { id: "upgrade", name: "磨砺", description: "随机强化一张卡牌" },
+            { id: "upgrade", name: "磨砺",
+                description: hasUpgradeableCard(run.player.deck)
+                    ? "随机强化一张尚未满级的可强化牌"
+                    : "没有可强化卡牌",
+                disabled: !hasUpgradeableCard(run.player.deck) },
         ]);
         applyReward(run, choice);
     }
@@ -266,7 +285,8 @@ const initBattleUnit = (player, spec) => {
     player.storage.mengsanInitialHand_shuying = spec.hand ?? 4;
     for (const skill of spec.skills || []) player.addSkill(skill);
     player.update();
-    return monster;
+    return monster || initializeBondUnit(player, spec,
+        _status.mengsanRun_shuying);
 };
 
 const installMonsterPile = (player, monster, current) => {
@@ -286,6 +306,8 @@ const {
     executeFlyconidIntent,
     executeRaiderIntent,
 } = createMonsterIntentActions(game, () => activeBattle);
+const { planBondIntent, executeBondIntent } =
+    createBondIntentActions(game, () => activeBattle);
 const equipBattleUnit = async (player, spec, resources) => {
     for (const info of spec.equipment || []) {
         const card = resources.card(game.createCard(info.name, info.suit, info.number, info.nature));
@@ -311,13 +333,17 @@ const createScenario = (plan, current) => {
                     current.energyUI.set(player,
                         mountEnergy(player, current.session, document));
                     current.intentUI.set(player, mountEnemyIntent(player,
-                        current.session, STYLE_PATH, document, () => game.me));
+                        current.session, STYLE_PATH, document,
+                        () => getIntentHostiles(game, player)));
                 }
                 for (const participant of [...game.players, ...game.dead]) participant.setSeatNum(Number(participant.dataset.position) + 1);
                 await equipBattleUnit(player, spec, current.resources);
                 await player.draw(spec.hand ?? 4);
                 await game.triggerEnter(player);
-                if (monster && current.session.active) planEnemyIntent(player, _status.mengsanRun_shuying);
+                if (monster && current.session.active) {
+                    planEnemyIntent(player, _status.mengsanRun_shuying);
+                    planBondIntent(player);
+                }
             });
             await join;
             game.log(player, "作为", spec.camp === "ally" ? "友方支援" : "敌方援军", "加入战斗");
@@ -344,7 +370,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     // Old saves keep their deck instances, but the retired affix no longer exists.
     for (const card of run.player.deck) if (Array.isArray(card.affixes)) card.affixes = card.affixes.filter(key => key !== "annihilate");
     if (encounter.requiredCharacter && run.player.character !== encounter.requiredCharacter) throw new Error("该关卡仅限指定主角，请开始刘备的新征程");
-    const plan = buildBattlePlan(encounter, run);
+    const bondUnit = prepareBondBattle(run, () => nextRandom(run));
+    const plan = buildBattlePlan(encounter, run, bondUnit);
+    if (run.bondBattle) {
+        game.log(`羁绊助战：${bondDefinitions[run.bondBattle.id].name}，${
+            bondUnit ? "本场将到场" : "本场未到场"}`);
+    }
     for (const spec of [...plan.units, ...plan.rules.flatMap(r => r.effects.filter(e => e.type === "spawn").map(e => e.unit))]) {
         if (!lib.character[spec.character]) throw new Error("关卡武将未加载：" + spec.character);
         for (const skill of spec.skills || []) if (!lib.skill[skill]) throw new Error("关卡技能未加载：" + skill);
@@ -397,7 +428,13 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     participants.forEach((player, index) => {
         if (monsters[index]) currentBattle.intentUI.set(player,
             mountEnemyIntent(player, session, STYLE_PATH, document,
-                () => game.me));
+                () => getIntentHostiles(game, player)));
+    });
+    participants.forEach(player => {
+        if (player.storage.mengsanBond_shuying) {
+            currentBattle.energyUI.set(player,
+                mountEnergy(player, session, document));
+        }
     });
     activeBattle.director = createScenario(plan, currentBattle);
     activeBattle.director.bind("player", me);
@@ -414,6 +451,14 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     me.maxHp = run.player.maxHp;
     me.hp = Math.max(1, Math.min(run.player.hp, me.maxHp));
     me.update();
+    currentBattle.relics = createRelicBattle(run, {
+        active: () => session.active && me.hp > 0,
+        draw: number => game.mengsanDraw_shuying(me, number),
+        log: (relic, effect) => {
+            game.log(me, `遗物【${relic.name}】发动：${effect}`);
+            currentBattle.relicUI?.refresh();
+        },
+    });
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
@@ -422,10 +467,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
         "mengsan_flyconid_action_shuying", "mengsan_raider_action_shuying",
+        "mengsan_bond_action_shuying",
         "mengsan_raider_card_strength_shuying",
         "mengsan_death_blow_finish_shuying",
         "mengsan_stun_skip_shuying", "mengsan_stun_recover_shuying",
         "mengsan_stun_clear_shuying",
+        "mengsan_relics_shuying",
     ]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
@@ -433,6 +480,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         }
     }
     activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying);
+    currentBattle.relicUI = mountRelics(session, run, currentBattle.relics);
     activeBattle.gmUI = mountGMManager(session, me, activeBattle.personalPiles, _status.mengsanBattle_shuying, resources, game);
     for (let index = 0; index < plan.units.length; index++) await equipBattleUnit(participants[index], plan.units[index], resources);
     game.syncState();
@@ -444,6 +492,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     await game.mengsanDraw_shuying(me, 4);
     if (!session.active) return;
     activeBattle.personalPiles.drawInnate();
+    await currentBattle.relics.start();
+    if (!session.active) return;
     await playDialogue(encounter.openingDialogue, { run, title: encounter.name || "开场剧情" });
     if (!session.active) return;
     await currentBattle.director.start();
@@ -456,16 +506,21 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     loop.setContent(async event => runPhaseLoop(event, me, session, {game, lib, _status, get, beforeTurn: async player => {
         if (player === me && !openingHandChecked) {
             openingHandChecked = true;
-            currentBattle.personalPiles.trimOpeningHand(4);
+            currentBattle.personalPiles.trimOpeningHand(
+                4 + currentBattle.relics.openingHandBonus);
         }
-        if (isRaider(player) && player.hujia > 0) await player.changeHujia(-player.hujia);
+        if ((isRaider(player) || player.storage.mengsanBond_shuying) &&
+            player.hujia > 0) await player.changeHujia(-player.hujia);
         if (player.storage.mengsanMaxEnergy_shuying != null) {
             player.storage.mengsanEnergy_shuying = player.storage.mengsanMaxEnergy_shuying;
             currentBattle.energyUI.get(player)?.();
         }
         await currentBattle.director.beforeTurn(player);
         if (player === me && session.active) {
-            for (const enemy of game.players) planEnemyIntent(enemy, run);
+            for (const participant of game.players) {
+                planEnemyIntent(participant, run);
+                planBondIntent(participant);
+            }
         }
         game.checkResult();
     }}));
@@ -489,9 +544,25 @@ const registerPlayers = (session, players) => {
 };
 const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
     releaseSkills,
-    presentVictory: pending => playDialogue(pending.victoryDialogue, { run: pending.base, title: "战后剧情" }),
+    presentVictory: pending => {
+        if (pending.bondGrowth) {
+            const growth = pending.bondGrowth;
+            game.log(`羁绊【${bondDefinitions[growth.id].name}】进度增加${
+                growth.gain}%，当前${growth.level}级（${growth.progress}%）`);
+        }
+        if (pending.relicRecovery > 0) {
+            game.log(`遗物【燃烧之血】战后回复${pending.relicRecovery}点生命`);
+        }
+        return playDialogue(pending.victoryDialogue,
+            { run: pending.base, title: "战后剧情" });
+    },
     settlement:createBattleSettlement({store:modeStorage, config, getRandomRewardChoices, applyReward, completeNode, enterNextAct}),
-    chooseReward:chooseBattleReward,
+    chooseReward: (choices, options) => chooseBattleReward(choices, {
+        ...options,
+        fixedRewards: options.fixedRewards.map(id => ({
+            ...config.rewards[id], id,
+        })),
+    }),
     showMap,
     showEnding:async route => { game.over(route === "victory"); },
     quiesce:() => quiesceEngine(_status),
@@ -499,10 +570,15 @@ const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
 const requestBattleFinish = outcome => {
     const current = activeBattle;
     if (!current) return false;
+    for (const player of game.dead) {
+        recordBondDeath(player, _status.mengsanRun_shuying,
+            message => game.log(message));
+    }
     const accepted = current.flow.requestFinish({session:current.session, hp:game.me?.hp || 0, outcome, defeatedEnemies:current.director?.defeatedEnemies ?? 1});
     if (accepted) {
         current.pilesUI?.dispose();
         current.gmUI?.dispose();
+        current.relicUI?.dispose();
         stopBattleTurn(current.session, _status.eventManager);
         if (_status.mengsanBattle_shuying) _status.mengsanBattle_shuying.resolving = true;
         current.finished();
@@ -627,18 +703,22 @@ const createMode = identityMode => {
             ...identityElement,
             player: {
                 ...identityPlayer,
-                dieAfter() { game.checkResult(); },
+                dieAfter() {
+                    recordBondDeath(this, _status.mengsanRun_shuying,
+                        message => game.log(message));
+                    game.checkResult();
+                },
                 dieAfter2() {}, // Identity-mode kill rewards/loyalist penalties do not apply here.
                 isFriendOf(player) { return this === player || (this.storage.mengsanCamp_shuying === player?.storage?.mengsanCamp_shuying); },
                 isEnemyOf(player) { return Boolean(player && this.storage.mengsanCamp_shuying !== player.storage?.mengsanCamp_shuying); },
                 getEnemies(filter, includeDie) { return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => this.isEnemyOf(p) && (!filter || filter(p))); },
                 getFriends(filter, includeDie) { const self = filter === true; return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => (p !== this || self) && this.isFriendOf(p) && (typeof filter !== "function" || filter(p))); },
-                changeHujia(num, type, limit) {
+                changeHujia(num, type) {
                     // 脆弱只削减正向获得的护甲，不改变受伤时消耗护甲的数值。
                     if (this.storage?.mengsanFrail_shuying > 0 && (num == null || num > 0) && type !== "damage") {
                         num = Math.floor((num ?? 1) * 0.75);
                     }
-                    return nativeChangeHujia.call(this, num, type, limit);
+                    return nativeChangeHujia.call(this, num, type, false);
                 },
                 getHandcardLimit() {
                     if (this.storage?.mengsanPlayer_shuying) {
@@ -647,6 +727,9 @@ const createMode = identityMode => {
                         return PLAYER_HAND_LIMIT + bonus;
                     }
                     if (this.storage?.mengsanMonster_shuying) return this.storage.mengsanMonster_shuying.handLimit;
+                    if (this.storage?.mengsanBond_shuying) {
+                        return this.storage.mengsanBond_shuying.handLimit;
+                    }
                     let number = Math.max(this.hp, 0);
                     number = game.checkMod(this, number, "maxHandcardBase", this);
                     number = game.checkMod(this, number, "maxHandcard", this);
@@ -755,6 +838,11 @@ const createMode = identityMode => {
         },
         skill: {
             ...(identityMode.skill || {}),
+            ...createRelicSkills(() => activeBattle, () => game.me),
+            mengsan_taoyuan_bond_shuying: {
+                locked: true, mark: true, marktext: "义",
+                intro: { content: "先天结识关羽、张飞，初始羁绊均为8级。助战角色在行军菜单中选择。" },
+            },
             mengsan_card_payment_shuying: {
                 forced: true, silent: true, popup: false,
                 firstDo: true, priority: 10000,
@@ -775,10 +863,14 @@ const createMode = identityMode => {
             mengsan_monster_draw_shuying: {
                 trigger: { player: "phaseDrawBegin2" },
                 forced: true, silent: true, popup: false,
-                filter(event, player) { return Boolean(player.storage?.mengsanMonster_shuying); },
+                filter(event, player) {
+                    return Boolean(player.storage?.mengsanMonster_shuying ||
+                        player.storage?.mengsanBond_shuying);
+                },
                 async content(event, trigger, player) {
                     trigger.num = isStunned(player) ? 0 :
-                        player.storage.mengsanMonster_shuying.draw;
+                        (player.storage.mengsanMonster_shuying ||
+                            player.storage.mengsanBond_shuying).draw;
                 },
             },
             mengsan_flyconid_action_shuying: {
@@ -797,11 +889,24 @@ const createMode = identityMode => {
                     event.player.storage.mengsanRaiderIntent_shuying); },
                 async content(event, trigger) { await executeRaiderIntent(trigger.player); },
             },
+            mengsan_bond_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) {
+                    return Boolean(activeBattle?.session.active &&
+                        !isStunned(event.player) &&
+                        event.player.storage?.mengsanBond_shuying?.intent);
+                },
+                async content(event, trigger) {
+                    await executeBondIntent(trigger.player);
+                },
+            },
             mengsan_raider_card_strength_shuying: {
                 trigger: { source: "damageBegin1" },
                 forced: true, silent: true, popup: false, priority: 90,
                 filter(event, player) { return Boolean(activeBattle?.session.active &&
-                    isRaider(player) && player.storage.mengsanStrength_shuying > 0 &&
+                    (isRaider(player) || player.storage.mengsanBond_shuying) &&
+                    player.storage.mengsanStrength_shuying > 0 &&
                     event.card && !event.mengsanScriptedSkill_shuying); },
                 async content(event, trigger, player) {
                     trigger.num += player.storage.mengsanStrength_shuying;
@@ -993,7 +1098,7 @@ const createMode = identityMode => {
         },
         config: {},
         help: {
-            梦三: "梦三：玩家和敌方怪物各有独立牌堆与弃牌堆，友方支援仍使用公共牌堆。主动出牌消耗费用，转化牌按转化后牌名计费；响应不耗费。DIY须在技能所属角色事件内访问牌堆，不可缓存公共牌堆节点。",
+            梦三: "梦三：玩家、敌方怪物和羁绊助战各有独立牌堆与弃牌堆，其他友方支援使用公共牌堆。主动出牌消耗费用，转化牌按转化后牌名计费；响应不耗费。DIY须在技能所属角色事件内访问牌堆，不可缓存公共牌堆节点。",
         },
     };
 };

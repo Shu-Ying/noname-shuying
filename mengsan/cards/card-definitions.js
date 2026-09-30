@@ -2,6 +2,7 @@
 // 新增武将专属牌时填写 owner 为该武将 ID；通用牌填写 owner: null。
 const definitions = [
     { name: "sha", category: "damage", owner: null },
+    { name: "mengsan_zhongsha", category: "damage", owner: null },
     { name: "shan", category: "utility", owner: null },
     { name: "tao", category: "recovery", owner: null },
     { name: "jiu", category: "recovery", owner: null },

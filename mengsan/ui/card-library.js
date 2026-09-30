@@ -1,5 +1,6 @@
 import { lib, get, ui } from "../../../../noname.js";
 import { AFFIX_INFO } from "../cards/affixes.js";
+import { cardUpgradeLevel, cardUpgradeRule } from "../cards/upgrades.js";
 
 const suits = { spade: "♠ 黑桃", heart: "♥ 红桃", club: "♣ 梅花", diamond: "♦ 方块" };
 const types = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" };
@@ -20,9 +21,12 @@ export function describeLibraryCard(card) {
         number: ({ 1: "A", 11: "J", 12: "Q", 13: "K" })[card.number] || String(card.number ?? "—"),
         nature: nature || "无属性", type: types[info?.type] || "未知类别",
         red: card.suit === "heart" || card.suit === "diamond",
-        description: text(lib.translate[`${card.name}_info`] || "暂无卡牌介绍。"),
+        description: text(cardUpgradeRule(card.name) && info?.cardPrompt
+            ? info.cardPrompt(card)
+            : lib.translate[`${card.name}_info`] || "暂无卡牌介绍。"),
         affixes: (Array.isArray(card.affixes) ? card.affixes : []).filter(key => key !== "annihilate").map(key => affixes[key] || `词缀：${translate(key)}`),
-        upgrade: Number.isFinite(card.upgrade) ? card.upgrade : 0,
+        upgrade: cardUpgradeLevel(card),
+        upgradeLimit: cardUpgradeRule(card.name)?.maxLevel || 0,
         available: Boolean(info),
     };
 }
@@ -49,13 +53,17 @@ function preview(card, details, parent) {
     const art = element("div", "ms-deck-art", null, face);
     element("span", "ms-deck-glyph", details.name, art);
     const imageName = lib.card[card.name]?.cardimage || card.name;
+    const modeImage = lib.card[card.name]?.image;
+    const localArt = typeof modeImage === "string" &&
+        /^ext:术樱包\/mengsan\/assets\/cards\/[a-z0-9_]+\.png$/.test(modeImage)
+        ? modeImage.replace(/^ext:/, "extension/") : null;
     // Only mode-standard local art paths; unknown or missing art keeps the text fallback.
     if (/^[a-zA-Z0-9_]+$/.test(imageName)) {
         const image = element("img", "ms-deck-image", null, art);
         image.alt = "";
         image.loading = "lazy";
         image.addEventListener("error", () => image.remove(), { once: true });
-        image.src = `${lib.assetURL || ""}image/card/${imageName}.png`;
+        image.src = `${lib.assetURL || ""}${localArt || `image/card/${imageName}.png`}`;
     }
     element("strong", "ms-deck-name", details.name, face);
     element("span", "ms-deck-meta", `${details.type} · ${details.nature}`, face);
@@ -110,7 +118,9 @@ export function openCardLibrary(run, options = {}) {
         element("h4", "", "卡牌介绍", copy);
         element("p", "ms-deck-rules", details.description, copy);
         if (!details.available) element("p", "ms-deck-warning", "该卡牌定义未加载；保留存档记录，不删除此牌。", copy);
-        if (details.upgrade) element("p", "", `强化等级：${details.upgrade}（实际效果以玩法规则为准）`, copy);
+        element("p", "", details.upgradeLimit
+            ? `强化：${details.upgrade}/${details.upgradeLimit}`
+            : "此牌不可强化", copy);
         for (const affix of details.affixes) element("p", "ms-deck-rules", affix, copy);
         body.scrollTop = 0; backButton.focus();
     }

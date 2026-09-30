@@ -1,5 +1,6 @@
 import { createStartingDeck } from "../cards/starting-deck.js";
 import config from "../config.js";
+import { initializeInnateBonds } from "../bonds/state.js";
 import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "../content/acts/act1/raider-trio.js";
 
 const hashText = text => {
@@ -177,6 +178,7 @@ export const createRun = character => {
         },
         storyFlags: {},
     };
+    initializeInnateBonds(run);
     run.map = generateActMap(run, 0);
     return run;
 };

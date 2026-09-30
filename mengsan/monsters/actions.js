@@ -1,8 +1,5 @@
-import {
-    attackHitCount,
-    outgoingAttackDamage,
-} from "../battle/intent-damage.js";
-import { beginDeathBlow, isDeathBlowIntent } from "../battle/death-blow.js";
+import { createIntentExecutor } from "../battle/intent-effects.js";
+export { getIntentHostiles } from "../battle/intent-effects.js";
 import { isStunned } from "../battle/stun-intent.js";
 import { nextRandom } from "../progression/state.js";
 import { selectFlyconidMove, recordFlyconidAction } from "./flyconid-intent.js";
@@ -21,6 +18,7 @@ export const isRaider = player =>
     isRaiderCharacter(player.name);
 
 export function createMonsterIntentActions(game, getActiveBattle) {
+    const executeEffects = createIntentExecutor(game, getActiveBattle);
     const planEnemyIntent = (player, run) => {
         if (!player?.isAlive() || isStunned(player)) return;
         if (isFlyconid(player)) {
@@ -36,30 +34,6 @@ export function createMonsterIntentActions(game, getActiveBattle) {
                 player.storage.mengsanRaiderState_shuying || {});
             player.storage.mengsanRaiderIntent_shuying = move;
             game.mengsanSetEnemyIntent_shuying(player, move);
-        }
-    };
-
-    const applyIntentDebuff = (target, move) => {
-        if (!move.debuff) return;
-        const frail = move.debuff === "脆弱";
-        const key = frail ? "mengsanFrail_shuying" :
-            "mengsanVulnerable_shuying";
-        target.storage[key] = (target.storage[key] || 0) + move.stacks;
-        target.addSkill(frail ? "mengsan_frail_shuying" :
-            "mengsan_vulnerable_shuying");
-        target.markSkill(frail ? "mengsan_frail_shuying" :
-            "mengsan_vulnerable_shuying");
-    };
-
-    const dealIntentDamage = async (source, target, move) => {
-        if (move.damage == null) return;
-        for (let index = 0; index < attackHitCount(move); index++) {
-            if (!target.isAlive() || !source.isAlive()) break;
-            const hit = target.damage(
-                outgoingAttackDamage(move, source), source);
-            hit.mengsanAttack_shuying = true;
-            hit.mengsanScriptedSkill_shuying = true;
-            await hit;
         }
     };
 
@@ -80,16 +54,7 @@ export function createMonsterIntentActions(game, getActiveBattle) {
         player.storage.mengsanEnergy_shuying--;
         getActiveBattle()?.energyUI.get(player)?.();
         game.log(player, "消耗1费用发动", move.name);
-        const target = game.me;
-        if (!target?.isAlive() || !player.isAlive()) return;
-        if (isDeathBlowIntent(move)) {
-            await beginDeathBlow(player, target, move);
-            return;
-        }
-        await dealIntentDamage(player, target, move);
-        if (target.isAlive() && player.isAlive()) {
-            applyIntentDebuff(target, move);
-        }
+        await executeEffects(player, move);
     };
 
     const executeRaiderIntent = async player => {
@@ -106,21 +71,7 @@ export function createMonsterIntentActions(game, getActiveBattle) {
         player.storage.mengsanEnergy_shuying--;
         getActiveBattle()?.energyUI.get(player)?.();
         game.log(player, "消耗1费用发动", move.name);
-        const target = game.me;
-        if (!target?.isAlive() || !player.isAlive()) return;
-        await dealIntentDamage(player, target, move);
-        if (target.isAlive() && player.isAlive()) {
-            applyIntentDebuff(target, move);
-        }
-        if (!player.isAlive() || !getActiveBattle()?.session.active) return;
-        if (move.block) await player.changeHujia(move.block);
-        if (move.strength) {
-            player.storage.mengsanStrength_shuying =
-                (player.storage.mengsanStrength_shuying || 0) +
-                move.strength;
-            player.addSkill("mengsan_raider_strength_shuying");
-            player.markSkill("mengsan_raider_strength_shuying");
-        }
+        await executeEffects(player, move);
     };
 
     return {

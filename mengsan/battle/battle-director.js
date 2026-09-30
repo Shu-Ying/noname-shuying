@@ -87,7 +87,7 @@ export function grantSupport(run, rewardId, spec) {
     supports.push({ id: `support_${number}`, rewardId, category: spec.category || "item", unit: copy(spec.unit), battles });
 }
 
-export function buildBattlePlan(encounter, run) {
+export function buildBattlePlan(encounter, run, bondUnit = null) {
     const plan = copy(encounter.battlePlan || {
         units: [{ id: "enemy_1", character: encounter.enemy, camp: "enemy", tier: encounter.tier || "normal", hand: 4 }], rules: [],
     });
@@ -98,6 +98,7 @@ export function buildBattlePlan(encounter, run) {
         assert(support.battles === -1 || (Number.isInteger(support.battles) && support.battles > 0), "支援持续场数无效");
         plan.units.push({ ...copy(support.unit), id: support.id });
     }
+    if (bondUnit) plan.units.unshift(copy(bondUnit));
     validateBattlePlan(plan);
     return plan;
 }

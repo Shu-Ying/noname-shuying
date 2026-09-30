@@ -1,0 +1,53 @@
+import { attackHitCount, outgoingAttackDamage } from "./intent-damage.js";
+import { beginDeathBlow, isDeathBlowIntent } from "./death-blow.js";
+
+export const getIntentHostiles = (game, source) =>
+    game.players.filter(target => target !== source && target.isAlive() &&
+        target.storage?.mengsanCamp_shuying !==
+            source.storage?.mengsanCamp_shuying);
+
+export function createIntentExecutor(game, getActiveBattle) {
+    const active = source => source.isAlive() &&
+        Boolean(getActiveBattle()?.session.active);
+    const applyDebuff = (target, move) => {
+        if (!move.debuff) return;
+        const frail = move.debuff === "脆弱";
+        const key = frail ? "mengsanFrail_shuying" :
+            "mengsanVulnerable_shuying";
+        target.storage[key] = (target.storage[key] || 0) + move.stacks;
+        target.addSkill(frail ? "mengsan_frail_shuying" :
+            "mengsan_vulnerable_shuying");
+        target.markSkill(frail ? "mengsan_frail_shuying" :
+            "mengsan_vulnerable_shuying");
+    };
+    return async (source, move) => {
+        for (const target of getIntentHostiles(game, source)) {
+            if (!active(source)) break;
+            if (!target.isAlive()) continue;
+            if (isDeathBlowIntent(move)) {
+                await beginDeathBlow(source, target, move);
+                continue;
+            }
+            if (move.damage != null) {
+                for (let hitIndex = 0; hitIndex < attackHitCount(move); hitIndex++) {
+                    if (!target.isAlive() || !active(source)) break;
+                    const hit = target.damage(
+                        outgoingAttackDamage(move, source), source);
+                    hit.mengsanAttack_shuying = true;
+                    hit.mengsanScriptedSkill_shuying = true;
+                    await hit;
+                }
+            }
+            if (target.isAlive() && active(source)) applyDebuff(target, move);
+        }
+        if (!active(source)) return;
+        if (move.block) await source.changeHujia(move.block);
+        if (!active(source)) return;
+        if (move.strength) {
+            source.storage.mengsanStrength_shuying =
+                (source.storage.mengsanStrength_shuying || 0) + move.strength;
+            source.addSkill("mengsan_raider_strength_shuying");
+            source.markSkill("mengsan_raider_strength_shuying");
+        }
+    };
+}
