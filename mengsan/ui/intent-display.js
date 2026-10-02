@@ -91,9 +91,18 @@ export function mountEnemyIntent(player, session, assetBase, document,
             throw new TypeError("濒死一击必须有伤害数值");
         }
         damageLine.hidden = !hasDamage;
+        const hasSummon = typeof intent.summon === "string";
+        const hasSlimed = Number.isInteger(intent.slimed) && intent.slimed > 0;
+        const hasInfection = Number.isInteger(intent.infection) && intent.infection > 0;
+        const hasDazed = Number.isInteger(intent.dazed) && intent.dazed > 0;
         const hasDebuff = typeof intent.debuff === "string" &&
             Number.isInteger(intent.stacks) && intent.stacks > 0;
-        debuffLine.hidden = !hasDebuff;
+        debuffLine.hidden = !(hasDebuff || hasDazed || hasSlimed || hasInfection);
+        const debuffSrc = `${assetBase}/assets/intent/${hasDazed || hasSlimed || hasInfection ? "Intent_status_card.png" : "Intent_debuff.png"}`;
+        if (debuffIcon.getAttribute("src") !== debuffSrc) debuffIcon.src = debuffSrc;
+        if (hasInfection) debuffAmount.textContent = `×${intent.infection}`;
+        if (hasSlimed) debuffAmount.textContent = `×${intent.slimed}`;
+        if (hasDazed) debuffAmount.textContent = `×${intent.dazed}`;
         if (hasDebuff) {
             const debuffText = `×${intent.stacks}`;
             if (debuffAmount.textContent !== debuffText) {
@@ -102,8 +111,11 @@ export function mountEnemyIntent(player, session, assetBase, document,
         }
         const hasBlock = Number.isInteger(intent.block) && intent.block > 0;
         const hasStrength = Number.isInteger(intent.strength) && intent.strength > 0;
+        const buffSrc = `${assetBase}/assets/intent/${hasSummon ? "Intent_summon.png" : "Intent_buff.png"}`;
+        if (buffIcon.getAttribute("src") !== buffSrc) buffIcon.src = buffSrc;
         blockLine.hidden = !hasBlock;
-        buffLine.hidden = !hasStrength;
+        buffLine.hidden = !(hasStrength || hasSummon);
+        if (hasSummon) buffAmount.textContent = "×1";
         if (hasBlock) blockAmount.textContent = String(intent.block);
         if (hasStrength) {
             buffAmount.textContent = `+${intent.strength}`;
@@ -136,20 +148,26 @@ export function mountEnemyIntent(player, session, assetBase, document,
         }
         if (hasDebuff) {
             const label = intent.debuff === "脆弱" ? "Frail" :
-                intent.debuff === "易伤" ? "Vulnerable" : "Debuff";
+                intent.debuff === "易伤" ? "Vulnerable" : intent.debuff === "缩小" ? "Shrink" : intent.debuff === "缠结" ? "Tangled" : "Debuff";
             effects.push(`${label} ×${intent.stacks}`);
         }
+        if (hasSummon) effects.push("Summon: 利齿之眼 ×1");
+        if (hasDazed) effects.push(`Dazed ×${intent.dazed}`);
+        if (hasInfection) effects.push(`Infection ×${intent.infection}`);
+        if (hasSlimed) effects.push(`Slimed ×${intent.slimed}`);
         if (hasBlock) effects.push(`Block ${intent.block}`);
         if (hasStrength) effects.push(`Strength +${intent.strength}`);
         if (!effects.length) {
             damageLine.hidden = false;
             amount.textContent = "";
-            const src = `${assetBase}/assets/intent/Intent_unknown.png`;
+            const src = `${assetBase}/assets/intent/${intent.sleep ? "Intent_sleep.png" : "Intent_unknown.png"}`;
             if (icon.getAttribute("src") !== src) icon.src = src;
-            effects.push("Unknown");
+            effects.push(intent.sleep ? "Sleep" : "Unknown");
         }
         const label = effects.join(", ");
-        badge.title = "攻击与负面效果作用于所有存活敌对角色；伤害按各目标状态计算，护甲另行抵扣。";
+        badge.title = hasInfection ? `向敌对角色的个人弃牌堆加入${intent.infection}张感染；不能被打出，回合结束在手牌中每张造成3点非攻击伤害。` : intent.sleep ? "沉睡：本回合不行动，不消耗费用。" : intent.debuff === "缠结" ? "紧绕藤蔓：攻击后施加1回合缠结，攻击牌费用增加1；自身回合结束减少1回合。" : intent.shrink ? "缩小：攻击伤害减少30%，不重复叠加；来源死亡解除。" : hasSlimed ? `黏液：向敌对角色的个人弃牌堆加入${intent.slimed}张黏液；耗1费用、抽1张牌、消耗。` : hasSummon ? "虚幻孢子：召唤1只6生命的利齿之眼。" :
+            hasDazed ? "牵制：向敌对角色的个人弃牌堆加入3张晕眩；晕眩不能被打出，具有虚无。" :
+            "攻击与负面效果作用于所有存活敌对角色；伤害按各目标状态计算，护甲另行抵扣。";
         if (badge.getAttribute("aria-label") !== label) badge.setAttribute("aria-label", label);
         badge.hidden = false;
     };

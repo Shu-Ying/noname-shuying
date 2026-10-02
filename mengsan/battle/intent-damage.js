@@ -1,3 +1,6 @@
+import { slowAttackDamage } from "../monsters/effigy-slow.js";
+import { shrinkAttackDamage } from "../monsters/shrinker-status.js";
+
 export function attackHitCount(intent) {
     const hits = intent.hits ?? 1;
     if (!Number.isInteger(hits) || hits < 1) {
@@ -16,7 +19,7 @@ export function outgoingAttackDamage(intent, source) {
     if (source?.storage?.mengsanWeak_shuying > 0) {
         damage = Math.floor(damage * 0.75);
     }
-    return damage;
+    return shrinkAttackDamage(damage, source);
 }
 
 export function previewAttackDamage(intent, source, target) {
@@ -24,5 +27,5 @@ export function previewAttackDamage(intent, source, target) {
     if (target?.storage?.mengsanVulnerable_shuying > 0) {
         damage = Math.ceil(damage * 1.5);
     }
-    return damage;
+    return slowAttackDamage(damage, target);
 }

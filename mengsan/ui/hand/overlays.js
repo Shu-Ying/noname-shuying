@@ -21,7 +21,8 @@ export function createHandOverlays(document, cardCost) {
     const cost = String(cardCost(card));
     setData(entry.cost, "mengsanCost", cost);
     entry.cost.setAttribute("aria-label", `费用 ${cost}`);
-    if (entry.cost.parentNode !== card) card.appendChild(entry.cost);
+    if (card.name === "mengsan_dazed_shuying") entry.cost.remove();
+    else if (entry.cost.parentNode !== card) card.appendChild(entry.cost);
     const level = cardUpgradeLevel(card);
     if (level) {
       setData(entry.upgrade, "mengsanUpgrade", String(level));

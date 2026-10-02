@@ -16,6 +16,24 @@ const BASE_DECKS = Object.freeze({
 const HEALTH = Object.freeze({
     mengsan_soldier_shuying: 24,
     mengsan_flyconid_shuying: 48,
+    mengsan_fogmog_shuying: 74, mengsan_eye_with_teeth_shuying: 6,
+    mengsan_mawler_shuying: 72,
+    mengsan_vine_shambler_shuying: 61,
+    mengsan_nibbit_shuying: 44,
+    mengsan_cubex_construct_shuying: 65,
+    mengsan_byrdonis_shuying: 82,
+    mengsan_bygone_effigy_shuying: 127,
+    mengsan_phrog_parasite_shuying: 62,
+    mengsan_wriggler_shuying: 19,
+    mengsan_shrinker_beetle_shuying: 39,
+    mengsan_twig_slime_m_shuying: 27,
+    mengsan_twig_slime_s_shuying: 9,
+    mengsan_leaf_slime_m_shuying: 34,
+    mengsan_leaf_slime_s_shuying: 13,
+    mengsan_slithering_strangler_shuying: 54,
+    mengsan_snapping_jaxfruit_shuying: 32,
+    mengsan_inklet_shuying: 14,
+    mengsan_fuzzy_wurm_crawler_shuying: 56,
     mengsan_raider_brute_shuying: 32,
     mengsan_raider_assassin_shuying: 21,
     mengsan_raider_axe_shuying: 21,
@@ -68,6 +86,95 @@ export class OpeningSoldier extends Monster {
 export class Flyconid extends Monster {
     constructor(options = {}) { super({ ...options, character: "mengsan_flyconid_shuying", tier: "normal", hp: 48 }); }
 }
+export class FuzzyWurmCrawler extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_fuzzy_wurm_crawler_shuying", tier: "normal", hp: options.hp ?? 56 });
+    }
+}
+export class Inklet extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_inklet_shuying", tier: "normal", hp: options.hp ?? 14 });
+    }
+}
+export class SnappingJaxfruit extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_snapping_jaxfruit_shuying", tier: "normal", hp: options.hp ?? 32 });
+    }
+}
+export class SlitheringStrangler extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_slithering_strangler_shuying", tier: "normal", hp: options.hp ?? 54 });
+    }
+}
+export class LeafSlimeSmall extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_leaf_slime_s_shuying", tier: "normal", hp: options.hp ?? 13 });
+    }
+}
+export class LeafSlimeMedium extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_leaf_slime_m_shuying", tier: "normal", hp: options.hp ?? 34 });
+    }
+}
+export class TwigSlimeSmall extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_twig_slime_s_shuying", tier: "normal", hp: options.hp ?? 9 });
+    }
+}
+export class TwigSlimeMedium extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_twig_slime_m_shuying", tier: "normal", hp: options.hp ?? 27 });
+    }
+}
+export class ShrinkerBeetle extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_shrinker_beetle_shuying", tier: "normal", hp: options.hp ?? 39 });
+    }
+}
+export class PhrogParasite extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_phrog_parasite_shuying", tier: "elite", hp: options.hp ?? 62 }); }
+}
+export class Wriggler extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_wriggler_shuying", tier: "elite", hp: options.hp ?? 19 }); }
+}
+export class BygoneEffigy extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_bygone_effigy_shuying", tier: "elite", hp: options.hp ?? 127 });
+    }
+}
+export class Byrdonis extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_byrdonis_shuying", tier: "elite", hp: options.hp ?? 82 });
+    }
+}
+export class CubexConstruct extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_cubex_construct_shuying", tier: "normal", hp: options.hp ?? 65 });
+    }
+}
+export class Nibbit extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_nibbit_shuying", tier: "normal", hp: options.hp ?? 44 });
+    }
+}
+export class VineShambler extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_vine_shambler_shuying", tier: "normal", hp: options.hp ?? 61 });
+    }
+}
+export class Mawler extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_mawler_shuying", tier: "normal", hp: 72 }); }
+}
+export class Fogmog extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_fogmog_shuying", tier: "normal", hp: 74 }); }
+}
+export class EyeWithTeeth extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_eye_with_teeth_shuying", tier: "normal", hp: 6, energy: 1, handLimit: 1 });
+        this.draw = 0;
+    }
+    createDeck() { return []; } // 爪牙仅发动牵制，不额外抽取或打出三国杀牌。
+}
 const raiderClass = (character, hp) => class extends Monster {
     constructor(options = {}) { super({ ...options, character, tier: "normal", hp }); }
 };
@@ -81,6 +188,25 @@ export const RaiderTracker = raiderClass("mengsan_raider_tracker_shuying", 23);
 export const MONSTER_TYPES = Object.freeze({
     mengsan_soldier_shuying: OpeningSoldier,
     mengsan_flyconid_shuying: Flyconid,
+    mengsan_fogmog_shuying: Fogmog,
+    mengsan_mawler_shuying: Mawler,
+    mengsan_vine_shambler_shuying: VineShambler,
+    mengsan_nibbit_shuying: Nibbit,
+    mengsan_cubex_construct_shuying: CubexConstruct,
+    mengsan_byrdonis_shuying: Byrdonis,
+    mengsan_bygone_effigy_shuying: BygoneEffigy,
+    mengsan_phrog_parasite_shuying: PhrogParasite,
+    mengsan_wriggler_shuying: Wriggler,
+    mengsan_shrinker_beetle_shuying: ShrinkerBeetle,
+    mengsan_twig_slime_m_shuying: TwigSlimeMedium,
+    mengsan_twig_slime_s_shuying: TwigSlimeSmall,
+    mengsan_leaf_slime_m_shuying: LeafSlimeMedium,
+    mengsan_leaf_slime_s_shuying: LeafSlimeSmall,
+    mengsan_slithering_strangler_shuying: SlitheringStrangler,
+    mengsan_snapping_jaxfruit_shuying: SnappingJaxfruit,
+    mengsan_inklet_shuying: Inklet,
+    mengsan_fuzzy_wurm_crawler_shuying: FuzzyWurmCrawler,
+    mengsan_eye_with_teeth_shuying: EyeWithTeeth,
     mengsan_raider_brute_shuying: RaiderBrute,
     mengsan_raider_assassin_shuying: RaiderAssassin,
     mengsan_raider_axe_shuying: RaiderAxe,

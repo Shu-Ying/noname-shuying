@@ -1,11 +1,15 @@
 import { createHandAdapter } from "./adapter.js";
 import { createHandOverlays } from "./overlays.js";
 import { createHandDiagnostics } from "./diagnostics.js";
+import { createHandFan } from "./fan.js";
+import { createHandInput } from "./input.js";
 
 export async function mountHandUI(player, session, env) {
   const { ui, document, window, cardCost, styleURL } = env;
   const adapter = createHandAdapter(player, ui);
-  const overlays = createHandOverlays(document, cardCost);
+  const overlays = createHandOverlays(document, card => cardCost(card, player));
+  const fan = createHandFan(adapter, env);
+  let input = null;
   const restores = [];
   const diagnose = createHandDiagnostics(env.game, session.id);
   const style = document.createElement("link");
@@ -58,6 +62,8 @@ export async function mountHandUI(player, session, env) {
     }
     const supported = adapter.supported();
     setLayout(supported && !nativeInput);
+    fan.sync(supported && !nativeInput);
+    input?.reconcile();
     if (!supported && !warned) {
       warned = true;
       log("当前容器不支持独立排列，已保留原排列与费用/强化标记");
@@ -68,17 +74,35 @@ export async function mountHandUI(player, session, env) {
     target.addEventListener(type, listener, options);
     restores.push(() => target.removeEventListener(type, listener, options));
   }
+  // 不可使用的真实手牌不能触发旧手势的横排回退；选中牌保留原生交互。
+  function canBeginNativeInput(card) {
+    if (!adapter.zones.includes(card?.parentNode) ||
+        card.classList.contains("noclick") ||
+        (!card.classList.contains("selectable") &&
+         !card.classList.contains("selected"))) return false;
+    const current = env._status?.event;
+    return !(current?.name === "chooseToUse" && current.player === player &&
+      env.isActiveCardUse?.(current, player) &&
+      env.canPayCard?.(player, card) === false);
+  }
   function beginInput(event) {
+    if (input?.owns()) return;
     const card = event.target.closest?.(".card");
     if (event.button !== 0 || pointer ||
-        !adapter.zones.includes(card?.parentNode)) {
+        !canBeginNativeInput(card)) {
       return;
     }
-    pointer = { id: event.pointerId, x: event.clientX, y: event.clientY,
+    pointer = { card, id: event.pointerId, x: event.clientX, y: event.clientY,
       touch: event.pointerType === "touch" };
   }
   function moveInput(event) {
-    if (!pointer || pointer.id !== event.pointerId || nativeInput) return;
+    if (input?.owns()) return;
+    if (!pointer || pointer.id !== event.pointerId) return;
+    if (!canBeginNativeInput(pointer.card)) { endInput(event); return; }
+    if (nativeInput) return;
+    // 未接管的上拖（包括响应牌或已选牌）不属于手牌排序，不退回横排。
+    const dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
+    if (dy < 0 && Math.abs(dy) >= Math.abs(dx)) return;
     if (Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) < 8) {
       return;
     }
@@ -131,6 +155,8 @@ export async function mountHandUI(player, session, env) {
     restoreTouchScroll();
     observer?.disconnect();
     resizeObserver?.disconnect();
+    input?.dispose();
+    fan.dispose();
     overlays.dispose();
     setLayout(false);
     for (const restore of restores.reverse()) restore();
@@ -157,6 +183,8 @@ export async function mountHandUI(player, session, env) {
       document.head.appendChild(style);
     });
     if (!session.active || disposed) { dispose(); return { refresh, dispose }; }
+    ownClass(adapter.root, "mengsan-hand-root-shuying");
+    ownClass(document.body, "mengsan-hand-ui-shuying");
     for (const zone of adapter.zones) {
       ownClass(zone, "mengsan-hand-zone-shuying");
     }
@@ -164,7 +192,7 @@ export async function mountHandUI(player, session, env) {
       if (!container.hasAttribute("tabindex")) {
         ownAttribute(container, "tabindex", "0");
       }
-      ownAttribute(container, "aria-label", "梦三手牌，可横向滚动");
+      ownAttribute(container, "aria-label", "梦三扇形手牌，悬停查看；上拖出牌，拖向目标后松手确认");
       listen(container, "wheel", scrollWheel,
         { capture: true, passive: false });
       listen(container, "touchmove", allowTouchScroll, true);
@@ -173,8 +201,10 @@ export async function mountHandUI(player, session, env) {
     }
     observer = new window.MutationObserver(refresh);
     for (const zone of adapter.zones) {
-      observer.observe(zone, { childList: true });
+      observer.observe(zone, { childList: true, subtree: true,
+        attributes: true, attributeFilter: ["class"] });
     }
+    input = createHandInput(player, session, adapter, fan, env, refresh, log);
     if (adapter.root?.parentNode) {
       observer.observe(adapter.root.parentNode, { childList: true });
     }

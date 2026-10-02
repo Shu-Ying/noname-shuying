@@ -1427,3 +1427,21 @@ body.mengsan-battle-ui-shuying :is(
     outline: 2px solid #8c6a34;
     outline-offset: 3px;
 }
+
+/* Read-only encyclopedia uses the existing wood, aged paper and gold palette. */
+.mengsan-deck-dialog-shuying .ms-deck-tabs { flex-wrap: wrap; }
+.mengsan-deck-dialog-shuying .ms-catalog-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; flex-shrink: 0; }
+.mengsan-deck-dialog-shuying .ms-catalog-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; color: var(--ms-muted); font-size: 13px; }
+.mengsan-deck-dialog-shuying .ms-catalog-field:first-child { flex: 1 1 220px; }
+.mengsan-deck-dialog-shuying .ms-catalog-input,
+.mengsan-deck-dialog-shuying .ms-catalog-select { box-sizing: border-box; position: static; min-width: 0; min-height: 44px; width: 100%; margin: 0; padding: 8px 10px; border: 1px solid #96754e; border-radius: 6px; background: #392c23; color: var(--ms-ink); font: 15px/1.5 "Microsoft YaHei", sans-serif; }
+.mengsan-deck-dialog-shuying .ms-catalog-input::placeholder { color: var(--ms-muted); opacity: 1; }
+.mengsan-deck-dialog-shuying .ms-catalog-input:focus-visible,
+.mengsan-deck-dialog-shuying .ms-catalog-select:focus-visible { outline: 3px solid #ffe0a1; outline-offset: 3px; }
+.mengsan-deck-dialog-shuying .ms-catalog-grid .ms-deck-art { height: auto; aspect-ratio: 5 / 7; }
+@media (max-width: 600px) {
+    .mengsan-deck-dialog-shuying .ms-catalog-filters { gap: 8px; }
+    .mengsan-deck-dialog-shuying .ms-catalog-field:first-child { flex-basis: 100%; }
+    .mengsan-deck-dialog-shuying .ms-catalog-field:not(:first-child) { flex: 1 1 90px; }
+    .mengsan-deck-dialog-shuying .ms-catalog-filters > button { padding: 8px 10px; }
+}
