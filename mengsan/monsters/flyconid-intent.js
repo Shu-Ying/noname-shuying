@@ -8,10 +8,11 @@ export const FLYCONID_MOVES = Object.freeze({
 export function eligibleFlyconidMoves(state = {}) {
     const upcoming = (state.turnsTaken || 0) + 1;
     const lastUsed = state.lastUsed || {};
+    // 行动间隔达到冷却值即恢复；额外等待一轮会使三招同时不可用。
     const moves = [];
     if (state.lastMove !== "smash") moves.push(FLYCONID_MOVES.smash);
-    if (lastUsed.frail == null || upcoming - lastUsed.frail > 2) moves.push(FLYCONID_MOVES.frail);
-    if (upcoming >= 2 && (lastUsed.vulnerable == null || upcoming - lastUsed.vulnerable > 3)) moves.push(FLYCONID_MOVES.vulnerable);
+    if (lastUsed.frail == null || upcoming - lastUsed.frail >= 2) moves.push(FLYCONID_MOVES.frail);
+    if (upcoming >= 2 && (lastUsed.vulnerable == null || upcoming - lastUsed.vulnerable >= 3)) moves.push(FLYCONID_MOVES.vulnerable);
     return moves;
 }
 

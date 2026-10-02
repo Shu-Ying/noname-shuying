@@ -1,3 +1,5 @@
+import { applyMengsanDebuff } from "../monsters/artifact-status.js";
+import { applyTangled } from "../monsters/vine-tangled.js";
 import { attackHitCount, outgoingAttackDamage } from "./intent-damage.js";
 import { beginDeathBlow, isDeathBlowIntent } from "./death-blow.js";
 
@@ -11,14 +13,8 @@ export function createIntentExecutor(game, getActiveBattle) {
         Boolean(getActiveBattle()?.session.active);
     const applyDebuff = (target, move) => {
         if (!move.debuff) return;
-        const frail = move.debuff === "脆弱";
-        const key = frail ? "mengsanFrail_shuying" :
-            "mengsanVulnerable_shuying";
-        target.storage[key] = (target.storage[key] || 0) + move.stacks;
-        target.addSkill(frail ? "mengsan_frail_shuying" :
-            "mengsan_vulnerable_shuying");
-        target.markSkill(frail ? "mengsan_frail_shuying" :
-            "mengsan_vulnerable_shuying");
+        if (move.debuff === "缠结") { applyTangled(getActiveBattle(), target, move.stacks); return; }
+        applyMengsanDebuff(target, move.debuff === "脆弱" ? "frail" : "vulnerable", move.stacks);
     };
     return async (source, move) => {
         for (const target of getIntentHostiles(game, source)) {

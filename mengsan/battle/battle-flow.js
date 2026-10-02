@@ -1,6 +1,6 @@
 // Candidate external coordinator. Finish callbacks return a boolean, NEVER a drain promise.
 const copy = value => JSON.parse(JSON.stringify(value));
-export function createBattleFlow({settlement, chooseReward, showMap, showEnding, quiesce, releaseSkills = async () => {}, presentVictory = async () => {}}) {
+export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMap, showEnding, quiesce, releaseSkills = async () => {}, presentVictory = async () => {}}) {
     let state = "map", active = null, work = null, job = null, error = null;
     async function drive() {
         try {
@@ -13,16 +13,20 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
                 await presentVictory(copy(job.pending));
                 job.victoryPresented = true;
             }
-            if (job.pending.state !== "chosen") {
+            // Also reopen a legacy chosen defeat: it never had a recovery choice.
+            if (job.pending.state !== "chosen" ||
+                (job.pending.outcome === "defeat" && !job.pending.failureAction)) {
                 state = "choosing";
                 if (!job.hasChoice) {
-                    job.choiceId = job.pending.outcome === "defeat" ? null
+                    job.choiceId = job.pending.outcome === "defeat" ? await chooseDefeat()
                         : await chooseReward(copy(job.pending.choices), {
                             boss: job.pending.boss,
                             fixedRewards: copy(job.pending.fixedRewards || []),
                             rewardPackage: copy(job.pending.rewardPackage || null),
                         });
-                    if (job.pending.outcome !== "defeat" && job.pending.choices.length && job.choiceId !== null && !job.pending.choices.some(c => c.id === job.choiceId)) throw new Error("Invalid reward selection");
+                    if (job.pending.outcome !== "defeat" && !job.pending.rewardPackage &&
+                        job.choiceId !== null &&
+                        !job.pending.choices.some(c => c.id === job.choiceId && c.kind !== "gold")) throw new Error("Invalid reward selection");
                     job.hasChoice = true;
                 }
                 job.pending = await settlement.choose(job.input.run.runId, job.pending.id, job.choiceId);
@@ -47,7 +51,9 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
                     job.nextNode = await showMap(mapRun);
                     job.committed.run = mapRun;
                 }
-                else await showEnding(job.committed.route, copy(job.committed.run));
+                else if (!["retry", "new"].includes(job.committed.route)) {
+                    await showEnding(job.committed.route, copy(job.committed.run));
+                }
                 job.delivered = true;
             }
             state = job.committed.route === "map" ? "map" : "ended";
@@ -73,7 +79,7 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
             state = "starting";
             try {
                 await quiesce();
-                active = {session, run, node:copy(node), encounter:copy(encounter)};job = null;work = null;
+                active = {session, run, retryRun:copy(run), node:copy(node), encounter:copy(encounter)};job = null;work = null;
                 // start MUST schedule only; it must not await the battle root's completion.
                 state = "battle"; start();
             } catch (cause) { state = "blocked"; error = cause; throw cause; }
@@ -82,7 +88,7 @@ export function createBattleFlow({settlement, chooseReward, showMap, showEnding,
             if (state !== "battle" || session !== active.session) return false;
             if (!["victory", "defeat"].includes(outcome)) throw new Error("Unknown outcome");
             if (!Number.isInteger(defeatedEnemies) || defeatedEnemies < 0) throw new Error("Invalid defeated enemy count");
-            job = {input:{run:copy(active.run),node:copy(active.node),encounter:{...copy(active.encounter),defeatedEnemies},hp,outcome}};
+            job = {input:{run:copy(active.run),retryRun:copy(active.retryRun),node:copy(active.node),encounter:{...copy(active.encounter),defeatedEnemies},hp,outcome}};
             state = "stopping";
             active.session.requestStop();
             launch();

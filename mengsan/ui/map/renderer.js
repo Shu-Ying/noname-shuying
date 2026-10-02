@@ -305,7 +305,9 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             const back = menuContent.querySelector(".mengsan-map-menu-back-shuying");
             if (back) back.disabled = busy;
         }), ".mengsan-bonds-shuying button") });
-        createMenuAction({ icon: "book", name: "图鉴", description: "查看已发现的敌人、事件与奖励 · 开发中", onClick: () => showMenuPage("图鉴", "征程见闻与收集记录", parent => renderPlaceholder(parent, "后续将收录已发现的节点、敌人和奖励。")) });
+        createMenuAction({ icon: "book", name: "图鉴", description: "卡牌图鉴 · 查看全部梦三卡牌、效果与费用",
+            onClick: () => { closeCardLibrary = openCardLibrary(run, { view: "catalog", title: "卡牌图鉴", eyebrow: "梦三 · 图鉴" }); }
+        }).setAttribute("aria-haspopup", "dialog");
         createMenuAction({ icon: "record", name: "征程记录", description: `已通过 ${run.statistics?.completedNodes || 0} 个节点`, onClick: () => showMenuPage("征程记录", "本次征程的阶段统计", parent => {
             const list = ui.create.div(".mengsan-map-record-list-shuying", parent);
             [["已通过节点", run.statistics?.completedNodes || 0], ["击败敌人", run.statistics?.defeatedEnemies || 0], ["累计金币", run.statistics?.goldEarned || 0]].forEach(([label, value]) => {

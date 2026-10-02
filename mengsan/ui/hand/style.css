@@ -4,12 +4,21 @@
   --mengsan-hand-ink: #fff1cb;
 }
 .mengsan-hand-scroll-shuying {
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow: visible !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  pointer-events: none;
   scrollbar-width: thin;
   scrollbar-color: #d8ba83 #234844;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
+  touch-action: none;
+}
+.mengsan-hand-root-shuying {
+  overflow: visible !important;
 }
 .mengsan-hand-scroll-shuying:focus-visible {
   outline: 2px solid #d8ba83;
@@ -17,36 +26,87 @@
 }
 .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying {
   position: relative !important;
-  display: flex !important;
-  align-items: flex-end;
-  gap: 8px;
-  width: max-content !important;
-  min-width: 100% !important;
+  display: block !important;
+  width: 100% !important;
   height: 100% !important;
   left: 0 !important;
   top: auto !important;
   bottom: 0 !important;
   margin: 0 !important;
-  padding: 24px 8px 6px !important;
+  padding: 0 !important;
   box-sizing: border-box;
+  pointer-events: none;
+  overflow: visible !important;
 }
 .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
-  position: relative !important;
-  flex: 0 0 auto;
-  width: 90px !important;
-  height: 110px !important;
-  left: auto !important;
+  position: absolute !important;
+  width: 112px !important;
+  height: 156px !important;
+  left: 0 !important;
   right: auto !important;
-  top: auto !important;
+  top: 100% !important;
   bottom: auto !important;
   margin: 0 !important;
-  transform: none !important;
-  transition: transform 120ms ease-out !important;
+  transform-origin: 50% 100% !important;
+  transform: translate(var(--mengsan-fan-x, 0px), var(--mengsan-fan-y, -128px)) rotate(var(--mengsan-fan-angle, 0deg)) !important;
+  z-index: var(--mengsan-fan-z, 1) !important;
+  transition: transform 160ms cubic-bezier(.2,.7,.3,1), box-shadow 160ms ease-out !important;
+  pointer-events: auto;
+  touch-action: none;
 }
 .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.selected {
-  transform: translateY(-18px) !important;
+  transform: translate(var(--mengsan-fan-x, 0px), calc(var(--mengsan-fan-y, -128px) - 20px)) rotate(var(--mengsan-fan-angle, 0deg)) !important;
   outline: 2px solid var(--mengsan-hand-gold);
   outline-offset: -2px;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.mengsan-hand-hover-shuying {
+  transform: translate(var(--mengsan-fan-x, 0px), calc(var(--mengsan-fan-y, -128px) - 62px)) rotate(0deg) scale(1.35) !important;
+  z-index: 220 !important;
+  box-shadow: 0 0 0 2px #b6e8de, 0 0 14px #68b6a58c, 0 12px 22px #0009;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.mengsan-hand-drag-shuying {
+  top: 0 !important;
+  transform: translate(var(--mengsan-drag-x), var(--mengsan-drag-y)) rotate(0deg) !important;
+  z-index: 240 !important;
+  pointer-events: none !important;
+  transition: none !important;
+  box-shadow: 0 0 0 2px #b6e8de, 0 0 14px #68b6a58c, 0 12px 22px #0009;
+}
+.mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.mengsan-hand-free-drag-shuying {
+  transform: translate(var(--mengsan-drag-x), var(--mengsan-drag-y)) rotate(0deg) scale(1.22) !important;
+  transform-origin: 50% 50% !important;
+}
+.mengsan-hand-aim-shuying {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: visible;
+}
+.mengsan-hand-aim-shuying > path {
+  fill: none;
+  stroke: rgb(250, 220, 140);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px #f5d25b);
+}
+/* 只在梦三手牌挂载期间隐藏十周年阶段、等待响应和对方思考图片。 */
+body.mengsan-hand-ui-shuying [style*="extension/十周年UI/ui/assets/lbtn/tips/"]:is(
+  [style*="/tips/hhks."], [style*="/tips/zbjd."], [style*="/tips/pdjd."],
+  [style*="/tips/mpjd."], [style*="/tips/cpjd."], [style*="/tips/qpjd."],
+  [style*="/tips/jsjd."], [style*="/tips/hhjs."],
+  [style*="/tips/ddxy."], [style*="/tips/dfsk."]
+) {
+  display: none !important;
+}
+body.mengsan-hand-ui-shuying :is(
+  .mengsan-hand-controls-hidden-shuying,
+  .mengsan-hand-submitted-control-shuying
+) {
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.removing,
 .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card.display-none {
@@ -86,8 +146,11 @@
   content: attr(data-mengsan-cost);
 }
 .mengsan-hand-zone-shuying > .card > .mengsan-hand-upgrade-shuying {
-  top: 4px !important;
-  right: 4px !important;
+  /* 扇形叠牌露出左侧：角标排在花色下、费用上，不抬高整张牌的层级。 */
+  top: calc(max(48%, 64px) - 25px) !important;
+  left: 3px !important;
+  right: auto !important;
+  white-space: nowrap;
   width: 26px;
   height: 20px;
   border: 1px solid #86bd85;
@@ -95,17 +158,116 @@
   background: #214f36;
   color: #f5ffea;
 }
+/* 只为带强化角标的真实手牌预留左侧信息栏，避免窄屏挤压。 */
+.mengsan-hand-zone-shuying > .card:has(> .mengsan-hand-upgrade-shuying) > .mengsan-hand-cost-shuying {
+  top: max(48%, 64px) !important;
+}
+.mengsan-hand-zone-shuying > .card:has(> .mengsan-hand-upgrade-shuying) > .suit-num {
+  top: 6px !important;
+}
+@media (max-width: 640px), (max-height: 500px) {
+  .mengsan-hand-zone-shuying > .card:has(> .mengsan-hand-upgrade-shuying) > .suit-num {
+    top: 4px !important;
+    font-size: 20px !important;
+    line-height: 16px !important;
+  }
+}
 .mengsan-hand-zone-shuying > .card > .mengsan-hand-upgrade-shuying::before {
   content: "+" attr(data-mengsan-upgrade);
 }
 @media (max-width: 640px), (max-height: 500px) {
   .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
-    width: 80px !important;
-    height: 100px !important;
+    width: 82px !important;
+    height: 114px !important;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .mengsan-hand-zone-shuying.mengsan-hand-layout-shuying > .card {
     transition: none !important;
+  }
+}
+
+/* 梦三本地竖幅立绘使用完整卡面；只协调梦三手牌里的原生显示节点。 */
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip) {
+  background-size: cover !important;
+  background-position: center !important;
+}
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip) > :is(.name, .top-name) {
+  display: block !important;
+  top: auto !important;
+  bottom: 8px !important;
+  left: auto !important;
+  right: 8px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 3px 6px !important;
+  margin: 0 !important;
+  writing-mode: horizontal-tb !important;
+  -webkit-writing-mode: horizontal-tb !important;
+  font-size: 16px !important;
+  line-height: 20px !important;
+  letter-spacing: 1px !important;
+  color: #fff1cb !important;
+  text-shadow: 0 1px 2px #000 !important;
+  background: #231b17e6 !important;
+  border-radius: 3px;
+  z-index: 7 !important;
+  pointer-events: none;
+}
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip) > :is(.name, .top-name) br {
+  display: none;
+}
+/* 十周年同时保留竖排名称与 top-name 时，只显示后者。 */
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip):has(> .top-name) > .name {
+  display: none !important;
+}
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip) > :is(.info:not(.gaintag), .suit-num) {
+  top: 6px !important;
+  left: 6px !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 2px 4px !important;
+  font-size: 18px !important;
+  line-height: 18px !important;
+  letter-spacing: 0 !important;
+  color: #231b17 !important;
+  text-shadow: none !important;
+  background: #fff1cbe6 !important;
+  border-radius: 3px;
+  z-index: 7 !important;
+  pointer-events: none;
+}
+
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]) > .image,
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]) > .info:empty {
+  display: none !important;
+}
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):is([data-suit="heart"], [data-suit="diamond"]):not(.infohidden):not(.infoflip) > :is(.info:not(.gaintag), .suit-num) {
+  color: #a52219 !important;
+}
+
+/* 强化卡牌的完整卡面样式优先级更高，窄屏同样为角标留出空隙。 */
+@media (max-width: 640px), (max-height: 500px) {
+  .mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_zhongsha"], [data-card-name="mengsan_fangyu"], [data-card-name="mengsan_fennu"], [data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"], [data-card-name="mengsan_dazed_shuying"], [data-card-name="mengsan_slimed_shuying"], [data-card-name="mengsan_infection_shuying"]):not(.infohidden):not(.infoflip):has(> .mengsan-hand-upgrade-shuying) > .suit-num {
+    top: 4px !important;
+    padding: 0 2px !important;
+    font-size: 18px !important;
+    line-height: 16px !important;
+  }
+}
+
+/* 长牌名完整显示，不挤出卡面；只作用于梦三手牌。 */
+.mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"]):not(.infohidden):not(.infoflip) > :is(.name, .top-name) {
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 640px), (max-height: 500px) {
+  .mengsan-hand-zone-shuying > .card:is([data-card-name="mengsan_feijianhuixuanbiao"], [data-card-name="mengsan_jianbingdaji"], [data-card-name="mengsan_quanshenzhuangji"], [data-card-name="mengsan_rongrongzhiquan"], [data-card-name="mengsan_shandianpili"], [data-card-name="mengsan_shuangchongdaji"], [data-card-name="mengsan_tiezhanbo"], [data-card-name="mengsan_touchui"], [data-card-name="mengsan_tupo"], [data-card-name="mengsan_yubeidaji"], [data-card-name="mengsan_wanmeidaji"], [data-card-name="mengsan_yujin"], [data-card-name="mengsan_fangxue"], [data-card-name="mengsan_jianyi"], [data-card-name="mengsan_pomie"], [data-card-name="mengsan_songjianwushi"]):not(.infohidden):not(.infoflip) > :is(.name, .top-name) {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
   }
 }

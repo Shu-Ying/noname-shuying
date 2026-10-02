@@ -1,8 +1,12 @@
+import { applyMengsanDebuff } from "../monsters/artifact-status.js";
+
 export function createOpeningEffects(game, owner, refreshEnergy) {
     const enemies = () => game.players.filter(player =>
         player !== owner && player.isAlive() &&
         player.storage?.mengsanCamp_shuying === "enemy");
     const addStatus = (player, key, skill, amount) => {
+        if (key === "mengsanVulnerable_shuying" || key === "mengsanWeak_shuying")
+            return applyMengsanDebuff(player, key === "mengsanWeak_shuying" ? "weak" : "vulnerable", amount);
         player.storage[key] = (player.storage[key] || 0) + amount;
         player.addSkill(skill);
         player.markSkill(skill);

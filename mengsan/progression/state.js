@@ -2,6 +2,9 @@ import { createStartingDeck } from "../cards/starting-deck.js";
 import config from "../config.js";
 import { initializeInnateBonds } from "../bonds/state.js";
 import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "../content/acts/act1/raider-trio.js";
+import { INKLET_CHARACTER } from "../monsters/inklet-intent.js";
+import { createInkletBattlePlan } from "../content/acts/act1/inklet-group.js";
+import { NIBBIT_PAIR_ENCOUNTER, createNibbitPairBattlePlan } from "../content/acts/act1/nibbit-pair.js";
 
 const hashText = text => {
     let value = 2166136261;
@@ -250,7 +253,7 @@ export const getNodeEncounter = (run, node, override = null) => {
     }
     const enemy = randomGet(run, pool.filter(Boolean));
     return {
-        name: encounter?.name || (enemy === RAIDER_TRIO_ENCOUNTER ? "劫掠者团伙" : ""),
+        name: encounter?.name || (enemy === RAIDER_TRIO_ENCOUNTER ? "劫掠者团伙" : enemy === INKLET_CHARACTER ? "墨宝群" : enemy === NIBBIT_PAIR_ENCOUNTER ? "小啃兽双只" : ""),
         requiredCharacter: encounter?.requiredCharacter || null,
         openingDialogue: encounter?.openingDialogue || [],
         fixedRewards: encounter?.fixedRewards || [],
@@ -258,7 +261,8 @@ export const getNodeEncounter = (run, node, override = null) => {
         skipRandomReward: encounter?.skipRandomReward === true,
         victoryDialogue: encounter?.victoryDialogue || [],
         battlePlan: encounter?.battlePlan || (enemy === RAIDER_TRIO_ENCOUNTER ?
-            createRaiderTrioBattlePlan(() => nextRandom(run)) : null),
+            createRaiderTrioBattlePlan(() => nextRandom(run)) : enemy === INKLET_CHARACTER ?
+            createInkletBattlePlan() : enemy === NIBBIT_PAIR_ENCOUNTER ? createNibbitPairBattlePlan() : null),
         tier: encounter?.tier || (node.type === "elite" ? "elite" : "normal"),
         enemy,
         gold: encounter?.gold ?? (node.type == "elite" || node.type == "story" ? act.baseGold * 2 : act.baseGold),

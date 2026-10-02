@@ -2,7 +2,6 @@ import { lib, get } from "../../../../noname.js";
 import { cardCost } from "../battle/combat-rules.js";
 import { cardUpgradeRule } from "../cards/upgrades.js";
 import { getRelic } from "../relics/definitions.js";
-import { chooseButtons } from "./flow-ui.js";
 
 const element = (tag, className, text, parent) => {
     const node = document.createElement(tag);
@@ -34,7 +33,7 @@ const viewCard = choice => {
             ? `${lib.assetURL || ""}image/card/${imageName}.png` : null;
     const type = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" }[info?.type] || "卡牌";
     return {
-        name: get.translation(name), type, image, cost: cardCost({ name }),
+        name: get.translation(name), type, image, cost: cardCost(choice.card || { name }),
         description: plainText(cardUpgradeRule(name) && info?.cardPrompt
             ? info.cardPrompt(choice.card || { name })
             : lib.translate[`${name}_info`] || choice.description ||
@@ -68,6 +67,22 @@ export function chooseRelicDialog(choices, options = {}) {
         const relic = getRelic(choice.relic);
         return { name: relic.name, type: "遗物", image: null, cost: null,
             description: relic.description };
+    });
+}
+
+// Mixed reward pools use the same selector, with exactly one candidate awarded.
+function chooseRewardDialog(choices) {
+    if (choices.every(isCardReward)) return chooseCardDialog(choices);
+    if (choices.every(choice => getRelic(choice.relic))) return chooseRelicDialog(choices);
+    return chooseTilesDialog(choices, {
+        title: "选择一项奖励", actionLabel: "领取此奖励",
+        description: "从本次候选中选择一项，也可以跳过。",
+    }, choice => {
+        if (isCardReward(choice)) return viewCard(choice);
+        const relic = getRelic(choice.relic);
+        return { name: relic?.name || choice.name, type: relic ? "遗物" : "奖励",
+            image: null, cost: null,
+            description: plainText(relic?.description || choice.description) };
     });
 }
 
@@ -137,7 +152,7 @@ function chooseTilesDialog(choices, {
 export function chooseVictoryOptions(options, {
     title = "战后抉择", allowSkip = true,
     description = "此役已定，选择下一段征途的收获。",
-    rewardLabel = "可选战利品",
+    rewardLabel = "可选战利品", rewardItems = [],
 } = {}) {
     if (!Array.isArray(options) || !options.length || options.some(option => !option?.id || !option?.label)) {
         return Promise.reject(new TypeError("chooseVictoryOptions requires nonempty options with IDs and labels"));
@@ -154,6 +169,12 @@ export function chooseVictoryOptions(options, {
         element("p", "", description, intro);
         const board = element("div", "mengsan-victory-options-shuying", null, stage);
         element("span", "mengsan-victory-eyebrow-shuying", rewardLabel, board);
+        // Read-only loot list: inspecting a reward must not select or award it.
+        for (const reward of rewardItems) {
+            const item = element("p", "mengsan-victory-option-copy-shuying", null, board);
+            element("strong", "", reward.name || reward.id, item);
+            if (reward.description) element("small", "", plainText(reward.description), item);
+        }
         let settled = false, choosing = false;
         const entries = [];
         const refresh = () => {
@@ -218,54 +239,34 @@ export function chooseVictoryOptions(options, {
     });
 }
 
-// Gold is a persisted candidate, not an automatic reward. The card pool remains
-// a separate Dialog; skipping that Dialog returns to the victory choices.
+// Gold and fixed rewards are guaranteed; random loot opens a separate one-of-N selector.
 export function chooseBattleReward(choices, { fixedRewards = [] } = {}) {
     if (!Array.isArray(choices)) return Promise.resolve(null);
-    const fixedDescription = fixedRewards.map(reward =>
-        `${reward.name || reward.id}${reward.description
-            ? `：${plainText(reward.description)}` : ""}`
-    ).join("；");
-    if (!choices.length) {
-        if (!fixedRewards.length) return Promise.resolve(null);
-        return chooseVictoryOptions([{
-            id: "claim-fixed-rewards",
-            label: "领取固定奖励",
-            description: fixedDescription,
-            choose: () => null,
-        }], {
-            title: "过关奖励",
-            description: "此役已定，以下固定奖励将全部获得。",
-            rewardLabel: "固定战利品",
-            allowSkip: false,
-        });
-    }
-    const gold = choices.find(choice => choice.kind === "gold");
+    const gold = choices.filter(choice => choice.kind === "gold")
+        .reduce((amount, choice) => amount + choice.amount, 0);
     const rewards = choices.filter(choice => choice.kind !== "gold");
     const options = [];
-    if (gold) options.push({
-        id: gold.id,
-        label: `金币 · ${gold.amount}`,
-        description: "将此关金币收入征程钱袋。",
-    });
     if (rewards.length) {
-        const cardOnly = rewards.every(isCardReward);
+        const kind = rewards.every(isCardReward) ? "卡牌"
+            : rewards.every(choice => getRelic(choice.relic)) ? "遗物" : "战利品";
         options.push({
-            id: "choose-reward",
-            label: cardOnly ? "择一张牌" : "挑选一项战利品",
-            description: cardOnly ? "从本次候选卡牌中选择一张，加入牌组。" : "检视本次战利品，再决定带走哪一项。",
-            async choose() {
-                const selected = cardOnly
-                    ? await chooseCardDialog(rewards, {skipLabel:"跳过选卡"})
-                    : await chooseButtons("选择一项奖励", rewards);
-                return selected ?? RETURN_TO_VICTORY;
-            },
+            id: "choose-reward", label: `${kind}奖励 · ${rewards.length}选1`,
+            description: `点击查看候选${kind}，选择一项领取，或点击跳过。`,
+            choose: () => chooseRewardDialog(rewards),
         });
     }
+    options.push({
+        id: "skip-loot", label: "跳过",
+        description: rewards.length ? "跳过本次可选奖励，必得奖励照常领取。"
+            : "本次没有可选奖励，领取必得奖励后继续。",
+        choose: () => null,
+    });
     return chooseVictoryOptions(options, {
-        title: "过关奖励",
-        description: fixedRewards.length
-            ? `固定奖励：${fixedDescription}。另可选择一项战利品。`
-            : "此役已定，可选择一项战利品，也可放弃本次选择。",
+        title: "过关奖励", allowSkip: false,
+        description: `本关必得 ${gold} 金币。点击奖励选项后择一领取，也可跳过。`,
+        rewardLabel: "搜刮 · 战利品列表",
+        rewardItems: [{name: `金币 · ${gold}（必得）`,
+            description: "无论选择还是跳过，金币都会结算。"},
+            ...fixedRewards.map(reward => ({ ...reward, name: `${reward.name}（必得）` }))],
     });
 }

@@ -9,7 +9,7 @@ const act1Map = {
         1, 3, 3, 3, 3, 3, 3, 3, 3,
         3, 3, 3, 3, 3, 3, 3, 1,
     ],
-    nodeWeights: { battle: 65, event: 15, rest: 10, shop: 10 },
+    nodeWeights: { battle: 50, elite: 15, event: 15, rest: 10, shop: 10 },
     requiredFloors: { 2: "battle", 10: "chest", 16: "rest" },
     chestRewardPool: "act1.pool.chest",
     fixedNodes: [
@@ -20,8 +20,14 @@ const act1Map = {
             contentId: "act1.battle.liubeiOpening",
         },
     ],
-    enemies: ["mengsan_flyconid_shuying", "mengsan_raider_trio_shuying"],
-    eliteEnemies: ["re_xiahoudun", "re_zhangliao", "re_xuzhu"],
+    enemies: [
+        "mengsan_flyconid_shuying", "mengsan_raider_trio_shuying",
+        "mengsan_soldier_shuying", "mengsan_fogmog_shuying",
+        "mengsan_mawler_shuying", "mengsan_vine_shambler_shuying",
+        "mengsan_nibbit_shuying", "mengsan_nibbit_pair_shuying", "mengsan_cubex_construct_shuying", "mengsan_shrinker_beetle_shuying", "mengsan_twig_slime_m_shuying", "mengsan_twig_slime_s_shuying", "mengsan_leaf_slime_m_shuying", "mengsan_leaf_slime_s_shuying", "mengsan_slithering_strangler_shuying", "mengsan_snapping_jaxfruit_shuying", "mengsan_fuzzy_wurm_crawler_shuying",
+        "mengsan_inklet_shuying",
+    ],
+    eliteEnemies: ["re_xiahoudun", "re_zhangliao", "re_xuzhu", "mengsan_byrdonis_shuying", "mengsan_bygone_effigy_shuying", "mengsan_phrog_parasite_shuying"],
     boss: "re_lvbu",
     baseGold: 20,
 };

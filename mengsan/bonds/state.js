@@ -43,7 +43,15 @@ export function markBondDown(run, id) {
     if (npc) npc.down = true;
 }
 
-export function prepareBondBattle(run, random) {
+// 第一章第一层的角色专属开场：不判定助战，也不累计本场羁绊成长。
+const isCharacterOpeningBattle = (run, node) =>
+    run.actIndex === 0 && node?.floor === 0;
+
+export function prepareBondBattle(run, random, node = null) {
+    if (isCharacterOpeningBattle(run, node)) {
+        run.bondBattle = null;
+        return null;
+    }
     const bonds = ensureBonds(run);
     const id = bonds.selected;
     const npc = bonds.npcs[id];
@@ -54,7 +62,11 @@ export function prepareBondBattle(run, random) {
     return combat;
 }
 
-export function settleBondBattle(run) {
+export function settleBondBattle(run, node = null) {
+    if (isCharacterOpeningBattle(run, node)) {
+        run.bondBattle = null;
+        return null;
+    }
     const battle = run.bondBattle;
     if (!battle) return null;
     const npc = ensureBonds(run).npcs[battle.id];

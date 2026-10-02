@@ -23,17 +23,17 @@ export function applyRewardPackage(run, pack, selection, applyReward) {
     const card = run.player.deck.find(card => card.id === selection.cardId);
     const relic = pack.relicChoices.find(choice =>
         choice.id === selection.relicId);
-    if (pack.upgradeChoices.length) {
+    if (selection.cardId !== null) {
         if (!pack.upgradeChoices.some(card => card.id === selection.cardId) ||
             !canUpgradeCard(card)) throw new Error("强化目标无效");
-    } else if (selection.cardId !== null) throw new Error("无可强化卡牌");
-    if (pack.relicChoices.length) {
+    }
+    if (selection.relicId !== null) {
         if (!relic || !canAcquireRelic(run, relic.relic)) {
             throw new Error("遗物选择无效");
         }
-    } else if (selection.relicId !== null) throw new Error("无可选遗物");
+    }
     run.player.gold += pack.gold;
     run.statistics.goldEarned += pack.gold;
-    if (pack.upgradeChoices.length) card.upgrade = (card.upgrade || 0) + 1;
+    if (selection.cardId !== null) card.upgrade = (card.upgrade || 0) + 1;
     if (relic) applyReward(run, relic.id);
 }

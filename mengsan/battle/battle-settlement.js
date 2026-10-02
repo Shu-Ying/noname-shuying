@@ -8,7 +8,7 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const idFor = (run, node) => JSON.stringify([run.runId, run.actIndex, node.id]);
 export function createBattleSettlement({
     store, config, getRandomRewardChoices, applyReward, completeNode,
-    enterNextAct, now = Date.now, logRewardPackage = () => {},
+    enterNextAct, createRun, now = Date.now, logRewardPackage = () => {},
 }) {
     const readRun = () => store.read()[config.saveKey];
     function current(storage, runId) {
@@ -25,9 +25,9 @@ export function createBattleSettlement({
     return Object.freeze({
         readRun,
         // Persist fixed candidates before opening choice UI. No mutation of the live run.
-        async prepare({run: snapshot, node, encounter, hp, outcome = "victory"}) {
+        async prepare({run: snapshot, retryRun, node, encounter, hp, outcome = "victory"}) {
             if (!["victory", "defeat"].includes(outcome)) throw new Error("Unknown battle outcome");
-            if (outcome === "victory" && (!Number.isFinite(hp) || (!encounter.skipRandomReward && (!Number.isSafeInteger(encounter.gold) || encounter.gold < 0)))) throw new Error("Invalid battle result");
+            if (outcome === "victory" && (!Number.isFinite(hp) || (!encounter.rewardPackage && (!Number.isSafeInteger(encounter.gold) || encounter.gold < 0)))) throw new Error("Invalid battle result");
             const id = idFor(snapshot, node);
             return store.update(storage => {
                 const run = current(storage, snapshot.runId);
@@ -42,7 +42,7 @@ export function createBattleSettlement({
                 }
                 // Battle may have changed RNG/card state since the last checkpoint.
                 const base = copy(snapshot); delete base.battleFlow;
-                const bondGrowth = settleBondBattle(base);
+                const bondGrowth = settleBondBattle(base, node);
                 if (outcome === "victory") {
                     base.player.hp = Math.max(1, Math.min(hp, base.player.maxHp ?? hp));
                     base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
@@ -50,21 +50,68 @@ export function createBattleSettlement({
                 const relicRecovery = hp > 0
                     ? applyBattleEndRelics(base, outcome) : 0;
                 const rewards = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, encounter.rewardPool).filter(c => c.name) : [];
-                if (outcome === "victory" && !encounter.skipRandomReward && !rewards.length) throw new Error("Empty battle reward pool");
-                // Persist the configured amount as a candidate, never as automatic victory income.
-                const choices = outcome === "victory" && !encounter.skipRandomReward
+                // Persist guaranteed gold alongside loot; award it once in the chosen result.
+                const choices = outcome === "victory" && !encounter.rewardPackage
                     ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
                 const rewardPackage = outcome === "victory" && encounter.rewardPackage
                     ? prepareRewardPackage(base, encounter.rewardPackage,
                         getRandomRewardChoices) : null;
                 run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome, relicRecovery, bondGrowth};
                 run.battleFlow.pending.rewardPackage = copy(rewardPackage);
+                if (outcome === "victory" && !rewardPackage) {
+                    run.battleFlow.pending.rewardMode = "one-or-skip";
+                }
+                if (outcome === "defeat") {
+                    const beforeBattle = retryRun || run;
+                    if (beforeBattle.runId !== run.runId ||
+                        beforeBattle.actIndex !== run.actIndex ||
+                        beforeBattle.revision !== run.revision) throw new Error("Stale retry checkpoint");
+                    run.battleFlow.pending.retryRun = copy(beforeBattle);
+                    run.battleFlow.pending.retryRun.battleFlow = {
+                        receipts:copy(run.battleFlow.receipts), pending:null,
+                    };
+                    run.battleFlow.pending.retryNode = copy(node);
+                    run.battleFlow.pending.retryEncounter = copy(encounter);
+                }
                 return run.battleFlow.pending;
             });
         },
         async choose(runId, id, choiceId) {
             return store.update(storage => {
-                const {item} = pending(storage, runId, id);
+                const {run, item} = pending(storage, runId, id);
+                if (item.outcome === "defeat") {
+                    const action = typeof choiceId === "string" ? choiceId : choiceId?.action;
+                    if (!["retry", "new"].includes(action)) throw new Error("Invalid defeat action");
+                    if (item.failureAction) {
+                        if (item.failureAction !== action ||
+                            (action === "new" && item.choiceId.character !== choiceId.character)) {
+                            throw new Error("Defeat choice already locked");
+                        }
+                        return item;
+                    }
+                    if (action === "new") {
+                        if (!config.characters.includes(choiceId.character) || typeof createRun !== "function") {
+                            throw new Error("Invalid new journey character");
+                        }
+                        // Generate once in the chosen checkpoint; a commit retry must not reroll it.
+                        item.nextRun = createRun(choiceId.character);
+                        if (!item.nextRun || item.nextRun.status !== "running" || item.nextRun.runId === runId) {
+                            throw new Error("Invalid new journey");
+                        }
+                        item.result = copy(item.base);
+                        item.result.status = "failed";
+                    } else {
+                        // Old pending saves have no retryRun: retain their last successful save.
+                        item.result = copy(item.retryRun || run);
+                        item.result.status = "running";
+                        item.result.battleFlow = {receipts:copy(run.battleFlow.receipts), pending:null};
+                        item.retryNode ||= copy(run.map?.nodes.find(node => node.id === item.nodeId));
+                        if (!item.retryNode || item.retryNode.completed) throw new Error("Missing retry battle node");
+                    }
+                    item.state = "chosen"; item.choiceId = copy(choiceId);
+                    item.failureAction = action; item.route = action; item.completedAt = now();
+                    return item;
+                }
                 if (item.state === "chosen") {
                     const sameChoice = item.rewardPackage
                         ? item.choiceId?.cardId === choiceId?.cardId &&
@@ -80,16 +127,24 @@ export function createBattleSettlement({
                         applyRewardPackage(result, item.rewardPackage, choiceId,
                             applyReward);
                     }
-                    const choice = item.choices.find(c => c.id === choiceId);
-                    if (!item.rewardPackage && item.choices.length && choiceId !== null) {
-                        if (!choice) throw new Error("Reward is not a fixed candidate");
-                        if (choice.kind === "gold") {
-                            if (!Number.isSafeInteger(choice.amount) || choice.amount < 0) throw new Error("Invalid pending gold reward");
-                            result.player.gold += choice.amount;
-                            result.statistics.goldEarned += choice.amount;
-                        } else applyReward(result, choice.effectId || choice.id);
-                    } else if (!item.rewardPackage && choiceId !== null) throw new Error("Unexpected reward selection");
-                    for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                    if (!item.rewardPackage) {
+                        const reward = item.choices.find(c => c.id === choiceId && c.kind !== "gold");
+                        if (choiceId !== null && !reward) {
+                            throw new Error("Choose one pending reward or skip");
+                        }
+                        // This result is persisted before commit; retries never credit gold twice.
+                        for (const gold of item.choices.filter(c => c.kind === "gold")) {
+                            if (!Number.isSafeInteger(gold.amount) || gold.amount < 0) throw new Error("Invalid pending gold reward");
+                            result.player.gold += gold.amount;
+                            result.statistics.goldEarned += gold.amount;
+                        }
+                        if (reward) {
+                            applyReward(result, reward.effectId || reward.id);
+                        }
+                        for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                    } else {
+                        for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                    }
                     if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");
                     route = item.boss && !enterNextAct(result) ? "victory" : "map";
                 } else result.status = "failed";
@@ -111,6 +166,14 @@ export function createBattleSettlement({
                 const {run, item} = pending(storage, runId, id);
                 if (item.state !== "chosen") throw new Error("Durable chosen result required");
                 const result = copy(item.result);
+                if (item.route === "retry") {
+                    // A failed attempt does not complete this node or add its victory receipt.
+                    result.battleFlow = {receipts:copy(run.battleFlow.receipts), pending:null,
+                        retry:{node:copy(item.retryNode), encounter:copy(item.retryEncounter || null)}};
+                    storage[config.saveKey] = result;
+                    return {route:"retry", run:result, retryNode:copy(item.retryNode),
+                        retryEncounter:copy(item.retryEncounter || null), duplicate:false};
+                }
                 result.battleFlow = {receipts:[...run.battleFlow.receipts, id], pending:null};
                 if (item.route === "map") storage[config.saveKey] = result;
                 else {
@@ -118,12 +181,13 @@ export function createBattleSettlement({
                     profile.completedRuns ||= [];
                     if (!profile.completedRuns.some(r => r.runId === runId)) {
                         if (item.route === "victory") profile.wins = (profile.wins || 0) + 1;
-                        profile.completedRuns.push({runId, settlementId:id, outcome:item.route, character:result.player.character,
+                        profile.completedRuns.push({runId, settlementId:id, outcome:item.route === "new" ? "defeat" : item.route, character:result.player.character,
                             completedNodes:result.statistics.completedNodes, goldEarned:result.statistics.goldEarned, completedAt:item.completedAt});
                     }
-                    delete storage[config.saveKey]; // Same transaction as profile; never a second clear write.
+                    if (item.route === "new") storage[config.saveKey] = copy(item.nextRun);
+                    else delete storage[config.saveKey]; // Same transaction as profile; never a second clear write.
                 }
-                return {route:item.route, run:result, duplicate:false};
+                return {route:item.route, run:item.route === "new" ? copy(item.nextRun) : result, duplicate:false};
             });
         },
     });

@@ -18,6 +18,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         roundStartSeat: 0,
         originalIsRoundFilter: null,
         roundFilterInstalled: false,
+        pendingStageRoundHistory: false,
         originalGameCheck: null,
         checkHookInstalled: false,
         bondHooksInstalled: false,
@@ -207,6 +208,20 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         installTianshuRoundFilter();
         if (game.bossinfo) game.bossinfo.loopType = 1;
     };
+    // 轮数回退时同步清除技能的旧轮次；也覆盖阵亡玩家，避免复活后沿用上一关冷却。
+    const resetStageRoundSkills = () => {
+        for (const player of getPlayerSidePlayers({ aliveOnly: false, includeVirtual: true })) {
+            for (const key of Object.keys(player.storage)) {
+                if (!key.endsWith("_roundcount")) continue;
+                const info = lib.skill[key.slice(0, -"_roundcount".length)];
+                if (!info?.round) continue;
+                // 与引擎 roundcount 初始化值一致，不能使用旧关卡的绝对轮数。
+                player.storage[key] = 1 - info.round;
+                player.unmarkSkill(key);
+                player.syncStorage(key);
+            }
+        }
+    };
     // 结束当前 phase 事件，把后续行动权交给指定角色；保留旧版重置轮数与阶段的做法。
     const finishCurrentPhaseTo = target => {
         if (!target) return;
@@ -249,6 +264,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         installTianshuRoundFilter();
         game.phaseNumber = 1;
         game.roundNumber = isTianshuRoundStartTrigger(target) ? 0 : 1;
+        resetStageRoundSkills();
+        state.pendingStageRoundHistory = true;
         _status.paused = false;
         if (phase) {
             game.broadcastAll?.(() => {
@@ -1240,6 +1257,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 game.addGlobalSkill("shuYing_Tianshu_NewBossDie");
                 game.addGlobalSkill("shuYing_Tianshu_NewPlayerDie");
                 game.addGlobalSkill("shuYing_Tianshu_DefendingControl");
+                game.addGlobalSkill("shuYing_Tianshu_StageRoundHistory");
                 game.addGlobalSkill("shuYing_Tianshu_BondManager");
             },
         },
@@ -1256,6 +1274,27 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             },
             async content(event, trigger) {
                 swapDefendingBoss(trigger.player);
+            },
+        },
+        shuYing_Tianshu_StageRoundHistory: {
+            trigger: { global: "phaseBeforeStart" },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            forceDie: true,
+            firstDo: true,
+            priority: 1000,
+            filter() {
+                return state.running && state.pendingStageRoundHistory;
+            },
+            async content() {
+                state.pendingStageRoundHistory = false;
+                // 此时引擎已创建新回合的历史和计数；即使首回合不是1号位，也应隔开旧关历史。
+                for (const player of game.players.concat(game.dead)) {
+                    player.getHistory().isRound = true;
+                    player.getStat().isRound = true;
+                }
+                game.getGlobalHistory().isRound = true;
             },
         },
         shuYing_Tianshu_BondManager: {

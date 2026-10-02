@@ -1,9 +1,13 @@
 import { lib, get, ui } from "../../../../noname.js";
+import { cardDefinitions } from "../cards/card-definitions.js";
+import { DAZED_NAME } from "../cards/status-cards.js";
+import { SLIMED_NAME } from "../cards/slimed-card.js";
+import { cardCost } from "../battle/combat-rules.js";
 import { AFFIX_INFO } from "../cards/affixes.js";
 import { cardUpgradeLevel, cardUpgradeRule } from "../cards/upgrades.js";
 
 const suits = { spade: "♠ 黑桃", heart: "♥ 红桃", club: "♣ 梅花", diamond: "♦ 方块" };
-const types = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" };
+const types = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌", status: "状态牌" };
 const affixes = Object.fromEntries(Object.entries(AFFIX_INFO).map(([key, info]) => [key, `${info.name}：${info.description}`]));
 const text = value => {
     const template = document.createElement("template");
@@ -31,6 +35,28 @@ export function describeLibraryCard(card) {
     };
 }
 
+// 只读图鉴数据，不创建实体牌、伪造花色点数或写入永久牌组。
+export function getCardCatalog() {
+    const states = Object.entries(lib.card).filter(([name, info]) =>
+        /^mengsan_[a-z0-9_]+$/.test(name) && info?.type === "status" &&
+        /^ext:术樱包\/mengsan\/assets\/cards\/[a-z0-9_]+\.png$/.test(info.image)).map(([name]) => name);
+    return [...new Set([...Object.keys(cardDefinitions), DAZED_NAME, SLIMED_NAME, ...states])]
+        .map(name => ({ name, nature: null, affixes: [], upgrade: 0 }));
+}
+
+const categories = { damage: "攻击", utility: "辅助", recovery: "恢复", status: "状态" };
+function describeCatalogCard(card) {
+    const details = describeLibraryCard(card), info = lib.card[card.name];
+    const definition = cardDefinitions[card.name];
+    const category = info?.type === "status" || card.name === DAZED_NAME || card.name === SLIMED_NAME
+        ? "status" : definition?.category || "utility";
+    const unplayable = info?.enable === false;
+    const cost = info && !unplayable ? cardCost(card) : null;
+    return { ...details, category, categoryName: categories[category], cost, unplayable,
+        costLabel: !info ? "未加载" : unplayable ? "不可打出" : `${cost}费`,
+        exclusive: definition?.owner ? translate(definition.owner) : "" };
+}
+
 function element(tag, className, value, parent) {
     const node = document.createElement(tag);
     node.className = className;
@@ -47,9 +73,9 @@ function button(label, parent, action, className = "ms-deck-button") {
 }
 
 // Read-only DOM previews, never game.createCard or Card.init: no IDs, triggers or pile writes.
-function preview(card, details, parent) {
+function preview(card, details, parent, catalog = false) {
     const face = element("div", "ms-deck-face", null, parent);
-    element("span", `ms-deck-corner${details.red ? " ms-deck-red" : ""}`, `${details.suit} ${details.number}`, face);
+    element("span", `ms-deck-corner${details.red ? " ms-deck-red" : ""}`, catalog ? details.costLabel : `${details.suit} ${details.number}`, face);
     const art = element("div", "ms-deck-art", null, face);
     element("span", "ms-deck-glyph", details.name, art);
     const imageName = lib.card[card.name]?.cardimage || card.name;
@@ -66,9 +92,9 @@ function preview(card, details, parent) {
         image.src = `${lib.assetURL || ""}${localArt || `image/card/${imageName}.png`}`;
     }
     element("strong", "ms-deck-name", details.name, face);
-    element("span", "ms-deck-meta", `${details.type} · ${details.nature}`, face);
+    element("span", "ms-deck-meta", catalog ? `${details.categoryName} · ${details.exclusive ? "专属：" + details.exclusive : details.category === "status" ? "战斗生成" : "通用"}` : `${details.type} · ${details.nature}`, face);
     if (details.upgrade || details.affixes.length) {
-        element("span", "ms-deck-tags", [details.upgrade ? `强化 +${details.upgrade}` : "", ...details.affixes.map(value => value.split("：")[0])].filter(Boolean).join(" · "), face);
+        element("span", "ms-deck-tags", [details.upgrade ? `+${details.upgrade}` : "", ...details.affixes.map(value => value.split("：")[0])].filter(Boolean).join(" · "), face);
     }
     return face;
 }
@@ -92,7 +118,39 @@ export function openCardLibrary(run, options = {}) {
         if (previousFocus?.isConnected) previousFocus.focus();
     };
     button("关闭", header, close);
+    let view = !options.sections && options.view === "catalog" ? "catalog" : "deck";
+    const navigation = element("nav", "ms-deck-tabs", null, dialog);
+    navigation.setAttribute("aria-label", "卡牌列表视图");
+    navigation.hidden = Boolean(options.sections);
+    const deckTab = button("持有牌", navigation, () => { view = "deck"; render(); });
+    const catalogTab = button("图鉴", navigation, () => { view = "catalog"; render(); });
+    const filters = element("div", "ms-catalog-filters", null, dialog);
+    function field(label) {
+        const wrapper = element("label", "ms-catalog-field", null, filters);
+        element("span", "", label, wrapper); return wrapper;
+    }
+    const search = element("input", "ms-catalog-input", null, field("名称 / 效果"));
+    search.type = "search"; search.maxLength = 120; search.placeholder = "搜索卡牌";
+    search.setAttribute("aria-label", "搜索图鉴卡牌");
+    const categoryFilter = element("select", "ms-catalog-select", null, field("类型"));
+    categoryFilter.setAttribute("aria-label", "图鉴类型");
+    for (const [key, label] of Object.entries({ "": "全部类型", ...categories })) {
+        const option = element("option", "", label, categoryFilter); option.value = key;
+    }
+    const costFilter = element("select", "ms-catalog-select", null, field("费用"));
+    costFilter.setAttribute("aria-label", "图鉴费用");
+    for (const [key, label] of [["", "全部费用"], ["0", "0费"], ["1", "1费"], ["2", "2费"], ["3+", "3费及以上"], ["unplayable", "不可打出"]]) {
+        const option = element("option", "", label, costFilter); option.value = key;
+    }
+    button("清空筛选", filters, () => {
+        search.value = ""; categoryFilter.value = ""; costFilter.value = "";
+        render(); search.focus();
+    });
+    search.addEventListener("input", render);
+    categoryFilter.addEventListener("change", render);
+    costFilter.addEventListener("change", render);
     const summary = element("p", "ms-deck-summary", null, dialog);
+    summary.setAttribute("aria-live", "polite");
     const body = element("div", "ms-deck-body", null, dialog);
     const footer = element("p", "ms-deck-footer", "点击卡牌查看完整介绍 · 仅供查看，不改变牌组或抽牌顺序", dialog);
     const current = Array.isArray(run?.player?.deck) ? run.player.deck : [];
@@ -105,40 +163,64 @@ export function openCardLibrary(run, options = {}) {
         detailPanel.replaceChildren(); body.scrollTop = scrollTop;
         selectedButton?.focus({ preventScroll: true });
     }
-    function showDetail(card, details, owner) {
+    function showDetail(card, details, owner, catalog = false) {
         selectedButton = owner; scrollTop = body.scrollTop;
         detail = true; list.hidden = true; detailPanel.hidden = false;
         detailPanel.replaceChildren();
-        const backButton = button("返回牌库", detailPanel, back);
+        const backButton = button(catalog ? "返回图鉴" : "返回牌库", detailPanel, back);
         const content = element("div", "ms-deck-detail-content", null, detailPanel);
-        preview(card, details, content);
+        preview(card, details, content, catalog);
         const copy = element("div", "ms-deck-detail-copy", null, content);
         element("h3", "", details.name, copy);
-        element("p", "", `${details.suit} ${details.number} · ${details.type} · ${details.nature}`, copy);
+        element("p", "", catalog ? `${details.costLabel} · ${details.categoryName} · ${details.type}` :
+            `${details.suit} ${details.number} · ${details.type} · ${details.nature}`, copy);
+        if (catalog && details.exclusive) element("p", "ms-deck-rules", `专属角色：${details.exclusive}`, copy);
         element("h4", "", "卡牌介绍", copy);
         element("p", "ms-deck-rules", details.description, copy);
         if (!details.available) element("p", "ms-deck-warning", "该卡牌定义未加载；保留存档记录，不删除此牌。", copy);
-        element("p", "", details.upgradeLimit
-            ? `强化：${details.upgrade}/${details.upgradeLimit}`
-            : "此牌不可强化", copy);
         for (const affix of details.affixes) element("p", "ms-deck-rules", affix, copy);
         body.scrollTop = 0; backButton.focus();
     }
     function render() {
         detail = false; list.hidden = false; detailPanel.hidden = true;
         detailPanel.replaceChildren(); list.replaceChildren(); body.scrollTop = 0;
-        const sections = options.sections ? options.sections() : [{ title: "", cards: current }];
-        summary.textContent = options.sections ? "剩余牌堆按从左到右、从上到下的顺序摸取；第 1 张为下一张。" : `本次征程实际携带 · 共 ${current.length} 张 · 同名不同花色、点数分别展示`;
+        selectedButton = null;
+        const catalog = !options.sections && view === "catalog";
+        filters.hidden = !catalog;
+        deckTab.setAttribute("aria-pressed", String(!catalog));
+        catalogTab.setAttribute("aria-pressed", String(catalog));
+        list.classList.toggle("ms-catalog-grid", catalog);
+        let records = [];
+        if (catalog) {
+            const query = search.value.trim().toLocaleLowerCase();
+            records = getCardCatalog().map(card => ({ card, details: describeCatalogCard(card) }));
+            const total = records.length;
+            records = records.filter(({ card, details }) =>
+                (!query || `${details.name} ${card.name} ${details.description}`.toLocaleLowerCase().includes(query)) &&
+                (!categoryFilter.value || details.category === categoryFilter.value) &&
+                (!costFilter.value || (costFilter.value === "unplayable" ? details.unplayable :
+                    costFilter.value === "3+" ? details.cost !== null && details.cost >= 3 :
+                    details.cost !== null && details.cost === Number(costFilter.value))));
+            summary.textContent = `梦三卡牌图鉴 · 共 ${total} 种 · 当前显示 ${records.length} 种`;
+        } else {
+            summary.textContent = options.sections ? "剩余牌堆按从左到右、从上到下的顺序摸取；第 1 张为下一张。" :
+                `本次征程实际携带 · 共 ${current.length} 张 · 同名不同花色、点数分别展示`;
+        }
+        footer.textContent = catalog ? "图鉴仅供查阅，不会获得卡牌或改变征程牌组 · 点击卡牌查看完整介绍" :
+            "点击卡牌查看完整介绍 · 仅供查看，不改变牌组或抽牌顺序";
+        const sections = catalog ? [{ title: "", cards: records.map(record => record.card) }] :
+            options.sections ? options.sections() : [{ title: "", cards: current }];
         for (const section of sections) {
             const cards = section.cards;
             if (section.title) element("h3", "ms-deck-section", `${section.title} · ${cards.length} 张`, list);
-            if (!cards.length) element("p", "ms-deck-empty", section.ordered ? "剩余牌堆为空；下一次摸牌需按规则洗切弃牌堆，洗切后的顺序尚未确定。" : "此处暂无卡牌。", list);
+            if (!cards.length) element("p", "ms-deck-empty", catalog ? "没有符合筛选的卡牌，可清空筛选后查看全部图鉴。" : section.ordered ? "剩余牌堆为空；下一次摸牌需按规则洗切弃牌堆，洗切后的顺序尚未确定。" : "此处暂无卡牌。", list);
             cards.forEach((card, index) => {
-                const details = describeLibraryCard(card);
-                const tile = button("", list, () => showDetail(card, details, tile), "ms-deck-card");
-                tile.setAttribute("aria-label", `${section.ordered ? `第 ${index + 1} 张，` : ""}${details.name}，${details.suit}${details.number}，${details.nature}，查看详情`);
+                const details = catalog ? records[index].details : describeLibraryCard(card);
+                const tile = button("", list, () => showDetail(card, details, tile, catalog), "ms-deck-card");
+                tile.setAttribute("aria-label", catalog ? `${details.name}，${details.categoryName}，${details.costLabel}，查看详情` :
+                    `${section.ordered ? `第 ${index + 1} 张，` : ""}${details.name}，${details.suit}${details.number}，${details.nature}，查看详情`);
                 if (section.ordered) element("span", "ms-deck-order", index === 0 ? "1 · 下一张" : `${index + 1}`, tile);
-                preview(card, details, tile);
+                preview(card, details, tile, catalog);
                 element("span", "ms-deck-excerpt", details.description, tile);
             });
         }
