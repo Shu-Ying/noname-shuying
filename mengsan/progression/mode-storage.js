@@ -1,9 +1,17 @@
 // Candidate factory. Storage writer body reused from batch2 MODIFIED_STORAGE.js.
+import { migrateRetiredCards } from "../cards/retired-cards.js";
+import { stripBattleProgress } from "./map-checkpoint.js";
 export function createModeStorage({lib, game, config, localStorage, alert = () => {}, console = globalThis.console}) {
 const MODE_ID = config.modeId;
 
 
 const copy = value => JSON.parse(JSON.stringify(value));
+const copyStorage = () => {
+    const storage = copy(lib.storage);
+    stripBattleProgress(storage[config.saveKey]);
+    migrateRetiredCards(storage[config.saveKey]);
+    return storage;
+};
 
 // Keep one mode-level writer; a failed write must not poison later retries.
 let modeStorageQueue = Promise.resolve();
@@ -42,8 +50,9 @@ const persistModeStorage = (update = () => {}) => {
     // reload2 also drains the engine's queued database operations on release.
     lib.status.reload++;
     const operation = modeStorageQueue.then(async () => {
-        const storage = copy(lib.storage);
+        const storage = copyStorage();
         update(storage);
+        stripBattleProgress(storage[config.saveKey]);
         storage.version = lib.version;
         await writeModeStorage(storage);
         lib.storage = storage;
@@ -55,7 +64,7 @@ const persistModeStorage = (update = () => {}) => {
 const saveRun = async run => {
     try {
         // Capture before enqueue: subsequent gameplay mutations cannot alter this save.
-        const snapshot = copy(run);
+        const snapshot = migrateRetiredCards(stripBattleProgress(copy(run)));
         await persistModeStorage(storage => {
             storage[config.saveKey] = snapshot;
         });
@@ -77,7 +86,7 @@ const clearRun = async () => {
 
 
     return Object.freeze({
-        read: () => copy(lib.storage),
+        read: copyStorage,
         saveRun, clearRun,
         async update(mutator) {
             let value;

@@ -20,7 +20,7 @@ export function createHandExhauster(game, getActiveBattle, get, randomHandExhaus
             if (typeof randomHandExhaust?.exhaust !== "function") throw new Error("坚毅缺少随机手牌消耗接口");
             return { battle, pile: getPile(player, battle) };
         },
-        async exhaust(player, event, token, choose) {
+        async exhaust(player, event, token, choose, prompt = "坚毅：选择消耗一张你的手牌") {
             const battle = token?.battle, pile = token?.pile;
             if (!valid(player, battle) || getPile(player, battle) !== pile) return null;
             if (typeof pile?.exhaustFromHand !== "function") throw new Error("坚毅缺少个人消耗牌堆接口");
@@ -30,7 +30,7 @@ export function createHandExhauster(game, getActiveBattle, get, randomHandExhaus
             let chosen = cards[0];
             if (cards.length > 1) {
                 const result = await player.chooseButton({
-                    createDialog: ["坚毅：选择消耗一张你的手牌", cards],
+                    createDialog: [prompt, cards],
                     forced: true, selectButton: 1,
                     ai(button) { return -get.value(button.link, player); },
                 }).forResult();

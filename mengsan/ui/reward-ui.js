@@ -3,6 +3,9 @@ import { cardCost } from "../battle/combat-rules.js";
 import { cardUpgradeRule } from "../cards/upgrades.js";
 import { getRelic } from "../relics/definitions.js";
 
+import { getCardRarity, applyCardRarity } from "../cards/rarity.js";
+import { cleanCardDescription } from "../cards/description.js";
+
 const element = (tag, className, text, parent) => {
     const node = document.createElement(tag);
     node.className = className;
@@ -33,11 +36,12 @@ const viewCard = choice => {
             ? `${lib.assetURL || ""}image/card/${imageName}.png` : null;
     const type = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" }[info?.type] || "卡牌";
     return {
-        name: get.translation(name), type, image, cost: cardCost(choice.card || { name }),
-        description: plainText(cardUpgradeRule(name) && info?.cardPrompt
+        rarity: getCardRarity(name),
+        name: get.translation(name), type, image, cost: info?.mengsanXCost_shuying ? "X" : cardCost(choice.card || { name }),
+        description: cleanCardDescription(plainText(cardUpgradeRule(name) && info?.cardPrompt
             ? info.cardPrompt(choice.card || { name })
             : lib.translate[`${name}_info`] || choice.description ||
-                "暂无卡牌介绍。"),
+                "暂无卡牌介绍。")),
     };
 };
 
@@ -116,7 +120,8 @@ function chooseTilesDialog(choices, {
             if (describeChoice) view.description = describeChoice(choice);
             const card = element("button", "mengsan-card-choice-tile-shuying", null, cards);
             card.type = "button";
-            card.setAttribute("aria-label", `${view.name}，${view.type}，${view.description}。${actionLabel}`);
+            if (view.rarity) applyCardRarity(card, cardNameOf(choice));
+            card.setAttribute("aria-label", `${view.name}，${view.type}${view.rarity ? `，稀有度：${view.rarity.label}` : ""}，${view.description}。${actionLabel}`);
             card.addEventListener("click", () => finish(choice.id));
             if (view.cost !== null) {
                 element("span", "mengsan-card-choice-cost-shuying", String(view.cost), card);
@@ -129,7 +134,7 @@ function chooseTilesDialog(choices, {
                 image.addEventListener("error", () => image.remove(), { once: true });
             }
             element("span", "mengsan-card-choice-glyph-shuying", view.name.slice(0, 1), artwork);
-            element("span", "mengsan-card-choice-kind-shuying", view.type, card);
+            element("span", "mengsan-card-choice-kind-shuying", view.rarity ? `${view.type} · ${view.rarity.label}` : view.type, card);
             element("span", "mengsan-card-choice-description-shuying", view.description, card);
             element("span", "mengsan-reward-tile-action-shuying", actionLabel, card);
         }
@@ -240,7 +245,7 @@ export function chooseVictoryOptions(options, {
 }
 
 // Gold and fixed rewards are guaranteed; random loot opens a separate one-of-N selector.
-export function chooseBattleReward(choices, { fixedRewards = [] } = {}) {
+export function chooseBattleReward(choices, { fixedRewards = [], boss = false, elite = false } = {}) {
     if (!Array.isArray(choices)) return Promise.resolve(null);
     const gold = choices.filter(choice => choice.kind === "gold")
         .reduce((amount, choice) => amount + choice.amount, 0);
@@ -250,23 +255,32 @@ export function chooseBattleReward(choices, { fixedRewards = [] } = {}) {
         const kind = rewards.every(isCardReward) ? "卡牌"
             : rewards.every(choice => getRelic(choice.relic)) ? "遗物" : "战利品";
         options.push({
-            id: "choose-reward", label: `${kind}奖励 · ${rewards.length}选1`,
-            description: `点击查看候选${kind}，选择一项领取，或点击跳过。`,
-            choose: () => chooseRewardDialog(rewards),
+            id: "choose-reward", label: `${boss && kind === "卡牌" ? "稀有卡牌" : kind}奖励 · ${rewards.length}选1`,
+            description: elite && kind === "卡牌"
+                ? "角色专属卡牌，每项候选80%概率为罕见或稀有；可选择一张或跳过。"
+                : `点击查看候选${kind}，选择一项领取，或点击跳过。`,
+            choose: () => rewards.every(isCardReward) ? chooseCardDialog(rewards, {
+                title: boss ? "Boss奖励 · 稀有卡牌" : "卡牌奖励",
+                description: "从本次候选中选择一张加入牌组，也可跳过。",
+            }) : chooseRewardDialog(rewards),
         });
     }
     options.push({
         id: "skip-loot", label: "跳过",
-        description: rewards.length ? "跳过本次可选奖励，必得奖励照常领取。"
-            : "本次没有可选奖励，领取必得奖励后继续。",
+        description: rewards.length ? "跳过本次可选奖励，其余奖励照常领取。"
+            : "本次没有可选奖励，领取奖励后继续。",
         choose: () => null,
     });
     return chooseVictoryOptions(options, {
-        title: "过关奖励", allowSkip: false,
-        description: `本关必得 ${gold} 金币。点击奖励选项后择一领取，也可跳过。`,
+        title: boss ? "Boss奖励" : elite ? "精英奖励" : "过关奖励", allowSkip: false,
+        description: `本关奖励：${gold} 金币。` + (elite
+            ? fixedRewards.some(reward => getRelic(reward.relic))
+                ? "同时获得一件遗物，跳过卡牌也会领取。"
+                : "遗物池已全部收集，本次不重复发放。"
+            : "") + "点击奖励选项后择一领取，也可跳过。",
         rewardLabel: "搜刮 · 战利品列表",
-        rewardItems: [{name: `金币 · ${gold}（必得）`,
+        rewardItems: [{name: `金币 · ${gold}`,
             description: "无论选择还是跳过，金币都会结算。"},
-            ...fixedRewards.map(reward => ({ ...reward, name: `${reward.name}（必得）` }))],
+            ...fixedRewards.map(reward => ({ ...reward }))],
     });
 }

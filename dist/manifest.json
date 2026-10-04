@@ -1,18 +1,16 @@
 {
-  "version": "2.0.1.1",
-  "generated_at": "2026-08-28T19:09:32.815143+00:00",
+  "version": "2.0.1.1-rc.1",
+  "generated_at": "2026-10-04T11:24:22.012885+00:00",
   "algorithm": "sha256",
-  "file_count": 282,
-  "folder_sha256": "09e932678b899ba89b5871fde641ab1f4e49d93082802ade6437b98065eca907",
+  "update_channels": true,
+  "file_count": 278,
+  "size_bytes": 55481243,
+  "folder_sha256": "4e8e4d9e1f1f51c4687aa26b055887479a5ea48d6bfac1a149a3ed10259e8c49",
   "core": [
     "extension.js",
     "menu.js",
     "function.js",
     "update.js",
-    "mengsan/mode.js",
-    "mengsan/config.js",
-    "mengsan/state.js",
-    "mengsan/style.css",
     "tianshu/extension.js",
     "tianshu/config.js",
     "pve/boss/index.js",
@@ -402,32 +400,16 @@
       "sha256": "356aa9473ab72ad43850c13451fd15a25c6ce2d93678cd0dcba5568d10443b40"
     },
     "extension.js": {
-      "size": 14743,
-      "sha256": "16cbdcc2f8e2cdfab03a0fb6f80de865aa709d7058dbbbbcd5d3ccd523907cd2"
+      "size": 15464,
+      "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
     },
     "function.js": {
       "size": 33746,
       "sha256": "df1aa3102a214986723af365da1029485680519d355a1ff88973eb36f8a6f909"
     },
-    "mengsan/config.js": {
-      "size": 2211,
-      "sha256": "1283490af94dc3429330f6f7c192b1492b52d686018f2d68cb8482c0bc04e549"
-    },
-    "mengsan/mode.js": {
-      "size": 22867,
-      "sha256": "88a707ac6b59160e9735770d649d8d1e5c695298628c924306b824cef7e1cc27"
-    },
-    "mengsan/state.js": {
-      "size": 8175,
-      "sha256": "1096d195396f5a0fbe15c7d3627834cb3e415a5878c411eb41d9897af9abf46d"
-    },
-    "mengsan/style.css": {
-      "size": 6859,
-      "sha256": "fdce7bb71f7290254d984a35415e5012f829ae9992765d1f3282f35528c1b92b"
-    },
     "menu.js": {
-      "size": 22235,
-      "sha256": "0920561e2b0214239dc81b1a54c955b96ea0750e57fa42f3b0e8935035c6fc84"
+      "size": 25104,
+      "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
     },
     "pve/audio/dead/十二生肖/chenlong.mp3": {
       "size": 68757,
@@ -1302,24 +1284,24 @@
       "sha256": "15adcfb80bd22035c604703005ae22d1721eeafcc0a1ee09c89c73713cd3d03a"
     },
     "tianshu/bondSkills.js": {
-      "size": 41604,
-      "sha256": "13fcda5805a7643144c55ae922f2406db2cba6e9822e086f4763f16063763e01"
+      "size": 41588,
+      "sha256": "0b5a1ec26d8a8881057aa1fc8d95fecaf06fa6753d23c99a4978de83f8c44ec6"
     },
     "tianshu/config.js": {
       "size": 29707,
       "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
     },
     "tianshu/extension.js": {
-      "size": 70478,
-      "sha256": "ff88e89a4067f18e10d1fbce72edc45aa89c95ee59e127520f5b2bed93023b98"
+      "size": 76830,
+      "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
     },
     "tianshu/shuYing_Skill_Xvxiang1.mp3": {
       "size": 15451,
       "sha256": "41914d7d542ddfb93c89aefffc245869d63a9fb2f52293df8e6667009832afd8"
     },
     "update.js": {
-      "size": 24145,
-      "sha256": "7594c68dd1308de5fd13ea7e76fde665a296400a7505b32054bf0d149986bb05"
+      "size": 60005,
+      "sha256": "f809d6e3ea5114f78a0773314c23b4120ccbd763b1f2f0f1f400753287af76f7"
     },
     "update.txt": {
       "size": 3953,
@@ -1588,43 +1570,18 @@
       },
       "extension.js": {
         "type": "file",
-        "size": 14743,
-        "sha256": "16cbdcc2f8e2cdfab03a0fb6f80de865aa709d7058dbbbbcd5d3ccd523907cd2"
+        "size": 15464,
+        "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
       },
       "function.js": {
         "type": "file",
         "size": 33746,
         "sha256": "df1aa3102a214986723af365da1029485680519d355a1ff88973eb36f8a6f909"
       },
-      "mengsan": {
-        "type": "directory",
-        "children": {
-          "config.js": {
-            "type": "file",
-            "size": 2211,
-            "sha256": "1283490af94dc3429330f6f7c192b1492b52d686018f2d68cb8482c0bc04e549"
-          },
-          "mode.js": {
-            "type": "file",
-            "size": 22867,
-            "sha256": "88a707ac6b59160e9735770d649d8d1e5c695298628c924306b824cef7e1cc27"
-          },
-          "state.js": {
-            "type": "file",
-            "size": 8175,
-            "sha256": "1096d195396f5a0fbe15c7d3627834cb3e415a5878c411eb41d9897af9abf46d"
-          },
-          "style.css": {
-            "type": "file",
-            "size": 6859,
-            "sha256": "fdce7bb71f7290254d984a35415e5012f829ae9992765d1f3282f35528c1b92b"
-          }
-        }
-      },
       "menu.js": {
         "type": "file",
-        "size": 22235,
-        "sha256": "0920561e2b0214239dc81b1a54c955b96ea0750e57fa42f3b0e8935035c6fc84"
+        "size": 25104,
+        "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
       },
       "pve": {
         "type": "directory",
@@ -2846,8 +2803,8 @@
         "children": {
           "bondSkills.js": {
             "type": "file",
-            "size": 41604,
-            "sha256": "13fcda5805a7643144c55ae922f2406db2cba6e9822e086f4763f16063763e01"
+            "size": 41588,
+            "sha256": "0b5a1ec26d8a8881057aa1fc8d95fecaf06fa6753d23c99a4978de83f8c44ec6"
           },
           "config.js": {
             "type": "file",
@@ -2856,8 +2813,8 @@
           },
           "extension.js": {
             "type": "file",
-            "size": 70478,
-            "sha256": "ff88e89a4067f18e10d1fbce72edc45aa89c95ee59e127520f5b2bed93023b98"
+            "size": 76830,
+            "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
           },
           "shuYing_Skill_Xvxiang1.mp3": {
             "type": "file",
@@ -2868,8 +2825,8 @@
       },
       "update.js": {
         "type": "file",
-        "size": 24145,
-        "sha256": "7594c68dd1308de5fd13ea7e76fde665a296400a7505b32054bf0d149986bb05"
+        "size": 60005,
+        "sha256": "f809d6e3ea5114f78a0773314c23b4120ccbd763b1f2f0f1f400753287af76f7"
       },
       "update.txt": {
         "type": "file",
@@ -3011,6 +2968,16 @@
           }
         }
       }
+    }
+  },
+  "modules": {
+    "mengsan": {
+      "title": "梦三模式",
+      "entry": "mengsan/register.js",
+      "manifest": "dist/modules/mengsan.json",
+      "file_count": 457,
+      "size_bytes": 705652979,
+      "legacy_manifest": "dist/modules/mengsan.legacy.json"
     }
   }
 }

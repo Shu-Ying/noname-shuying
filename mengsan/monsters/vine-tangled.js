@@ -2,10 +2,14 @@ import { consumeArtifact } from "./artifact-status.js";
 import { cardDefinitions } from "../cards/card-definitions.js";
 const KEY = "mengsanTangled_shuying";
 const SKILL = "mengsan_tangled_shuying";
-// 梦三伤害牌类别；未进永久奖励注册表的原生攻击锦囊也适用。
+// 原版攻击分类优先；未配置类型的旧牌及原生攻击锦囊保留兼容判断。
 const nativeAttacks = new Set(["nanman", "wanjian", "huogong"]);
-export const isAttackCard = card => Boolean(card && (nativeAttacks.has(card.name) ||
-    Object.hasOwn(cardDefinitions, card.name) && cardDefinitions[card.name].category === "damage"));
+export const isAttackCard = card => {
+    if (!card) return false;
+    const definition = Object.hasOwn(cardDefinitions, card.name) ? cardDefinitions[card.name] : null;
+    return definition?.cardType ? definition.cardType === "attack" :
+        nativeAttacks.has(card.name) || definition?.category === "damage";
+};
 const clear = target => { delete target.storage[KEY]; target.removeSkill(SKILL); };
 const turnsOf = target => {
     const turns = target.storage?.[KEY] ?? 0;

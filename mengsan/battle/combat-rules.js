@@ -2,20 +2,31 @@
 import { isAttackCard } from "../monsters/vine-tangled.js";
 import { _status } from "../../../../noname.js";
 import { cardUpgradeLevel, cardUpgradeRule } from "../cards/upgrades.js";
+import { cardPackCosts } from "../cards/packs/data.js";
+import { ironcladCardOwner, ironcladCost, ironcladCardIsFree } from "../cards/ironclad-hooks.js";
+import { sharedCardCost, sharedCardIsFree } from "../cards/shared-hooks.js";
 export const PLAYER_ENERGY = 3;
 export const PLAYER_HAND_LIMIT = 3;
 export const SHA_DAMAGE = 6;
 export const TRICK_DAMAGE = 4;
 
-const COSTS = Object.freeze({ sha: 1, mengsan_zhongsha: 2, mengsan_fangyu: 1, mengsan_fennu: 0,
-    mengsan_feijianhuixuanbiao: 1, mengsan_jianbingdaji: 1, mengsan_quanshenzhuangji: 1, mengsan_rongrongzhiquan: 1, mengsan_shandianpili: 1, mengsan_shuangchongdaji: 1, mengsan_tiezhanbo: 1, mengsan_touchui: 1, mengsan_tupo: 1, mengsan_yubeidaji: 1, mengsan_wanmeidaji: 2, mengsan_yujin: 2, mengsan_fangxue: 0, mengsan_jianyi: 1, mengsan_pomie: 1, mengsan_songjianwushi: 1,
-    tao: 1, jiu: 1, shan: 0, wuxie: 0,
+const COSTS = Object.freeze({ sha: 1, mengsan_zhongsha: 2, tao: 1, jiu: 1, shan: 0, wuxie: 0,
     juedou: 2, nanman: 2, wanjian: 2, taoyuan: 2 });
 
+export const isXCostCard = card => cardPackCosts[card?.name] === "X";
+const xUses = new WeakMap();
+const xEnergy = player => player?.storage?.mengsanEnergy_shuying;
+const validXEnergy = player => Number.isSafeInteger(xEnergy(player)) && xEnergy(player) >= 0;
+const xTax = player => player?.storage?.mengsanTangled_shuying > 0 ? 1 : 0;
 export const cardCost = (card, player = null) => {
+    player ||= ironcladCardOwner(card);
+    if (ironcladCardIsFree(player,card) || sharedCardIsFree(player,card)) return 0;
+    // 数值接口用于支付；X 的展示标签由牌定义/图鉴和空文本手牌叠层提供。
+    if (isXCostCard(card)) return validXEnergy(player) ? xEnergy(player) : 0;
     const rule = cardUpgradeLevel(card) ? cardUpgradeRule(card.name) : null;
-    const base = rule?.cost ?? COSTS[card?.name] ?? 1;
-    return base + (player?.storage?.mengsanTangled_shuying > 0 && isAttackCard(card) ? 1 : 0);
+    const base = rule?.cost ?? cardPackCosts[card?.name] ?? COSTS[card?.name] ?? 1;
+    return sharedCardCost(player,card,ironcladCost(player,card,base)) +
+        (player?.storage?.mengsanTangled_shuying > 0 && isAttackCard(card) ? 1 : 0);
 };
 
 export const isActiveCardUse = (event, player) => {
@@ -48,20 +59,54 @@ function isFreeCardUse(player, card, event) {
         const seen = new Set();
         for (let current = event; current && !seen.has(current); current = current.parent) {
             seen.add(current);
+            // 精确授权的虚拟重放 useCard 没有实体 cards，但不能授权它的嵌套用牌。
+            if (current === entry.choice) return true;
             if (current.name === "useCard" && (current.player !== player ||
                 current.cards?.length !== 1 || current.cards[0] !== entry.card)) break;
-            if (current === entry.choice) return true;
         }
     }
     return false;
 }
 
-export const canPayCard = (player, card, event = _status.event) =>
-    isFreeCardUse(player, card, event) || (player?.storage?.mengsanEnergy_shuying ?? Infinity) >= cardCost(card, player);
+export const canPayCard = (player, card, event = _status.event) => {
+    if (isXCostCard(card)) return validXEnergy(player) &&
+        (isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card) || xEnergy(player) >= xTax(player));
+    return isFreeCardUse(player, card, event) ||
+        (player?.storage?.mengsanEnergy_shuying ?? Infinity) >= cardCost(card, player);
+};
 
-export const payCard = (player, card, event = _status.event) => {
+export const payCard = (player, card, event = _status.event, battle = null) => {
+    if (isXCostCard(card)) {
+        if (!event || event.name !== "useCard" || event.player !== player ||
+            event.card?.name !== card.name) return false;
+        const existing = xUses.get(event);
+        if (existing) return existing.player === player && existing.name === card.name;
+        if (!canPayCard(player, card, event)) return false;
+        const free = isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card);
+        const count = xEnergy(player) - (free ? 0 : xTax(player));
+        xUses.set(event, { player, name: card.name, count, battle,
+            session: battle?.session, taken: false });
+        if (!free) player.storage.mengsanEnergy_shuying = 0;
+        return true;
+    }
     if (isFreeCardUse(player, card, event)) return true;
     if (!canPayCard(player, card, event)) return false;
     player.storage.mengsanEnergy_shuying -= cardCost(card, player);
     return true;
 };
+
+// X 仅属于最近一条真实 useCard；嵌套其他用牌不得借用外层次数。
+export function takeXCardUse(player, event, battle) {
+    const seen = new Set();
+    for (let current = event; current && !seen.has(current); current = current.parent) {
+        seen.add(current);
+        if (current.name !== "useCard") continue;
+        const entry = xUses.get(current);
+        if (!entry || entry.taken || entry.player !== player ||
+            current.player !== player || current.card?.name !== entry.name ||
+            entry.battle !== battle || entry.session !== battle?.session) return null;
+        entry.taken = true;
+        return entry.count;
+    }
+    return null;
+}

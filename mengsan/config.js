@@ -22,6 +22,7 @@ const mengsanConfig = {
         boss: "Boss",
     },
     nodeContents: contentRegistry.nodeContents,
+    encounters: contentRegistry.encounters,
     rewardPools: contentRegistry.rewardPools,
     rewards: contentRegistry.rewards,
 };

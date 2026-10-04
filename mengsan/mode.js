@@ -1,14 +1,24 @@
 import { createScenarioCharacters, scenarioTranslations } from "./content/scenario-characters.js";
 import { createMengsanCards } from "./cards/mode-cards.js";
 import { createStrikeCounter } from "./cards/strike-counter.js";
+import { resolveRetiredCardReward } from "./cards/retired-cards.js";
 import { createBlockDrawer } from "./cards/block-draw.js";
+import { createHandUpgrader } from "./cards/hand-upgrade.js";
+import { createLifeLossBlocker } from "./cards/life-loss-block.js";
+import { createRampage } from "./cards/rampage.js";
+import { createSpite } from "./cards/spite.js";
+import { createWhirlwind } from "./cards/whirlwind.js";
 import { createHavocPlayer } from "./cards/havoc-play.js";
 import { createHandExhauster } from "./cards/hand-exhaust.js";
+import { createCardPackRuntime } from "./cards/packs/index.js";
+import { ironcladBlocksDraw, ironcladPreservesBlock, afterIroncladDraw, beforeIroncladBlock } from "./cards/ironclad-hooks.js";
+import { afterSharedDraw, beforeSharedBlock, sharedStrengthPenalty } from "./cards/shared-hooks.js";
+import { hasCardAffix } from "./cards/intrinsic-affixes.js";
 import { createBattleEnergy } from "./cards/battle-energy.js";
 import { createRandomHandExhauster } from "./cards/random-hand-exhaust.js";
 import { createBattleCardCopier } from "./cards/battle-card-copy.js";
 import { createBattleCardReclaimer } from "./cards/battle-card-reclaim.js";
-import { createTemporaryStrength, temporaryStrengthAmount, temporaryStrengthExpires, clearTemporaryStrength, forgetTemporaryStrength } from "./cards/temporary-strength.js";
+import { createTemporaryStrength, temporaryStrengthAmount, temporaryStrengthExpires, expireTemporaryStrength, clearTemporaryStrength, forgetTemporaryStrength } from "./cards/temporary-strength.js";
 import { createRelicBattle, createRelicSkills } from "./relics/battle.js";
 import { grantRelic, getRelic, initializeRelicMaxHp }
     from "./relics/definitions.js";
@@ -19,7 +29,7 @@ import { applyRoomRelics, restRecovery } from "./relics/rooms.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./battle/battle-director.js";
 import { installPersonalPiles } from "./cards/personal-piles.js";
 import { createMonster } from "./monsters/monster.js";
-import { prepareBondBattle } from "./bonds/state.js";
+import { prepareBondBattle, bondBattleStatus } from "./bonds/state.js";
 import { initializeBondUnit, recordBondDeath } from "./bonds/battle.js";
 import { bondDefinitions } from "./bonds/definitions.js";
 import { createBondIntentActions } from "./bonds/intents.js";
@@ -36,6 +46,9 @@ import { isMawler, recordMawlerAction } from "./monsters/mawler-intent.js";
 import { isVine, recordVineAction } from "./monsters/vine-intent.js";
 import { isCubex, recordCubexAction, initializeCubex } from "./monsters/cubex-intent.js";
 import { isEffigy, recordEffigyAction, initializeEffigy } from "./monsters/effigy-intent.js";
+import { isVantom, recordVantomAction, initializeVantom } from "./monsters/vantom-intent.js";
+import { isBeast, initializeBeast, recoverBeastStun, canBreakPlow, breakPlow, ringingLimited, countRingingCard, clearRinging } from "./monsters/beast-intent.js";
+import { KIN_FOLLOWER_CHARACTER, isKinActor, isKinFollower, canActKin, recordKinAction, initializeKin, rollKinFollowerHp, clearKinOwnerIntents } from "./monsters/kin-intent.js";
 import { slowPercent, canCountSlowCard, recordSlowCard, resetSlow, slowApplies, slowAttackDamage } from "./monsters/effigy-slow.js";
 import { BYRDONIS_CHARACTER, isByrdonis, rollByrdonisHp, recordByrdonisAction, initializeByrdonis, resolveTerritorial } from "./monsters/byrdonis-intent.js";
 import { NIBBIT_CHARACTER, isNibbit, rollNibbitHp, recordNibbitAction, bindNibbitOpenings } from "./monsters/nibbit-intent.js";
@@ -73,7 +86,7 @@ import { recordFlyconidAction } from "./monsters/flyconid-intent.js";
 import { recordRaiderAction } from "./monsters/raider-intent.js";
 import {
     PLAYER_ENERGY, PLAYER_HAND_LIMIT, cardCost,
-    canPayCard, payCard, isActiveCardUse,
+    canPayCard, payCard, isActiveCardUse, isXCostCard,
 } from "./battle/combat-rules.js";
 import { mountBattlePiles } from "./ui/card-library.js";
 import { mountGMManager } from "./ui/gm-manager.js";
@@ -145,26 +158,21 @@ const chooseCharacter = async (backLabel = "返回存档选择") => {
         name: get.translation(name),
         description: lib.translate[`${name}_title`] || "作为本次征程的角色",
     }));
-    return chooseButtons("选择出征武将", [...(choices.length ? choices : [{ id: "mengsan_liubei_shuying", name: "界刘备" }]), { id: "back", name: backLabel, description: "不会修改现有征程" }], "此武将将陪伴你完成本次征程。", { back: "back", eyebrow: "出征准备" });
+    return chooseButtons("选择出征武将", [...(choices.length ? choices : [{ id: "mengsan_liubei_shuying", name: "刘备" }]), { id: "back", name: backLabel, description: "不会修改现有征程" }], "此武将将陪伴你完成本次征程。", { back: "back", eyebrow: "出征准备" });
 };
 
-const chooseDefeatAction = async () => {
-    while (true) {
-        const action = await chooseButtons("战斗失败", [
-            {id:"retry", name:"重新尝试", description:"恢复战前生命、牌组和征程状态，重新挑战当前战斗。"},
-            {id:"new", name:"新开征程", danger:true, description:"选择出征武将，确认选择后替换本次征程。"},
-        ], "本次失败不会发放战斗奖励。请选择接下来要做什么。", {eyebrow:"败而不馁"});
-        if (action === "retry") return "retry";
-        if (action !== "new") throw new Error("未知的失败流程选择");
-        const character = await chooseCharacter("返回失败选择");
-        if (character !== "back") return {action:"new", character};
-    }
-};
+const chooseDefeatAction = async run => chooseButtons("角色阵亡", [
+    {id:"restart", name:"重新开始", description:`以当前角色${get.translation(run.player.character)}从头开始新征程。`},
+    {id:"menu", name:"返回主菜单", description:"结束本次征程，清除当前存档并返回模式选择。"},
+], "选择前保留上一次地图存档，不自动处理。本次阵亡不发放战斗奖励。", {
+    eyebrow:"征程结束", menu:false,
+});
 
 const createCardInstance = (run, name = "sha", upgrade = 0, affixes = []) =>
     createRandomCardData(run, name, { random: () => nextRandom(run), upgrade, affixes });
 
 const applyReward = (run, rewardId) => {
+    rewardId = resolveRetiredCardReward(rewardId);
     const player = run.player;
     const relicId = config.rewards[rewardId]?.relic;
     if (relicId) {
@@ -214,7 +222,9 @@ const applyReward = (run, rewardId) => {
 };
 
 const chooseReward = async (run, rewardConfig = {}) => {
-    const choices = getRandomRewardChoices(run, rewardConfig.rewardPool).filter(choice => choice.name);
+    const choices = getRandomRewardChoices(run, rewardConfig.rewardPool, 3, {
+        allowSharedCards: rewardConfig.allowSharedCardRewards === true,
+    }).filter(choice => choice.name);
     const title = rewardConfig.rewardTitle || (rewardConfig.boss ? "极品奖励（三选一）" : "战斗奖励（三选一）");
     const rewardId = await chooseButtons(title, choices, rewardConfig.description);
     const reward = choices.find(choice => choice.id == rewardId);
@@ -355,6 +365,8 @@ const initBattleUnit = (player, spec) => {
                 { ...spec, hp: rollShrinkerHp(() => nextRandom(_status.mengsanRun_shuying)) } :
             spec.character === PHROG_CHARACTER ?
                 { ...spec, hp: rollPhrogHp(() => nextRandom(_status.mengsanRun_shuying)) } :
+            spec.character === KIN_FOLLOWER_CHARACTER ?
+                { ...spec, hp: rollKinFollowerHp(() => nextRandom(_status.mengsanRun_shuying)) } :
             spec.character === WRIGGLER_CHARACTER ?
                 { ...spec, hp: rollWrigglerHp(() => nextRandom(_status.mengsanRun_shuying)) } :
             spec.character === BYRDONIS_CHARACTER ?
@@ -379,6 +391,9 @@ const initBattleUnit = (player, spec) => {
     initializeCubex(player, activeBattle);
     initializeByrdonis(player, activeBattle);
     initializeEffigy(player, activeBattle);
+    initializeVantom(player, activeBattle);
+    initializeBeast(player, activeBattle);
+    initializeKin(player, spec, activeBattle);
     initializePhrog(player, spec, activeBattle);
     if (isInklet(player)) {
         const position = spec.inkletPosition ?? 1;
@@ -417,6 +432,9 @@ const {
     executeVineIntent,
     executeCubexIntent,
     executeByrdonisIntent,
+    executeVantomIntent,
+    executeBeastIntent,
+    executeKinIntent,
     executeEffigyIntent,
     executePhrogIntent,
     executeNibbitIntent,
@@ -504,10 +522,18 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     const phrogCount = scheduledUnits.filter(spec => spec.character === PHROG_CHARACTER).length;
     if (scheduledUnits.length + fogmogCount + phrogCount * INFESTED_COUNT > 7) throw new Error("召唤需要预留空席位；请减少本场支援数量");
     if (run.bondBattle) {
-        game.log(`羁绊助战：${bondDefinitions[run.bondBattle.id].name}，${
-            bondUnit ? "本场将到场" : "本场未到场"}`);
+        game.log(`羁绊助战：${bondDefinitions[run.bondBattle.id].name}，${bondBattleStatus(run.bondBattle)}`);
+    }
+    if (encounter.encounterPool === "weak" || encounter.encounterPool === "strong") {
+        game.log(`普通战斗第${encounter.normalBattleNumber}场：${encounter.encounterPool === "weak" ? "弱怪池" : "强怪池"}，${encounter.name}`);
     }
     for (const spec of [...plan.units, ...plan.rules.flatMap(r => r.effects.filter(e => e.type === "spawn").map(e => e.unit))]) {
+        // Bond NPCs may belong to a disabled character pack. Resolve them the
+        // same way as native Player.init, without enabling the whole pack.
+        if (spec.bondId && !lib.character[spec.character]) {
+            const character = get.character(spec.character);
+            if (character && !character.isNull) lib.character[spec.character] = character;
+        }
         if (!lib.character[spec.character]) throw new Error("关卡武将未加载：" + spec.character);
         for (const skill of spec.skills || []) if (!lib.skill[skill]) throw new Error("关卡技能未加载：" + skill);
         const slots = new Set();
@@ -560,6 +586,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     const monsters = plan.units.map((spec, index) => initBattleUnit(participants[index], spec));
     bindNibbitOpenings(participants);
     plan.units.forEach((spec, index) => installMonsterPile(participants[index], monsters[index], currentBattle));
+    if (run.bondBattle?.arrived) game.log(`羁绊助战：${bondDefinitions[run.bondBattle.id].name}已到场，使用独立牌堆`);
     participants.forEach((player, index) => {
         if (monsters[index]) currentBattle.intentUI.set(player,
             mountEnemyIntent(player, session, STYLE_PATH, document,
@@ -590,6 +617,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         run.player.maxHp = me.maxHp;
         run.player.hp = me.hp;
     }
+    delete run.sharedBattleCardEffects;
     initializeRelicMaxHp(run);
     me.maxHp = run.player.maxHp;
     me.hp = Math.max(1, Math.min(run.player.hp, me.maxHp));
@@ -608,12 +636,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
     for (const skill of [
-        "mengsan_draw_shuying", "mengsan_card_use_shuying",
+        "mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_ic_bridge_shuying", "mengsan_shared_bridge_shuying",
         "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
         "mengsan_flyconid_action_shuying", "mengsan_raider_action_shuying",
         "mengsan_fogmog_action_shuying", "mengsan_mawler_action_shuying",
-        "mengsan_phrog_action_shuying", "mengsan_wriggler_spawned_shuying", "mengsan_infection_damage_shuying", "mengsan_effigy_action_shuying", "mengsan_byrdonis_action_shuying", "mengsan_cubex_action_shuying", "mengsan_vine_action_shuying", "mengsan_nibbit_action_shuying",
+        "mengsan_phrog_action_shuying", "mengsan_wriggler_spawned_shuying", "mengsan_infection_damage_shuying", "mengsan_beast_action_shuying", "mengsan_kin_action_shuying", "mengsan_kin_orphan_shuying", "mengsan_vantom_action_shuying", "mengsan_effigy_action_shuying", "mengsan_byrdonis_action_shuying", "mengsan_cubex_action_shuying", "mengsan_vine_action_shuying", "mengsan_nibbit_action_shuying",
         "mengsan_shrinker_action_shuying",
         "mengsan_twigmedium_action_shuying",
         "mengsan_twigslime_action_shuying",
@@ -665,8 +693,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
             currentBattle.personalPiles.trimOpeningHand(
                 4 + currentBattle.relics.openingHandBonus);
         }
-        if ((isRaider(player) || player.storage.mengsanBond_shuying) &&
-            player.hujia > 0) await player.changeHujia(-player.hujia);
+        if (currentBattle.players.has(player) && player.hujia > 0 && !ironcladPreservesBlock(player))
+            await player.changeHujia(-player.hujia);
         if (player.storage.mengsanMaxEnergy_shuying != null) {
             player.storage.mengsanEnergy_shuying = player.storage.mengsanMaxEnergy_shuying;
             currentBattle.energyUI.get(player)?.();
@@ -732,12 +760,21 @@ const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
     }),
     chooseDefeat:chooseDefeatAction,
     showMap,
-    showEnding:async route => { game.over(route === "victory"); },
+    showEnding:async (route, run) => {
+        if (route === "menu") { await openModeSelection(); return; }
+        if (route === "victory") {
+            await playDialogue(config.acts[run?.actIndex]?.completionDialogue,
+                { run, title: "未完待续" });
+        }
+        game.over(route === "victory");
+    },
     quiesce:() => quiesceEngine(_status),
 });
 const requestBattleFinish = outcome => {
     const current = activeBattle;
     if (!current) return false;
+    // Complete the original card and all queued replays before snapshotting a victory.
+    if(outcome==="victory" && current.sharedPendingUses?.size){current.sharedDeferredVictory=true;return false;}
     for (const player of game.dead) {
         recordBondDeath(player, _status.mengsanRun_shuying,
             message => game.log(message));
@@ -782,6 +819,7 @@ const playBattle = async (run, node, encounter) => {
     current = {session, flow, finished, resources, players: new Set(), monsterPiles: new Map(), energyUI: new Map(), intentUI: new Map()};
     activeBattle = current;
     const root = new lib.element.GameEvent("mengsanBattle", false, _status.eventManager);
+    current.root = root;
     const previousRoot = _status.eventManager.rootEvent;
     session.ownResource({}, () => {
         if (_status.eventManager.rootEvent === root) _status.eventManager.rootEvent = previousRoot;
@@ -793,10 +831,13 @@ const playBattle = async (run, node, encounter) => {
     }});
     await signal; // External controller, never an engine event content await.
     if (current.engineError) {
+        reportFlowError(current.engineError);
         session.requestStop();
         current.handUI?.dispose();
         document.body.classList.remove("mengsan-battle-ui-shuying");
-        await chooseButtons("战斗流程异常", [{id:"exit",name:"保留存档并返回模式选择"}], "无法确认旧事件已退出，已停止继续开战。上次成功存档仍保留。");
+        const reason = current.engineError?.message || String(current.engineError);
+        await chooseButtons("战斗流程异常", [{id:"exit",name:"保留存档并返回模式选择"}],
+            `错误原因：${reason}。已停止继续开战，上次成功存档仍保留。`);
         await openModeSelection(); return;
     }
     const result = await awaitSettlement(flow);
@@ -804,20 +845,10 @@ const playBattle = async (run, node, encounter) => {
     return result;
 };
 const setupBattle = async (run, node, encounter = getNodeEncounter(run, node)) => {
-    // Retry iteratively: repeated defeats must not grow a recursive battle promise chain.
-    while (true) {
-        const result = await playBattle(run, node, encounter);
-        if (!result) return;
-        if (result.route === "retry") {
-            run = result.run;
-            node = result.retryNode;
-            encounter = result.retryEncounter || getNodeEncounter(run, node);
-            continue;
-        }
-        if (result.route === "map") await routeRun(result.run, result.nextNode, true);
-        else if (result.route === "new") await routeRun(result.run);
-        return;
-    }
+    const result = await playBattle(run, node, encounter);
+    if (!result) return;
+    if (result.route === "map") await routeRun(result.run, result.nextNode, true);
+    else if (result.route === "new") await routeRun(result.run);
 };
 const routeRun = async (run, selected = null, supplied = false) => {
     while (true) {
@@ -837,7 +868,7 @@ const routeRun = async (run, selected = null, supplied = false) => {
 };
 const startJourney = async () => {
                 lib.translate.restart = "返回";
-                let run = copy(lib.storage[config.saveKey] || null);
+                let run = modeStorage.read()[config.saveKey] || null;
                 while (true) {
                     const action = await chooseRun(run);
                     if (action === "continue") break;
@@ -854,20 +885,6 @@ const startJourney = async () => {
                     await saveRun(run);
                     break;
                 }
-                if (run.battleFlow?.pending) {
-                    const flow = makeFlow();
-                    const result = await awaitSettlement(flow, flow.resumePending({session:createBattleSession(`recovery-${++battleSequence}`)}));
-                    if (result.route === "map") await routeRun(result.run, result.nextNode, true);
-                    else if (result.route === "retry") await setupBattle(result.run, result.retryNode,
-                        result.retryEncounter || getNodeEncounter(result.run, result.retryNode));
-                    else if (result.route === "new") await routeRun(result.run);
-                    return;
-                }
-                if (run.battleFlow?.retry) {
-                    const retry = run.battleFlow.retry;
-                    await setupBattle(run, retry.node, retry.encounter || getNodeEncounter(run, retry.node));
-                    return;
-                }
                 const canRefreshOldMap = config.characters.includes(run.player.character) && !run.map?.completedNodeIds?.length && run.map?.layoutVersion != config.mapLayoutVersion;
                 if (!run.map || run.map.actIndex != run.actIndex || canRefreshOldMap) {
                     run.map = generateActMap(run, run.actIndex);
@@ -881,19 +898,28 @@ const createMode = identityMode => {
     const identityPlayer = identityElement.player || {};
     const nativeChangeHujia = identityPlayer.changeHujia || lib.element.Player.prototype.changeHujia;
     const nativeChangeHp = identityPlayer.changeHp || lib.element.Player.prototype.changeHp;
-    const modeCards = createMengsanCards({
+    const cardContext = {
+        game, get, lib, random:nextRandom, status:_status, getBattle:()=>activeBattle,
         copyToDiscard: createBattleCardCopier(game, () => activeBattle),
         reclaimFromDiscard: createBattleCardReclaimer(game, () => activeBattle, get),
         temporaryStrength: createTemporaryStrength(game, () => activeBattle),
         countStrikeCards: createStrikeCounter(game, () => activeBattle, lib),
         blockDraw: createBlockDrawer(game, () => activeBattle),
+        blockUpgrade: createHandUpgrader(game, () => activeBattle, get),
+        lifeLossBlock: createLifeLossBlocker(() => activeBattle),
+        whirlwind: createWhirlwind(game, () => activeBattle),
+        spite: createSpite(game, () => activeBattle),
+        rampage: createRampage(game, () => activeBattle),
         playDrawTop: createHavocPlayer(game, () => activeBattle, _status),
         handExhaust: createHandExhauster(game, () => activeBattle, get,
             createRandomHandExhauster(game, () => activeBattle, () => _status.mengsanRun_shuying, nextRandom)),
         battleEnergy: createBattleEnergy(game, () => activeBattle),
         randomHandExhaust: createRandomHandExhauster(game, () => activeBattle, () => _status.mengsanRun_shuying, nextRandom),
         isBattleActive: () => Boolean(activeBattle?.session.active),
-    });
+    };
+    const cardPacks = createCardPackRuntime(cardContext);
+    const modeCards = createMengsanCards({cardPacks,isBattleActive:cardContext.isBattleActive});
+
     return {
         ...identityMode,
         name: MODE_ID,
@@ -911,6 +937,9 @@ const createMode = identityMode => {
             player: {
                 ...identityPlayer,
                 async dieAfter() {
+                    // 原生死亡已成立；在战斗结算关闭会话前落实斩杀的永久收益。
+                    if(this.isDead())await cardPacks.onDeath(_status.event);
+                    clearKinOwnerIntents(game, activeBattle, this);
                     clearConstrictSource(activeBattle, this);
                     clearShrinkSource(activeBattle, this);
                     activeBattle?.fogmog?.onDeath(this);
@@ -930,6 +959,7 @@ const createMode = identityMode => {
                     return next;
                 },
                 changeHujia(num, type) {
+                    if(activeBattle?.session.active && type!=="damage")num=beforeIroncladBlock(this,beforeSharedBlock(this,num??1,_status.event),_status.event);
                     // 脆弱只削减正向获得的护甲，不改变受伤时消耗护甲的数值。
                     if (this.storage?.mengsanFrail_shuying > 0 && (num == null || num > 0) && type !== "damage") {
                         num = Math.floor((num ?? 1) * 0.75);
@@ -979,6 +1009,9 @@ const createMode = identityMode => {
                 const cubex = isCubex(player);
                 const byrdonis = isByrdonis(player);
                 const effigy = isEffigy(player);
+                const vantom = isVantom(player);
+                const beast = isBeast(player);
+                const kin = isKinActor(player);
                 const phrog = isPhrogActor(player);
                 const nibbit = isNibbit(player);
                 const shrinker = isShrinker(player);
@@ -1009,7 +1042,10 @@ const createMode = identityMode => {
                     player.storage.mengsanCubexIntent_shuying : byrdonis ?
                     player.storage.mengsanByrdonisIntent_shuying : effigy ?
                     player.storage.mengsanEffigyIntent_shuying : phrog ?
-                    player.storage.mengsanPhrogIntent_shuying : null);
+                    player.storage.mengsanPhrogIntent_shuying : vantom ?
+                    player.storage.mengsanVantomIntent_shuying : kin ?
+                    player.storage.mengsanKinIntent_shuying : beast ?
+                    player.storage.mengsanBeastIntent_shuying : null);
                 const restore = recover || (flyconid ?
                     (choice, original) => {
                         const state =
@@ -1126,7 +1162,19 @@ const createMode = identityMode => {
                         const next = choice === "retry" ? original : null;
                         player.storage.mengsanEffigyIntent_shuying = next;
                         return next;
-                    } : null);
+                    } : vantom ? (choice, original) => {
+                        player.storage.mengsanVantomState_shuying =
+                            recordVantomAction(player.storage.mengsanVantomState_shuying || {}, choice !== "retry");
+                        const next = choice === "retry" ? original : null;
+                        player.storage.mengsanVantomIntent_shuying = next;
+                        return next;
+                    } : kin ? (choice, original) => {
+                        player.storage.mengsanKinState_shuying =
+                            recordKinAction(player.storage.mengsanKinState_shuying || {}, choice !== "retry");
+                        const next = choice === "retry" ? original : null;
+                        player.storage.mengsanKinIntent_shuying = next;
+                        return next;
+                    } : beast ? (choice, original) => recoverBeastStun(player, choice, original) : null);
                 const onRecover = async (choice, original) => {
                     const next = await restore(choice, original);
                     update(next === undefined ?
@@ -1142,6 +1190,8 @@ const createMode = identityMode => {
                 return true;
             },
             async mengsanPersistRun_shuying(run) {
+                // 战斗中（包括阵亡等待选择期间）的永久成长先留在内存，过关才提交。
+                if (activeBattle && activeBattle.session.state !== "disposed") return;
                 await saveRun(run);
             },
             async mengsanClearRun_shuying() {
@@ -1153,6 +1203,7 @@ const createMode = identityMode => {
             },
             async mengsanDraw_shuying(player, number = 1) {
                 if (!player?.storage?.mengsanPlayer_shuying || number <= 0) return [];
+                if(ironcladBlocksDraw(player))return [];
                 const battle = _status.mengsanBattle_shuying;
                 const run = _status.mengsanRun_shuying;
                 if (!battle || battle.drawPile.length + battle.discardPile.length < number) {
@@ -1164,6 +1215,8 @@ const createMode = identityMode => {
                 player.directgain(result);
                 player.$draw(result.length);
                 game.log(player, "从个人牌堆摸了", get.cnNumber(result.length), "张牌");
+                await afterSharedDraw(player,result);
+                await afterIroncladDraw(player,result);
                 return result;
             },
             mengsanFinishBattle_shuying() {
@@ -1172,6 +1225,7 @@ const createMode = identityMode => {
             checkResult() {
                 const current = activeBattle;
                 if (!current?.session.active || !current.director?.ready || current.director.busy || current.phrog?.pending || current.resultCheckQueued) return;
+                if(current.sharedPendingUses?.size && game.me?.isAlive())return;
                 current.resultCheckQueued = true;
                 const next = game.createEvent("mengsanScenarioResult", false);
                 next.setContent(async () => {
@@ -1190,21 +1244,24 @@ const createMode = identityMode => {
         },
         skill: {
             ...(identityMode.skill || {}),
+            ...cardPacks.skills,
             ...createRelicSkills(() => activeBattle, () => game.me),
             ...createRelicCombatSkills(() => activeBattle, () => game.me),
             mengsan_taoyuan_bond_shuying: {
                 locked: true, mark: true, marktext: "义",
-                intro: { content: "先天结识关羽、张飞，初始羁绊均为8级。助战角色在行军菜单中选择。" },
+                intro: { content: "先天结识关羽、张飞，初始羁绊均为8级，默认选择关羽助战。可在行军菜单中更换。" },
             },
             mengsan_card_payment_shuying: {
                 forced: true, silent: true, popup: false,
                 firstDo: true, priority: 10000,
                 trigger: { global: "useCard0" },
                 filter(event) { return event.player?.storage?.mengsanMaxEnergy_shuying != null &&
-                    lib.card[event.card?.name]?.mengsanCost_shuying != null && isActiveCardUse(event, event.player); },
+                    lib.card[event.card?.name]?.mengsanCost_shuying != null &&
+                    (isActiveCardUse(event, event.player) ||
+                        isXCostCard(event.card) && event.name === "useCard"); },
                 async content(event, trigger) {
                     if (trigger.mengsanPaid_shuying) return;
-                    if (!payCard(trigger.player, trigger.card, trigger)) {
+                    if (!payCard(trigger.player, trigger.card, trigger, activeBattle)) {
                         trigger.cancel();
                         game.log(trigger.player, "费用不足，不能使用", trigger.card);
                         return;
@@ -1221,7 +1278,8 @@ const createMode = identityMode => {
                         player.storage?.mengsanBond_shuying);
                 },
                 async content(event, trigger, player) {
-                    trigger.num = isStunned(player) || isToothedEye(player) ? 0 :
+                    trigger.num = isStunned(player) || isToothedEye(player) ||
+                        isKinFollower(player) && !canActKin(game, activeBattle, player) ? 0 :
                         (player.storage.mengsanMonster_shuying ||
                             player.storage.mengsanBond_shuying).draw;
                 },
@@ -1256,7 +1314,7 @@ const createMode = identityMode => {
                 intro: { content(storage, player) { return `滑溜${player.storage.mengsanSlippery_shuying || 0}：下一次实际生命损失限制为1，完全格挡不消耗`; } },
                 trigger: { player: "changeHp" },
                 forced: true, silent: true, popup: false,
-                filter(event, player) { return Boolean(activeBattle?.session.active && isInklet(player) &&
+                filter(event, player) { return Boolean(activeBattle?.session.active && (isInklet(player) || isVantom(player)) &&
                     player.storage.mengsanSlippery_shuying > 0 && event.num < 0 && event.changedHp < 0); },
                 async content(event, trigger, player) {
                     player.storage.mengsanSlippery_shuying = Math.max(0, player.storage.mengsanSlippery_shuying - 1);
@@ -1352,6 +1410,41 @@ const createMode = identityMode => {
                     event.player.storage.mengsanByrdonisIntent_shuying); },
                 async content(event, trigger) { await executeByrdonisIntent(trigger.player); },
             },
+            mengsan_vantom_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) { return Boolean(activeBattle?.session.active &&
+                    event.player?.isAlive() && !isStunned(event.player) && isVantom(event.player) &&
+                    event.player.storage.mengsanVantomIntent_shuying); },
+                async content(event, trigger) { await executeVantomIntent(trigger.player); },
+            },
+            mengsan_beast_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) { return Boolean(activeBattle?.session.active &&
+                    event.player?.isAlive() && !isStunned(event.player) && isBeast(event.player) &&
+                    event.player.storage.mengsanBeastIntent_shuying); },
+                async content(event, trigger) { await executeBeastIntent(trigger.player); },
+            },
+            mengsan_kin_action_shuying: {
+                trigger: { global: "phaseUseBefore" },
+                forced: true, silent: true, popup: false, priority: 100,
+                filter(event) { return Boolean(activeBattle?.session.active &&
+                    event.player?.isAlive() && !isStunned(event.player) && isKinActor(event.player) &&
+                    event.player.storage.mengsanKinIntent_shuying); },
+                async content(event, trigger) { await executeKinIntent(trigger.player, trigger); },
+            },
+            mengsan_kin_orphan_shuying: {
+                trigger: { global: "phaseBefore" },
+                forced: true, silent: true, popup: false, priority: 1000,
+                filter(event) { return Boolean(activeBattle?.session.active && event.player?.isAlive() &&
+                    isKinFollower(event.player) && !canActKin(game, activeBattle, event.player)); },
+                async content(event, trigger) { trigger.cancel(); },
+            },
+            mengsan_kin_minion_shuying: {
+                mark: true, marktext: "爪",
+                intro: { content: "爪牙：击败所属同族神官即可获胜，不需要击败信徒；神官死亡后不再行动。" },
+            },
             mengsan_phrog_action_shuying: {
                 trigger: { global: "phaseUseBefore" },
                 forced: true, silent: true, popup: false, priority: 100,
@@ -1414,7 +1507,7 @@ const createMode = identityMode => {
                 trigger: { source: "damageBegin1", global: ["phaseAfter", "dieAfter"] },
                 forced: true, silent: true, popup: false, priority: 85, forceDie: true, forceOut: true,
                 mark: true, marktext: "力",
-                intro: { content(storage, player) { return `本回合攻击伤害增加${player.storage.mengsanSetupStrength_shuying || 0}点`; } },
+                intro: { content(storage, player) { return `临时力量：攻击伤害增加${player.storage.mengsanSetupStrength_shuying || 0}点`; } },
                 onremove(player) { forgetTemporaryStrength(player); },
                 filter(event, player) {
                     if (event.name === "damage") {
@@ -1429,19 +1522,47 @@ const createMode = identityMode => {
                     if (event.triggername === "damageBegin1") {
                         trigger.num += temporaryStrengthAmount(player, activeBattle);
                         trigger.mengsanSetupStrengthApplied_shuying = true;
-                    } else clearTemporaryStrength(player);
+                    } else if(trigger.name==="phase")expireTemporaryStrength(player,trigger);
+                    else clearTemporaryStrength(player);
                 },
             },
             mengsan_raider_card_strength_shuying: {
                 trigger: { source: "damageBegin1" },
                 forced: true, silent: true, popup: false, priority: 90,
                 filter(event, player) { return Boolean(activeBattle?.session.active &&
-                    (isRaider(player) || isFogmog(player) || isCrawler(player) || isInklet(player) || isJaxfruit(player) || isStrangler(player) || isLeafslime(player) || isLeafslimeMedium(player) || isTwigslime(player) || isTwigmedium(player) || isShrinker(player) || isVine(player) || isNibbit(player) || isCubex(player) || isByrdonis(player) || isEffigy(player) || isPhrogActor(player) || player.storage.mengsanBond_shuying) &&
-                    player.storage.mengsanStrength_shuying > 0 &&
+                    (isRaider(player) || isFogmog(player) || isCrawler(player) || isInklet(player) || isJaxfruit(player) || isStrangler(player) || isLeafslime(player) || isLeafslimeMedium(player) || isTwigslime(player) || isTwigmedium(player) || isShrinker(player) || isVine(player) || isNibbit(player) || isCubex(player) || isByrdonis(player) || isEffigy(player) || isPhrogActor(player) || isVantom(player) || isKinActor(player) || isBeast(player) && !isStunned(player) || player.storage.mengsanBond_shuying) &&
+                    (player.storage.mengsanStrength_shuying > 0 || sharedStrengthPenalty(player)>0) &&
                     event.card && !event.mengsanScriptedSkill_shuying &&
                     !event.mengsanCardStrengthApplied_shuying); },
                 async content(event, trigger, player) {
-                    trigger.num += player.storage.mengsanStrength_shuying;
+                    trigger.num = Math.max(0,trigger.num+(player.storage.mengsanStrength_shuying||0)-sharedStrengthPenalty(player));
+                },
+            },
+            mengsan_plow_shuying: {
+                mark: true, marktext: "撞",
+                intro: { content(storage, player) { return `横冲直撞${player.storage.mengsanPlow_shuying || 0}层：受到伤害后生命不高于此值，击晕、清零力量并进入第二阶段。`; } },
+                onremove(player) { delete player.storage.mengsanPlow_shuying; },
+                trigger: { player: "damageEnd" }, forced: true, silent: true, popup: false, priority: 1000,
+                filter(event, player) { return canBreakPlow(player, activeBattle, event); },
+                async content(event, trigger, player) { breakPlow(game, activeBattle, player, trigger); },
+            },
+            mengsan_ringing_shuying: {
+                mark: true, marktext: "眩",
+                intro: { content: "昏眩：本次自身回合至多主动使用1张牌，回合结束解除；不限制响应。不可叠加。" },
+                onremove(player) { clearRinging(player); },
+                mod: {
+                    cardEnabled(card, player) { if (activeBattle?.session.active && ringingLimited(player, _status.event)) return false; },
+                    cardEnabled2(card, player) { if (activeBattle?.session.active && ringingLimited(player, _status.event)) return false; },
+                },
+                trigger: { player: ["useCard0", "useCard1", "phaseBefore", "phaseAfter", "dieAfter"] },
+                forced: true, silent: true, popup: false, firstDo: true, priority: 11000,
+                filter(event, player) { return Boolean(activeBattle?.session.active && player.storage.mengsanRinging_shuying &&
+                    (event.name !== "useCard" || isActiveCardUse(event, player))); },
+                async content(event, trigger, player) {
+                    if (event.triggername === "useCard0") { if (ringingLimited(player, trigger)) trigger.cancel(); }
+                    else if (event.triggername === "useCard1") countRingingCard(player, activeBattle, trigger);
+                    else if (event.triggername === "phaseBefore") player.storage.mengsanRingingUsed_shuying = 0;
+                    else { player.removeSkill("mengsan_ringing_shuying"); activeBattle?.handUI?.refresh(); }
                 },
             },
             mengsan_raider_strength_shuying: {
@@ -1587,7 +1708,7 @@ const createMode = identityMode => {
                 },
                 async content(event, trigger, player) {
                     if (event.triggername === "damageBegin1") {
-                        trigger.num = Math.ceil(trigger.num * 1.5);
+                        trigger.num = Math.ceil(trigger.num * (1.5 + cardPacks.vulnerableBonus(trigger.source, player)));
                         return;
                     }
                     const remaining = Math.max(0, (player.storage.mengsanVulnerable_shuying || 0) - 1);
@@ -1613,12 +1734,13 @@ const createMode = identityMode => {
                 silent: true,
                 priority: 10000,
                 filter(event, player) {
-                    return Boolean(player.storage?.mengsanPlayer_shuying && event.num > 0);
+                    return Boolean(event.num > 0 && (player.storage?.mengsanPlayer_shuying || ironcladBlocksDraw(player)));
                 },
                 async content(event, trigger, player) {
                     const number = trigger.num;
                     trigger.cancel();
-                    await game.mengsanDraw_shuying(player, number);
+                    const cards=ironcladBlocksDraw(player)?[]:await game.mengsanDraw_shuying(player, number);
+                    trigger.result={bool:true,cards};trigger.mengsanIcDrawHandled_shuying=true;
                 },
             },
             mengsan_card_use_shuying: {
@@ -1664,12 +1786,12 @@ const createMode = identityMode => {
                 trigger: { global: ["phaseDiscardBegin", "cardsDiscardAfter"] },
                 filter(event) {
                     if (!activeBattle?.session.active) return false;
-                    if (event.name === "phaseDiscard") return event.player?.getCards("h").some(card => card.storage?.mengsanCard_shuying?.affixes?.includes("void"));
+                    if (event.name === "phaseDiscard") return event.player?.getCards("h").some(card => hasCardAffix(card,"void"));
                     return event.cards?.some(card => card.storage?.mengsanCard_shuying?.affixes?.includes("ingenious"));
                 },
                 async content(event, trigger) {
                     if (event.triggername === "phaseDiscardBegin") {
-                        const cards = trigger.player.getCards("h").filter(card => card.storage?.mengsanCard_shuying?.affixes?.includes("void"));
+                        const cards = trigger.player.getCards("h").filter(card => hasCardAffix(card,"void"));
                         if (cards.length) {
                             await trigger.player.lose(cards, ui.special);
                             for (const card of cards) card.remove();
@@ -1690,8 +1812,8 @@ const createMode = identityMode => {
                     }
                 },
                 mod: {
-                    ignoredHandcard(card) { if (card.storage?.mengsanCard_shuying?.affixes?.includes("retain")) return true; },
-                    cardEnabled2(card) { if (card.storage?.mengsanCard_shuying?.affixes?.includes("unplayable")) return false; },
+                    ignoredHandcard(card) { if (hasCardAffix(card,"retain")) return true; },
+                    cardEnabled2(card) { if (hasCardAffix(card,"unplayable")) return false; },
                 },
             },
             mengsan_yingyong_shuying: {
@@ -1723,6 +1845,13 @@ const createMode = identityMode => {
             mengsan_cubex_action_shuying: "立柱构造体行动",
             mengsan_byrdonis_action_shuying: "多尼斯异鸟行动",
             mengsan_effigy_action_shuying: "旧日雕像行动",
+            mengsan_vantom_action_shuying: "墨影幻灵行动",
+            mengsan_beast_action_shuying: "仪式兽行动",
+            mengsan_plow_shuying: "横冲直撞",
+            mengsan_ringing_shuying: "昏眩",
+            mengsan_kin_action_shuying: "同族行动",
+            mengsan_kin_orphan_shuying: "爪牙退场",
+            mengsan_kin_minion_shuying: "爪牙",
             mengsan_phrog_action_shuying: "异蛙寄生行动",
             mengsan_wriggler_spawned_shuying: "生成眩晕",
             mengsan_infection_damage_shuying: "感染结算",

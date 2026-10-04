@@ -23,6 +23,9 @@ const HEALTH = Object.freeze({
     mengsan_cubex_construct_shuying: 65,
     mengsan_byrdonis_shuying: 82,
     mengsan_bygone_effigy_shuying: 127,
+    mengsan_vantom_shuying: 173,
+    mengsan_ceremonial_beast_shuying: 252,
+    mengsan_kin_priest_shuying: 190, mengsan_kin_follower_shuying: 59,
     mengsan_phrog_parasite_shuying: 62,
     mengsan_wriggler_shuying: 19,
     mengsan_shrinker_beetle_shuying: 39,
@@ -137,6 +140,20 @@ export class PhrogParasite extends Monster {
 export class Wriggler extends Monster {
     constructor(options = {}) { super({ ...options, character: "mengsan_wriggler_shuying", tier: "elite", hp: options.hp ?? 19 }); }
 }
+export class CeremonialBeast extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_ceremonial_beast_shuying", tier: "boss", hp: options.hp ?? 252 }); }
+}
+export class KinPriest extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_kin_priest_shuying", tier: "boss", hp: options.hp ?? 190 }); }
+}
+export class KinFollower extends Monster {
+    constructor(options = {}) { super({ ...options, character: "mengsan_kin_follower_shuying", tier: "normal", hp: options.hp ?? 59 }); }
+}
+export class Vantom extends Monster {
+    constructor(options = {}) {
+        super({ ...options, character: "mengsan_vantom_shuying", tier: "boss", hp: options.hp ?? 173 });
+    }
+}
 export class BygoneEffigy extends Monster {
     constructor(options = {}) {
         super({ ...options, character: "mengsan_bygone_effigy_shuying", tier: "elite", hp: options.hp ?? 127 });
@@ -195,6 +212,9 @@ export const MONSTER_TYPES = Object.freeze({
     mengsan_cubex_construct_shuying: CubexConstruct,
     mengsan_byrdonis_shuying: Byrdonis,
     mengsan_bygone_effigy_shuying: BygoneEffigy,
+    mengsan_vantom_shuying: Vantom,
+    mengsan_ceremonial_beast_shuying: CeremonialBeast,
+    mengsan_kin_priest_shuying: KinPriest, mengsan_kin_follower_shuying: KinFollower,
     mengsan_phrog_parasite_shuying: PhrogParasite,
     mengsan_wriggler_shuying: Wriggler,
     mengsan_shrinker_beetle_shuying: ShrinkerBeetle,

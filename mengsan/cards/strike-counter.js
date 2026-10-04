@@ -1,3 +1,8 @@
+// 杀对应基础打击；重杀对应痛击，不属于打击牌。
+export function isStrikeCard(card, lib) {
+    return card?.name === "sha" || String(lib.translate[card?.name] || "").includes("打击");
+}
+
 // Count current actor-owned combat cards; permanent save data is deliberately absent.
 export function createStrikeCounter(game, getActiveBattle, lib) {
     return (player, event) => {
@@ -19,8 +24,7 @@ export function createStrikeCounter(game, getActiveBattle, lib) {
         }
         let count = 0;
         for (const card of piles.battleCards(playing)) {
-            const name = lib.translate[card.name];
-            if (typeof name === "string" && name.includes("打击")) count++;
+            if (isStrikeCard(card, lib)) count++;
         }
         return count;
     };

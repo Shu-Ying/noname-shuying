@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,9 +18,17 @@ EXCLUDE_DIRS = {
     "tools",
     "__pycache__",
     "verification",
+    "node_modules",
+    "Slay the Spire 2",
+    ".godot",
+    ".codex",
+    ".agents",
+    ".aws",
+    "logs",
 }
-EXCLUDE_FILES = {".gitignore", "log.txt"}
-EXCLUDE_EXTENSIONS = {".md", ".mjs"}
+EXCLUDE_PATHS = {("mengsan", "assets", "sts2")}
+EXCLUDE_FILES = {".gitignore", "log.txt", "Thumbs.db", "Desktop.ini", ".DS_Store"}
+EXCLUDE_EXTENSIONS = {".md", ".mjs", ".cjs", ".log", ".pyc", ".tmp", ".bak", ".swp", ".swo"}
 
 
 def sha256_file(path: Path) -> str:
@@ -35,16 +44,26 @@ def should_include(path: Path, root: Path) -> bool:
     return (
         path.is_file()
         and relative.name not in EXCLUDE_FILES
+        and not relative.name.startswith(".env")
         and path.suffix.lower() not in EXCLUDE_EXTENSIONS
         and not any(part in EXCLUDE_DIRS for part in relative.parts)
+        and not any(relative.parts[:len(prefix)] == prefix for prefix in EXCLUDE_PATHS)
     )
 
 
 def scan_files(root: Path) -> list[Path]:
-    return sorted(
-        (path for path in root.rglob("*") if should_include(path, root)),
-        key=lambda path: str(path.relative_to(root)).replace("\\", "/"),
-    )
+    files = []
+    for directory, folders, names in os.walk(root):
+        parent = Path(directory)
+        folders[:] = [name for name in folders if name not in EXCLUDE_DIRS
+                      and (parent / name).relative_to(root).parts not in EXCLUDE_PATHS]
+        for name in names:
+            path = parent / name
+            if should_include(path, root):
+                if not path.resolve().is_relative_to(root):
+                    raise ValueError(f"file escapes source root: {path}")
+                files.append(path)
+    return sorted(files, key=lambda path: str(path.relative_to(root)).replace("\\", "/"))
 
 
 def normalize_path(path: str) -> str:
@@ -329,7 +348,7 @@ def main() -> None:
         root, version, config, previous_manifest
     )
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    output.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     module_output = output.parent / "modules"
     for name, module_manifest in modules.items():
         module_path = module_output / f"{name}.json"
@@ -337,6 +356,7 @@ def main() -> None:
         module_path.write_text(
             json.dumps(module_manifest, ensure_ascii=False, indent=2),
             encoding="utf-8",
+            newline="\n",
         )
     for name, module_manifest in legacy_modules.items():
         module_path = module_output / f"{name}.legacy.json"
@@ -344,6 +364,7 @@ def main() -> None:
         module_path.write_text(
             json.dumps(module_manifest, ensure_ascii=False, indent=2),
             encoding="utf-8",
+            newline="\n",
         )
     if module_output.is_dir():
         expected = {f"{name}.json" for name in modules}

@@ -1,4 +1,5 @@
 import { applyMengsanDebuff } from "../monsters/artifact-status.js";
+import { ironcladBlocksEnergy, ironcladStrengthPenalty } from "../cards/ironclad-hooks.js";
 
 export function createOpeningEffects(game, owner, refreshEnergy) {
     const enemies = () => game.players.filter(player =>
@@ -6,14 +7,14 @@ export function createOpeningEffects(game, owner, refreshEnergy) {
         player.storage?.mengsanCamp_shuying === "enemy");
     const addStatus = (player, key, skill, amount) => {
         if (key === "mengsanVulnerable_shuying" || key === "mengsanWeak_shuying")
-            return applyMengsanDebuff(player, key === "mengsanWeak_shuying" ? "weak" : "vulnerable", amount);
+            return applyMengsanDebuff(player, key === "mengsanWeak_shuying" ? "weak" : "vulnerable", amount, owner);
         player.storage[key] = (player.storage[key] || 0) + amount;
         player.addSkill(skill);
         player.markSkill(skill);
     };
     return async relic => {
         if (relic.effect === "firstTurnEnergy") {
-            owner.storage.mengsanEnergy_shuying += relic.amount;
+            if (!ironcladBlocksEnergy(owner)) owner.storage.mengsanEnergy_shuying += relic.amount;
             refreshEnergy();
         } else if (relic.effect === "openingStrength") {
             addStatus(owner, "mengsanStrength_shuying",
@@ -48,13 +49,13 @@ export function createRelicCombatSkills(getBattle, getOwner) {
                 return Boolean(getBattle()?.session.active && event.card &&
                     !event.mengsanScriptedSkill_shuying &&
                     ((source === getOwner() &&
-                    source?.storage?.mengsanStrength_shuying > 0) ||
+                    (source?.storage?.mengsanStrength_shuying > 0 || ironcladStrengthPenalty(source) > 0)) ||
                     source?.storage?.mengsanWeak_shuying > 0));
             },
             async content(event, trigger) {
                 const source = trigger.source;
                 if (source === getOwner()) {
-                    trigger.num += source.storage.mengsanStrength_shuying || 0;
+                    trigger.num = Math.max(0, trigger.num + (source.storage.mengsanStrength_shuying || 0) - ironcladStrengthPenalty(source));
                 }
                 if (source.storage.mengsanWeak_shuying > 0) {
                     trigger.num = Math.floor(trigger.num * 0.75);

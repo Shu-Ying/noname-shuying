@@ -48,7 +48,7 @@ export const chooseButtons = (title, choices, description = "", options = {}) =>
         button.addEventListener("click", () => finish(choice.id));
         buttons.appendChild(button);
     });
-    mountMenu(overlay);
+    if (options.menu !== false) mountMenu(overlay);
     overlay.addEventListener("keydown", event => {
         if (event.key === "Escape" && options.back) {
             event.preventDefault(); finish(options.back); return;

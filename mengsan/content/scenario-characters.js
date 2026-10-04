@@ -1,9 +1,14 @@
-// 梦三私有武将：不改动原版界刘备，也不导入整套国战技能。
+// 梦三私有刘备：保留模式内 ID 以兼容已有征程，不导入原版技能。
 export function createScenarioCharacters(Character) {
     return {
         mengsan_liubei_shuying: new Character({ sex: "male", group: "han", hp: 50, maxHp: 50,
             skills: ["mengsan_taoyuan_bond_shuying"],
-            img: "image/character/re_liubei.jpg" }),
+            img: "extension/术樱包/mengsan/assets/portraits/liubei-portrait.jpg" }),
+        // 羁绊助战使用梦三独立配置；战斗生命与技能由助战成长配置决定。
+        mengsan_guanyu_shuying: new Character({ sex: "male", group: "han", hp: 40, maxHp: 40,
+            skills: [], img: "extension/术樱包/mengsan/assets/portraits/guanyu-portrait.jpg" }),
+        mengsan_zhangfei_shuying: new Character({ sex: "male", group: "han", hp: 40, maxHp: 40,
+            skills: [], img: "extension/术樱包/mengsan/assets/portraits/zhangfei-portrait.jpg" }),
         // 国战男性普通小兵使用原生 shibing1 立绘；实际战斗生命由怪物类或关卡配置决定。
         mengsan_soldier_shuying: new Character({ sex: "male", group: "qun", hp: 4, maxHp: 4,
             skills: [], img: "image/character/shibing1.jpg" }),
@@ -31,6 +36,13 @@ export function createScenarioCharacters(Character) {
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/phrog-parasite-forest-portrait.png" }),
         mengsan_wriggler_shuying: new Character({ sex: "none", group: "qun", hp: 19, maxHp: 19,
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/wriggler-forest-portrait.png" }),
+        mengsan_ceremonial_beast_shuying: new Character({ sex: "none", group: "qun", hp: 252, maxHp: 252, skills: [], img: "extension/术樱包/mengsan/assets/portraits/ceremonial-beast-forest-portrait.png" }),
+        mengsan_kin_priest_shuying: new Character({ sex: "none", group: "qun", hp: 190, maxHp: 190,
+            skills: [], img: "extension/术樱包/mengsan/assets/portraits/kin-priest-forest-portrait.png" }),
+        mengsan_kin_follower_shuying: new Character({ sex: "none", group: "qun", hp: 59, maxHp: 59,
+            skills: [], img: "extension/术樱包/mengsan/assets/portraits/kin-follower-forest-portrait.png" }),
+        mengsan_vantom_shuying: new Character({ sex: "none", group: "qun", hp: 173, maxHp: 173,
+            skills: [], img: "extension/术樱包/mengsan/assets/portraits/vantom-forest-portrait.png" }),
         mengsan_bygone_effigy_shuying: new Character({ sex: "none", group: "qun", hp: 127, maxHp: 127,
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/bygone-effigy-forest-portrait.png" }),
         mengsan_byrdonis_shuying: new Character({ sex: "none", group: "qun", hp: 82, maxHp: 82,
@@ -57,15 +69,17 @@ export function createScenarioCharacters(Character) {
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/raider-crossbow-portrait.png" }),
         mengsan_raider_tracker_shuying: new Character({ sex: "none", group: "qun", hp: 23, maxHp: 23,
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/raider-tracker-portrait.png" }),
-        mengsan_sushuang_zhangshiping_shuying: new Character({ sex: "male", group: "shu", hp: 4, maxHp: 4,
+        mengsan_sushuang_zhangshiping_shuying: new Character({ sex: "male", group: "han", hp: 4, maxHp: 4,
             skills: [], img: "extension/术樱包/mengsan/assets/portraits/sushuang-zhangshiping.png", names: "苏|双-张|世平" }),
     };
 }
 export const scenarioTranslations = {
-    mengsan_liubei_shuying: "界刘备",
+    mengsan_liubei_shuying: "刘备",
+    mengsan_guanyu_shuying: "关羽",
+    mengsan_zhangfei_shuying: "张飞",
     mengsan_liubei_shuying_title: "50/50生命 · 先天桃园羁绊",
     mengsan_taoyuan_bond_shuying: "桃园羁绊",
-    mengsan_taoyuan_bond_shuying_info: "先天：本征程初始结识关羽、张飞，二人羁绊均为8级。可在行军菜单中指定一名助战角色；战斗结束，到场增加50%升级进度，未到场增加25%。",
+    mengsan_taoyuan_bond_shuying_info: "先天：本征程初始结识关羽、张飞，二人羁绊均为8级，默认选择关羽助战。可在行军菜单中更换助战角色；战斗结束，到场增加50%升级进度，未到场增加25%。",
     mengsan_soldier_shuying: "士兵",
     mengsan_flyconid_shuying: "飞蝇菌子",
     mengsan_fogmog_shuying: "雾菇",
@@ -75,6 +89,10 @@ export const scenarioTranslations = {
     mengsan_cubex_construct_shuying: "立柱构造体",
     mengsan_byrdonis_shuying: "多尼斯异鸟",
     mengsan_bygone_effigy_shuying: "旧日雕像",
+    mengsan_vantom_shuying: "墨影幻灵",
+    mengsan_ceremonial_beast_shuying: "仪式兽",
+    mengsan_kin_priest_shuying: "同族神官",
+    mengsan_kin_follower_shuying: "同族信徒",
     mengsan_phrog_parasite_shuying: "异蛙寄生虫",
     mengsan_wriggler_shuying: "扭动虫",
     mengsan_nibbit_pair_shuying: "小啃兽双只",

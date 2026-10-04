@@ -14,7 +14,7 @@ export const defaultDeck = Object.freeze([
 export const characterDecks = {
     mengsan_liubei_shuying: [
         ["spade", 7, "sha"], ["heart", 10, "sha"], ["club", 4, "sha"], ["diamond", 6, "sha"],
-        ["heart", 2, "shan"], ["diamond", 7, "shan"], ["club", 2, "shan"],
+        ["heart", 2, "mengsan_fangyu"], ["diamond", 7, "mengsan_fangyu"], ["club", 2, "shan"],
         ["heart", 3, "tao"], ["heart", 7, "wuzhong"], ["spade", 1, "juedou"],
         ["spade", 2, "bagua"], ["club", 6, "sha"],
     ],

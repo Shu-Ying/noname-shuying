@@ -1,4 +1,6 @@
 import { cardUpgradeLevel } from "../../cards/upgrades.js";
+import { isXCostCard } from "../../battle/combat-rules.js";
+import { applyCardRarity } from "../../cards/rarity.js";
 
 export function createHandOverlays(document, cardCost) {
   const entries = new Map();
@@ -15,14 +17,31 @@ export function createHandOverlays(document, cardCost) {
       const upgrade = document.createElement("span");
       upgrade.className = "mengsan-hand-upgrade-shuying";
       upgrade.setAttribute("role", "img");
-      entry = { cost, upgrade };
+      const rarity = document.createElement("span");
+      rarity.className = "mengsan-hand-rarity-shuying";
+      rarity.setAttribute("role", "img");
+      entry = { cost, upgrade, rarity, border: null };
       entries.set(card, entry);
     }
-    const cost = String(cardCost(card));
+    const rarity = applyCardRarity(card, card);
+    entry.rarity.setAttribute("aria-label", `稀有度：${rarity.label}`);
+    if (entry.rarity.parentNode !== card) card.appendChild(entry.rarity);
+    const cost = isXCostCard(card) ? "X" : String(cardCost(card));
     setData(entry.cost, "mengsanCost", cost);
     entry.cost.setAttribute("aria-label", `费用 ${cost}`);
     if (card.name === "mengsan_dazed_shuying") entry.cost.remove();
     else if (entry.cost.parentNode !== card) card.appendChild(entry.cost);
+    // Empty decorative node: Decade UI scans child innerText when cards move.
+    if (card.name === "mengsan_infection_shuying") {
+      if (!entry.border) {
+        entry.border = document.createElement("span");
+        entry.border.className = "mengsan-infection-border-shuying";
+        entry.border.setAttribute("aria-hidden", "true");
+      }
+      if (entry.border.parentNode !== card) card.appendChild(entry.border);
+    } else {
+      entry.border?.remove();
+    }
     const level = cardUpgradeLevel(card);
     if (level) {
       setData(entry.upgrade, "mengsanUpgrade", String(level));
@@ -37,6 +56,11 @@ export function createHandOverlays(document, cardCost) {
     if (!entry) return;
     entry.cost.remove();
     entry.upgrade.remove();
+    entry.border?.remove();
+    entry.rarity.remove();
+    delete card.dataset.mengsanRarity;
+    delete card.dataset.mengsanRarityLabel;
+    for (const key of ["accent", "dark", "ink", "metal"]) card.style.removeProperty(`--ms-rarity-${key}`);
     entries.delete(card);
   }
   return {

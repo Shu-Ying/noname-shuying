@@ -251,11 +251,14 @@ shuYing.precontent = async () => {
     shuYing.initFunction();
     shuYing.initConfig();
     const mengsanState = lib.config.shuYing_mengsan_installed_version;
-    let hasMengsan = !!mengsanState && mengsanState != "disabled";
-    if (!mengsanState && typeof game.checkFile != "function") {
+    const mengsanInstallation = lib.config.shuYing_mengsan_installation;
+    let hasMengsan = mengsanInstallation
+        ? mengsanInstallation.status == "installed"
+        : !!mengsanState && mengsanState != "disabled";
+    if (!mengsanInstallation && !mengsanState && typeof game.checkFile != "function") {
         hasMengsan = true;
     }
-    else if (!mengsanState && typeof game.checkFile == "function") {
+    else if (!mengsanInstallation && !mengsanState && typeof game.checkFile == "function") {
         hasMengsan = await new Promise(resolve => {
             game.checkFile("extension/术樱包/mengsan/register.js",
                 result => resolve(result == 1), () => resolve(false));
