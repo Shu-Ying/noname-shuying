@@ -11,6 +11,10 @@ import { isMawler, selectMawlerMove, recordMawlerAction } from "./mawler-intent.
 import { isVine, selectVineMove, recordVineAction } from "./vine-intent.js";
 import { isCubex, selectCubexMove, recordCubexAction } from "./cubex-intent.js";
 import { isByrdonis, selectByrdonisMove, recordByrdonisAction } from "./byrdonis-intent.js";
+import { isVantom, selectVantomMove, recordVantomAction } from "./vantom-intent.js";
+import { isBeast, selectBeastMove, recordBeastAction, gainPlow, applyRinging } from "./beast-intent.js";
+import { isKinActor, isKinPriest, canActKin, selectKinPriestMove, selectKinFollowerMove, recordKinAction } from "./kin-intent.js";
+import { applyWound } from "../cards/wound-card.js";
 import { isEffigy, selectEffigyMove, recordEffigyAction } from "./effigy-intent.js";
 import { isPhrog, isPhrogActor, selectPhrogMove, selectWrigglerMove, recordPhrogAction } from "./phrog-intent.js";
 import { applyInfection } from "../cards/infection-card.js";
@@ -111,6 +115,21 @@ export function createMonsterIntentActions(game, getActiveBattle) {
             if (!getActiveBattle()?.session.active || player.storage.mengsanPhrogIntent_shuying) return;
             const move = (isPhrog(player) ? selectPhrogMove : selectWrigglerMove)(player.storage.mengsanPhrogState_shuying || {});
             player.storage.mengsanPhrogIntent_shuying = move;
+            game.mengsanSetEnemyIntent_shuying(player, move);
+        } else if (isKinActor(player)) {
+            if (!canActKin(game, getActiveBattle(), player) || player.storage.mengsanKinIntent_shuying) return;
+            const move = (isKinPriest(player) ? selectKinPriestMove : selectKinFollowerMove)(player.storage.mengsanKinState_shuying || {});
+            player.storage.mengsanKinIntent_shuying = move;
+            game.mengsanSetEnemyIntent_shuying(player, move);
+        } else if (isBeast(player)) {
+            if (!getActiveBattle()?.session.active || player.storage.mengsanBeastIntent_shuying) return;
+            const move = selectBeastMove(player.storage.mengsanBeastState_shuying || {});
+            player.storage.mengsanBeastIntent_shuying = move;
+            game.mengsanSetEnemyIntent_shuying(player, move);
+        } else if (isVantom(player)) {
+            if (!getActiveBattle()?.session.active || player.storage.mengsanVantomIntent_shuying) return;
+            const move = selectVantomMove(player.storage.mengsanVantomState_shuying || {});
+            player.storage.mengsanVantomIntent_shuying = move;
             game.mengsanSetEnemyIntent_shuying(player, move);
         } else if (isByrdonis(player)) {
             if (!getActiveBattle()?.session.active || player.storage.mengsanByrdonisIntent_shuying) return;
@@ -412,6 +431,67 @@ export function createMonsterIntentActions(game, getActiveBattle) {
         await executeEffects(player, move);
     };
 
+    const executeKinIntent = async (player, phase) => {
+        const current = getActiveBattle();
+        if (!isKinActor(player) || !player.isAlive() || isStunned(player) || !current?.session.active) return;
+        if (!canActKin(game, current, player)) { phase?.cancel(); return; }
+        const move = player.storage.mengsanKinIntent_shuying;
+        if (!move) return;
+        player.storage.mengsanKinIntent_shuying = null;
+        game.mengsanSetEnemyIntent_shuying(player, null);
+        player.storage.mengsanKinState_shuying =
+            recordKinAction(player.storage.mengsanKinState_shuying || {});
+        if (player.storage.mengsanEnergy_shuying < 1) {
+            game.log(player, "费用不足，未发动", move.name); return;
+        }
+        player.storage.mengsanEnergy_shuying--;
+        current.energyUI.get(player)?.();
+        game.log(player, "消耗1费用发动", move.name);
+        await createIntentExecutor(game, () => getActiveBattle() === current && canActKin(game, current, player) ? current : null)(player, move);
+    };
+
+    const executeBeastIntent = async player => {
+        const current = getActiveBattle();
+        if (!isBeast(player) || !player.isAlive() || isStunned(player) || !current?.session.active) return;
+        const move = player.storage.mengsanBeastIntent_shuying;
+        if (!move) return;
+        player.storage.mengsanBeastIntent_shuying = null;
+        game.mengsanSetEnemyIntent_shuying(player, null);
+        player.storage.mengsanBeastState_shuying =
+            recordBeastAction(player.storage.mengsanBeastState_shuying || {});
+        if (player.storage.mengsanEnergy_shuying < 1) {
+            game.log(player, "费用不足，未发动", move.name); return;
+        }
+        player.storage.mengsanEnergy_shuying--;
+        current.energyUI.get(player)?.();
+        game.log(player, "消耗1费用发动", move.name);
+        const revision = player.storage.mengsanBeastState_shuying.revision;
+        const valid = () => getActiveBattle() === current && current.session.active && player.isAlive() &&
+            !isStunned(player) && player.storage.mengsanBeastState_shuying?.revision === revision;
+        if (move.plow) gainPlow(player);
+        else if (move.ringing) { for (const target of getIntentHostiles(game, player)) { if (!valid()) break; applyRinging(current, target); } }
+        else await createIntentExecutor(game, () => valid() ? current : null)(player, move);
+    };
+
+    const executeVantomIntent = async player => {
+        const current = getActiveBattle();
+        if (!isVantom(player) || !player.isAlive() || isStunned(player) || !current?.session.active) return;
+        const move = player.storage.mengsanVantomIntent_shuying;
+        if (!move) return;
+        player.storage.mengsanVantomIntent_shuying = null;
+        game.mengsanSetEnemyIntent_shuying(player, null);
+        player.storage.mengsanVantomState_shuying =
+            recordVantomAction(player.storage.mengsanVantomState_shuying || {});
+        if (player.storage.mengsanEnergy_shuying < 1) {
+            game.log(player, "费用不足，未发动", move.name); return;
+        }
+        player.storage.mengsanEnergy_shuying--;
+        current.energyUI.get(player)?.();
+        game.log(player, "消耗1费用发动", move.name);
+        await createIntentExecutor(game, () => getActiveBattle() === current ? current : null)(player, move);
+        if (getActiveBattle() === current && move.wound) applyWound(game, current, player, move.wound);
+    };
+
     const executeByrdonisIntent = async player => {
         const current = getActiveBattle();
         if (!isByrdonis(player) || !player.isAlive() || isStunned(player) || !current?.session.active) return;
@@ -508,6 +588,9 @@ export function createMonsterIntentActions(game, getActiveBattle) {
         executeVineIntent,
         executeCubexIntent,
         executeByrdonisIntent,
+        executeVantomIntent,
+        executeBeastIntent,
+        executeKinIntent,
         executeEffigyIntent,
         executePhrogIntent,
         executeNibbitIntent,

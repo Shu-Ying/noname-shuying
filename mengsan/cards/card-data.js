@@ -1,5 +1,6 @@
 import { cardDefinitions, canAcquireCard } from "./card-definitions.js";
 import { cardUpgradeRule } from "./upgrades.js";
+import { WITHER_CARD, MAX_WITHER_LEVEL } from "./wither-card.js";
 
 const suits = ["spade", "heart", "club", "diamond"];
 
@@ -16,12 +17,18 @@ export function createCardData(spec, { character, enemy = false, registry = card
         (spec.nature != null && typeof spec.nature !== "string") ||
         !Number.isInteger(spec.upgrade ?? 0) || (spec.upgrade ?? 0) < 0 ||
         (spec.upgrade ?? 0) > (cardUpgradeRule(spec.name)?.maxLevel || 0) ||
-        !Array.isArray(spec.affixes ?? []) || !(spec.affixes ?? []).every(value => typeof value === "string")) {
+        !Array.isArray(spec.affixes ?? []) || !(spec.affixes ?? []).every(value => typeof value === "string") ||
+        (spec.guiltyBattles!=null && (!Number.isSafeInteger(spec.guiltyBattles) || spec.guiltyBattles<0 || spec.guiltyBattles>4)) ||
+        (spec.witherLevel!=null && (!Number.isSafeInteger(spec.witherLevel) || spec.witherLevel<0 || spec.witherLevel>MAX_WITHER_LEVEL))) {
         throw new Error(`梦三牌数据无效：${spec.name}`);
     }
     return {
         id: spec.id, suit: spec.suit, number: spec.number, name: spec.name,
+        // 分类由注册表决定，旧存档无需预先迁移，外部 spec 不可覆盖。
+        cardType: registry[spec.name].cardType ?? null, rarity: registry[spec.name].rarity ?? "common",
         nature: spec.nature ?? null, affixes: (spec.affixes ?? []).slice(), upgrade: spec.upgrade ?? 0,
+        ...(spec.name==="mengsan_curse_guilty"?{guiltyBattles:spec.guiltyBattles??0}:{}),
+        ...(spec.name===WITHER_CARD?{witherLevel:spec.witherLevel??0}:{}),
     };
 }
 

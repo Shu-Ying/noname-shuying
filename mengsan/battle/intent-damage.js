@@ -1,5 +1,6 @@
 import { slowAttackDamage } from "../monsters/effigy-slow.js";
 import { shrinkAttackDamage } from "../monsters/shrinker-status.js";
+import { ironcladStrengthPenalty } from "../cards/ironclad-hooks.js";
 
 export function attackHitCount(intent) {
     const hits = intent.hits ?? 1;
@@ -15,7 +16,7 @@ export function outgoingAttackDamage(intent, source) {
     }
     const storedStrength = source?.storage?.mengsanStrength_shuying;
     const strength = Number.isInteger(storedStrength) ? storedStrength : 0;
-    let damage = Math.max(0, intent.damage + strength);
+    let damage = Math.max(0, intent.damage + strength - ironcladStrengthPenalty(source));
     if (source?.storage?.mengsanWeak_shuying > 0) {
         damage = Math.floor(damage * 0.75);
     }

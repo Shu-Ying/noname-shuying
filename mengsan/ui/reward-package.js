@@ -72,7 +72,7 @@ export async function chooseRewardPackage(choices, {
     };
     return chooseVictoryOptions([upgrade, relic, {
         id: "claim-package", label: "领取奖励并继续",
-        description: "领取必得奖励与已选奖励，未选择的项目视为跳过。",
+        description: "领取固定奖励与已选奖励，未选择的项目视为跳过。",
         choose: () => ({ cardId, relicId }),
     }, {
         id: "skip-package", label: "跳过",
@@ -81,9 +81,9 @@ export async function chooseRewardPackage(choices, {
     }], {
         title: "初识的卢", allowSkip: false,
         rewardLabel: "搜刮 · 战利品列表",
-        rewardItems: [{ name: `金币 · ${pack.gold}（必得）`,
+        rewardItems: [{ name: `金币 · ${pack.gold}`,
             description: "无论选择还是跳过，金币都会结算。" },
-            ...fixedRewards.map(reward => ({ ...reward, name: `${reward.name}（必得）` }))],
+            ...fixedRewards.map(reward => ({ ...reward }))],
         description: `固定获得 ${pack.gold} 金币与${fixedRewards.map(
             reward => `【${reward.name}】`).join("、")}。` +
             "强化与遗物点击后选择，也可跳过。",

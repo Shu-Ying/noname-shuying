@@ -1,3 +1,4 @@
+import { isVantom } from "./vantom-intent.js";
 // 灰机 Wiki 墨宝：奇数位刺击起手；偶数位旋风起手后刺击；以后随机招与刺击交替。
 export const INKLET_CHARACTER = "mengsan_inklet_shuying";
 export const INKLET_MOVES = Object.freeze({
@@ -41,7 +42,7 @@ export const isInklet = player => player?.name === INKLET_CHARACTER &&
 // 在梦三的原生changeHp事件创建后限幅；保留护甲消耗量，只将穿透后的生命损失限制为1。
 // 层数由实际changeHp通知消耗，完全格挡、零伤害及取消事件不消耗。
 export function capInkletHpLoss(player, event) {
-    if (!isInklet(player) || !(player.storage.mengsanSlippery_shuying > 0) ||
+    if (!(isInklet(player) || isVantom(player)) || !(player.storage.mengsanSlippery_shuying > 0) ||
         !Number.isFinite(event.num) || event.num >= 0) return event;
     const parent = event.getParent();
     if (parent?.unreal) return event;

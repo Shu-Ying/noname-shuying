@@ -1,3 +1,5 @@
+import { KIN_PRIEST_CHARACTER } from "../monsters/kin-intent.js";
+import { createKinBattlePlan } from "../content/acts/act1/kin-group.js";
 import { createStartingDeck } from "../cards/starting-deck.js";
 import config from "../config.js";
 import { initializeInnateBonds } from "../bonds/state.js";
@@ -5,6 +7,8 @@ import { RAIDER_TRIO_ENCOUNTER, createRaiderTrioBattlePlan } from "../content/ac
 import { INKLET_CHARACTER } from "../monsters/inklet-intent.js";
 import { createInkletBattlePlan } from "../content/acts/act1/inklet-group.js";
 import { NIBBIT_PAIR_ENCOUNTER, createNibbitPairBattlePlan } from "../content/acts/act1/nibbit-pair.js";
+import { chooseEncounterEntry, createEncounterPlan } from "../content/encounters.js";
+import { normalBattleCount, protectEarlyBattleNodes, WEAK_BATTLE_COUNT } from "./encounter-progress.js";
 
 const hashText = text => {
     let value = 2166136261;
@@ -120,6 +124,10 @@ export const generateActMap = (run, actIndex) => {
             }
             else if (floor == 0) type = "battle";
             else type = weightedType(run, act.nodeWeights);
+            // 专属开场后的前三层不生成随机精英；跳过战斗的路线还需按胜场继续保护。
+            if (actIndex === 0 && floor <= WEAK_BATTLE_COUNT && !fixedNode && type === "elite") {
+                type = "battle";
+            }
             const id = `${act.id}_f${floor}_n${index}_${Math.floor(nextRandom(run) * 1e6)}`;
             const node = {
                 id,
@@ -175,6 +183,7 @@ export const createRun = character => {
             handLimitBonus: 0,
         },
         statistics: {
+            normalBattles: 0,
             completedNodes: 0,
             defeatedEnemies: 0,
             goldEarned: 0,
@@ -188,11 +197,12 @@ export const createRun = character => {
 
 export const getSelectableNodes = run => {
     const map = run.map;
-    if (!map.currentNodeId) {
-        return map.nodes.filter(node => node.floor == 0 && !node.completed);
-    }
-    const ids = map.edges.filter(edge => edge[0] == map.currentNodeId).map(edge => edge[1]);
-    return map.nodes.filter(node => ids.includes(node.id) && !node.completed);
+    const ids = new Set(map.currentNodeId
+        ? map.edges.filter(edge => edge[0] == map.currentNodeId).map(edge => edge[1])
+        : map.nodes.filter(node => node.floor == 0).map(node => node.id));
+    // 同时修正旧存档的早期楼层和当前可走节点，使地图图标与实际遭遇一致。
+    protectEarlyBattleNodes(run, map.nodes.filter(node => node.floor <= WEAK_BATTLE_COUNT || ids.has(node.id)));
+    return map.nodes.filter(node => ids.has(node.id) && !node.completed);
 };
 
 export const completeNode = (run, nodeId) => {
@@ -231,6 +241,11 @@ export const insertStoryNode = (run, sourceId) => {
 };
 
 export const enterNextAct = run => {
+    if (config.acts[run.actIndex]?.endsCurrentContent) {
+        run.status = "completed";
+        run.revision++;
+        return false;
+    }
     run.actIndex++;
     if (run.actIndex >= config.acts.length) {
         run.status = "completed";
@@ -245,11 +260,34 @@ export const getNodeEncounter = (run, node, override = null) => {
     const act = config.acts[run.actIndex];
     const content = node.contentId ? config.nodeContents?.[node.contentId] : null;
     const encounter = override || content;
+    if (act.encounterPools && !encounter?.enemies?.length && !encounter?.battlePlan &&
+        ["battle", "elite", "boss"].includes(node.type)) {
+        // 直接进入节点时也检查；交接传入的节点可能是副本，须同步地图中的结算类型。
+        protectEarlyBattleNodes(run, [node, run.map?.nodes.find(current => current.id === node.id)]);
+        const count = normalBattleCount(run);
+        const poolName = node.type === "battle" ? (count < WEAK_BATTLE_COUNT ? "weak" : "strong") : node.type;
+        const id = chooseEncounterEntry(act.encounterPools[poolName], () => nextRandom(run));
+        const definition = config.encounters[id];
+        const battlePlan = createEncounterPlan(definition, () => nextRandom(run));
+        const boss = node.type === "boss", elite = node.type === "elite";
+        return {
+            name: definition.name, encounterId: id, encounterPool: poolName,
+            normalBattleNumber: node.type === "battle" ? count + 1 : null,
+            enemy: battlePlan.units.find(unit => unit.camp === "enemy").character,
+            battlePlan, tier: definition.tier, boss,
+            gold: act.baseGold * (boss ? 3 : elite ? 2 : 1),
+            rewardPool: boss ? "shared.pool.boss.premium" : elite ? "shared.pool.battle.elite" : "shared.pool.battle.normal",
+            guaranteedRelicPool: elite ? "shared.pool.elite.relics" : null,
+            rewardTitle: "战斗奖励（三选一）",
+            openingDialogue: [], victoryDialogue: [], fixedRewards: [], contentId: null,
+        };
+    }
     let pool = encounter?.enemies || act.enemies;
     if (node.type == "elite" || node.type == "story") pool = act.eliteEnemies?.length ? act.eliteEnemies : act.enemies;
     if (encounter?.enemies?.length) pool = encounter.enemies;
     if (node.type == "boss") {
-        return { battlePlan: encounter?.battlePlan || act.bossBattlePlan || null, enemy: act.boss, tier: "boss", gold: act.baseGold * 3, boss: true, rewardPool: "shared.pool.boss.premium" };
+        const boss = act.bossEnemies?.length ? randomGet(run, act.bossEnemies.filter(Boolean)) : act.boss;
+        return { name: boss === KIN_PRIEST_CHARACTER ? "同族小队" : "", battlePlan: encounter?.battlePlan || (boss === KIN_PRIEST_CHARACTER ? createKinBattlePlan() : act.bossBattlePlan || null), enemy: boss, tier: "boss", gold: act.baseGold * 3, boss: true, rewardPool: "shared.pool.boss.premium" };
     }
     const enemy = randomGet(run, pool.filter(Boolean));
     return {
@@ -269,7 +307,9 @@ export const getNodeEncounter = (run, node, override = null) => {
         boss: false,
         contentId: node.contentId || null,
         description: encounter?.description || "",
-        rewardPool: encounter?.rewardPool || "shared.pool.battle.normal",
+        rewardPool: encounter?.rewardPool || (node.type === "elite" ? "shared.pool.battle.elite" : "shared.pool.battle.normal"),
+        allowSharedCardRewards: encounter?.allowSharedCardRewards === true,
+        guaranteedRelicPool: node.type === "elite" ? "shared.pool.elite.relics" : null,
         rewardTitle: encounter?.rewardTitle || "战斗奖励（三选一）",
     };
 };

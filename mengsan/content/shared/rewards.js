@@ -1,7 +1,10 @@
 import { relicRewards, relicRewardIds } from "../../relics/definitions.js";
+import { cardPackRewards, cardPackRewardIds } from "../../cards/packs/rewards.js";
+import { cardDefinitions } from "../../cards/card-definitions.js";
 
 export const rewards = {
     ...relicRewards,
+    ...cardPackRewards,
     "shared.reward.support.scout": {
         name: "道具·斥候援令", description: "本次征程后续每场战斗，友方张辽携 4 张手牌参战；重复获得不叠加人数。",
         support: { category: "item", battles: -1, unit: { character: "re_zhangliao", camp: "ally", hand: 4 } },
@@ -10,6 +13,34 @@ export const rewards = {
     "shared.reward.card.zhongsha": {
         card: { name: "mengsan_zhongsha" }, name: "获得一张【重杀】",
         description: "2费：造成8点伤害，然后给予目标2层易伤。",
+    },
+    "shared.reward.card.baozou": {
+        card: { name: "mengsan_baozou" }, name: "获得一张【暴走】",
+        description: "1费：造成9点伤害，然后将这张牌本场战斗中的伤害增加5点。",
+    },
+    "shared.reward.card.yuanhen": {
+        card: { name: "mengsan_yuanhen" }, name: "获得一张【怨恨】",
+        description: "0费：造成5点伤害；本回合失去过生命时改为攻击2次。",
+    },
+    "shared.reward.card.xuanfengzhan": {
+        card: { name: "mengsan_xuanfengzhan" }, name: "获得一张【旋风斩】",
+        description: "X费：消耗剩余费用，对所有敌人各造成5点伤害X次。",
+    },
+    "shared.reward.card.qiling": {
+        card: { name: "mengsan_qiling" }, name: "获得一张【欺凌】",
+        description: "0费：造成4点伤害，目标每有1层易伤额外增加2点伤害。",
+    },
+    "shared.reward.card.xueqiang": {
+        card: { name: "mengsan_xueqiang" }, name: "获得一张【血墙】",
+        description: "2费：失去2点生命，然后获得16点格挡。",
+    },
+    "shared.reward.card.zhanli": {
+        card: { name: "mengsan_zhanli" }, name: "获得一张【战栗】",
+        description: "1费：给予一名敌人3层易伤。消耗。",
+    },
+    "shared.reward.card.wuzhuang": {
+        card: { name: "mengsan_wuzhuang" }, name: "获得一张【武装】",
+        description: "1费：获得5点格挡，然后强化你手牌中的一张牌（仅本场战斗）。",
     },
     "shared.reward.card.songjianwushi": {
         card: { name: "mengsan_songjianwushi" }, name: "获得一张【耸肩无视】",
@@ -94,8 +125,8 @@ export const rewards = {
     "shared.reward.maxHp": { effectId: "max_hp", name: "极品强化·生机", description: "生命上限与当前生命各 +5" },
 };
 
-export const rewardPools = {
-    "shared.pool.battle.normal": [
+const battleCardRewardIds = [
+        ...cardPackRewardIds,
         "shared.reward.card.sha",
         "shared.reward.card.zhongsha",
         "shared.reward.card.fangyu",
@@ -113,14 +144,22 @@ export const rewardPools = {
         "shared.reward.card.fangxue",
         "shared.reward.card.jianyi",
         "shared.reward.card.pomie",
+        "shared.reward.card.baozou",
+        "shared.reward.card.yuanhen",
+        "shared.reward.card.xuanfengzhan",
+        "shared.reward.card.qiling",
+        "shared.reward.card.xueqiang",
+        "shared.reward.card.zhanli",
+        "shared.reward.card.wuzhuang",
         "shared.reward.card.songjianwushi", "shared.reward.card.wanmeidaji", "shared.reward.card.yubeidaji",
         "shared.reward.card.tao",
         "shared.reward.card.wuzhong",
-    ],
-    "shared.pool.boss.premium": [
-        ...relicRewardIds,
-        "shared.reward.skill.heroic",
-        "shared.reward.item.handCharm",
-        "shared.reward.maxHp",
-    ],
+];
+
+export const rewardPools = {
+    "shared.pool.battle.normal": [...battleCardRewardIds],
+    "shared.pool.battle.elite": [...battleCardRewardIds],
+    "shared.pool.elite.relics": [...relicRewardIds],
+    "shared.pool.boss.premium": battleCardRewardIds.filter(id =>
+        cardDefinitions[rewards[id].card?.name]?.rarity === "rare"),
 };

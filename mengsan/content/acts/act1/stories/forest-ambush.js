@@ -59,6 +59,7 @@ const forestAmbush = {
                     },
                 ],
                 rewardPool: "act1.pool.story.scoutGift",
+                allowSharedCardRewards: true,
                 rewardTitle: "斥候的谢礼（三选一）",
                 flags: {
                     "story.act1.helpedScout": true,
@@ -97,6 +98,7 @@ const forestAmbush = {
                         ],
                     },
                     rewardPool: "act1.pool.story.ambushLoot",
+                    allowSharedCardRewards: true,
                     rewardTitle: "伏兵战利品（三选一）",
                     description: "击败伏兵后，从随机出现的三个奖励中选择一个。",
                 },

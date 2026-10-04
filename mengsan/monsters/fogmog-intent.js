@@ -1,4 +1,5 @@
 // 灰机 Wiki 雾菇页的普通难度：74生命，重击8、头槌14。
+import { isKinFollower } from "./kin-intent.js";
 export const FOGMOG_CHARACTER = "mengsan_fogmog_shuying";
 export const EYE_CHARACTER = "mengsan_eye_with_teeth_shuying";
 export const FOGMOG_MOVES = Object.freeze({
@@ -32,4 +33,4 @@ export const isToothedEye = player => player?.name === EYE_CHARACTER &&
 export const isFogmogActor = player => isFogmog(player) || isToothedEye(player);
 // 爪牙不单独构成胜利目标；雾菇死亡后无需继续杀死或等待其幻象。
 export const isEncounterEnemy = player => player?.isAlive() &&
-    player.storage?.mengsanCamp_shuying === "enemy" && !isToothedEye(player);
+    player.storage?.mengsanCamp_shuying === "enemy" && !isToothedEye(player) && !isKinFollower(player);

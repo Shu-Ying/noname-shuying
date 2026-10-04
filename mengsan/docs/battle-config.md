@@ -9,6 +9,8 @@
 - 本版单场累计最多 8 个席位，包含主角、初始单位、奖励支援、以后出现的援军。
 
 ## 配置位置
+第一章弱/强/精英/Boss遭遇配置与阶段规则见 [act1-encounters.md](act1-encounters.md)。
+
 节点内容或剧情选项的 `outcome.battle` 中增加 `battlePlan`。
 Boss 也可以在大关配置的 `bossBattlePlan` 中定义。
 `units` 中每一项是一名初始角色，因此数组长度就是初始非主角人数。

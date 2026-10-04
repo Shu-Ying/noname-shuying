@@ -94,12 +94,17 @@ export function mountEnemyIntent(player, session, assetBase, document,
         const hasSummon = typeof intent.summon === "string";
         const hasSlimed = Number.isInteger(intent.slimed) && intent.slimed > 0;
         const hasInfection = Number.isInteger(intent.infection) && intent.infection > 0;
+        const hasWound = Number.isInteger(intent.wound) && intent.wound > 0;
+        const hasRinging = intent.ringing === true;
+        const hasPlow = Number.isInteger(intent.plow) && intent.plow > 0;
         const hasDazed = Number.isInteger(intent.dazed) && intent.dazed > 0;
         const hasDebuff = typeof intent.debuff === "string" &&
             Number.isInteger(intent.stacks) && intent.stacks > 0;
-        debuffLine.hidden = !(hasDebuff || hasDazed || hasSlimed || hasInfection);
-        const debuffSrc = `${assetBase}/assets/intent/${hasDazed || hasSlimed || hasInfection ? "Intent_status_card.png" : "Intent_debuff.png"}`;
+        debuffLine.hidden = !(hasDebuff || hasDazed || hasSlimed || hasInfection || hasWound || hasRinging);
+        const debuffSrc = `${assetBase}/assets/intent/${hasDazed || hasSlimed || hasInfection || hasWound ? "Intent_status_card.png" : "Intent_debuff.png"}`;
         if (debuffIcon.getAttribute("src") !== debuffSrc) debuffIcon.src = debuffSrc;
+        if (hasRinging) debuffAmount.textContent = "×1";
+        if (hasWound) debuffAmount.textContent = `×${intent.wound}`;
         if (hasInfection) debuffAmount.textContent = `×${intent.infection}`;
         if (hasSlimed) debuffAmount.textContent = `×${intent.slimed}`;
         if (hasDazed) debuffAmount.textContent = `×${intent.dazed}`;
@@ -114,7 +119,8 @@ export function mountEnemyIntent(player, session, assetBase, document,
         const buffSrc = `${assetBase}/assets/intent/${hasSummon ? "Intent_summon.png" : "Intent_buff.png"}`;
         if (buffIcon.getAttribute("src") !== buffSrc) buffIcon.src = buffSrc;
         blockLine.hidden = !hasBlock;
-        buffLine.hidden = !(hasStrength || hasSummon);
+        buffLine.hidden = !(hasStrength || hasSummon || hasPlow);
+        if (hasPlow) buffAmount.textContent = `撞${Math.max(1, Math.round(intent.plow * player.maxHp / 252))}`;
         if (hasSummon) buffAmount.textContent = "×1";
         if (hasBlock) blockAmount.textContent = String(intent.block);
         if (hasStrength) {
@@ -148,11 +154,14 @@ export function mountEnemyIntent(player, session, assetBase, document,
         }
         if (hasDebuff) {
             const label = intent.debuff === "脆弱" ? "Frail" :
-                intent.debuff === "易伤" ? "Vulnerable" : intent.debuff === "缩小" ? "Shrink" : intent.debuff === "缠结" ? "Tangled" : "Debuff";
+                intent.debuff === "虚弱" ? "Weak" : intent.debuff === "易伤" ? "Vulnerable" : intent.debuff === "缩小" ? "Shrink" : intent.debuff === "缠结" ? "Tangled" : "Debuff";
             effects.push(`${label} ×${intent.stacks}`);
         }
+        if (hasRinging) effects.push("Ringing ×1");
+        if (hasPlow) effects.push(`Plow ${Math.max(1, Math.round(intent.plow * player.maxHp / 252))}`);
         if (hasSummon) effects.push("Summon: 利齿之眼 ×1");
         if (hasDazed) effects.push(`Dazed ×${intent.dazed}`);
+        if (hasWound) effects.push(`Wound ×${intent.wound}`);
         if (hasInfection) effects.push(`Infection ×${intent.infection}`);
         if (hasSlimed) effects.push(`Slimed ×${intent.slimed}`);
         if (hasBlock) effects.push(`Block ${intent.block}`);
@@ -165,7 +174,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
             effects.push(intent.sleep ? "Sleep" : "Unknown");
         }
         const label = effects.join(", ");
-        badge.title = hasInfection ? `向敌对角色的个人弃牌堆加入${intent.infection}张感染；不能被打出，回合结束在手牌中每张造成3点非攻击伤害。` : intent.sleep ? "沉睡：本回合不行动，不消耗费用。" : intent.debuff === "缠结" ? "紧绕藤蔓：攻击后施加1回合缠结，攻击牌费用增加1；自身回合结束减少1回合。" : intent.shrink ? "缩小：攻击伤害减少30%，不重复叠加；来源死亡解除。" : hasSlimed ? `黏液：向敌对角色的个人弃牌堆加入${intent.slimed}张黏液；耗1费用、抽1张牌、消耗。` : hasSummon ? "虚幻孢子：召唤1只6生命的利齿之眼。" :
+        badge.title = hasRinging ? "野兽咆哮：敌对角色下一次自身回合只能主动使用1张牌，不限制响应，回合结束解除。" : hasPlow ? "跺地：获得横冲直撞，受伤且生命不高于其层数时击晕、清零力量并进入第二阶段。" : hasWound ? `肢解：攻击后向存活敌对角色的个人弃牌堆加入${intent.wound}张伤口；不能被打出，无虚无和额外伤害。` : hasInfection ? `向敌对角色的个人弃牌堆加入${intent.infection}张感染；不能被打出，回合结束在手牌中每张造成3点非攻击伤害。` : intent.sleep ? "沉睡：本回合不行动，不消耗费用。" : intent.debuff === "缠结" ? "紧绕藤蔓：攻击后施加1回合缠结，攻击牌费用增加1；自身回合结束减少1回合。" : intent.shrink ? "缩小：攻击伤害减少30%，不重复叠加；来源死亡解除。" : hasSlimed ? `黏液：向敌对角色的个人弃牌堆加入${intent.slimed}张黏液；耗1费用、抽1张牌、消耗。` : hasSummon ? "虚幻孢子：召唤1只6生命的利齿之眼。" :
             hasDazed ? "牵制：向敌对角色的个人弃牌堆加入3张晕眩；晕眩不能被打出，具有虚无。" :
             "攻击与负面效果作用于所有存活敌对角色；伤害按各目标状态计算，护甲另行抵扣。";
         if (badge.getAttribute("aria-label") !== label) badge.setAttribute("aria-label", label);

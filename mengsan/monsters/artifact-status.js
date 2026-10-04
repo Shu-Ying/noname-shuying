@@ -1,3 +1,4 @@
+import { afterIroncladVulnerable } from "../cards/ironclad-hooks.js";
 const KEY = "mengsanArtifact_shuying", SKILL = "mengsan_artifact_shuying";
 const bindings = new WeakMap();
 const DEBUFFS = Object.freeze({
@@ -29,11 +30,13 @@ export function consumeArtifact(player) {
     return true;
 }
 // 一次施加抵消一次，不按负面层数逐层消耗；伤害和正面增益不走此入口。
-export function applyMengsanDebuff(player, kind, amount) {
+export function applyMengsanDebuff(player, kind, amount, source = null) {
     if (!Object.hasOwn(DEBUFFS, kind) || !Number.isSafeInteger(amount) || amount < 0) throw new RangeError("负面状态参数无效");
     if (!amount || !player?.isAlive()) return false;
     const [key, skill] = DEBUFFS[kind], old = player.storage[key] ?? 0;
     if (!Number.isSafeInteger(old) || old < 0 || amount > Number.MAX_SAFE_INTEGER - old) throw new RangeError("负面状态层数越界");
     if (consumeArtifact(player)) return false;
-    player.storage[key] = old + amount; player.addSkill(skill); player.markSkill(skill); return true;
+    player.storage[key] = old + amount; player.addSkill(skill); player.markSkill(skill);
+    if(kind === "vulnerable" && source)afterIroncladVulnerable(source,player);
+    return true;
 }

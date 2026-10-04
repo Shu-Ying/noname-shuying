@@ -1,6 +1,9 @@
-// Candidate settlement adapter. Dependencies are the current mode/state reward functions.
+// 结算选择留在内存；玩家确认后只提交最终地图进度或结束征程。
 import { applyBattleEndRelics } from "../relics/battle.js";
+import { applySharedBattleEndCards } from "../cards/shared-battle-end.js";
 import { settleBondBattle } from "../bonds/state.js";
+import { recordNormalBattleVictory } from "../progression/encounter-progress.js";
+import { stripBattleProgress } from "../progression/map-checkpoint.js";
 import { prepareRewardPackage, applyRewardPackage }
     from "../progression/reward-package.js";
 
@@ -10,185 +13,186 @@ export function createBattleSettlement({
     store, config, getRandomRewardChoices, applyReward, completeNode,
     enterNextAct, createRun, now = Date.now, logRewardPackage = () => {},
 }) {
+    let item = null, committed = null, commitPromise = null;
     const readRun = () => store.read()[config.saveKey];
     function current(storage, runId) {
         const run = storage[config.saveKey];
-        if (!run || run.runId !== runId) throw new Error("Stale run: settlement refused");
-        run.battleFlow ||= { receipts: [], pending: null };
+        if (!run || run.runId !== runId || run.status !== "running") throw new Error("Stale run: settlement refused");
         return run;
     }
-    function pending(storage, runId, id) {
-        const run = current(storage, runId), item = run.battleFlow.pending;
-        if (!item || item.id !== id) throw new Error("Settlement checkpoint mismatch");
-        return {run, item};
+    function pending(runId, id) {
+        if (!item || item.id !== id || item.base.runId !== runId) throw new Error("Settlement checkpoint mismatch");
+        return item;
+    }
+    function validateCheckpoint(run, snapshot, nodeId) {
+        if (run.actIndex !== snapshot.actIndex || run.revision !== snapshot.revision ||
+            run.map?.nodes.find(node => node.id === nodeId)?.completed !== false) {
+            throw new Error("Stale node or revision");
+        }
     }
     return Object.freeze({
         readRun,
-        // Persist fixed candidates before opening choice UI. No mutation of the live run.
-        async prepare({run: snapshot, retryRun, node, encounter, hp, outcome = "victory"}) {
+        // 创建内存候选不调用存档写入；阵亡弹窗等待多久都不改上次地图存档。
+        async prepare({run: snapshot, node, encounter, hp, outcome = "victory"}) {
             if (!["victory", "defeat"].includes(outcome)) throw new Error("Unknown battle outcome");
             if (outcome === "victory" && (!Number.isFinite(hp) || (!encounter.rewardPackage && (!Number.isSafeInteger(encounter.gold) || encounter.gold < 0)))) throw new Error("Invalid battle result");
             const id = idFor(snapshot, node);
-            return store.update(storage => {
-                const run = current(storage, snapshot.runId);
-                if (run.battleFlow.receipts.includes(id)) throw new Error("Battle already settled");
-                if (run.battleFlow.pending) {
-                    if (run.battleFlow.pending.id !== id) throw new Error("Another settlement is pending");
-                    return run.battleFlow.pending;
-                }
-                if (run.actIndex !== snapshot.actIndex || run.revision !== snapshot.revision ||
-                    run.map?.nodes.find(n => n.id === node.id)?.completed !== false) {
-                    throw new Error("Stale node or revision");
-                }
-                // Battle may have changed RNG/card state since the last checkpoint.
-                const base = copy(snapshot); delete base.battleFlow;
-                const bondGrowth = settleBondBattle(base, node);
-                if (outcome === "victory") {
-                    base.player.hp = Math.max(1, Math.min(hp, base.player.maxHp ?? hp));
-                    base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
-                }
-                const relicRecovery = hp > 0
-                    ? applyBattleEndRelics(base, outcome) : 0;
-                const rewards = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, encounter.rewardPool).filter(c => c.name) : [];
-                // Persist guaranteed gold alongside loot; award it once in the chosen result.
-                const choices = outcome === "victory" && !encounter.rewardPackage
-                    ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
-                const rewardPackage = outcome === "victory" && encounter.rewardPackage
-                    ? prepareRewardPackage(base, encounter.rewardPackage,
-                        getRandomRewardChoices) : null;
-                run.battleFlow.pending = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(encounter.fixedRewards || []), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, outcome, relicRecovery, bondGrowth};
-                run.battleFlow.pending.rewardPackage = copy(rewardPackage);
-                if (outcome === "victory" && !rewardPackage) {
-                    run.battleFlow.pending.rewardMode = "one-or-skip";
-                }
-                if (outcome === "defeat") {
-                    const beforeBattle = retryRun || run;
-                    if (beforeBattle.runId !== run.runId ||
-                        beforeBattle.actIndex !== run.actIndex ||
-                        beforeBattle.revision !== run.revision) throw new Error("Stale retry checkpoint");
-                    run.battleFlow.pending.retryRun = copy(beforeBattle);
-                    run.battleFlow.pending.retryRun.battleFlow = {
-                        receipts:copy(run.battleFlow.receipts), pending:null,
-                    };
-                    run.battleFlow.pending.retryNode = copy(node);
-                    run.battleFlow.pending.retryEncounter = copy(encounter);
-                }
-                return run.battleFlow.pending;
-            });
+            const run = current(store.read(), snapshot.runId);
+            if (item) {
+                if (item.id !== id || item.outcome !== outcome) throw new Error("Another settlement is pending");
+                return copy(item);
+            }
+            validateCheckpoint(run, snapshot, node.id);
+            // Battle may have changed RNG/card state since the last checkpoint.
+            const base = copy(snapshot); delete base.battleFlow;
+            applySharedBattleEndCards(base,outcome);
+            const bondGrowth = settleBondBattle(base, node);
+            if (outcome === "victory") {
+                recordNormalBattleVictory(base, node, encounter);
+                base.player.hp = Math.max(1, Math.min(hp, base.player.maxHp ?? hp));
+                base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
+            }
+            const relicRecovery = hp > 0
+                ? applyBattleEndRelics(base, outcome) : 0;
+            const elite = !encounter.boss && encounter.tier === "elite";
+            const rewardPool = encounter.boss ? "shared.pool.boss.premium"
+                : elite ? "shared.pool.battle.elite" : encounter.rewardPool;
+            const rewards = outcome === "victory" && !encounter.skipRandomReward ? getRandomRewardChoices(base, rewardPool, 3, {
+                allowSharedCards: !encounter.boss && encounter.allowSharedCardRewards === true,
+            }).filter(c => c.name) : [];
+            const fixedRewards = [...(encounter.fixedRewards || [])];
+            // 同一内存候选固定这件遗物；选择或跳过卡牌均领取，不在 UI 抽取。
+            if (outcome === "victory" && elite) {
+                const [relic] = getRandomRewardChoices(base,
+                    encounter.guaranteedRelicPool || "shared.pool.elite.relics", 1);
+                if (relic) fixedRewards.push(relic.id);
+            }
+            // 金币随最终结果一次性提交。
+            const choices = outcome === "victory" && !encounter.rewardPackage
+                ? [{id:"mengsan.reward.gold.shuying", kind:"gold", name:"金币", amount:encounter.gold}, ...rewards] : [];
+            const rewardPackage = outcome === "victory" && encounter.rewardPackage
+                ? prepareRewardPackage(base, encounter.rewardPackage,
+                    getRandomRewardChoices) : null;
+            item = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(fixedRewards), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, elite, outcome, relicRecovery, bondGrowth};
+            item.rewardPackage = copy(rewardPackage);
+            if (outcome === "victory" && !rewardPackage) {
+                item.rewardMode = "one-or-skip";
+            }
+            return copy(item);
         },
         async choose(runId, id, choiceId) {
-            return store.update(storage => {
-                const {run, item} = pending(storage, runId, id);
-                if (item.outcome === "defeat") {
-                    const action = typeof choiceId === "string" ? choiceId : choiceId?.action;
-                    if (!["retry", "new"].includes(action)) throw new Error("Invalid defeat action");
-                    if (item.failureAction) {
-                        if (item.failureAction !== action ||
-                            (action === "new" && item.choiceId.character !== choiceId.character)) {
-                            throw new Error("Defeat choice already locked");
-                        }
-                        return item;
-                    }
-                    if (action === "new") {
-                        if (!config.characters.includes(choiceId.character) || typeof createRun !== "function") {
-                            throw new Error("Invalid new journey character");
-                        }
-                        // Generate once in the chosen checkpoint; a commit retry must not reroll it.
-                        item.nextRun = createRun(choiceId.character);
-                        if (!item.nextRun || item.nextRun.status !== "running" || item.nextRun.runId === runId) {
-                            throw new Error("Invalid new journey");
-                        }
-                        item.result = copy(item.base);
-                        item.result.status = "failed";
-                    } else {
-                        // Old pending saves have no retryRun: retain their last successful save.
-                        item.result = copy(item.retryRun || run);
-                        item.result.status = "running";
-                        item.result.battleFlow = {receipts:copy(run.battleFlow.receipts), pending:null};
-                        item.retryNode ||= copy(run.map?.nodes.find(node => node.id === item.nodeId));
-                        if (!item.retryNode || item.retryNode.completed) throw new Error("Missing retry battle node");
-                    }
-                    item.state = "chosen"; item.choiceId = copy(choiceId);
-                    item.failureAction = action; item.route = action; item.completedAt = now();
-                    return item;
+            const item = pending(runId, id);
+            const run = current(store.read(), runId);
+            validateCheckpoint(run, item.base, item.nodeId);
+            if (item.outcome === "defeat") {
+                const action = choiceId;
+                if (!["restart", "menu"].includes(action)) throw new Error("Invalid defeat action");
+                if (item.failureAction) {
+                    if (item.failureAction !== action) throw new Error("Defeat choice already locked");
+                    return copy(item);
                 }
-                if (item.state === "chosen") {
-                    const sameChoice = item.rewardPackage
-                        ? item.choiceId?.cardId === choiceId?.cardId &&
-                            item.choiceId?.relicId === choiceId?.relicId
-                        : item.choiceId === choiceId;
-                    if (!sameChoice) throw new Error("Choice already locked");
-                    return item;
-                }
-                const result = copy(item.base);
-                let route = "defeat";
-                if (item.outcome === "victory") {
-                    if (item.rewardPackage) {
-                        applyRewardPackage(result, item.rewardPackage, choiceId,
-                            applyReward);
+                if (action === "restart") {
+                    const character = item.base.player.character;
+                    if (typeof createRun !== "function") {
+                        throw new Error("Invalid new journey character");
                     }
-                    if (!item.rewardPackage) {
-                        const reward = item.choices.find(c => c.id === choiceId && c.kind !== "gold");
-                        if (choiceId !== null && !reward) {
-                            throw new Error("Choose one pending reward or skip");
-                        }
-                        // This result is persisted before commit; retries never credit gold twice.
-                        for (const gold of item.choices.filter(c => c.kind === "gold")) {
-                            if (!Number.isSafeInteger(gold.amount) || gold.amount < 0) throw new Error("Invalid pending gold reward");
-                            result.player.gold += gold.amount;
-                            result.statistics.goldEarned += gold.amount;
-                        }
-                        if (reward) {
-                            applyReward(result, reward.effectId || reward.id);
-                        }
-                        for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
-                    } else {
-                        for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                    // 当前角色从头开始；保存失败后重试沿用同一新征程，不重新生成。
+                    const nextRun = createRun(character);
+                    if (!nextRun || nextRun.player?.character !== character ||
+                        nextRun.status !== "running" || nextRun.runId === runId) {
+                        throw new Error("Invalid new journey");
                     }
-                    if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");
-                    route = item.boss && !enterNextAct(result) ? "victory" : "map";
-                } else result.status = "failed";
-                // Save the exact result (including random card ID/target) before final commit.
-                item.state = "chosen"; item.choiceId = choiceId; item.result = result;
-                item.route = route; item.completedAt = now();
-                if (item.rewardPackage && item.outcome === "victory") {
-                    logRewardPackage(item.rewardPackage, choiceId);
+                    item.nextRun = stripBattleProgress(nextRun);
                 }
-                return item;
-            });
+                item.result = stripBattleProgress(copy(item.base));
+                item.result.status = "failed";
+                item.state = "chosen"; item.choiceId = copy(choiceId);
+                item.failureAction = action; item.route = action === "restart" ? "new" : "menu"; item.completedAt = now();
+                return copy(item);
+            }
+            if (item.state === "chosen") {
+                const sameChoice = item.rewardPackage
+                    ? item.choiceId?.cardId === choiceId?.cardId &&
+                        item.choiceId?.relicId === choiceId?.relicId
+                    : item.choiceId === choiceId;
+                if (!sameChoice) throw new Error("Choice already locked");
+                return copy(item);
+            }
+            const result = copy(item.base);
+            let route = "defeat";
+            if (item.outcome === "victory") {
+                if (item.rewardPackage) {
+                    applyRewardPackage(result, item.rewardPackage, choiceId,
+                        applyReward);
+                }
+                if (!item.rewardPackage) {
+                    const reward = item.choices.find(c => c.id === choiceId && c.kind !== "gold");
+                    if (choiceId !== null && !reward) {
+                        throw new Error("Choose one pending reward or skip");
+                    }
+                    // 结果只计算一次；保存失败后的重试不再次发放金币。
+                    for (const gold of item.choices.filter(c => c.kind === "gold")) {
+                        if (!Number.isSafeInteger(gold.amount) || gold.amount < 0) throw new Error("Invalid pending gold reward");
+                        result.player.gold += gold.amount;
+                        result.statistics.goldEarned += gold.amount;
+                    }
+                    if (reward) {
+                        applyReward(result, reward.effectId || reward.id);
+                    }
+                    for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                } else {
+                    for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
+                }
+                if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");
+                route = item.boss && !enterNextAct(result) ? "victory" : "map";
+            } else result.status = "failed";
+            // 在内存锁定最终结果（包括随机牌实例），只在 commit 写入地图进度。
+            item.state = "chosen"; item.choiceId = copy(choiceId); item.result = stripBattleProgress(result);
+            item.route = route; item.completedAt = now();
+            if (item.rewardPackage && item.outcome === "victory") {
+                logRewardPackage(item.rewardPackage, choiceId);
+            }
+            return copy(item);
         },
         async commit(runId, id) {
-            return store.update(storage => {
+            const item = pending(runId, id);
+            if (item.state !== "chosen") throw new Error("Player choice required before saving");
+            if (committed) return {...copy(committed), duplicate:true};
+            if (commitPromise) return commitPromise;
+            commitPromise = store.update(storage => {
                 const saved = storage[config.saveKey];
                 const prior = storage[config.profileKey]?.completedRuns?.find(r => r.runId === runId && r.settlementId === id);
-                if (!saved && prior) return {route:prior.outcome, run:null, duplicate:true};
-                if (saved?.runId === runId && saved.battleFlow?.receipts?.includes(id)) return {route:"map", run:saved, duplicate:true};
-                const {run, item} = pending(storage, runId, id);
-                if (item.state !== "chosen") throw new Error("Durable chosen result required");
-                const result = copy(item.result);
-                if (item.route === "retry") {
-                    // A failed attempt does not complete this node or add its victory receipt.
-                    result.battleFlow = {receipts:copy(run.battleFlow.receipts), pending:null,
-                        retry:{node:copy(item.retryNode), encounter:copy(item.retryEncounter || null)}};
-                    storage[config.saveKey] = result;
-                    return {route:"retry", run:result, retryNode:copy(item.retryNode),
-                        retryEncounter:copy(item.retryEncounter || null), duplicate:false};
+                if (prior && item.route !== "map") {
+                    if (item.route === "new" && saved?.runId !== item.nextRun.runId) {
+                        throw new Error("Restart checkpoint changed");
+                    }
+                    return {route:item.route, run:copy(item.route === "new" ? saved : item.result), duplicate:true};
                 }
-                result.battleFlow = {receipts:[...run.battleFlow.receipts, id], pending:null};
+                if (item.route === "map" && saved?.runId === runId &&
+                    saved.map?.nodes.some(node => node.id === item.nodeId && node.completed)) {
+                    return {route:"map", run:saved, duplicate:true};
+                }
+                const run = current(storage, runId);
+                validateCheckpoint(run, item.base, item.nodeId);
+                const result = stripBattleProgress(copy(item.result));
                 if (item.route === "map") storage[config.saveKey] = result;
                 else {
                     const profile = storage[config.profileKey] ||= {wins:0, completedRuns:[]};
                     profile.completedRuns ||= [];
                     if (!profile.completedRuns.some(r => r.runId === runId)) {
                         if (item.route === "victory") profile.wins = (profile.wins || 0) + 1;
-                        profile.completedRuns.push({runId, settlementId:id, outcome:item.route === "new" ? "defeat" : item.route, character:result.player.character,
+                        profile.completedRuns.push({runId, settlementId:id, outcome:item.outcome, character:result.player.character,
                             completedNodes:result.statistics.completedNodes, goldEarned:result.statistics.goldEarned, completedAt:item.completedAt});
                     }
-                    if (item.route === "new") storage[config.saveKey] = copy(item.nextRun);
+                    if (item.route === "new") storage[config.saveKey] = stripBattleProgress(copy(item.nextRun));
                     else delete storage[config.saveKey]; // Same transaction as profile; never a second clear write.
                 }
                 return {route:item.route, run:item.route === "new" ? copy(item.nextRun) : result, duplicate:false};
-            });
+            }).then(result => {
+                committed = copy(result);
+                return copy(committed);
+            }).finally(() => { commitPromise = null; });
+            return commitPromise;
         },
     });
 }

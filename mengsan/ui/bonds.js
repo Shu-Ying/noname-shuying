@@ -55,7 +55,8 @@ export function renderBonds(parent, run, saveRun, onBusy = () => {}) {
         card.className = "mengsan-bond-card-shuying";
         root.appendChild(card);
         text("h3", definition.name, card);
-        const ready = Boolean(getBondCombat(id, npc.level));
+        const combat = getBondCombat(id, npc.level);
+        const ready = Boolean(combat);
         const state = npc.down ? "濒死 · 等待救助" :
             ready ? "可助战" : "战斗配置待补";
         text("p", `${state}${npc.down && !ready ?
@@ -69,14 +70,14 @@ export function renderBonds(parent, run, saveRun, onBusy = () => {}) {
         text("p", npc.level === 10 ? "羁绊已满级" :
             `升级进度 ${npc.progress}% / 100%`, card);
         const button = text("button", bonds.selected === id ?
-            "已指定助战" : "指定助战", card);
+            "已指定（按概率到场）" : "指定助战", card);
         button.type = "button";
         button.setAttribute("aria-pressed", String(bonds.selected === id));
         button.addEventListener("click", () => choose(id));
         buttons.push(button);
-        const combat = getBondCombat(id, npc.level);
         text("p", combat ? `生命 ${combat.maxHp} · 初始手牌 ${combat.hand}` :
             "生命、初始手牌及技能等待配置。", card);
+        if (combat) text("p", `每回合摸 ${combat.draw} 张 · 手牌上限 ${combat.handLimit} · 每回合费用 ${combat.energy}`, card);
         text("p", `独立牌库 ${getBondDeck(definition).length} 张 · 意图 ${
             getBondIntents(definition).map(move => move.name).join(" → ")}`,
             card);
@@ -86,6 +87,7 @@ export function renderBonds(parent, run, saveRun, onBusy = () => {}) {
             rescue.disabled = true;
         }
     }
-    text("p", "指定 NPC 后，每场战斗结束：到场 +50%，未到场 +25%。");
+    text("p", "指定助战后，每场按当前等级概率判定到场；濒死或本等级未配置完整时无法上场。角色专属首战不触发助战，也不累计羁绊成长。");
+    text("p", "其余战斗完成结算：到场 +50%，未到场 +25%。");
     return root;
 }

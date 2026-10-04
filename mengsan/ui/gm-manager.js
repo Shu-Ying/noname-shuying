@@ -1,4 +1,5 @@
 import { AFFIX_INFO } from "../cards/affixes.js";
+import { hasCardAffix } from "../cards/intrinsic-affixes.js";
 import { describeLibraryCard } from "./card-library.js";
 
 const node = (tag, className, label, parent) => {
@@ -49,7 +50,7 @@ export function mountGMManager(session, owner, piles, battle, resources, game) {
         node("h3", "", `编辑：${describeLibraryCard(selected.storage.mengsanCard_shuying).name}`, editor);
         const choices = node("div", "ms-gm-affixes", null, editor);
         for (const [key, info] of Object.entries(AFFIX_INFO)) {
-            const applied = selected.storage.mengsanCard_shuying.affixes.includes(key);
+            const applied = hasCardAffix(selected,key);
             const item = button(`${info.name}${applied ? " · 已有" : ""}`, choices, () => {
                 if (!available() || !owner.getCards("h").includes(selected)) { render(); return; }
                 piles.addAffix(selected, key);

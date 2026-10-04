@@ -76,6 +76,10 @@ jobs:
             --out dist/manifest.json
           if ($LASTEXITCODE -ne 0) { throw '生成清单失败' }
 
+          python (Join-Path $source 'tools/verify_manifest.py') `
+            --root $source --version $version
+          if ($LASTEXITCODE -ne 0) { throw '发布前清单校验失败' }
+
           $manifestPath = Join-Path $source 'dist/manifest.json'
           $manifest = Get-Content $manifestPath -Raw |
             ConvertFrom-Json
@@ -128,6 +132,10 @@ jobs:
           Expand-Archive -LiteralPath $snapshot `
             -DestinationPath $stage
 
+          python (Join-Path $stage 'tools/verify_manifest.py') `
+            --root $stage --version $version
+          if ($LASTEXITCODE -ne 0) { throw '标签源码与清单不一致，停止发布' }
+
           $manifestPath = Join-Path $stage 'dist/manifest.json'
           $manifest = Get-Content $manifestPath -Raw |
             ConvertFrom-Json
@@ -158,6 +166,10 @@ jobs:
                   )
                   for name in component["files"]:
                       archive.write(root / name, folder + name)
+                  for key in ("manifest", "legacy_manifest"):
+                      receipt = descriptor.get(key)
+                      if receipt:
+                          archive.write(root / receipt, folder + receipt)
               archive.write(root / "dist/manifest.json", folder + "manifest.json")
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }

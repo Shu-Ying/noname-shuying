@@ -11,10 +11,10 @@ export const getIntentHostiles = (game, source) =>
 export function createIntentExecutor(game, getActiveBattle) {
     const active = source => source.isAlive() &&
         Boolean(getActiveBattle()?.session.active);
-    const applyDebuff = (target, move) => {
+    const applyDebuff = (target, move, source) => {
         if (!move.debuff) return;
         if (move.debuff === "缠结") { applyTangled(getActiveBattle(), target, move.stacks); return; }
-        applyMengsanDebuff(target, move.debuff === "脆弱" ? "frail" : "vulnerable", move.stacks);
+        applyMengsanDebuff(target, move.debuff === "脆弱" ? "frail" : move.debuff === "虚弱" ? "weak" : "vulnerable", move.stacks, source);
     };
     return async (source, move) => {
         for (const target of getIntentHostiles(game, source)) {
@@ -34,7 +34,7 @@ export function createIntentExecutor(game, getActiveBattle) {
                     await hit;
                 }
             }
-            if (target.isAlive() && active(source)) applyDebuff(target, move);
+            if (target.isAlive() && active(source)) applyDebuff(target, move, source);
         }
         if (!active(source)) return;
         if (move.block) await source.changeHujia(move.block);

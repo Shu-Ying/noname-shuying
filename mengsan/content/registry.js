@@ -15,6 +15,7 @@ const packages = [shared, act1, act2, act3];
 const nodeContents = {};
 const rewardPools = {};
 const rewards = {};
+const encounters = Object.create(null);
 const dialogueTypes = new Set(["character", "narrator", "sound", "choice"]);
 
 const validateDialogue = (dialogue, location) => {
@@ -41,11 +42,24 @@ packages.forEach(content => {
     addEntries(nodeContents, content.nodeContents, "节点内容");
     addEntries(rewardPools, content.rewardPools, "奖励池");
     addEntries(rewards, content.rewards, "奖励");
+    addEntries(encounters, content.encounters, "遭遇");
 });
 
 const acts = [act1.map, act2.map, act3.map];
 if (new Set(acts.map(act => act.id)).size != acts.length) throw new Error("梦三大关ID存在重复");
 acts.forEach(act => {
+    validateDialogue(act.completionDialogue, `${act.id} 通关`);
+    if (act.endsCurrentContent != null && typeof act.endsCurrentContent !== "boolean") {
+        throw new Error(`梦三章节结束配置无效：${act.id}`);
+    }
+    if (act.encounterPools) for (const key of ["weak", "strong", "elite", "boss"]) {
+        const pool = act.encounterPools[key];
+        if (!Array.isArray(pool) || !pool.length || new Set(pool).size !== pool.length ||
+            pool.some(id => !Object.hasOwn(encounters, id) ||
+                encounters[id].tier !== (["weak", "strong"].includes(key) ? "normal" : key))) {
+            throw new Error(`梦三遭遇池无效：${act.id}/${key}`);
+        }
+    }
     (act.fixedNodes || []).forEach(node => {
         if (!nodeContents[node.contentId]) throw new Error(`梦三固定节点内容不存在：${node.contentId}`);
         if (!Number.isInteger(node.floor) || node.floor < 0 || node.floor >= act.floorNodes.length) {
@@ -101,6 +115,14 @@ Object.values(rewards).forEach(reward => {
     if (battles !== -1 && (!Number.isInteger(battles) || battles < 1 || battles > 99)) throw new Error("梦三支援持续场数无效");
 });
 
-const contentRegistry = { acts, nodeContents, rewardPools, rewards };
+for (const [id, encounter] of Object.entries(encounters)) {
+    if (encounter.id !== id || typeof encounter.name !== "string" || !encounter.name ||
+        !["normal", "elite", "boss"].includes(encounter.tier)) throw new Error(`梦三遭遇定义无效：${id}`);
+    if (typeof encounter.createBattlePlan === "function") continue;
+    if (!Array.isArray(encounter.variants) || !encounter.variants.length) throw new Error(`梦三遭遇组合为空：${id}`);
+    for (const units of encounter.variants) validateBattlePlan({units, rules: []});
+}
+
+const contentRegistry = { acts, nodeContents, rewardPools, rewards, encounters };
 
 export default contentRegistry;

@@ -20,7 +20,7 @@ jobs:
       GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
 
     steps:
-      - name: Build manifest and ZIP
+      - name: Verify committed manifests and build ZIP
         run: |
           $ErrorActionPreference = 'Stop'
           $tag = $env:RELEASE_TAG
@@ -58,11 +58,14 @@ jobs:
             throw "extension.js 的版本号必须为 $version"
           }
 
-          python (Join-Path $stage 'tools/generate_manifest.py') `
+          # The updater reads raw tag paths, not release attachments.
+          # Never generate new manifests after the release tag already exists.
+          python (Join-Path $stage 'tools/verify_manifest.py') `
             --root $stage `
-            --version $version `
-            --out dist/manifest.json
-          if ($LASTEXITCODE -ne 0) { throw '生成清单失败' }
+            --version $version
+          if ($LASTEXITCODE -ne 0) {
+            throw '标签内清单缺失或过期：请先生成并提交清单，再创建新版本标签'
+          }
 
           $manifestPath = Join-Path $stage 'dist/manifest.json'
           $manifest = Get-Content $manifestPath -Raw |
@@ -98,6 +101,10 @@ jobs:
                   )
                   for name in component["files"]:
                       archive.write(root / name, folder + name)
+                  for key in ("manifest", "legacy_manifest"):
+                      receipt = descriptor.get(key)
+                      if receipt:
+                          archive.write(root / receipt, folder + receipt)
               archive.write(root / "dist/manifest.json", folder + "manifest.json")
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }

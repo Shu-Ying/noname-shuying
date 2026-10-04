@@ -13,14 +13,13 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
                 await presentVictory(copy(job.pending));
                 job.victoryPresented = true;
             }
-            // Also reopen a legacy chosen defeat: it never had a recovery choice.
-            if (job.pending.state !== "chosen" ||
-                (job.pending.outcome === "defeat" && !job.pending.failureAction)) {
+            if (job.pending.state !== "chosen") {
                 state = "choosing";
                 if (!job.hasChoice) {
-                    job.choiceId = job.pending.outcome === "defeat" ? await chooseDefeat()
+                    job.choiceId = job.pending.outcome === "defeat" ? await chooseDefeat(copy(job.pending.base))
                         : await chooseReward(copy(job.pending.choices), {
                             boss: job.pending.boss,
+                            elite: job.pending.elite,
                             fixedRewards: copy(job.pending.fixedRewards || []),
                             rewardPackage: copy(job.pending.rewardPackage || null),
                         });
@@ -51,7 +50,7 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
                     job.nextNode = await showMap(mapRun);
                     job.committed.run = mapRun;
                 }
-                else if (!["retry", "new"].includes(job.committed.route)) {
+                else if (job.committed.route !== "new") {
                     await showEnding(job.committed.route, copy(job.committed.run));
                 }
                 job.delivered = true;
@@ -73,13 +72,12 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
         get error() { return error; },
         async enterBattle({session, run, node, encounter, start}) {
             if (state !== "map") throw new Error("Map handoff not ready");
-            if (run.battleFlow?.pending) throw new Error("Resume pending settlement before battle");
             const saved = settlement.readRun();
             if (!saved || saved.runId !== run.runId || saved.revision !== run.revision) throw new Error("Stale battle input");
             state = "starting";
             try {
                 await quiesce();
-                active = {session, run, retryRun:copy(run), node:copy(node), encounter:copy(encounter)};job = null;work = null;
+                active = {session, run, node:copy(node), encounter:copy(encounter)};job = null;work = null;
                 // start MUST schedule only; it must not await the battle root's completion.
                 state = "battle"; start();
             } catch (cause) { state = "blocked"; error = cause; throw cause; }
@@ -88,19 +86,11 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
             if (state !== "battle" || session !== active.session) return false;
             if (!["victory", "defeat"].includes(outcome)) throw new Error("Unknown outcome");
             if (!Number.isInteger(defeatedEnemies) || defeatedEnemies < 0) throw new Error("Invalid defeated enemy count");
-            job = {input:{run:copy(active.run),retryRun:copy(active.retryRun),node:copy(active.node),encounter:{...copy(active.encounter),defeatedEnemies},hp,outcome}};
+            job = {input:{run:copy(active.run),node:copy(active.node),encounter:{...copy(active.encounter),defeatedEnemies},hp,outcome}};
             state = "stopping";
             active.session.requestStop();
             launch();
             return true; // No game.pause/resume: stop loop, let current body unwind, then open rewards.
-        },
-        resumePending({session}) {
-            if (state !== "map") throw new Error("Cannot resume during another operation");
-            const run = settlement.readRun(), item = run?.battleFlow?.pending;
-            if (!item) throw new Error("No durable pending settlement");
-            active = {session};
-            job = {input:{run}, pending:copy(item)};
-            state = "stopping"; session.requestStop(); launch(); return work;
         },
         retry() {
             if (state !== "retryable") throw new Error("No failed settlement to retry");

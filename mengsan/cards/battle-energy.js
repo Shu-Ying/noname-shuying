@@ -1,4 +1,5 @@
 // 只向同一场仍在进行的战斗中的存活角色增加当前费用，不改变上限。
+import { ironcladBlocksEnergy } from "./ironclad-hooks.js";
 export function createBattleEnergy(game, getActiveBattle) {
     const valid = (player, battle) => Boolean(battle &&
         battle === getActiveBattle() && battle.session?.active &&
@@ -21,6 +22,7 @@ export function createBattleEnergy(game, getActiveBattle) {
         },
         grant(player, amount, battle) {
             if (!valid(player, battle)) return false;
+            if (ironcladBlocksEnergy(player)) return false;
             validateAmount(player, amount);
             player.storage.mengsanEnergy_shuying += amount;
             battle.energyUI.get(player)?.();
