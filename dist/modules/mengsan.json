@@ -1,11 +1,11 @@
 {
-  "version": "2.0.1.1-rc.1",
-  "generated_at": "2026-10-04T11:24:22.013474+00:00",
+  "version": "2.0.2.1",
+  "generated_at": "2026-10-04T20:26:18.326606+00:00",
   "algorithm": "sha256",
   "update_channels": true,
   "file_count": 457,
-  "size_bytes": 705652979,
-  "folder_sha256": "98ee87f766429648ae7c8f1a33c186107f1b0751b0ad4cf650c1ca308043aba9",
+  "size_bytes": 145118687,
+  "folder_sha256": "066cda4d0a38b376251ebf0f57074236c8aa3a9f64f0fc47e54ad021d6a5ed60",
   "core": [
     "mengsan/register.js"
   ],
@@ -479,444 +479,444 @@
       "sha256": "ccfea8a1595a41528d93de7b90d78302e035dc42a058bd73a3d314e39c777306"
     },
     "mengsan/assets/cards/mengsan_colorless_alchemize.png": {
-      "size": 3127713,
-      "sha256": "030695f8c986e22f1ec74496da907f050c3439f9dd58db362af08da92af20164"
+      "size": 264296,
+      "sha256": "18cd20388da0d8a58909694ee91b010dead69317943c56f5ef52040a0f1c5b94"
     },
     "mengsan/assets/cards/mengsan_colorless_anointed.png": {
-      "size": 3086399,
-      "sha256": "3a68cb906e29c366bfb8beab3958276050e24f9dc77d854ae71debe095446838"
+      "size": 266619,
+      "sha256": "b6708433494c324440935738399300801008b34da15d582453c6adc5a84b8198"
     },
     "mengsan/assets/cards/mengsan_colorless_automation.png": {
-      "size": 3162166,
-      "sha256": "00b0f61f95fbd9118c3ecce4c68981ad59c970805f3c5fd4e0637ccaa704f0f5"
+      "size": 270690,
+      "sha256": "ae00c882959717f5043375851c6cd9cc60f95a382a739a03a9ce6cc473997d83"
     },
     "mengsan/assets/cards/mengsan_colorless_beacon_of_hope.png": {
-      "size": 3014849,
-      "sha256": "038bee1de6075fdcd9a2b1269ba3cd040e76727a6a3b2d36e41e1644bb631adc"
+      "size": 266264,
+      "sha256": "117f7f1d19ecb9efb8f1b861265aeb1613a216924b93c4db2426dd1df70fcf5b"
     },
     "mengsan/assets/cards/mengsan_colorless_beat_down.png": {
-      "size": 3261861,
-      "sha256": "476af9e96f7c3531ea0251ddb4f3ff87801054960ded214aba5f8656473a0473"
+      "size": 283486,
+      "sha256": "9b82b628861d358705285f6d59ffc3d3d057cea52ccaa7552e8a340d0dfd6afb"
     },
     "mengsan/assets/cards/mengsan_colorless_believe_in_you.png": {
-      "size": 3193359,
-      "sha256": "43519b09e365e4e91f6771fa09943969ea96ffc05300ea17a0019bdc7ab32943"
+      "size": 266162,
+      "sha256": "a45853960b13bbafca4caa1e8259b2f22043f163152f88a5b01c7df8eedfc079"
     },
     "mengsan/assets/cards/mengsan_colorless_bolas.png": {
-      "size": 3203088,
-      "sha256": "404d32ecb50eee1570ce743c43457c589839c98c7a63b746225bd0d2fd866c8e"
+      "size": 280335,
+      "sha256": "b81e67429b71198ab52345f2a365effecbcb6fedd8b49983fa1ac3cb5e4585e5"
     },
     "mengsan/assets/cards/mengsan_colorless_calamity.png": {
-      "size": 3043506,
-      "sha256": "2832971475e0cd42f28ce19009b4dc72ac13fdfd21c84bd94ce3ffe0ca801c25"
+      "size": 278226,
+      "sha256": "b379edcf4660d68d07c8e80b2fa7751d7bd3d2b7197ef7988ab4e367e75bb2f1"
     },
     "mengsan/assets/cards/mengsan_colorless_catastrophe.png": {
-      "size": 3311872,
-      "sha256": "ea81434a87f2277cbff5403a46399f7e73d1c7007cf3a60a6521a277c6e9edf6"
+      "size": 288219,
+      "sha256": "5f3ca79daffb95c7fa9c7dfae716be90729b01a9c6ad68f3b4b70d87dff126da"
     },
     "mengsan/assets/cards/mengsan_colorless_coordinate.png": {
-      "size": 3277184,
-      "sha256": "f05c1f215783e1fe97f920931afd20a8a4686036088da6f34212231a472db2a2"
+      "size": 284497,
+      "sha256": "b38b5033db495298281564747b88285f82b6b85eb5130b5ce43f1e59e656aeba"
     },
     "mengsan/assets/cards/mengsan_colorless_dark_shackles.png": {
-      "size": 3036771,
-      "sha256": "b43aafcbe4882f3a4ff4881615f409ac193ea35156956ec9f4d2150de7f8c2bb"
+      "size": 280026,
+      "sha256": "efefaf750e9dea617ec4492d703a098ffd2e711f84600b1f8851ace57b601535"
     },
     "mengsan/assets/cards/mengsan_colorless_discovery.png": {
-      "size": 3231144,
-      "sha256": "1d6c186eccdb7d1850c064ad25eb309cba3d8fe32238248813e92c47424945b9"
+      "size": 283071,
+      "sha256": "ac1a3709c7196ae6c6ad976e55bb8ce03b6da3e760c0a4fa5b25cd0de83dcb4e"
     },
     "mengsan/assets/cards/mengsan_colorless_dramatic_entrance.png": {
-      "size": 3354223,
-      "sha256": "8497a4026aac2aa838251157cf53ee3cd5d7cbd420ab436927985c94332033e9"
+      "size": 284526,
+      "sha256": "937ed345a9fc31b146172e6afaec1508ba0fbe1fa41a32c6986c31adae35edd1"
     },
     "mengsan/assets/cards/mengsan_colorless_entropy.png": {
-      "size": 3347868,
-      "sha256": "9672138ec7f8f5360efe7198378e2aa36898299c199c41727e25db0efb7a6632"
+      "size": 282769,
+      "sha256": "c1b7eaa54503226d16fc66e57ca6c681f09ec45272e2353da00f3a61db431708"
     },
     "mengsan/assets/cards/mengsan_colorless_equilibrium.png": {
-      "size": 3135158,
-      "sha256": "109a7369ec0f3a473d8ffec5e527dc1b7c22d929c90547bbc3cc4db333bc8aa6"
+      "size": 278137,
+      "sha256": "5099e2e493ada1a851ea74cfaee8a2a0bb9aa43c1d766ca6f9b5fce709cf56fd"
     },
     "mengsan/assets/cards/mengsan_colorless_eternal_armor.png": {
-      "size": 3167981,
-      "sha256": "3b532054c25452f093015ff92cb0bf4e15085baf367f42e56533992e6a6339cf"
+      "size": 282176,
+      "sha256": "73c6084cf6c0898a6dd35ae1c76cc286bdcd3e6e9af66bcf5cb35aa63baf48db"
     },
     "mengsan/assets/cards/mengsan_colorless_fasten.png": {
-      "size": 3134484,
-      "sha256": "62c627389524fd5aa90c30e2e37e70365946b61fb162f5f1084cb0a677b7ad33"
+      "size": 276883,
+      "sha256": "ff939467551bf4c5d0375c0e80c7252944ed07aa80bee720531e6735433ad478"
     },
     "mengsan/assets/cards/mengsan_colorless_finesse.png": {
-      "size": 3200227,
-      "sha256": "f0c3ce167fc36bdade027f9c89cfda0aebe2857e0e442ab8da83dac0062cb88b"
+      "size": 280564,
+      "sha256": "c89c7e36350213f9381caa79c5db2a944bf74378d947f33cbc7e3d82eed304d5"
     },
     "mengsan/assets/cards/mengsan_colorless_fisticuffs.png": {
-      "size": 2986131,
-      "sha256": "3424c53ede2dd31def9f4b36290b403e976b00e6d4acf9d1090a1ad3bff50355"
+      "size": 276830,
+      "sha256": "86b5f441e717f767689d7561f27bdfbbf491d73cd6cedcea453a07ad6126a6ec"
     },
     "mengsan/assets/cards/mengsan_colorless_flash_of_steel.png": {
-      "size": 3254260,
-      "sha256": "9638fbd12bdae0d856c0d7c514b88668d1925d53ff8e0b18f46cdf6363c6e41d"
+      "size": 273345,
+      "sha256": "f2fc37bef53ba85f9efd23daae366f808387f9e098c4a7e379f1b4d51c4cc5ae"
     },
     "mengsan/assets/cards/mengsan_colorless_gang_up.png": {
-      "size": 3454683,
-      "sha256": "151638d8f635a72652e5ed9653647a5c4f24b4285032c17d9d85441f4dd1c424"
+      "size": 286758,
+      "sha256": "c1bc6db4e411bec4a5eafeaa66c699fc67bfccc14925c17ba358dd47136376c8"
     },
     "mengsan/assets/cards/mengsan_colorless_gold_axe.png": {
-      "size": 3241447,
-      "sha256": "5a83405d841ff7b5c40d0aaf37507b3274ae2e98e75070bec1f742da11bb10e4"
+      "size": 277703,
+      "sha256": "fd329bfd9192e23b26f9f8879c7074949087f9204bf7ab1176ebf6dd78dc0392"
     },
     "mengsan/assets/cards/mengsan_colorless_hand_of_greed.png": {
-      "size": 3204239,
-      "sha256": "e3f35625547fde12c1646385b1def672d18b6b03373898bb44c3ff535c307811"
+      "size": 282231,
+      "sha256": "7946f221be9b1701d18108b731951d167a8aff94d64ef8deb9ca06ac3b23e355"
     },
     "mengsan/assets/cards/mengsan_colorless_hidden_gem.png": {
-      "size": 3250322,
-      "sha256": "600be77b409fef66f260c8bdc0c25c46148064977f3cb5c8cb8e023b4da679ed"
+      "size": 275787,
+      "sha256": "f01d4e19b86b3c38cb4b003f42540582ce7420b52838a3cb07ca2563b75b35f6"
     },
     "mengsan/assets/cards/mengsan_colorless_huddle_up.png": {
-      "size": 3133981,
-      "sha256": "2783d26a011a442f1ee7ba2b8f50bb889886eab91685e5fff9d6d38cb0656da0"
+      "size": 281212,
+      "sha256": "2c8f39036c2f3441955b582c99117a721bcb409124c3916da2b5a98e8680028c"
     },
     "mengsan/assets/cards/mengsan_colorless_impatience.png": {
-      "size": 3249719,
-      "sha256": "00f00214e278a79fe138941153a59843760b2b0f3280d192628619f75f541d79"
+      "size": 282657,
+      "sha256": "7c9e4fe43bb0ff10bc36d8b784f2c92eb0302d19316e66615298822b799d5c6d"
     },
     "mengsan/assets/cards/mengsan_colorless_intercept.png": {
-      "size": 3205359,
-      "sha256": "d2dbb2979f3944cdd18cba6147e989ee3f78f8d6ed91665dfa1b3f7fb97e6352"
+      "size": 279949,
+      "sha256": "6c3c8ffcc4bbbf4779e8c3ebc808eaed060eddbbb5e86b8f2b6011e76b8bb208"
     },
     "mengsan/assets/cards/mengsan_colorless_jack_of_all_trades.png": {
-      "size": 3402938,
-      "sha256": "a9b06fe1f21f3a86d5cb16a0b312c3d6788c62b5bbabf75a844de431828ecdd6"
+      "size": 288675,
+      "sha256": "f569b9a98174b5b0829c36e4801c94e5824e949136c15f1e0722f8dff9f8580f"
     },
     "mengsan/assets/cards/mengsan_colorless_jackpot.png": {
-      "size": 3222698,
-      "sha256": "c9f9dbc67abcefd6576ff936ece05c274b4e682cc4b9e252b10feba78c4ba9f8"
+      "size": 274225,
+      "sha256": "e9ba9395411826bc85f6b90239374391cf8ef476b56e177d74627621b4c3870f"
     },
     "mengsan/assets/cards/mengsan_colorless_knockdown.png": {
-      "size": 3328270,
-      "sha256": "402647d62ae54ea742243185bf70e4ad95f87469cffcebb3e35d1826985cfdcb"
+      "size": 282499,
+      "sha256": "ac31e82907b2c4fbb0ccf42155f871d48934c6df8823e0a525614dffc10f5d1d"
     },
     "mengsan/assets/cards/mengsan_colorless_lift.png": {
-      "size": 3150681,
-      "sha256": "7a57e2e134a0e7579d8ea3d1b65a551b41f5814ad2b57c73a6afd1cf3751d71f"
+      "size": 275604,
+      "sha256": "53d0cc1740a6afcd4cd4a98c2cdba7db39f2cb53cc0095d86fcdfd5e7b138d11"
     },
     "mengsan/assets/cards/mengsan_colorless_master_of_strategy.png": {
-      "size": 3113651,
-      "sha256": "441e69484c575409c7d8201cc39c21956111b9462aec4aa10405e5f6f3815d46"
+      "size": 261127,
+      "sha256": "6ab0fe519140e15152ef56b3f2dabdaeea7a20c2dd74b9f4d4cda99a1d949991"
     },
     "mengsan/assets/cards/mengsan_colorless_mayhem.png": {
-      "size": 3221855,
-      "sha256": "a30d6f318aa0969c7867a31669df515f87296c4ec65e7d03bd9aeac1f65ca3f6"
+      "size": 276231,
+      "sha256": "a4342fdd20a002c41aab7f58c4a96d102710f51e1a75a4af40e1be91fb82d6b8"
     },
     "mengsan/assets/cards/mengsan_colorless_mimic.png": {
-      "size": 3092367,
-      "sha256": "23e33b4d6005c9667d54d821114bad372cde5885a3dcd0b36f0373947f518aaa"
+      "size": 271261,
+      "sha256": "b8aed0a8a83ea13d182ff8b730d857e0c209341d3a18dbfe0e0f611ef071deb0"
     },
     "mengsan/assets/cards/mengsan_colorless_mind_blast.png": {
-      "size": 3146553,
-      "sha256": "d7596195551d4c555dfd0e0841eea31666256f1a25f0e1126a242c9fb85e3999"
+      "size": 276143,
+      "sha256": "eec4ad2990cd8f5a588ce8af3786e3bd5bd31f22b32f593b06c77a1472aa0c4f"
     },
     "mengsan/assets/cards/mengsan_colorless_nostalgia.png": {
-      "size": 3191912,
-      "sha256": "99dbe6ade64d2f09fabae292dd8b3fa3a603ad55012c4ac7ca5cf61dff4e5ee1"
+      "size": 273974,
+      "sha256": "de773309820a877440f61553f8598ed40e0c2cb05fde115aa45047b4653a0cc9"
     },
     "mengsan/assets/cards/mengsan_colorless_omnislice.png": {
-      "size": 3221281,
-      "sha256": "d64936d9fcdbea09456eca5af79866b679532a77a03ba6f7d179d6c1225963d5"
+      "size": 276006,
+      "sha256": "64f53876bc55e2f2afa7d8265bc23f8e275cbed3b7edac4fce8cee148e927a46"
     },
     "mengsan/assets/cards/mengsan_colorless_panache.png": {
-      "size": 3393936,
-      "sha256": "154f52ded899d099c10b42a2551526c992c5b8bb013d29d76edac935780e73da"
+      "size": 286507,
+      "sha256": "fddb148e264ab0822eb57e71f9307b24c2ad908ba19ec22984b4b325484e4745"
     },
     "mengsan/assets/cards/mengsan_colorless_panic_button.png": {
-      "size": 3161638,
-      "sha256": "c88fdd70d1ca36b09e1038b5bb17757621c7cedde849c52e50890c63fb7e6c13"
+      "size": 279405,
+      "sha256": "5670b09757819204cc2215303715d29f5aad0bc58599f8e8451cf7e1daeeee7b"
     },
     "mengsan/assets/cards/mengsan_colorless_prep_time.png": {
-      "size": 3210939,
-      "sha256": "235350559f4b50b207907ea6217fe5a19381d297425c97862e9cb5efec556dc8"
+      "size": 273972,
+      "sha256": "a2a5da96f7f06e9524d80494419269fb59d185ba62983ae5d86537c9f7a0f83a"
     },
     "mengsan/assets/cards/mengsan_colorless_production.png": {
-      "size": 3192726,
-      "sha256": "1290f77a24dc3a7287e61ff7ef70f2c94033915d6996c3e22e039e9669cb8651"
+      "size": 270642,
+      "sha256": "170c5c71d61cd8a191c1d2a77ee2b677bd69be2a87a068c04d5dff3914216c99"
     },
     "mengsan/assets/cards/mengsan_colorless_prolong.png": {
-      "size": 3059311,
-      "sha256": "316111895375c230029e76f1ef674e7cb08e9e58472a90b4267b182c28e9221e"
+      "size": 277753,
+      "sha256": "32e13fafe3f0310a7180fae140d8292908f88bd0ab586e50087d78f76157bbca"
     },
     "mengsan/assets/cards/mengsan_colorless_prowess.png": {
-      "size": 3228141,
-      "sha256": "bb7a67bd845a376174dbb28627bac4771454cb50bbadc24cbc2a26391d9badc8"
+      "size": 283863,
+      "sha256": "2535f9e313713b0637751b1ae47a045e3108f7ff90092cf6497df2740e0d7a25"
     },
     "mengsan/assets/cards/mengsan_colorless_purity.png": {
-      "size": 3190337,
-      "sha256": "00aad33dbf174fa6e5fe3f0231ee1e1ddcfb0e13011132e2ba34179400ee33c8"
+      "size": 270780,
+      "sha256": "a502c0cddaff9d6dab370a5d63e325f787850d53309f92589c3ad0a26b92075f"
     },
     "mengsan/assets/cards/mengsan_colorless_rally.png": {
-      "size": 3267674,
-      "sha256": "315913dd9c6106d1a5833eabc5f0caa88ebda9dbed72440aab2fbd46bab14bb4"
+      "size": 278145,
+      "sha256": "65b2004cf30dacd29c7501b082b5fb3d0ba5d32b44155d403fc5cfe7a71f655b"
     },
     "mengsan/assets/cards/mengsan_colorless_rend.png": {
-      "size": 3293457,
-      "sha256": "36a641178ee9c13eaf78cc96656e445e5147d09b07ca2b05c82e0a30c440ad26"
+      "size": 283787,
+      "sha256": "b9055a923b42f6e443d1b71329a03bcc9dbfe6c1a8a74a7e93dbb3609a56752e"
     },
     "mengsan/assets/cards/mengsan_colorless_restlessness.png": {
-      "size": 2907076,
-      "sha256": "e1d87fa3e36dd61fd5b84779f6ef4b0f0341c3216cca763c83e6d9a1dc1fe737"
+      "size": 262597,
+      "sha256": "d2d61ade4282f626d20bb7a6df84e5694c02d48fe33f0930e5397a8722729e26"
     },
     "mengsan/assets/cards/mengsan_colorless_rolling_boulder.png": {
-      "size": 3318250,
-      "sha256": "d9e7faabcde18d42c6dcc4f66ab0e822a930a8fba0e2060f42d1655991cbd253"
+      "size": 287181,
+      "sha256": "d89ee006722c93bd7212c3ac51144f1fef1b3825261c42cfeb08f4cdf34cc64f"
     },
     "mengsan/assets/cards/mengsan_colorless_salvo.png": {
-      "size": 3228759,
-      "sha256": "00da2f4a4bc69909cd89b187b96776d104a667ddf728d330ffd12a0aec4c222e"
+      "size": 282695,
+      "sha256": "1f9c7094e7c828f230698704c6d15ce21b2f3253c15bd63633bbb79708f93a29"
     },
     "mengsan/assets/cards/mengsan_colorless_scrawl.png": {
-      "size": 3092946,
-      "sha256": "72a71d758a258a37437f26106cab486e55c26a451fc19bb1abf885f0da7b8f44"
+      "size": 262420,
+      "sha256": "e7e698d14481c65cf27be3bf2d3a7e5ca341609b61e767e469c8f39b2215f649"
     },
     "mengsan/assets/cards/mengsan_colorless_secret_technique.png": {
-      "size": 3031198,
-      "sha256": "20a686c1a98bc730af4ced690487ec6f0d3d140be2b5c474696325a648958f2d"
+      "size": 268518,
+      "sha256": "72a55e11ce97402a9e23e72183605d3fb9e05e0118c67bb4ad4409a9fc068e42"
     },
     "mengsan/assets/cards/mengsan_colorless_secret_weapon.png": {
-      "size": 3100884,
-      "sha256": "05858a388df685c1dbc2b60e6a3bb6e441d8991d01a3293b0613d8eb71a22bfb"
+      "size": 273623,
+      "sha256": "f12d3fd96bf5e527f6474592d800b1137d13b6cb919e414c2f88cd1bcc7fef89"
     },
     "mengsan/assets/cards/mengsan_colorless_seeker_strike.png": {
-      "size": 3226533,
-      "sha256": "6dac80c8ff7afe7659ad69cb4d2db02c366c0c02e6088e9bd395418e9b74148f"
+      "size": 271654,
+      "sha256": "01b61d7c17df2b2d3ea22eb5e869939002f4c6b11e94ff412da5d59f11113c7d"
     },
     "mengsan/assets/cards/mengsan_colorless_shockwave.png": {
-      "size": 3123692,
-      "sha256": "c4b10848314eeb75e3e4ca588f4a34f886cfbcd8f585d5b68391ff8d3affb16f"
+      "size": 275327,
+      "sha256": "3b43d39b5e5647bfbe34755fd16b6aaaebc5901fd45baaa8e8d90200de4895e3"
     },
     "mengsan/assets/cards/mengsan_colorless_splash.png": {
-      "size": 3008746,
-      "sha256": "0a8a4393dc4462de1f33bd03a1173792a3b29d4f92a235dd1b6dd0ecbc41dd6d"
+      "size": 267132,
+      "sha256": "4c1ed146f59f4941a6754c7200518d640dea110d80ce894db472d4bdd35ac3aa"
     },
     "mengsan/assets/cards/mengsan_colorless_stratagem.png": {
-      "size": 3124646,
-      "sha256": "55375fcebdaa50dea41f55ef29d349880beca781d3e583584d9d8e377a498247"
+      "size": 271810,
+      "sha256": "e64cf224b829653d842a41e9e2b18779b7c5bcbf4567cf78c89f08becd99d6fd"
     },
     "mengsan/assets/cards/mengsan_colorless_tag_team.png": {
-      "size": 3222820,
-      "sha256": "62f3a67a893d485c0a376ed96e7d0a97c69429d7648cd4075f72a8b074878907"
+      "size": 286097,
+      "sha256": "4613562c13e79da7242d93debea39c94f875f0d5c139dc6dfa881108e6aab49d"
     },
     "mengsan/assets/cards/mengsan_colorless_the_ball.png": {
-      "size": 3304542,
-      "sha256": "4e3673066a4b80a7c902896fea95f42e9fb9b71a058bb4309ee085df7f0d8a2a"
+      "size": 283974,
+      "sha256": "c242e6e38bd72926da5b57c081b2ce701f80c7b6247c9a71a682c394a63d907a"
     },
     "mengsan/assets/cards/mengsan_colorless_the_bomb.png": {
-      "size": 3150065,
-      "sha256": "b2d0d8799316933ae0bed6cd3b925bf729b448de3daf1d769918b5a41d79de78"
+      "size": 273486,
+      "sha256": "fa31d1822611d50b3790cba97dd02da2fc5c97388f11a6d9b7d7ae1ffedc9951"
     },
     "mengsan/assets/cards/mengsan_colorless_the_gambit.png": {
-      "size": 3194137,
-      "sha256": "cd37df03c949469af917d0150f73416cf05cc087dfb67fc9879d69238fdbff74"
+      "size": 276239,
+      "sha256": "7cadc0e76adfc3d205c5a61ef72aaa576fb162590215e59c9b0ea10c7f2c1289"
     },
     "mengsan/assets/cards/mengsan_colorless_thinking_ahead.png": {
-      "size": 3141303,
-      "sha256": "7bd6b4edb3e8bb92d8b90773df68570831c1be948a103a426433191dd5135b60"
+      "size": 279676,
+      "sha256": "e80070350482d483e22c41fc66100cc9534ac8e8dfdb4164add29393a34003bf"
     },
     "mengsan/assets/cards/mengsan_colorless_thrumming_hatchet.png": {
-      "size": 3114116,
-      "sha256": "e7f9630a4d218eba20870c15d93a96eb2d5bea7f8697c4792832dd99e91e705b"
+      "size": 273242,
+      "sha256": "870a9d775881b1b524d7db36ce1bf46e78c8c755369bd0cd04dab3bce50234ec"
     },
     "mengsan/assets/cards/mengsan_colorless_ultimate_defend.png": {
-      "size": 3310196,
-      "sha256": "45d4d4418254f13366deea71137d5b891177b49c981ac9c83293a000f7e8462c"
+      "size": 282973,
+      "sha256": "3fdad038b62f41a7d73f4001b0aabe09a0bba72659fdfb31a9f4b1f265b4df52"
     },
     "mengsan/assets/cards/mengsan_colorless_ultimate_strike.png": {
-      "size": 3222462,
-      "sha256": "25652e3b55614c84b25c27ae63605bae88bb0e284d4c6181474d0e2cca9e074a"
+      "size": 272282,
+      "sha256": "6eca5b583b462751d701fee97db39054ab093e61c8896b0460857d6c7e72325b"
     },
     "mengsan/assets/cards/mengsan_colorless_volley.png": {
-      "size": 3086676,
-      "sha256": "fdd8ca3936a72134d3085b34d69c5bd73b1e80d6f443908aa2bd48fe13b52892"
+      "size": 276470,
+      "sha256": "0718f961b9615886f12356e23d60774ede4d465728422a64ce9420fe02a59c20"
     },
     "mengsan/assets/cards/mengsan_curse_ascenders_bane.png": {
-      "size": 3156093,
-      "sha256": "f12a36ffcd6f0dba728fcc7eddfef3323c04a33115bd4c3e53e3a4931b25587d"
+      "size": 275151,
+      "sha256": "bb9d6e1ef9eacfece52788636d663abcc575af8e1d87ff15147e6e52a9942d4e"
     },
     "mengsan/assets/cards/mengsan_curse_bad_luck.png": {
-      "size": 3075399,
-      "sha256": "3aa36640e3a47477931176fadd7423ab0016b2d0b53e1d293b933f421aa723f4"
+      "size": 277750,
+      "sha256": "8ac4cd8aca8bc7cb50e7f4ea3c3d0568693fa01332a1cb4de199bb7318cef539"
     },
     "mengsan/assets/cards/mengsan_curse_clumsy.png": {
-      "size": 3320908,
-      "sha256": "d4fd3da9b1dc49625f7e2d5d612234cb5f57ab75616ce1c2c5eb609e893dd628"
+      "size": 283974,
+      "sha256": "b0ba7a80b320b386ed2100c9763d6872a083b9c0a36ee1e4ee851eaa64152980"
     },
     "mengsan/assets/cards/mengsan_curse_curse_of_the_bell.png": {
-      "size": 3190971,
-      "sha256": "d52d05e8ee1c3355ec34440694538049f6c3a9fac591d0a2d44947a9dde2ff7c"
+      "size": 280240,
+      "sha256": "81a2e85b2b37b6ba7685b8091f76570faf0755a01bf883fbab3a8b47a442325e"
     },
     "mengsan/assets/cards/mengsan_curse_debt.png": {
-      "size": 3206708,
-      "sha256": "073aa84c0268bffae9cc017222bef8a1a8e8ba364abd6b64c3dee61a382f8c6e"
+      "size": 279904,
+      "sha256": "5fcb34d9144fb3f1c1ff7828650938076bbad45179b4df50d670e5d4962adf5b"
     },
     "mengsan/assets/cards/mengsan_curse_decay.png": {
-      "size": 3159488,
-      "sha256": "4e4bb998c9d410bac843201e1161bf85da03797d3e7f46ebb22943e3bf2c45bc"
+      "size": 283528,
+      "sha256": "5dfb95eaa4673717187a62221824f1d7424972a5530c4c4a3713f76bf5a5ac73"
     },
     "mengsan/assets/cards/mengsan_curse_doubt.png": {
-      "size": 3272171,
-      "sha256": "aa0e651e89cb3199f9568e5c00d72b842be96104a96698b8b484b8755862cce1"
+      "size": 269347,
+      "sha256": "4710d3e31ee5c1d55e7b1a1baefeb25e77357e8913b8b6f7df713e4fab7ae0d4"
     },
     "mengsan/assets/cards/mengsan_curse_enthralled.png": {
-      "size": 3093077,
-      "sha256": "08df7fda97faf5bacbd9402eaccad5f03e16a69364464a6a97ada181e3fa3ac1"
+      "size": 276307,
+      "sha256": "07356451a786ec006bb8e2f987c680c3ce31565601b9ab22cfae952596877afd"
     },
     "mengsan/assets/cards/mengsan_curse_folly.png": {
-      "size": 3100483,
-      "sha256": "02707297707414f7eca6da31881b57f70d9d9805a06498f2363ec5793a91251b"
+      "size": 269943,
+      "sha256": "193281c95c083ecd5185e80e409647049694284fdd0a166376e647fcd590c376"
     },
     "mengsan/assets/cards/mengsan_curse_greed.png": {
-      "size": 3283765,
-      "sha256": "0ba7674f5e8a2d07360389f45330666fc793e55c5f77abfd500f513db2bf9fed"
+      "size": 276772,
+      "sha256": "d5a3c8cfec9d066da0a6e9dcd8b143b3a16b38208b3e3ed4b064c01e4f57ae1c"
     },
     "mengsan/assets/cards/mengsan_curse_guilty.png": {
-      "size": 3026762,
-      "sha256": "69bbe906990f27813ac542428549e33c29285cb44bf521515000c1c1d0702e83"
+      "size": 264642,
+      "sha256": "b394381030f8e4a69bd5e5054380bc9a7cd26ddeb1c98e7f3ff33d522a9a8ff9"
     },
     "mengsan/assets/cards/mengsan_curse_injury.png": {
-      "size": 3232271,
-      "sha256": "ae043cfe8f0e5fb50ed75287b82494b7b38a918a331b6bf6a017e3283f4c4226"
+      "size": 278371,
+      "sha256": "ed1ae130675c0eb1cf7f5cf1cad288d5a527d1930915d83388e541187e0e12b5"
     },
     "mengsan/assets/cards/mengsan_curse_normality.png": {
-      "size": 3015776,
-      "sha256": "c2dd8e2fe83165c8129a2ff05ae1b86d5f4cfa258420280ccf49cd0d033f2c01"
+      "size": 273981,
+      "sha256": "bc52a95c96e47ba75db1c8edd77add90bef93441cbe92d6617b8bf4fdba9eeec"
     },
     "mengsan/assets/cards/mengsan_curse_poor_sleep.png": {
-      "size": 3195332,
-      "sha256": "b3934757b27c91e96322227b64bae769addc87338cd9d2b18c0bdf8169165b7f"
+      "size": 266665,
+      "sha256": "87075450b54f3ec32ff5f108ed369b7ec1bbfb0c2522d8b72a86f5c6af8993ce"
     },
     "mengsan/assets/cards/mengsan_curse_regret.png": {
-      "size": 3197963,
-      "sha256": "72f758eaa98a1fe254f025cf4096807498a8b9536a4cd085a6f8ac6cec9af2c9"
+      "size": 276828,
+      "sha256": "b7a0e2a41ae61dafb422b7dc1726147dabd56fdac49e245acc1d89543f5e42a5"
     },
     "mengsan/assets/cards/mengsan_curse_shame.png": {
-      "size": 3159251,
-      "sha256": "e7090eb518f5ff5c022c77ced36866e3477c62319388feb99045ac0a24fcb289"
+      "size": 266707,
+      "sha256": "ff047529cf2c3a71517a5b1a8bb51291e05739b5eb4d4b265f04b9ec37331705"
     },
     "mengsan/assets/cards/mengsan_curse_spore_mind.png": {
-      "size": 3210425,
-      "sha256": "00dca10bcf03085d3d343c14fcc3703c5f3b3170ab992e74069a2cd730117177"
+      "size": 288927,
+      "sha256": "a1e4b54c2e1019404873fe6a4975651912612572c1b3a1a830b015d733a5a554"
     },
     "mengsan/assets/cards/mengsan_curse_writhe.png": {
-      "size": 3277925,
-      "sha256": "2dbaee5d8d3070f01d6bb0503c3235b6601fe4af7b5217fc4e17271161f7ed10"
+      "size": 284680,
+      "sha256": "600a6f8b961cabfa9d756049235550a1dd46647a8355b77f0a63f2eb50320a0e"
     },
     "mengsan/assets/cards/mengsan_dazed_shuying.png": {
-      "size": 3232164,
-      "sha256": "422244600455c716960bcc5f1aaf028733061b7f5b01e174125b9a46cab200ad"
+      "size": 283230,
+      "sha256": "3de4c3d4c4569b27a6810bf9b8acef633a990bb8fee7143a7a829f6c7628aee3"
     },
     "mengsan/assets/cards/mengsan_event_abundance.png": {
-      "size": 3175446,
-      "sha256": "829339ea6c9f232b2004c179782393036629709e8eec6949cd6aa0d8c1b37950"
+      "size": 269699,
+      "sha256": "5a1bba818e2a231c88839ddd98d69193bde2b494bf41d6e67ad969d09057c9a7"
     },
     "mengsan/assets/cards/mengsan_event_apotheosis.png": {
-      "size": 3202650,
-      "sha256": "3e213766a173b3c01004a5faf3b53481233f19375f4281929196d75dff37573e"
+      "size": 273199,
+      "sha256": "e98a1d5269b18e5bf04acc9b986b109586d6a23df694a954240b814e48d2c55e"
     },
     "mengsan/assets/cards/mengsan_event_apparition.png": {
-      "size": 3276116,
-      "sha256": "07100920c178b5bfd383e5ced6fb9d6353c8d1995c80e9fedf409c7184cb0e0d"
+      "size": 272007,
+      "sha256": "826016f8ee0ad7c5cbc94718c336d3c8289da62d1ae5eb1127519d10f7fa4516"
     },
     "mengsan/assets/cards/mengsan_event_brightest_flame.png": {
-      "size": 3088445,
-      "sha256": "e3abc30102a32ca9f91fb9af30bf3cd2790ff550388090d117e7978e31dede15"
+      "size": 263639,
+      "sha256": "bf578528a2d1535deef8c96592ed0d41f8401ba8f2585055704808c6f4c78673"
     },
     "mengsan/assets/cards/mengsan_event_byrd_swoop.png": {
-      "size": 3303389,
-      "sha256": "3769b6f25018f510ad489bfcdc5cb327c02c5aafd0a1b9ca780792b3c0fe13a8"
+      "size": 281465,
+      "sha256": "edd98958390d0aa1d5c08513dff384949bc26bd66931fac68afb8340399b9a57"
     },
     "mengsan/assets/cards/mengsan_event_enlightenment.png": {
-      "size": 3306552,
-      "sha256": "5eb347d0984e569e43b792b044abd478d53d9cb9c9eecc5ba4e97773747a2699"
+      "size": 270347,
+      "sha256": "8573f419ec40d129b6283f672fb0fd838ed53400e71974642f2845f75743206e"
     },
     "mengsan/assets/cards/mengsan_event_exterminate.png": {
-      "size": 3481990,
-      "sha256": "a0e53996ab3943760329f1aab87e1bc414964f5b88a19778415beecd61cb98be"
+      "size": 282715,
+      "sha256": "ecc46404183fe3e16072718a1c46c6606156b00996e452878784d09392b54a4c"
     },
     "mengsan/assets/cards/mengsan_event_feeding_frenzy.png": {
-      "size": 2991504,
-      "sha256": "e7261af1c355fc358b15a8131d9b60909b6ba30db94b4d6f948802c3e3158c92"
+      "size": 264932,
+      "sha256": "c01d5e4fd9e98f091f5ab72e88e6f7bff711bc3bc4630cfe213040405e5d8877"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_chaos.png": {
-      "size": 3225466,
-      "sha256": "2aa820d8c2f380eba5108df919295c4a509c33360bc934e678c72a60fa18d902"
+      "size": 276192,
+      "sha256": "effa31a6020a3cac2d57ae0b2edb7a59738617da8b2e39f2e1b51ce82fa58527"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_choking.png": {
-      "size": 3144566,
-      "sha256": "a8e5960f8d10e1a8ad9e390d309d50525f8831b82d139b3e65fe6caa3653e31d"
+      "size": 276078,
+      "sha256": "414549fa03ffd6a8f94a38f5b980a5e0086d25ebd0da92449967a4dab07f31aa"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_curious.png": {
-      "size": 3128414,
-      "sha256": "2f42323201b656cfaba157c9f45ba8795518bb5cd5a4a65af9d6d8c5474d7a57"
+      "size": 265391,
+      "sha256": "85587295ae53b74dbee096b20b1e81fa653bc0f1696fc2a409a8e2b37686a3d1"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_energized.png": {
-      "size": 3208057,
-      "sha256": "3de4101bff5223dd7b115294b67835fc7a849ca667ed729e6b6b8576125ffbcf"
+      "size": 276428,
+      "sha256": "8dcee40efbfe3fcf1f309ed61f687e5ab10744a15840433222ecb2ee1f0008a1"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_expertise.png": {
-      "size": 3158770,
-      "sha256": "a28fbf79892ab046388381a20e435f69bf53a6ba21148a3741c284989742a4b7"
+      "size": 276858,
+      "sha256": "508ce82a4b8b168afdbbd6480dfcc291a74b8221d1ade27c75d0c1ef4fc607d0"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_improvement.png": {
-      "size": 3101461,
-      "sha256": "f85a01280f85571848917e9375a122e17e7dbe0d6750766cbeeba18ffc85927f"
+      "size": 271401,
+      "sha256": "8fd7f188c32e98484e34866b96a6c304d263f8bb3db471720975f4dbd19fcc42"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_sapping.png": {
-      "size": 3167779,
-      "sha256": "0cff4b294bbbc3c0097fc6036fd1febf49a82cb777b85b1ef4e2b7cf1aa0d344"
+      "size": 278026,
+      "sha256": "b2bafdc9e70535af7d63155e3c83c6033a0738362cb66f64d623beb44712e9e7"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_violence.png": {
-      "size": 3217299,
-      "sha256": "07eb2165f6bda2bfce8c8267c83ff7caefc617105a33b0e99dd8e3c99582a97d"
+      "size": 268534,
+      "sha256": "97a52c1f62fd31f3195effbb0e64e079656229fdf18d162d3f348b380b8ebbd3"
     },
     "mengsan/assets/cards/mengsan_event_mad_science_wisdom.png": {
-      "size": 3108692,
-      "sha256": "ff24a151489315ad9cef2bdec1d3adaa0dfd3bc5590870ac333b8af9d019d787"
+      "size": 268269,
+      "sha256": "52bc2d0e9033700bd7304deb6a2f0f924da82a54c07c7f6dcdcf2d6b9dfcd2a6"
     },
     "mengsan/assets/cards/mengsan_event_maul.png": {
-      "size": 3146092,
-      "sha256": "7d66cab5f938b31c6191be72693251fb28b447a6a357f4888af712296d8b6090"
+      "size": 284044,
+      "sha256": "c0a4314159170fc2010fce968df611c8b5a75c5dd44430a3154bfd92f66f677d"
     },
     "mengsan/assets/cards/mengsan_event_metamorphosis.png": {
-      "size": 3255357,
-      "sha256": "5af1bb8458b9533114d88eef94c91730094fa7d23190406fa86910f5006a97bf"
+      "size": 278294,
+      "sha256": "e0f9de80f12db20c3b0a8986d372a63ce92f44f113969518ab6ea2b2195ade79"
     },
     "mengsan/assets/cards/mengsan_event_neows_fury.png": {
-      "size": 3270494,
-      "sha256": "e77228e317921968bc584f015c5cb5a018093eb8e8f8e14f68655d088fbd7175"
+      "size": 279982,
+      "sha256": "6a01878172f2723ef8f8ac46850b47150ab47f47da4ec684d1b4311860f4d1e0"
     },
     "mengsan/assets/cards/mengsan_event_peck.png": {
-      "size": 3245605,
-      "sha256": "d7fa9557a82e46219917686a77fe1341cc57f843c166f65c63e8895885f29f88"
+      "size": 279189,
+      "sha256": "19c98a11ff34b6af855974daff7997488fef32213915f950687344429f4bbc60"
     },
     "mengsan/assets/cards/mengsan_event_relax.png": {
-      "size": 3151165,
-      "sha256": "6cb2956664d30064d741fb76bd1f8444e470acdb3b294b006f64bb4d58ef4e68"
+      "size": 276048,
+      "sha256": "574a2d3481fadd3ad47e6479d4232b3b1dc7d6ac610b62103baac7fb4387d3c4"
     },
     "mengsan/assets/cards/mengsan_event_squash.png": {
-      "size": 3209656,
-      "sha256": "a280aa3721788e4fa71c718de80a6ae30658b6557b43a46dd06edf70b2df72a8"
+      "size": 280931,
+      "sha256": "d3d6551cea871ccb1d5ac0fb55bf1e16efa1d83432e0b53f4043faec3b105892"
     },
     "mengsan/assets/cards/mengsan_event_toric_toughness.png": {
-      "size": 3097893,
-      "sha256": "735a500a48f344a755aeb94a2d6f40e2eb1b3692a109c60595d83ebc5635e7b2"
+      "size": 276230,
+      "sha256": "1d3a11eea2030204e99d3a3c56ffb340d6ad7367c13e407ae224566fa1395989"
     },
     "mengsan/assets/cards/mengsan_event_whistle.png": {
-      "size": 3288482,
-      "sha256": "585c5c4a5885c930a1c9f72dbdb5c1d4617d672481bae40f91f44256335474f2"
+      "size": 275267,
+      "sha256": "bbcfa89a15e6fe123bf0beea19a5344650998a6c721a9d9ce80a1350940e2bfe"
     },
     "mengsan/assets/cards/mengsan_event_wish.png": {
-      "size": 3052956,
-      "sha256": "ec05fe126b5b533aba8eb31294ec446a72d7cbe61808e906075ad80271996dbb"
+      "size": 265676,
+      "sha256": "271dab6a6ecfaa480f2b81286ff412fbf1b09d061ea39af60f2e227e5a5f6744"
     },
     "mengsan/assets/cards/mengsan_fangxue.png": {
       "size": 300961,
@@ -935,288 +935,288 @@
       "sha256": "81b5c13db2980a7877506eaf9a7b0bbb028a77dda7c18cf1b4c4a402ac0db29e"
     },
     "mengsan/assets/cards/mengsan_ic_ashen_strike.png": {
-      "size": 3380843,
-      "sha256": "62bb1d4a3cce45797e6ce257b690f127596acee491dd0b3091bf52018b839480"
+      "size": 286604,
+      "sha256": "f12fb1c4259d96e45810f9a2ea735dc4f2a47ad693b6a2cf0681c474042d27fb"
     },
     "mengsan/assets/cards/mengsan_ic_barricade.png": {
-      "size": 3184834,
-      "sha256": "39ee5e80832d97b79c82400b6f42c03a8701288447b37b698f7f5db8d80dcba6"
+      "size": 274873,
+      "sha256": "e21f5f02f32e91e074b103e0c361d121b201bf3f66df725f9abe51bb8182699b"
     },
     "mengsan/assets/cards/mengsan_ic_battle_ready.png": {
-      "size": 3106395,
-      "sha256": "5392a0ace902bdd1487e5ca97ea469ba73efbbabab26f237ce76ef2ae7f4526f"
+      "size": 281316,
+      "sha256": "09eab1ad1bd94e206a2df6a70114c86c2a8f029877172c2b90554ed62cdb3eed"
     },
     "mengsan/assets/cards/mengsan_ic_battle_trance.png": {
-      "size": 3151914,
-      "sha256": "c327d3554861c1d2dc13c81d8142197bfa07359abac54c8611968168c12256d8"
+      "size": 280228,
+      "sha256": "318db72236c1d8ca244016a610f5e36c792fd942bbe672d914dbe31aaa628ddf"
     },
     "mengsan/assets/cards/mengsan_ic_blaze.png": {
-      "size": 3375895,
-      "sha256": "75804bfb929e75b4ced9f332807fd74003127b3f83f72ccfe6d4d9f35a26bb13"
+      "size": 285931,
+      "sha256": "7855b331d2bfbbfa94547d37aeced861c52777c69fad77d136190375f9f03cdc"
     },
     "mengsan/assets/cards/mengsan_ic_bludgeon.png": {
-      "size": 3389225,
-      "sha256": "79c71b0419b979f7f06ffa12be1761ab41244d33c721c1a679d0448d00b29337"
+      "size": 287941,
+      "sha256": "b67f775d2db7012cd1ca80252f9fd751f31494ba3c516089d6ba9a98e4c7521a"
     },
     "mengsan/assets/cards/mengsan_ic_bodyguard.png": {
-      "size": 3343236,
-      "sha256": "50da52b4a1ee4537d6328d311bbb4842f7de74796613784f9d6d53f5f3d5f32e"
+      "size": 283829,
+      "sha256": "0b015d31c67fd9c86763f30aa718900bdbc847547b128ec3a64f4b8afe8cb184"
     },
     "mengsan/assets/cards/mengsan_ic_boulder.png": {
-      "size": 3285153,
-      "sha256": "bff97d7a6f172b16cb3bb0434face4173bda907355516975efd0b177abdcb727"
+      "size": 278980,
+      "sha256": "c7ad606c1b336a656a1c49a9ea1f94d8c623039da1781af3277c6362b2ec745d"
     },
     "mengsan/assets/cards/mengsan_ic_brand.png": {
-      "size": 3294776,
-      "sha256": "8f0da53ec9a4ba94742f7b08aab5c8c065ad7d7f06d0456c7b8beea9edc0156c"
+      "size": 277039,
+      "sha256": "181b20a9c40e174914d1da6e373fbf98aa8968b5bac3d6c025aba28bf026200c"
     },
     "mengsan/assets/cards/mengsan_ic_break.png": {
-      "size": 3312419,
-      "sha256": "59e6a3748d903a508f5a2fb1fe4160848ab301b7f82b43b15c90daa88134c992"
+      "size": 282143,
+      "sha256": "a8e2b0a5a52e731e161fbe1019c56df8cf35cdf97bf49ff44f1af8e9739cbeb0"
     },
     "mengsan/assets/cards/mengsan_ic_bully.png": {
-      "size": 3295672,
-      "sha256": "11e917a6a33573ea00f187afb8b18c313887e901f30d8ea09dfb206c6dcd5ff3"
+      "size": 285649,
+      "sha256": "4c2566155e5096dafcc57078d3224e2c0b95ad2ca96fefdf944bfbcb17b7a182"
     },
     "mengsan/assets/cards/mengsan_ic_burning_pact.png": {
-      "size": 3261391,
-      "sha256": "e3163733cefc1f8c99f0d6549329e0fff3fb3a6c15dbb917d455173d39fa6a85"
+      "size": 281128,
+      "sha256": "b17552873bc5e7c7d7cfb3337a58d73288f8e4a5e4aedec9edeeb40efdc8a647"
     },
     "mengsan/assets/cards/mengsan_ic_clash.png": {
-      "size": 3375675,
-      "sha256": "c61999fb8ee8d70150348630fc773d7391f2239d01289acb1cb98906ad6b29b6"
+      "size": 287097,
+      "sha256": "5b15696ffe6f419309d3d0be712e18043e3746d10adc97e29b360c95f8f394aa"
     },
     "mengsan/assets/cards/mengsan_ic_colossus.png": {
-      "size": 3446064,
-      "sha256": "95758ea8bc56299aa7f29f48eed911ece7fa11fbbfd77d6ee865e3142002a607"
+      "size": 292362,
+      "sha256": "f3dce17e4b06d5eb9d8f67c74942bef4bde6a0e435e08fbe4d4c8984dea34a94"
     },
     "mengsan/assets/cards/mengsan_ic_conflagration.png": {
-      "size": 3383784,
-      "sha256": "24340736d1292a3e199148b02c6a395d91e94ee541833a7d9acf472285046967"
+      "size": 277137,
+      "sha256": "31fc8317518d907157ae0102b6c4f27d25c1fbcf65cb08601b532ed439b552d9"
     },
     "mengsan/assets/cards/mengsan_ic_corruption.png": {
-      "size": 3321262,
-      "sha256": "040e1f40a9205862b4893fefbbfd0fbde2530983694bafd1509347830b60bf26"
+      "size": 282239,
+      "sha256": "510f072f999d46ccccff9451a74e3c5b89f30bfa34d2b6768da13a289b52e0ff"
     },
     "mengsan/assets/cards/mengsan_ic_crimson_mantle.png": {
-      "size": 3315436,
-      "sha256": "7a0b60005554b2ecff4eada7096b5be930146e51769cc6f3a5784fc8f6f84459"
+      "size": 280963,
+      "sha256": "0da2398d9ec8a3b0384fb9d2c0138c25d72761988d9d01d74f9128c31f490673"
     },
     "mengsan/assets/cards/mengsan_ic_cruelty.png": {
-      "size": 3318267,
-      "sha256": "d538eac00eeb64bda764b32555207e79de8eb860d4b9e80377f0566534f8dc4a"
+      "size": 284558,
+      "sha256": "2b9fd288a8e862a398eaa43027abe22089fce1bb9b507481db326002e753382f"
     },
     "mengsan/assets/cards/mengsan_ic_dark_embrace.png": {
-      "size": 2966840,
-      "sha256": "ffdd9cc3fbd16ff58c647d4e05c6e8dd78f348140de2a0651dffe40e4ec49cdd"
+      "size": 270814,
+      "sha256": "21027bb399dda93c33b002753df1a73b382352913cc2c673b4ff85ee4d2c338d"
     },
     "mengsan/assets/cards/mengsan_ic_demon_form.png": {
-      "size": 3414331,
-      "sha256": "33b54e87e86d88c50e9995ea6849eed9e2f65dc0a2aa50a8a72b8ddc3b209165"
+      "size": 293315,
+      "sha256": "8d62cec70f7ed69030801d62279b2e1d7caf82c4c2cc32a07c6e3efcc326392b"
     },
     "mengsan/assets/cards/mengsan_ic_demonic_shield.png": {
-      "size": 3363214,
-      "sha256": "1f2ccf30e3534948282ac9cec36aeb1eb8a76161f4970188610f4ebd564a6cf1"
+      "size": 284972,
+      "sha256": "50f3b5e9278393ec37faba009e3ea591cd1adc2ce07633240ed8490c11e7b6fa"
     },
     "mengsan/assets/cards/mengsan_ic_dismantle.png": {
-      "size": 3290705,
-      "sha256": "1524381ee0fd906e7c287017ac2c07df01a2128837635c958456d90f8a116526"
+      "size": 286452,
+      "sha256": "bff545f4709221adf0b10c7629efb247f64be4ebd833cd71ef5c5a12f5b588c6"
     },
     "mengsan/assets/cards/mengsan_ic_dominate.png": {
-      "size": 3314562,
-      "sha256": "1b054572525b494046efc2df72e87446a121bee8084a6ab022f526d8e9f0076f"
+      "size": 287224,
+      "sha256": "5f679ced55ad9d87da8a6fbd4a37695b152ae2a60d94da827b52acb99941dc5b"
     },
     "mengsan/assets/cards/mengsan_ic_drum_of_battle.png": {
-      "size": 3155334,
-      "sha256": "498552963fda156c5f179fd7a3b4ceb1adaa6e8f9e4e02d864508a95a17c21ce"
+      "size": 276748,
+      "sha256": "51a69700fd6adb684ed23da50eb5b3a58c502aa5b9dc392602d08cb35a504863"
     },
     "mengsan/assets/cards/mengsan_ic_dual_wield.png": {
-      "size": 3219368,
-      "sha256": "a22ebfe2790fe287f16e91f3bf767b1bdd2770c86559ee39060dfac2708dee2e"
+      "size": 284469,
+      "sha256": "4e26f6c875e554ac095c1c33874f3df78f21e0b5a86352055447f7b64016be46"
     },
     "mengsan/assets/cards/mengsan_ic_eager.png": {
-      "size": 3155388,
-      "sha256": "30fc98f684f1f4d1e428245b89917b7bb68c037b5d7582a8f7eeab99685d2b5d"
+      "size": 271026,
+      "sha256": "3d6294313d96f73d9567112a8f6ae241ea267293d36bfe71b236eb31ad1dc42d"
     },
     "mengsan/assets/cards/mengsan_ic_entrench.png": {
-      "size": 3500692,
-      "sha256": "38f8a2cb023b54a49d9c85bb523c4c7f8c6ea60d6ed30d2e02825358fba5a900"
+      "size": 286869,
+      "sha256": "3f744ff75751d60611c5261d399bb918a3836b3c91415cf8fea6a01d832da540"
     },
     "mengsan/assets/cards/mengsan_ic_evil_eye.png": {
-      "size": 3403431,
-      "sha256": "cbf7f72b018401d6cc208b8f03440417d0943d70e1f91fc3f6ce9f3279f997f0"
+      "size": 283650,
+      "sha256": "2faa8de463e92655b64073f52d9345e538f131de868c48aaf54f59485ef8f119"
     },
     "mengsan/assets/cards/mengsan_ic_feed.png": {
-      "size": 3195433,
-      "sha256": "e68e07bae5c148ada1a33964265fc9eb9a0d4388fee3e35f6f9b0fef0f53afc8"
+      "size": 275805,
+      "sha256": "a1c982f3d5377adcaa39b96ef19a580feef01ce431d9adecfba68a28fcc7c6e0"
     },
     "mengsan/assets/cards/mengsan_ic_feel_no_pain.png": {
-      "size": 3148743,
-      "sha256": "216044b33d3dcab884597a5382d932b34be68b36700de401952107e96bcdb83c"
+      "size": 277116,
+      "sha256": "779915e2e1bacf218b82dce39fa4106573aae52947e84848d02bcddced92a6fa"
     },
     "mengsan/assets/cards/mengsan_ic_ferocity.png": {
-      "size": 3156966,
-      "sha256": "7b71c93f5fe9a48c63f52c4072c021ff8bd3da26e89a478cdec9ca675ed150c2"
+      "size": 270349,
+      "sha256": "f1b310f38a32b769d50514b2aa6045ddfa7cfbef2b8f98651f51d3a3f38dcad6"
     },
     "mengsan/assets/cards/mengsan_ic_fiend_fire.png": {
-      "size": 3445601,
-      "sha256": "8e10353d6717f4f649acf821b3e3b4af70a058d40aef7e86ceef3b70fb413d5f"
+      "size": 277055,
+      "sha256": "701ff87c2394c59e674abca313a4ed11ec754a1dd2aff47d08d65e69bc4244b1"
     },
     "mengsan/assets/cards/mengsan_ic_fight_me.png": {
-      "size": 3312407,
-      "sha256": "3bd8d2bf23c8fa667cb40297716218bb55f3cceb12e77b841651aebf9c7f5545"
+      "size": 282457,
+      "sha256": "cebfbdd33a0fba5b5f464dacee6c780e006208e86a73e8ec3a8964ff46cff0a5"
     },
     "mengsan/assets/cards/mengsan_ic_flame_barrier.png": {
-      "size": 3459567,
-      "sha256": "c73225d6181f96b6d5f35ef306d858c73b60d3af986cf0232e704374413a134a"
+      "size": 280002,
+      "sha256": "7ddf27c302f035ab69503b072912d55f8d82d1b1842f11c6dbacde90f1110264"
     },
     "mengsan/assets/cards/mengsan_ic_forgotten_ritual.png": {
-      "size": 3345779,
-      "sha256": "8a2b56f31440771c5c853d1dfe9860e507675b9d330ff0a48f7d11762e51f537"
+      "size": 281565,
+      "sha256": "ad78b78f6e2df161e6adb776bfcf6bdf3bd246908d769dd5fd9b0010449ce25b"
     },
     "mengsan/assets/cards/mengsan_ic_grapple.png": {
-      "size": 3215001,
-      "sha256": "512ddb86f8ea7489b5b292cdcd4f0d7d892ccd7c4a2bba0e218c06325f23646c"
+      "size": 283038,
+      "sha256": "91c01d8f4e752bc86f279026fe28aa59f3bb392ffc05cacad3d8246eb28b1604"
     },
     "mengsan/assets/cards/mengsan_ic_hellraiser.png": {
-      "size": 3258334,
-      "sha256": "b0a15fd06317803c7f29537a03527d41ae430f53595a7ff92ba491cdb068b76e"
+      "size": 284015,
+      "sha256": "c4192aa411e1a856541dedd8c2fc5bd65cb19d93f78601370adbb7e0b14a3d79"
     },
     "mengsan/assets/cards/mengsan_ic_hemokinesis.png": {
-      "size": 3582165,
-      "sha256": "e7392585c268ccca314b9be969951fc803e011beaf2cc3c72d578c0561b674d8"
+      "size": 285990,
+      "sha256": "b0e34131c20486d348bb251e72fe90daef35eb8fe1f3f039072914d92b14b094"
     },
     "mengsan/assets/cards/mengsan_ic_howl_from_beyond.png": {
-      "size": 3196502,
-      "sha256": "801203f8103404b55c861450d104866975eb2dd379233c8d19de370a83c4ea9d"
+      "size": 271644,
+      "sha256": "d70d78d493e6ce8833d19c898a3e7f4f91d796bb25419fad43c5c2290e127ae4"
     },
     "mengsan/assets/cards/mengsan_ic_impervious.png": {
-      "size": 3398556,
-      "sha256": "45366fc69d3c6b7b91fe15611c76f693fe2f445406e53ef582b3379447759f18"
+      "size": 291942,
+      "sha256": "c6be856ad7f613a9d1b224a6828327cc3d806bdeb30edee084b2b024c2a2eede"
     },
     "mengsan/assets/cards/mengsan_ic_infernal_blade.png": {
-      "size": 3081535,
-      "sha256": "10cfbfdd41d76c924f4c6fa74f57dc6546c181f26602c091e602ad0234b4ee07"
+      "size": 272334,
+      "sha256": "fb3336e31b3410ea8816ec07978a38f8c8b48318c60a3c5076817f9253d1af87"
     },
     "mengsan/assets/cards/mengsan_ic_inferno.png": {
-      "size": 3389310,
-      "sha256": "b1108d5cb2cefa40f9a4a5ea13a924a2624a57b4ca7c2ae8b7e7086ba09b090d"
+      "size": 284674,
+      "sha256": "29d668178da39d120f696cc61070724896544b956e4ea39e58829b51b096dddc"
     },
     "mengsan/assets/cards/mengsan_ic_inflame.png": {
-      "size": 3236167,
-      "sha256": "f9ee9fd58e4d5e74669665e0cbbc9050a0b61aa3ec2a798f97da97c1a6d44e1c"
+      "size": 286512,
+      "sha256": "d0a2e4f6b74104a044c007b18c65322def8f93f9ff466032431aded78b2e35f6"
     },
     "mengsan/assets/cards/mengsan_ic_juggernaut.png": {
-      "size": 3433571,
-      "sha256": "4faca2d750999826ca934c45ea648850233b4038207b6cf1d5f05eb6ffd34f49"
+      "size": 289780,
+      "sha256": "1a8d78383b168b8309d7259201a266297281ca0fb56ed4f9f443bfe79a13181e"
     },
     "mengsan/assets/cards/mengsan_ic_juggle.png": {
-      "size": 3320003,
-      "sha256": "d3f8d1394131b5f7d6cbeef9b8eb89ac25b0c108d79267210d5b6f9f7adcf513"
+      "size": 287046,
+      "sha256": "7ceb0f74cbd69653a24afe5e2618c224b0e86921e54534668401cfc7efd93769"
     },
     "mengsan/assets/cards/mengsan_ic_midnight.png": {
-      "size": 3163175,
-      "sha256": "e0f68012e73f192a2cc169235eb0b49f27b6991c37a5e8862cdb4f32d010d39b"
+      "size": 272404,
+      "sha256": "d4653cb196c2a7e23bd235be2175109ea5b1a01091eaa5fe23fe43adc3b55ced"
     },
     "mengsan/assets/cards/mengsan_ic_not_yet.png": {
-      "size": 3398829,
-      "sha256": "dddcd2e90d84883c33653169df1591633b944932aaaf6f34f43be10724007515"
+      "size": 276205,
+      "sha256": "f4ec82032ded94ffe2cf52b8ec0f9a8e6f9b6ae7dcf1ebea768679334efdcd33"
     },
     "mengsan/assets/cards/mengsan_ic_offering.png": {
-      "size": 3358902,
-      "sha256": "a8ac083487185734223c31e1e428f9ee78c0dad7e6e37baa201bb33a44e974b5"
+      "size": 286348,
+      "sha256": "ba4df8f33423d64efaa11a7433636d4e6a856c13695b0a0de0ad83f5177ad0cc"
     },
     "mengsan/assets/cards/mengsan_ic_pacts_end.png": {
-      "size": 3444230,
-      "sha256": "c23a5eba95bf6d44519eb890580ac576ea5477f96345cd9c58b03183d74179bc"
+      "size": 290271,
+      "sha256": "d061728b60b3e034ab04d2157c796a8f97687b435351866982388bf3b6e35866"
     },
     "mengsan/assets/cards/mengsan_ic_pillage.png": {
-      "size": 3371280,
-      "sha256": "f7aba0b71d6cbd43d6de528713e7b2ca015c35a99826dcfbd8cb04f9d8e4c684"
+      "size": 291912,
+      "sha256": "a424a0810cd9fc7bdced39fd6904ae5cff475115fafc725c0bf726dbce4db857"
     },
     "mengsan/assets/cards/mengsan_ic_primal_force.png": {
-      "size": 3284334,
-      "sha256": "c3b0d479166fae86e39f60739118fb993baae2d9c2e0ff2bc0b606d95b436b84"
+      "size": 283856,
+      "sha256": "3d7edeb8c8f1eb0e8618a47fa0b69863a798bc5d43ebd2b3be36e918de5798f7"
     },
     "mengsan/assets/cards/mengsan_ic_pyre.png": {
-      "size": 3272678,
-      "sha256": "e29710c3846fbe3571460232bbe337f502b1a5cb3928774b0796b16339030e3f"
+      "size": 274583,
+      "sha256": "e34631b6111df2949a1160693bdd3ac9f026857c53bc0929c500ae15e6eb07df"
     },
     "mengsan/assets/cards/mengsan_ic_rage.png": {
-      "size": 3254815,
-      "sha256": "178f291ccb5760f122b335b63963432e0e547f54b6d2a94b95641c382e60b708"
+      "size": 286146,
+      "sha256": "a90e6dd8ef551cab903c75da07800d7ec203d6c055c32bc5d292d50d5a080418"
     },
     "mengsan/assets/cards/mengsan_ic_rally.png": {
-      "size": 3208925,
-      "sha256": "5ca01c9b5ab51118da8afe5f5019ac9c8394d21c3153260d307d3c1e83de9159"
+      "size": 278772,
+      "sha256": "19e97f203eda683749b39125ca4e55b979a03a397cee6bc8c0fe516065d09d86"
     },
     "mengsan/assets/cards/mengsan_ic_relentless_assault.png": {
-      "size": 3157513,
-      "sha256": "d5093dcfc00a559844f160f6a07a32c5633047312f04e2c84cf385850f4565c1"
+      "size": 277053,
+      "sha256": "91b3099fdd45ce4793dc6620519421af2e198782b710a4f0069f227c32a2e0c8"
     },
     "mengsan/assets/cards/mengsan_ic_rupture.png": {
-      "size": 3242389,
-      "sha256": "a7d85597a367d43006abb2bc54fc1adade5f1fe396d80aa64b1d1fc0790c5517"
+      "size": 280778,
+      "sha256": "ff355f5f28889c0f52c79a169abfdf07d5e7f0f934d5615bb888ba82e518864d"
     },
     "mengsan/assets/cards/mengsan_ic_second_wind.png": {
-      "size": 3326737,
-      "sha256": "c00a2886359ff2cc6e067de86ef0126040934bd079e1d65b12a58e749bbc48f8"
+      "size": 288240,
+      "sha256": "fd59f3dfc89d5f2203c2f73d37eb1b6be929e86e88a76360b2b79acf423f3a11"
     },
     "mengsan/assets/cards/mengsan_ic_stampede.png": {
-      "size": 3340733,
-      "sha256": "3e7ecc806b9c528cdd2e2de45eaf04926e9fd0a49a71ae06602e1fb9938e6804"
+      "size": 286742,
+      "sha256": "1683abb1cd4a04876d04054a71217dcd57aa21fd9a9562332caf9a9fec36d481"
     },
     "mengsan/assets/cards/mengsan_ic_stoke.png": {
-      "size": 3224630,
-      "sha256": "2f2947c935a95aa22e7aea17e5b684e8077d0ccfd56348d404a3dea40e428850"
+      "size": 274723,
+      "sha256": "0c87883f06657ac82988687710d999cc519cc505bef60c998494ab94fd31f549"
     },
     "mengsan/assets/cards/mengsan_ic_stomp.png": {
-      "size": 3230547,
-      "sha256": "ed2a8f438c40c486e4efbc128c45bce568137d3d87a4d97ad2a3b69317e43342"
+      "size": 282210,
+      "sha256": "85f63f23137dce14ed09f1b5d2f04375351e259168225821770882161a6369a8"
     },
     "mengsan/assets/cards/mengsan_ic_stone_armor.png": {
-      "size": 3409260,
-      "sha256": "f72619cfaed0d7b433dc58a6204751e292a4e69cde3089417ce346894ebe683f"
+      "size": 291873,
+      "sha256": "9891d4a8157d0f6ff1f3330ecb780260d2ed39ff72788e9753d1d5a636c4cf62"
     },
     "mengsan/assets/cards/mengsan_ic_taunt.png": {
-      "size": 3260651,
-      "sha256": "122103d43fb1053d12d172c2a488bae9f7a6765c6d36ea2d3b13412a2de6e33d"
+      "size": 282698,
+      "sha256": "f94d828893a7c6dd327713c0b872b1d73be99793bf63ded6c6a16c490134f024"
     },
     "mengsan/assets/cards/mengsan_ic_tear_asunder.png": {
-      "size": 3318965,
-      "sha256": "df905976f4888b4eccc1418591a38c725f9c45cd579097adbf255c5f3ba2aeae"
+      "size": 281800,
+      "sha256": "6413c5272babc2636c97d76014b6fc40d769c3704b91df99012e6511986ada9b"
     },
     "mengsan/assets/cards/mengsan_ic_thrash.png": {
-      "size": 3408839,
-      "sha256": "8277ecb7faf2df11ad9e05de620b47ea44f20a866ff02fb9ff042ec8479bfad4"
+      "size": 285268,
+      "sha256": "b14efee9ffd36f81642a012c8221a9450eacaa5b2dd00a2c5e27685e4db38673"
     },
     "mengsan/assets/cards/mengsan_ic_twin_strike.png": {
-      "size": 3465328,
-      "sha256": "a2e60f67dfff10789fd453f1525941238389786f3dc5e71788a30d312b751914"
+      "size": 294861,
+      "sha256": "da1f3e62917e32af6075d4be404e30d59fafe262cdf39eb8dbaa2c9807a5cbd2"
     },
     "mengsan/assets/cards/mengsan_ic_unleash.png": {
-      "size": 3412724,
-      "sha256": "3dd9906996d07deaa06e1b56839609175a1d9d88bccdd9237465844c3e5882bc"
+      "size": 286537,
+      "sha256": "c012976e9e8d7d05156812994fe07c937c6bc30d94680ee1d656f697ae6911cc"
     },
     "mengsan/assets/cards/mengsan_ic_unshakable.png": {
-      "size": 3286732,
-      "sha256": "a7540f94fe98fce1434928b6a204f96f2f036a3db81579e499b2a31a7d9c6184"
+      "size": 280071,
+      "sha256": "e2251ad2c80eccbc947bf709a5a509ddc259b81bab9710493ee2b085215c17f1"
     },
     "mengsan/assets/cards/mengsan_ic_uppercut.png": {
-      "size": 3369967,
-      "sha256": "0935723010a4fd761821e827e6d456a07c63ac937beb0ca8421415d2bd67bc9d"
+      "size": 290682,
+      "sha256": "e831ba734e7872528b687d161644b5e735630bb26dc88a4623b302a4743f0a6d"
     },
     "mengsan/assets/cards/mengsan_infection_shuying.png": {
-      "size": 3154682,
-      "sha256": "7a47a79522cf9c684efce578b43197936a37feca7e229097d86903118e5a5862"
+      "size": 276669,
+      "sha256": "b1c457adceb378b8a816f4f33531a44e8f8fb0787296f104649b9584fd378890"
     },
     "mengsan/assets/cards/mengsan_jianbingdaji.png": {
       "size": 295064,
       "sha256": "379b700ebba9843c94f63b82ebd68536e232a0f5b4f4e093b055ae26023a83eb"
     },
     "mengsan/assets/cards/mengsan_jianyi.png": {
-      "size": 308533,
-      "sha256": "8440f6dc36bbc3fec6bd7406f2a0623aae37f63e7cbc1a7dc7b912805f4c9f38"
+      "size": 246696,
+      "sha256": "3c79ffad964fc6c47a779250bcb2db050e973e77d9c4d85ec7facf0c2ab2b9fc"
     },
     "mengsan/assets/cards/mengsan_pomie.png": {
       "size": 299414,
@@ -1243,48 +1243,48 @@
       "sha256": "2dde2cabca61df441a98daf41f82a66c6343aba7337b3b650d63e01dbedf56c2"
     },
     "mengsan/assets/cards/mengsan_slimed_shuying.png": {
-      "size": 3173387,
-      "sha256": "6185d04b40409525e0eb8268eb55ff0a047ad68833169230936dca937c37b05e"
+      "size": 272310,
+      "sha256": "628e65fe0b93ca2f9f769a3d21d2d764b86e9a0f7f8d6945e7d4c0350a5f807e"
     },
     "mengsan/assets/cards/mengsan_songjianwushi.png": {
       "size": 299499,
       "sha256": "fb9db91a0ceafd18e71b15807bc994a93797a0d438bb7d8fe4db459adfe11534"
     },
     "mengsan/assets/cards/mengsan_status_beckon.png": {
-      "size": 3089872,
-      "sha256": "ec9aa4385fcffa00030390c2bf02ed833cf7b4200d268955831949e3deb4c22d"
+      "size": 275940,
+      "sha256": "7151d406f0f84200274ae097fe2f0713faebbb529b44a4d70e16c25d841a32d3"
     },
     "mengsan/assets/cards/mengsan_status_burn.png": {
-      "size": 3202565,
-      "sha256": "fee1bddc02b755972e99be68fd354ec69cb9b6286a15c9c8203ed2708bb29904"
+      "size": 275450,
+      "sha256": "6ecb4e9e00a34ec107f2ab819bd5cb4d53e8a758c0636457af7b0291603ba895"
     },
     "mengsan/assets/cards/mengsan_status_debris.png": {
-      "size": 3212683,
-      "sha256": "8f251585e1487a3d8c04111eaac50ca7860745a8386107c0497f777fdc2ac3ec"
+      "size": 273356,
+      "sha256": "df7b1a6688b3593f21156d002a3cbe341b59914df2d677d0d4d91f7c3bee59b2"
     },
     "mengsan/assets/cards/mengsan_status_deprecated_card.png": {
-      "size": 3211849,
-      "sha256": "9dc7828e6e5559479d48a2f26144ca40ee365b5587183496d41085bc01f7464e"
+      "size": 281733,
+      "sha256": "4513f24a0d869fd7a8ce2b0f73eee82cedf728ba29c569149a954077a9b25972"
     },
     "mengsan/assets/cards/mengsan_status_frantic_escape.png": {
-      "size": 3331510,
-      "sha256": "e5b328f4f8efae481d25ef7fc2739c4f614ff05ee65799363a4194e229406526"
+      "size": 284940,
+      "sha256": "2d0d970b649f953cf0669c1b84148bff34f6c29973cbe057eb5854ce885eb594"
     },
     "mengsan/assets/cards/mengsan_status_soot.png": {
-      "size": 3164859,
-      "sha256": "885f2f1557cb9483c0bc0538c6eb3f1abb017809883d24a2f864732df4e48bef"
+      "size": 276940,
+      "sha256": "9552ab959116a6affd80ced87a995bfa2f5b64e78d4f30d2d61fbc9eff869b1c"
     },
     "mengsan/assets/cards/mengsan_status_toxic.png": {
-      "size": 3047189,
-      "sha256": "d2e6f92ba539b91a21cd3eb836f2b28c21e81548fbc1fcbf1686680533bc39c6"
+      "size": 275844,
+      "sha256": "f0739dfb734f439885d835e771e1f28f637998607599bdb103196c277b456d47"
     },
     "mengsan/assets/cards/mengsan_status_void.png": {
-      "size": 2969653,
-      "sha256": "63ad2acb439b474b93a250398cb153063c01c74ddd4ce7c82a8717f743495ef1"
+      "size": 272942,
+      "sha256": "7ded29e99a7afd2800d8abf26330e763496927a8cb85840e01ee2109311b692a"
     },
     "mengsan/assets/cards/mengsan_status_wither.png": {
-      "size": 3329606,
-      "sha256": "265095ea049e38be62725ece19e91c15ff6abb232a4276779b93555ce0dccad1"
+      "size": 282926,
+      "sha256": "6c75a9f900f3874b2d2a75b46bcda8e7459622cfee9b6aac3ca69069df5a62bb"
     },
     "mengsan/assets/cards/mengsan_tiezhanbo.png": {
       "size": 286763,
@@ -1303,8 +1303,8 @@
       "sha256": "2d786cf6078dbf1ea545886bd98298c867fbbf4c5f0fc1a74f28a2ac8f06cc1a"
     },
     "mengsan/assets/cards/mengsan_wound_shuying.png": {
-      "size": 3102499,
-      "sha256": "16aa7c0485416028c1ac4990ceb6d9f850dc93d63a74bfa3514dfddd101f6c29"
+      "size": 263671,
+      "sha256": "0200dc20035003f354822e5c545fc9a8cff53469f7c0085a9931c4d67d866c1b"
     },
     "mengsan/assets/cards/mengsan_wuzhuang.png": {
       "size": 297615,
@@ -1639,96 +1639,96 @@
       "sha256": "f4d6e551a3098ecc869c6b53e8d24be50e8ca97f399ab987b96f32a53c75a02d"
     },
     "mengsan/battle/battle-director.js": {
-      "size": 13125,
-      "sha256": "a82a031a5d92f4e734625a40793db883ef96bd4c9b56bfef5bc56f2b982e4aea"
+      "size": 12944,
+      "sha256": "ba3adfa4793a1ef3e2da9959a39fad62789fcd6f41b84e9e342c81ff88edbbff"
     },
     "mengsan/battle/battle-flow.js": {
-      "size": 5900,
-      "sha256": "1ae2db34176a7fc5d19e5001316e1f2aac4b1a883662bafc43af8cb95775970b"
+      "size": 5801,
+      "sha256": "9ceffe9539c1d303f75eb23e4512554c174e602f85f53e9f9a37e2fb1afe7bb1"
     },
     "mengsan/battle/battle-loop.js": {
-      "size": 3652,
-      "sha256": "8ff23c71320c91cee2955cabfd8384190a07b80cbddd44bba50fcf9fef4daeb0"
+      "size": 3565,
+      "sha256": "0af53c3d317fe9816594c2786bf5a1bfa960babf0c135b9b4d524794730efbcf"
     },
     "mengsan/battle/battle-resources.js": {
-      "size": 3095,
-      "sha256": "0da540600249f9addb23eecfc218930c2a376a0f357eb3a16b628d4c20817020"
+      "size": 3040,
+      "sha256": "6e29789023111c4f7b91a11d7169069cc6b9d0087a3451d526233fcf03f389a2"
     },
     "mengsan/battle/battle-session.js": {
-      "size": 5561,
-      "sha256": "ab9880fc1934a87d1ca6640778605ec33e9812c94930567f868a84fd29e56ad7"
+      "size": 5455,
+      "sha256": "5e50205af67054761876aa37fbd02ebefc3225f8d1a90afcd708c215ae8e5518"
     },
     "mengsan/battle/battle-settlement.js": {
-      "size": 12024,
-      "sha256": "74e6647cf5ff050962c3e171c1f48747e7a373fdcd5fc35b3ad9c170cbe8931f"
+      "size": 11994,
+      "sha256": "be8ef59f8dba0c9cd1f3032ea1de1615058476d1a591c1858b4fa180a13ee578"
     },
     "mengsan/battle/combat-rules.js": {
       "size": 5966,
       "sha256": "e540dc2e2eb83ac20868252cef73373d6c807455d57f220949aafd1f762e3828"
     },
     "mengsan/battle/death-blow.js": {
-      "size": 1151,
-      "sha256": "aa3ba0da315ae81ae8430c50a57203889838adac8d533aa5400a4bb9976becf5"
+      "size": 1113,
+      "sha256": "d0222776b90acacd2fc672559bf59d8c0376cfae68294d5a9603551ed182a0c1"
     },
     "mengsan/battle/engine-session.js": {
-      "size": 3763,
-      "sha256": "1addfa8f6a6e1e56d2dd32b6d1249ef84aa0aaa1ca049a7e0ccb688be51261bb"
+      "size": 3680,
+      "sha256": "6aaad4dd6641caea0c0e02028239e355a7b83c3d53b64f704989b56376855750"
     },
     "mengsan/battle/intent-damage.js": {
-      "size": 1298,
-      "sha256": "616a18728b31677b70cc14b88af027c4cc912ae90f11de41355b900ed2c29ea1"
+      "size": 1266,
+      "sha256": "c0efe2d26f5ee76f090c5ef04b8607def99ad1a3315dedd5c2b8e42aff218a7d"
     },
     "mengsan/battle/intent-effects.js": {
-      "size": 2411,
-      "sha256": "0f3dc871427bf718b64ce057a08d6b98b100e66fad9f803662818b03cda1e3c1"
+      "size": 2362,
+      "sha256": "dd4209231232acde790a127db4fe2ba004a6c380ea44a542f882256c36d2b13f"
     },
     "mengsan/battle/skill-teardown.js": {
-      "size": 6849,
-      "sha256": "5f92d02d245aa3021ea47b245b221c58987b1e5770fe4329eef6ae733b0810ff"
+      "size": 6702,
+      "sha256": "49116eed862780a17c9d67182b103bceec3b28621355e16f7351b36520896320"
     },
     "mengsan/battle/stun-intent.js": {
-      "size": 1340,
-      "sha256": "898f9e64b80c5a963229eed340455f810eec2c1777bb98ba599d56101ba11bf7"
+      "size": 1295,
+      "sha256": "3a73747311bbae29cd03a3327f0ff398aa085f2d2e480d4013f2f8f15d09f810"
     },
     "mengsan/bonds/battle.js": {
-      "size": 1771,
-      "sha256": "bdb4d429b14b98d7d5434afb2d11039938b7eaea37cf5f87a3fba86fc958b254"
+      "size": 1729,
+      "sha256": "702bf42803374567630ebfc87515d14e6e7a8c3e33b49f16bdc98ac5e1954451"
     },
     "mengsan/bonds/definitions.js": {
-      "size": 2505,
-      "sha256": "f2c02c24fa7704ce4800969c5e4183840c556386bb4fe29a51ef25070636c3df"
+      "size": 2464,
+      "sha256": "2ff3db8f5db20416f218b184ad980b9adc93d82197a6f296726e0c76a49e2abe"
     },
     "mengsan/bonds/intents.js": {
-      "size": 2952,
-      "sha256": "935f5f1ec90ba7e0cd0539db9c51ad5ba11e9063bbbd060a56f4ef6c34bfe00d"
+      "size": 2888,
+      "sha256": "514212bec0e6b523a0eea5857212d3369da4eef84cf812866baf5e9a4f3407fc"
     },
     "mengsan/bonds/state.js": {
-      "size": 4436,
-      "sha256": "ea5e5fd29a695a6d65fd1ad4aeb8ed97f5dfbdb3b34f8748f099140cd27341e3"
+      "size": 4372,
+      "sha256": "8117b0a9c4b9c56ffa7ce8b367ffc89dd69ddacc19f93114c8fedb894cb8f33c"
     },
     "mengsan/cards/affixes.js": {
-      "size": 1124,
-      "sha256": "f65993cabf6fe9b01e9a41de4ff0d47aba56eb67cd9e00d4a67cd87d9ed9bce8"
+      "size": 1114,
+      "sha256": "6f5a0975192aa3b159c3c6886a0214fd101869fccd866d2de831afc56f3fcb72"
     },
     "mengsan/cards/battle-card-copy.js": {
       "size": 1737,
       "sha256": "acffc9c0ecc7d22985f894522376e13d39067e71cf1532f2a2cd8d9466671fdf"
     },
     "mengsan/cards/battle-card-reclaim.js": {
-      "size": 1551,
-      "sha256": "397a0c05591122d91bed20499cdd0b55f3fddcdaa6a2d6cf8d7f4434c1306feb"
+      "size": 1522,
+      "sha256": "c38d2f86719d682027be75e8a30639cabeb1cf4d7db87aef2304327181161fe8"
     },
     "mengsan/cards/battle-energy.js": {
-      "size": 1502,
-      "sha256": "cee19be46c41d274bf706c2add12f64834980ddb32526862e78de37bda28caef"
+      "size": 1469,
+      "sha256": "dc1e4e9c215a5c3c3a93c6637c72dfd54e622688a243618a4cfafdbf77130af9"
     },
     "mengsan/cards/block-draw.js": {
-      "size": 1197,
-      "sha256": "4770aa0a753b80d103e3c087bbe2046609e99a05dcbc5c388526ba87c554b7ce"
+      "size": 1178,
+      "sha256": "fb93243cd983e35e4aaf95fd4f4ea9012cdb62c62ca0d080703918f5364dc5fa"
     },
     "mengsan/cards/card-data.js": {
-      "size": 3457,
-      "sha256": "0bafffc9e6e9c6bd8bae74948bc9b1742450adbda6a9dcb80206054c27bfbbe3"
+      "size": 3405,
+      "sha256": "a943104aa2e0115b21a40ff03cd46533680bfa4d088e8906f54bc1ec99c798d0"
     },
     "mengsan/cards/card-definitions.js": {
       "size": 3006,
@@ -1747,16 +1747,16 @@
       "sha256": "a37daf0e29fb05f8248ff3b9c9777e68e2dab6e7cf86a3c53510e099a1e10d1d"
     },
     "mengsan/cards/hand-exhaust.js": {
-      "size": 2673,
-      "sha256": "904bd21885750bcb5cabee5478d74a9f5e61651d2b9aeaff1f7b41559f1665e6"
+      "size": 2627,
+      "sha256": "36c64653a3646921f511d2721df69f7c75e6a38a11abaa5e2b09280aa0d38b98"
     },
     "mengsan/cards/hand-upgrade.js": {
       "size": 4359,
       "sha256": "599859fc9a5283655778816847d2edff52c787b47b41f1e5e6fc6ac2160caed7"
     },
     "mengsan/cards/havoc-play.js": {
-      "size": 1921,
-      "sha256": "dad0d45cbbd0a8f13a9aa0c238d14b3c6e7553eb3795e3291e2c53d5b69bd7d0"
+      "size": 1885,
+      "sha256": "60292a9bf9fef09c4fbb3cbc5ac4e87267f1b0a01650f4ddd2a23d4f65e33bb0"
     },
     "mengsan/cards/infection-card.js": {
       "size": 3056,
@@ -1791,8 +1791,8 @@
       "sha256": "4a8f9d61ba438ea3ba2e857f0b81bd85bee2ffc1c9bd0bcbd18dbdeac36aec8f"
     },
     "mengsan/cards/packs/colorless/data.js": {
-      "size": 32174,
-      "sha256": "4ba74b97668b97b99099efd19fdba2e81da02e2ab3764b332fc71cbd135b87cd"
+      "size": 30960,
+      "sha256": "6d4b62e53fcbd2a509d335670a07a75b5dce1268bc146f27a10113c68b86e0a5"
     },
     "mengsan/cards/packs/colorless/index.js": {
       "size": 382,
@@ -1803,16 +1803,16 @@
       "sha256": "af212d7c4cd8f63c5837e8f29519cd341b775135fa332f8a0f4f82eae4ac349d"
     },
     "mengsan/cards/packs/curse/data.js": {
-      "size": 6704,
-      "sha256": "35d43aa2ada598257fe0d0c18f5ea746d67429c0d9a3d73b145dedb363fe50df"
+      "size": 6436,
+      "sha256": "a85d48996fe637e1bb8b976d370e4fb49d1a2bb1e1dd6e9befc1ff6fa1827d9d"
     },
     "mengsan/cards/packs/data.js": {
       "size": 902,
       "sha256": "4f04d425ba55670fe5707ef189dd3b74fa9934117fc5929c0f1b9b67c874863b"
     },
     "mengsan/cards/packs/event/data.js": {
-      "size": 14820,
-      "sha256": "0badede4d570d625e371f3e06750d708c381f2eff3f14e54f1a803690f28c1c9"
+      "size": 14249,
+      "sha256": "b195639153c1cb6a3ac48d5af364c9a915a34e96d844ec4e4848d914e5896017"
     },
     "mengsan/cards/packs/index.js": {
       "size": 1109,
@@ -1855,36 +1855,36 @@
       "sha256": "ca6d9887fb9f8978c34ade455f564b3a0a52eceb5b844447e863390acdb3bed9"
     },
     "mengsan/cards/packs/liubei/traits.js": {
-      "size": 8277,
-      "sha256": "38e1b081a3789f3760c4a0889b34803667006b326dce1f8e2aa2c862d997a549"
+      "size": 8178,
+      "sha256": "bd813bd37feec90300edd14d3d23fcca301d75ff32fca096555e3bbc35bd162d"
     },
     "mengsan/cards/packs/rewards.js": {
       "size": 327,
       "sha256": "e7f15d41aa526c6b6ba93b137dd2e31f63fbace91d1bf8c3f8dbdd0fa6ac3176"
     },
     "mengsan/cards/packs/shared/data.js": {
-      "size": 405,
-      "sha256": "93244ab064a100fa9a93f0cb19acc1d22b6ce17036b2f5cc71fd4f1db42f8497"
+      "size": 399,
+      "sha256": "ec004403090107d462d6948751154b03ad6f88a16ac6a844d1898f79e6184386"
     },
     "mengsan/cards/packs/shared/runtime.js": {
       "size": 41670,
       "sha256": "f1f6541bae4da3d38911e62f51fc930270c16b5a1b2c3a4348c0712925396a7d"
     },
     "mengsan/cards/packs/status/data.js": {
-      "size": 4513,
-      "sha256": "16de512e265f4062ed9fa077d655a416147308b72d0893348c0ad8c27f5b89b3"
+      "size": 4334,
+      "sha256": "7ca46d39b6f3cf99189d86811a4d618dc759117c66e796a3e00ec70621765dc2"
     },
     "mengsan/cards/personal-piles.js": {
-      "size": 24202,
-      "sha256": "47c23c71b36d6643953a783b3a74c85494cd2f04880d9cbfa44db69e47cfb32f"
+      "size": 23856,
+      "sha256": "c02754f949c5853dbabb7e2df42189f82f994d6cc6fb3cdab57a3df784d0f03b"
     },
     "mengsan/cards/rampage.js": {
       "size": 5265,
       "sha256": "7563d2316cece8ab1d9b04de28b47e4562b82ad8a6dd493e1c7f64e726a6a94c"
     },
     "mengsan/cards/random-hand-exhaust.js": {
-      "size": 1293,
-      "sha256": "486758ef934e381bd825a46b07e140f5f28e08eceadba25dd9f107ffefe80372"
+      "size": 1274,
+      "sha256": "7729cee9b27b696012e6ebf5287fa828e7fa6faf5a68a963a5529e2e9ee2fae6"
     },
     "mengsan/cards/rarity-data.js": {
       "size": 440,
@@ -1915,20 +1915,20 @@
       "sha256": "6cef9cd617cfce569238dbc90db242140724a4da3e4963581649cd1848e15d90"
     },
     "mengsan/cards/starting-deck.js": {
-      "size": 1668,
-      "sha256": "89367f707791d9f275b5fd5b6cf54b4d47e80fe9133b4a314a9a0bf4b9cdea3f"
+      "size": 1638,
+      "sha256": "44b221d309a96884a51f9ed402b4625200e61ab3c2af79db450102ad0813a37b"
     },
     "mengsan/cards/status-cards.js": {
       "size": 746,
       "sha256": "a2c623938bd4d9264c605899bb94cb6599bfcd962ebb5c06a59cb084236ab325"
     },
     "mengsan/cards/strike-counter.js": {
-      "size": 1534,
-      "sha256": "a3de2b465d19a2f14de20ad51e915b4e3459def64fb355627ed2791865a83af6"
+      "size": 1503,
+      "sha256": "a1058fe9ec2f8d3bf21eae61326cc74435bce25a49a67ba024f0c516065a4e89"
     },
     "mengsan/cards/temporary-strength.js": {
-      "size": 3764,
-      "sha256": "5b843d1f9367108e190a4170644c644f83e113d728ada4fb7d2a997f12ea2fc7"
+      "size": 3689,
+      "sha256": "f9720c6896583b3a7d682949945414ef6b6c1d17a906cfa6c8968c3bf5e455fa"
     },
     "mengsan/cards/upgrades.js": {
       "size": 1892,
@@ -1947,8 +1947,8 @@
       "sha256": "2ac15f4252546c183b3de546bd6134a75f8b42ea67632f0d57b8fbd35a8796ea"
     },
     "mengsan/config.js": {
-      "size": 875,
-      "sha256": "7fa71a17b12d31b1e8ce279b396c0969ddcf8986a6d6ce9e9583aa476b4685c9"
+      "size": 847,
+      "sha256": "738e1aa69e580ea2540827248cfb551a99da7d8096184e089705a90242662031"
     },
     "mengsan/content/acts/act1/encounters.js": {
       "size": 3800,
@@ -1967,8 +1967,8 @@
       "sha256": "82e43fbd9e9ad997cf07cf5c633ae63f1fe7564156e0ab9429e6c2c713689e23"
     },
     "mengsan/content/acts/act1/map.js": {
-      "size": 1793,
-      "sha256": "a43b1516a93509fa4035ae6c23d4b106566248161a61eb15983b36e0c9495747"
+      "size": 1761,
+      "sha256": "cdc3ef153ccde6acac639c1ebc16383fe16e8ffd52935f915b80f27c95ecbb2d"
     },
     "mengsan/content/acts/act1/nibbit-pair.js": {
       "size": 475,
@@ -1979,16 +1979,16 @@
       "sha256": "a18f6bc3b1074bdfda23a8ea7887e4fd581a88698045f49e2ea94a6b989ea412"
     },
     "mengsan/content/acts/act1/rewards.js": {
-      "size": 797,
-      "sha256": "dc9c450a77abe5cd35c4ab46dc8833e49287a9d63fa773bb0da1fd64525eb77a"
+      "size": 772,
+      "sha256": "8a6f09e56748957693bfcf7a428670a3fbcfde90c746278e8fa372a51a32d3cf"
     },
     "mengsan/content/acts/act1/stories/forest-ambush.js": {
       "size": 5225,
       "sha256": "de94b30bafc2e4251a6a70ecaf4b1ceaf300cc2750f71d30014971e1c389b240"
     },
     "mengsan/content/acts/act1/stories/liubei-opening.js": {
-      "size": 5731,
-      "sha256": "1d61fbea5194a1960d9e6bc95d0f5b733687afae7d769a1ac9e0846be97341b4"
+      "size": 5658,
+      "sha256": "23195b5af712b591d388c9d874a27a2cb19e70bd7a966fb88228bc349353eb99"
     },
     "mengsan/content/acts/act2/index.js": {
       "size": 129,
@@ -2011,28 +2011,28 @@
       "sha256": "5f1cf6053693df8992cdece2a818ea56cbd6ddf023a60e42e2d0e54e27426fd2"
     },
     "mengsan/content/registry.js": {
-      "size": 7581,
-      "sha256": "71a6aa7e0048992fb38e0a3084f793f4874deefd614bbba3a84d22dea45e0a7a"
+      "size": 7479,
+      "sha256": "436dd3b3cb759045765778a3cfa1cdc93264646ed97b191197fcb2ec19e1788c"
     },
     "mengsan/content/scenario-characters.js": {
-      "size": 9835,
-      "sha256": "608a47959212ece33171e7d12c2116701e09dac98634f97279e294192e03dfc0"
+      "size": 9732,
+      "sha256": "c2678ddedd3349829eb9b3daca1862842ea6da2e928f8edda41c62d4d72e884d"
     },
     "mengsan/content/shared/index.js": {
       "size": 126,
       "sha256": "25625b636c2b82e58c0792c40b7f32562abca99e0fd7861b73a74cdf40c708af"
     },
     "mengsan/content/shared/rewards.js": {
-      "size": 9046,
-      "sha256": "ed2b83da3e322cd6e1d2bf15c5011757faf380e1b8343efbebdb06c83c311736"
+      "size": 8893,
+      "sha256": "867ac35043e5ae50a20349f944f2514c5e6201b71f2f92ca9fd28a0a26fe11f0"
     },
     "mengsan/mode.js": {
       "size": 113891,
       "sha256": "a4f7498ef506f894890fbcbd3058fab0c13876657d3d207b3e99be9829702577"
     },
     "mengsan/monsters/actions.js": {
-      "size": 34417,
-      "sha256": "97461914dd3a40e0bba6cb5e1ff41fe34208ab996dafcc64ed5a33d0d3cdebc5"
+      "size": 33807,
+      "sha256": "4d07d53c1aa85278190217194cf68180ef428411dd89dafb5cdae7568a11500b"
     },
     "mengsan/monsters/artifact-status.js": {
       "size": 2385,
@@ -2063,8 +2063,8 @@
       "sha256": "d2c2cf715e24090df2be4e68ff15d55dfdebf862ad87fdfa592bbf7bf20f2f94"
     },
     "mengsan/monsters/flyconid-intent.js": {
-      "size": 1743,
-      "sha256": "6ff2be31555c591a872cc0ffcc7aea99a7bc9b6bd5156993f8847156eef8637b"
+      "size": 1705,
+      "sha256": "cd65c7e8004c4810eb5bafda7b20563900ec4f264cfd352e2607f9d6050ab631"
     },
     "mengsan/monsters/fogmog-battle.js": {
       "size": 3856,
@@ -2087,12 +2087,12 @@
       "sha256": "3321a96df24d651c2bfea7a7ccfd920be20ae75fa2cb8543abb5985cf7501835"
     },
     "mengsan/monsters/leafmedium-intent.js": {
-      "size": 1462,
-      "sha256": "ae373c29e39891992b857afaf11befac1354f163026a797e8bf13ad8d81b71ad"
+      "size": 1436,
+      "sha256": "ef04089133b4ec6157e48788eaa62c506a424c7e4ef479219529689f4b6bfc81"
     },
     "mengsan/monsters/leafslime-goop.js": {
-      "size": 1653,
-      "sha256": "133da2f627601e79aa51b6eb87acff777a3ca60c74d142b0d205c40ccbfef3f0"
+      "size": 1627,
+      "sha256": "a65b6a00bf246951abed47fb66a6d476849d7cb427169524a1d2ce722ab4758b"
     },
     "mengsan/monsters/leafslime-intent.js": {
       "size": 1403,
@@ -2103,8 +2103,8 @@
       "sha256": "23bfd30298779d9a41c28a3100fb026e17ecd2d1e066f0bb842c57a9ee56b833"
     },
     "mengsan/monsters/monster.js": {
-      "size": 11658,
-      "sha256": "1464b42fce32b9266724c8f0eaa06923c1171cff539c337c96af1cc32bd7bc8a"
+      "size": 11416,
+      "sha256": "d6b6bbbece20f50da448adbba8f775acf5f155084008e8f44a61a30d2d1b2aef"
     },
     "mengsan/monsters/nibbit-intent.js": {
       "size": 2292,
@@ -2119,8 +2119,8 @@
       "sha256": "e058edf8b6febadcd685dc7c16c05d90e8ba56c1d9b26c132e4ef2fc0e95d9df"
     },
     "mengsan/monsters/raider-intent.js": {
-      "size": 2060,
-      "sha256": "b15b89d53914c472c3ef4f2e54e3551bb6a80cd783c21d340676189c2e22c948"
+      "size": 2021,
+      "sha256": "70580ade399e910e817e3929a41dc2da52bfadf36fb3b494a17a86effab27ee1"
     },
     "mengsan/monsters/shrinker-intent.js": {
       "size": 1491,
@@ -2143,8 +2143,8 @@
       "sha256": "c27f58e02f08b87ed62865fc11bb3ae43b5d2098ac199c5714946d24e0afaa87"
     },
     "mengsan/monsters/twigslime-intent.js": {
-      "size": 1299,
-      "sha256": "dd772c38e732ebcdda6e5b0ecd4725f73b36cb880ff156f3aaa64470a53633bc"
+      "size": 1273,
+      "sha256": "26a3437ffc95bec9638911537e5b572f4b12d8a94a06d6df358d73237a181830"
     },
     "mengsan/monsters/vantom-intent.js": {
       "size": 2266,
@@ -2159,8 +2159,8 @@
       "sha256": "e8eb1e501af16d5da2157ff357bef3193233b4fbcd62cd823a4a6114124abd7e"
     },
     "mengsan/progression/dialogue-choice.js": {
-      "size": 837,
-      "sha256": "e00707810480b281bf3e8c25923cf09997d06cf2dc3b7eea35c5a1a47c5cd3dd"
+      "size": 820,
+      "sha256": "b85e45995226cb30a488d5742c09a407ad9557d95e29136dd72fbaf695a4005f"
     },
     "mengsan/progression/encounter-progress.js": {
       "size": 1555,
@@ -2171,128 +2171,128 @@
       "sha256": "c0b5fa06fda99cf4d06570cb7e95fafc141b355055d20b0bd8f7ff91f1c1afa7"
     },
     "mengsan/progression/mode-storage.js": {
-      "size": 3833,
-      "sha256": "83ce9bb6191644f547a0dd79bd46ba86be149047b3e24844a4757270f6a09fcf"
+      "size": 3740,
+      "sha256": "7e266df0de15e4f2252600f10a21a09c01949680c1aaaaf5453591b9df3573d4"
     },
     "mengsan/progression/reward-package.js": {
-      "size": 1561,
-      "sha256": "2cee489f48e5f9d4bfbb9fd1e50dc6d41cf9f778b21432e5aea1bb6730b21364"
+      "size": 1527,
+      "sha256": "acd839d139bef9d22036e7bcb7acad8c5f25aea1c2a615d224020d97f4e7f313"
     },
     "mengsan/progression/reward.js": {
-      "size": 3332,
-      "sha256": "77e29120ef5bc20b27865c342e5abda0357063b591e226908f8c4bc0f5320c21"
+      "size": 3308,
+      "sha256": "31cb0895cfa98696cefd7301b967ba3652aee2c4401f7770e64d6a2cf68b53f0"
     },
     "mengsan/progression/state.js": {
-      "size": 14841,
-      "sha256": "82a9b2aef527046c9ffb4bbfc470ec2230e6ec42881467a643655a5723a79269"
+      "size": 14578,
+      "sha256": "5cb6ac5494251f2a9ac68344862d74736e7ba076dc0e1eafdd06e9eac0923724"
     },
     "mengsan/progression/story.js": {
-      "size": 737,
-      "sha256": "4db3cf98d5a102cf5bf6d3022b0bdb4c7d70430537e2c4a6a9e541822951f016"
+      "size": 718,
+      "sha256": "0719c33cf849fd2b647e4e4ff987560c5f9ea2a015b4acecc57269fb6b562059"
     },
     "mengsan/register.js": {
       "size": 791,
       "sha256": "95290f693f1d5bbc592e35a3cd063201f46d5deffbd0e281682f371b02ae342e"
     },
     "mengsan/relics/battle.js": {
-      "size": 5015,
-      "sha256": "976e13531625ba00d2941d482d36d9dfd5cf22d1b8de66b519e8b3b928f8a6c9"
+      "size": 4893,
+      "sha256": "e3b9977b9a20a2c85b3cb01792c996b5255920f455ab07ab537a6f9c915eb470"
     },
     "mengsan/relics/combat.js": {
-      "size": 4101,
-      "sha256": "1fd264d6d07be511cde006ab18f14e5ac8170ad539083a20a3259b1b70548202"
+      "size": 4018,
+      "sha256": "d5d2c53a596a3772e0f0931f56b0db423cbc69f20847318a9aa77dfb1d2c0e92"
     },
     "mengsan/relics/definitions.js": {
-      "size": 4707,
-      "sha256": "894f66d2a98761926655124f0cbd05acd20aaa8335d61d838fd3cd6bf550d224"
+      "size": 4608,
+      "sha256": "e974f83405153b994b9135cf6ed3998a28ac8313bd42042075db9460cf9edc6f"
     },
     "mengsan/relics/rooms.js": {
-      "size": 1032,
-      "sha256": "88af2a408d062f78f98dded9e7de4a51c98468eefe217e827d43aa34e3a7410f"
+      "size": 1010,
+      "sha256": "331664f916965f8d72ac9db50a59c5ff4f18f7a95c6beb5eeb9e44d247ffd053"
     },
     "mengsan/ui/bonds.js": {
-      "size": 4499,
-      "sha256": "2580f60f3b9aac29206a8e1198322505a2283bf81ea379d3a6ca31251f42d5e3"
+      "size": 4415,
+      "sha256": "275713f94c9ede664537104a1eb483ac198b477ecc3e5cca52bc51208b3b274d"
     },
     "mengsan/ui/card-library.js": {
-      "size": 20776,
-      "sha256": "7d5d1be851490b9d1ccda7b3acf621bf2dbb608f47e0284a200ce788889d7f90"
+      "size": 20528,
+      "sha256": "b58a96859599082e83da6e8c9026619392cf9a72ebe7223d86e078de3ea14d56"
     },
     "mengsan/ui/dialogue.js": {
-      "size": 7842,
-      "sha256": "e61b22cf27f810a45404e0d05969b03e0a6603d581f8cf7a052a3c30348325f7"
+      "size": 7649,
+      "sha256": "a405f315270c24cdb2c53ba4e211a3fd5bf9bb582335d5dbf910adb5622deac6"
     },
     "mengsan/ui/energy-display.js": {
-      "size": 511,
-      "sha256": "37bc74971d52429c7e1c3d9d0c2dcccb29a61e968ac1bf4eb0a2330801d8fd69"
+      "size": 498,
+      "sha256": "b12157ac3008c0e63fb384fe5fefe54964b86436652c73670f6a4c4faa4ad1da"
     },
     "mengsan/ui/flow-ui.js": {
-      "size": 3106,
-      "sha256": "f19d26b3ccd5579885bd9fe9a3444f4d06125898020b165acf91ad2d1f6a37e0"
+      "size": 3044,
+      "sha256": "76032d73c27bd3ba3a54064a7cfc1741f3fea379e26636da3037000943ef6450"
     },
     "mengsan/ui/gm-manager.js": {
-      "size": 4727,
-      "sha256": "1ffcf493ffcc4d9b16911e81ff62b15693213355c3226270e5224b03042e8868"
+      "size": 4636,
+      "sha256": "e6feac7f157824fba6436330612267f98158a95c8db64b4ee5019e65d1fb8324"
     },
     "mengsan/ui/hand/adapter.js": {
-      "size": 955,
-      "sha256": "dbec5a22b19ba7790c2118328701331b9065cdd7877ad237fa6ba635aad0ab6b"
+      "size": 935,
+      "sha256": "91adc86b2810e27bd09d07297ac427cbbc151936f4dd8736ab1413b4eab78a0c"
     },
     "mengsan/ui/hand/diagnostics.js": {
-      "size": 740,
-      "sha256": "9ea7729febf7cba177dcf76ff8a65ef3c0f44ff3e8cc020bbb39a4654837293b"
+      "size": 723,
+      "sha256": "f41c12348a508a7a1505fbc311b9c4b3cf85be038cc93e467a5f094bf1e5dde3"
     },
     "mengsan/ui/hand/fan.js": {
       "size": 4355,
       "sha256": "55e1e01dda7b4231c8e1a2fadf6ccbee39b5e98c543bc55500c6493cf6cd51b1"
     },
     "mengsan/ui/hand/index.js": {
-      "size": 9105,
-      "sha256": "a236f0ed58ad3f7953cc79b04d688efa3c7a394d2fbeb3d5ac2eef15f7242fa7"
+      "size": 8916,
+      "sha256": "4c423b3a2690f35112d1b111e940fc25ba8d760e64380a43e37f3373ff3df72a"
     },
     "mengsan/ui/hand/input.js": {
       "size": 12278,
       "sha256": "b04df574792e6e4be7cce4e0d8bd682efeb091b9b752b40a0b110575442adfbb"
     },
     "mengsan/ui/hand/overlays.js": {
-      "size": 3135,
-      "sha256": "d89e62b5c73b64dfbd2f449e95b6362d2273ef57bc8db72f552af200d3dc2ad8"
+      "size": 3060,
+      "sha256": "8c9d53b0fb1856378ca72d3a7cc3de814f0668914e7cb89bce697cabc22a7fb4"
     },
     "mengsan/ui/hand/style.css": {
-      "size": 35634,
-      "sha256": "c31ed6dd5b7b2e9d48125f8503512d3af2c0050cb9144dcfdc9d571c351450d6"
+      "size": 35504,
+      "sha256": "29b0cbad19570fda49a86f1e65476df9863f3d22a38927e009659e5cbfdcef89"
     },
     "mengsan/ui/intent-display.js": {
-      "size": 10744,
-      "sha256": "a920a929183f2815c6ef4226af0585be0f876196b6a061e287b02654068f7083"
+      "size": 10556,
+      "sha256": "feb7fdb208d4ee540a0fe66b329402c8587f22dcdb8de2e1eb455b7d6af9a185"
     },
     "mengsan/ui/map/index.js": {
-      "size": 62,
-      "sha256": "6fb7e6e2547eec9d421727b9d6794e3c96d8e3a77984d7688544a67a00c4999d"
+      "size": 61,
+      "sha256": "6fc56c6c084508a39d801521a103f8c39eea90eb895f47a78924997241d9f932"
     },
     "mengsan/ui/map/renderer.js": {
-      "size": 25409,
-      "sha256": "a9282e2e6ce30973be064a73ce01b5e13cd580179bde24f9482661e9a2b94571"
+      "size": 24919,
+      "sha256": "89cec835a8479b0fb4ba455179edc2200c9ef7d0d864fc9702921732d0074db6"
     },
     "mengsan/ui/navigation.js": {
-      "size": 5274,
-      "sha256": "22bf6b5ec02c4917311540aac56c1c20b43df5b761acdb867937399db2c2c7c6"
+      "size": 5154,
+      "sha256": "213d24bfee22e7c6a57312198e21a4877c43b6a6b42e238efa5107f1b08092b8"
     },
     "mengsan/ui/relics.js": {
-      "size": 3452,
-      "sha256": "98049bd5a21a314475211fdb681b4989075b8eca4d33d58e88f4fd4cec19455e"
+      "size": 3371,
+      "sha256": "bc24cd2eb4644bcf329a7acac28820feab22b0e4648a1d25ea9e1e3d8120f1a6"
     },
     "mengsan/ui/reward-package.js": {
-      "size": 4316,
-      "sha256": "1c584d2c5bd7252eeaeeaa1da5dbfb11c3df7c364dab0c82f557ca1981afb70a"
+      "size": 4256,
+      "sha256": "0ca1458434ebe616fd29eebbbb9314c03249673fc9a9e2cbae6ee09be4cdc16e"
     },
     "mengsan/ui/reward-ui.js": {
-      "size": 15399,
-      "sha256": "ad9e727b90aef2cfcea2a7f757b5c12e43655ea055d0729fd955173076a80ef9"
+      "size": 15170,
+      "sha256": "70a1bd26b1ec730bc7cdf04bddf160f2e3ae8daadd54c4c38c5263549aa88dee"
     },
     "mengsan/ui/style.css": {
-      "size": 78961,
-      "sha256": "beaa52e86c3f30144c55333c110e973944180c5d2f17f275821ce75cfbdf2a37"
+      "size": 77404,
+      "sha256": "7f05fd95ed996f70411a02893cbfd6f1b25e4cd426acc58858800703d52ad946"
     },
     "mengsan/ui/virtual-card-grid.js": {
       "size": 4509,
@@ -2301,7 +2301,7 @@
   },
   "tree": {
     "type": "directory",
-    "name": "术樱包",
+    "name": "source-for-manifest",
     "children": {
       "mengsan": {
         "type": "directory",
@@ -2329,553 +2329,553 @@
                   },
                   "mengsan_colorless_alchemize.png": {
                     "type": "file",
-                    "size": 3127713,
-                    "sha256": "030695f8c986e22f1ec74496da907f050c3439f9dd58db362af08da92af20164"
+                    "size": 264296,
+                    "sha256": "18cd20388da0d8a58909694ee91b010dead69317943c56f5ef52040a0f1c5b94"
                   },
                   "mengsan_colorless_anointed.png": {
                     "type": "file",
-                    "size": 3086399,
-                    "sha256": "3a68cb906e29c366bfb8beab3958276050e24f9dc77d854ae71debe095446838"
+                    "size": 266619,
+                    "sha256": "b6708433494c324440935738399300801008b34da15d582453c6adc5a84b8198"
                   },
                   "mengsan_colorless_automation.png": {
                     "type": "file",
-                    "size": 3162166,
-                    "sha256": "00b0f61f95fbd9118c3ecce4c68981ad59c970805f3c5fd4e0637ccaa704f0f5"
+                    "size": 270690,
+                    "sha256": "ae00c882959717f5043375851c6cd9cc60f95a382a739a03a9ce6cc473997d83"
                   },
                   "mengsan_colorless_beacon_of_hope.png": {
                     "type": "file",
-                    "size": 3014849,
-                    "sha256": "038bee1de6075fdcd9a2b1269ba3cd040e76727a6a3b2d36e41e1644bb631adc"
+                    "size": 266264,
+                    "sha256": "117f7f1d19ecb9efb8f1b861265aeb1613a216924b93c4db2426dd1df70fcf5b"
                   },
                   "mengsan_colorless_beat_down.png": {
                     "type": "file",
-                    "size": 3261861,
-                    "sha256": "476af9e96f7c3531ea0251ddb4f3ff87801054960ded214aba5f8656473a0473"
+                    "size": 283486,
+                    "sha256": "9b82b628861d358705285f6d59ffc3d3d057cea52ccaa7552e8a340d0dfd6afb"
                   },
                   "mengsan_colorless_believe_in_you.png": {
                     "type": "file",
-                    "size": 3193359,
-                    "sha256": "43519b09e365e4e91f6771fa09943969ea96ffc05300ea17a0019bdc7ab32943"
+                    "size": 266162,
+                    "sha256": "a45853960b13bbafca4caa1e8259b2f22043f163152f88a5b01c7df8eedfc079"
                   },
                   "mengsan_colorless_bolas.png": {
                     "type": "file",
-                    "size": 3203088,
-                    "sha256": "404d32ecb50eee1570ce743c43457c589839c98c7a63b746225bd0d2fd866c8e"
+                    "size": 280335,
+                    "sha256": "b81e67429b71198ab52345f2a365effecbcb6fedd8b49983fa1ac3cb5e4585e5"
                   },
                   "mengsan_colorless_calamity.png": {
                     "type": "file",
-                    "size": 3043506,
-                    "sha256": "2832971475e0cd42f28ce19009b4dc72ac13fdfd21c84bd94ce3ffe0ca801c25"
+                    "size": 278226,
+                    "sha256": "b379edcf4660d68d07c8e80b2fa7751d7bd3d2b7197ef7988ab4e367e75bb2f1"
                   },
                   "mengsan_colorless_catastrophe.png": {
                     "type": "file",
-                    "size": 3311872,
-                    "sha256": "ea81434a87f2277cbff5403a46399f7e73d1c7007cf3a60a6521a277c6e9edf6"
+                    "size": 288219,
+                    "sha256": "5f3ca79daffb95c7fa9c7dfae716be90729b01a9c6ad68f3b4b70d87dff126da"
                   },
                   "mengsan_colorless_coordinate.png": {
                     "type": "file",
-                    "size": 3277184,
-                    "sha256": "f05c1f215783e1fe97f920931afd20a8a4686036088da6f34212231a472db2a2"
+                    "size": 284497,
+                    "sha256": "b38b5033db495298281564747b88285f82b6b85eb5130b5ce43f1e59e656aeba"
                   },
                   "mengsan_colorless_dark_shackles.png": {
                     "type": "file",
-                    "size": 3036771,
-                    "sha256": "b43aafcbe4882f3a4ff4881615f409ac193ea35156956ec9f4d2150de7f8c2bb"
+                    "size": 280026,
+                    "sha256": "efefaf750e9dea617ec4492d703a098ffd2e711f84600b1f8851ace57b601535"
                   },
                   "mengsan_colorless_discovery.png": {
                     "type": "file",
-                    "size": 3231144,
-                    "sha256": "1d6c186eccdb7d1850c064ad25eb309cba3d8fe32238248813e92c47424945b9"
+                    "size": 283071,
+                    "sha256": "ac1a3709c7196ae6c6ad976e55bb8ce03b6da3e760c0a4fa5b25cd0de83dcb4e"
                   },
                   "mengsan_colorless_dramatic_entrance.png": {
                     "type": "file",
-                    "size": 3354223,
-                    "sha256": "8497a4026aac2aa838251157cf53ee3cd5d7cbd420ab436927985c94332033e9"
+                    "size": 284526,
+                    "sha256": "937ed345a9fc31b146172e6afaec1508ba0fbe1fa41a32c6986c31adae35edd1"
                   },
                   "mengsan_colorless_entropy.png": {
                     "type": "file",
-                    "size": 3347868,
-                    "sha256": "9672138ec7f8f5360efe7198378e2aa36898299c199c41727e25db0efb7a6632"
+                    "size": 282769,
+                    "sha256": "c1b7eaa54503226d16fc66e57ca6c681f09ec45272e2353da00f3a61db431708"
                   },
                   "mengsan_colorless_equilibrium.png": {
                     "type": "file",
-                    "size": 3135158,
-                    "sha256": "109a7369ec0f3a473d8ffec5e527dc1b7c22d929c90547bbc3cc4db333bc8aa6"
+                    "size": 278137,
+                    "sha256": "5099e2e493ada1a851ea74cfaee8a2a0bb9aa43c1d766ca6f9b5fce709cf56fd"
                   },
                   "mengsan_colorless_eternal_armor.png": {
                     "type": "file",
-                    "size": 3167981,
-                    "sha256": "3b532054c25452f093015ff92cb0bf4e15085baf367f42e56533992e6a6339cf"
+                    "size": 282176,
+                    "sha256": "73c6084cf6c0898a6dd35ae1c76cc286bdcd3e6e9af66bcf5cb35aa63baf48db"
                   },
                   "mengsan_colorless_fasten.png": {
                     "type": "file",
-                    "size": 3134484,
-                    "sha256": "62c627389524fd5aa90c30e2e37e70365946b61fb162f5f1084cb0a677b7ad33"
+                    "size": 276883,
+                    "sha256": "ff939467551bf4c5d0375c0e80c7252944ed07aa80bee720531e6735433ad478"
                   },
                   "mengsan_colorless_finesse.png": {
                     "type": "file",
-                    "size": 3200227,
-                    "sha256": "f0c3ce167fc36bdade027f9c89cfda0aebe2857e0e442ab8da83dac0062cb88b"
+                    "size": 280564,
+                    "sha256": "c89c7e36350213f9381caa79c5db2a944bf74378d947f33cbc7e3d82eed304d5"
                   },
                   "mengsan_colorless_fisticuffs.png": {
                     "type": "file",
-                    "size": 2986131,
-                    "sha256": "3424c53ede2dd31def9f4b36290b403e976b00e6d4acf9d1090a1ad3bff50355"
+                    "size": 276830,
+                    "sha256": "86b5f441e717f767689d7561f27bdfbbf491d73cd6cedcea453a07ad6126a6ec"
                   },
                   "mengsan_colorless_flash_of_steel.png": {
                     "type": "file",
-                    "size": 3254260,
-                    "sha256": "9638fbd12bdae0d856c0d7c514b88668d1925d53ff8e0b18f46cdf6363c6e41d"
+                    "size": 273345,
+                    "sha256": "f2fc37bef53ba85f9efd23daae366f808387f9e098c4a7e379f1b4d51c4cc5ae"
                   },
                   "mengsan_colorless_gang_up.png": {
                     "type": "file",
-                    "size": 3454683,
-                    "sha256": "151638d8f635a72652e5ed9653647a5c4f24b4285032c17d9d85441f4dd1c424"
+                    "size": 286758,
+                    "sha256": "c1bc6db4e411bec4a5eafeaa66c699fc67bfccc14925c17ba358dd47136376c8"
                   },
                   "mengsan_colorless_gold_axe.png": {
                     "type": "file",
-                    "size": 3241447,
-                    "sha256": "5a83405d841ff7b5c40d0aaf37507b3274ae2e98e75070bec1f742da11bb10e4"
+                    "size": 277703,
+                    "sha256": "fd329bfd9192e23b26f9f8879c7074949087f9204bf7ab1176ebf6dd78dc0392"
                   },
                   "mengsan_colorless_hand_of_greed.png": {
                     "type": "file",
-                    "size": 3204239,
-                    "sha256": "e3f35625547fde12c1646385b1def672d18b6b03373898bb44c3ff535c307811"
+                    "size": 282231,
+                    "sha256": "7946f221be9b1701d18108b731951d167a8aff94d64ef8deb9ca06ac3b23e355"
                   },
                   "mengsan_colorless_hidden_gem.png": {
                     "type": "file",
-                    "size": 3250322,
-                    "sha256": "600be77b409fef66f260c8bdc0c25c46148064977f3cb5c8cb8e023b4da679ed"
+                    "size": 275787,
+                    "sha256": "f01d4e19b86b3c38cb4b003f42540582ce7420b52838a3cb07ca2563b75b35f6"
                   },
                   "mengsan_colorless_huddle_up.png": {
                     "type": "file",
-                    "size": 3133981,
-                    "sha256": "2783d26a011a442f1ee7ba2b8f50bb889886eab91685e5fff9d6d38cb0656da0"
+                    "size": 281212,
+                    "sha256": "2c8f39036c2f3441955b582c99117a721bcb409124c3916da2b5a98e8680028c"
                   },
                   "mengsan_colorless_impatience.png": {
                     "type": "file",
-                    "size": 3249719,
-                    "sha256": "00f00214e278a79fe138941153a59843760b2b0f3280d192628619f75f541d79"
+                    "size": 282657,
+                    "sha256": "7c9e4fe43bb0ff10bc36d8b784f2c92eb0302d19316e66615298822b799d5c6d"
                   },
                   "mengsan_colorless_intercept.png": {
                     "type": "file",
-                    "size": 3205359,
-                    "sha256": "d2dbb2979f3944cdd18cba6147e989ee3f78f8d6ed91665dfa1b3f7fb97e6352"
+                    "size": 279949,
+                    "sha256": "6c3c8ffcc4bbbf4779e8c3ebc808eaed060eddbbb5e86b8f2b6011e76b8bb208"
                   },
                   "mengsan_colorless_jack_of_all_trades.png": {
                     "type": "file",
-                    "size": 3402938,
-                    "sha256": "a9b06fe1f21f3a86d5cb16a0b312c3d6788c62b5bbabf75a844de431828ecdd6"
+                    "size": 288675,
+                    "sha256": "f569b9a98174b5b0829c36e4801c94e5824e949136c15f1e0722f8dff9f8580f"
                   },
                   "mengsan_colorless_jackpot.png": {
                     "type": "file",
-                    "size": 3222698,
-                    "sha256": "c9f9dbc67abcefd6576ff936ece05c274b4e682cc4b9e252b10feba78c4ba9f8"
+                    "size": 274225,
+                    "sha256": "e9ba9395411826bc85f6b90239374391cf8ef476b56e177d74627621b4c3870f"
                   },
                   "mengsan_colorless_knockdown.png": {
                     "type": "file",
-                    "size": 3328270,
-                    "sha256": "402647d62ae54ea742243185bf70e4ad95f87469cffcebb3e35d1826985cfdcb"
+                    "size": 282499,
+                    "sha256": "ac31e82907b2c4fbb0ccf42155f871d48934c6df8823e0a525614dffc10f5d1d"
                   },
                   "mengsan_colorless_lift.png": {
                     "type": "file",
-                    "size": 3150681,
-                    "sha256": "7a57e2e134a0e7579d8ea3d1b65a551b41f5814ad2b57c73a6afd1cf3751d71f"
+                    "size": 275604,
+                    "sha256": "53d0cc1740a6afcd4cd4a98c2cdba7db39f2cb53cc0095d86fcdfd5e7b138d11"
                   },
                   "mengsan_colorless_master_of_strategy.png": {
                     "type": "file",
-                    "size": 3113651,
-                    "sha256": "441e69484c575409c7d8201cc39c21956111b9462aec4aa10405e5f6f3815d46"
+                    "size": 261127,
+                    "sha256": "6ab0fe519140e15152ef56b3f2dabdaeea7a20c2dd74b9f4d4cda99a1d949991"
                   },
                   "mengsan_colorless_mayhem.png": {
                     "type": "file",
-                    "size": 3221855,
-                    "sha256": "a30d6f318aa0969c7867a31669df515f87296c4ec65e7d03bd9aeac1f65ca3f6"
+                    "size": 276231,
+                    "sha256": "a4342fdd20a002c41aab7f58c4a96d102710f51e1a75a4af40e1be91fb82d6b8"
                   },
                   "mengsan_colorless_mimic.png": {
                     "type": "file",
-                    "size": 3092367,
-                    "sha256": "23e33b4d6005c9667d54d821114bad372cde5885a3dcd0b36f0373947f518aaa"
+                    "size": 271261,
+                    "sha256": "b8aed0a8a83ea13d182ff8b730d857e0c209341d3a18dbfe0e0f611ef071deb0"
                   },
                   "mengsan_colorless_mind_blast.png": {
                     "type": "file",
-                    "size": 3146553,
-                    "sha256": "d7596195551d4c555dfd0e0841eea31666256f1a25f0e1126a242c9fb85e3999"
+                    "size": 276143,
+                    "sha256": "eec4ad2990cd8f5a588ce8af3786e3bd5bd31f22b32f593b06c77a1472aa0c4f"
                   },
                   "mengsan_colorless_nostalgia.png": {
                     "type": "file",
-                    "size": 3191912,
-                    "sha256": "99dbe6ade64d2f09fabae292dd8b3fa3a603ad55012c4ac7ca5cf61dff4e5ee1"
+                    "size": 273974,
+                    "sha256": "de773309820a877440f61553f8598ed40e0c2cb05fde115aa45047b4653a0cc9"
                   },
                   "mengsan_colorless_omnislice.png": {
                     "type": "file",
-                    "size": 3221281,
-                    "sha256": "d64936d9fcdbea09456eca5af79866b679532a77a03ba6f7d179d6c1225963d5"
+                    "size": 276006,
+                    "sha256": "64f53876bc55e2f2afa7d8265bc23f8e275cbed3b7edac4fce8cee148e927a46"
                   },
                   "mengsan_colorless_panache.png": {
                     "type": "file",
-                    "size": 3393936,
-                    "sha256": "154f52ded899d099c10b42a2551526c992c5b8bb013d29d76edac935780e73da"
+                    "size": 286507,
+                    "sha256": "fddb148e264ab0822eb57e71f9307b24c2ad908ba19ec22984b4b325484e4745"
                   },
                   "mengsan_colorless_panic_button.png": {
                     "type": "file",
-                    "size": 3161638,
-                    "sha256": "c88fdd70d1ca36b09e1038b5bb17757621c7cedde849c52e50890c63fb7e6c13"
+                    "size": 279405,
+                    "sha256": "5670b09757819204cc2215303715d29f5aad0bc58599f8e8451cf7e1daeeee7b"
                   },
                   "mengsan_colorless_prep_time.png": {
                     "type": "file",
-                    "size": 3210939,
-                    "sha256": "235350559f4b50b207907ea6217fe5a19381d297425c97862e9cb5efec556dc8"
+                    "size": 273972,
+                    "sha256": "a2a5da96f7f06e9524d80494419269fb59d185ba62983ae5d86537c9f7a0f83a"
                   },
                   "mengsan_colorless_production.png": {
                     "type": "file",
-                    "size": 3192726,
-                    "sha256": "1290f77a24dc3a7287e61ff7ef70f2c94033915d6996c3e22e039e9669cb8651"
+                    "size": 270642,
+                    "sha256": "170c5c71d61cd8a191c1d2a77ee2b677bd69be2a87a068c04d5dff3914216c99"
                   },
                   "mengsan_colorless_prolong.png": {
                     "type": "file",
-                    "size": 3059311,
-                    "sha256": "316111895375c230029e76f1ef674e7cb08e9e58472a90b4267b182c28e9221e"
+                    "size": 277753,
+                    "sha256": "32e13fafe3f0310a7180fae140d8292908f88bd0ab586e50087d78f76157bbca"
                   },
                   "mengsan_colorless_prowess.png": {
                     "type": "file",
-                    "size": 3228141,
-                    "sha256": "bb7a67bd845a376174dbb28627bac4771454cb50bbadc24cbc2a26391d9badc8"
+                    "size": 283863,
+                    "sha256": "2535f9e313713b0637751b1ae47a045e3108f7ff90092cf6497df2740e0d7a25"
                   },
                   "mengsan_colorless_purity.png": {
                     "type": "file",
-                    "size": 3190337,
-                    "sha256": "00aad33dbf174fa6e5fe3f0231ee1e1ddcfb0e13011132e2ba34179400ee33c8"
+                    "size": 270780,
+                    "sha256": "a502c0cddaff9d6dab370a5d63e325f787850d53309f92589c3ad0a26b92075f"
                   },
                   "mengsan_colorless_rally.png": {
                     "type": "file",
-                    "size": 3267674,
-                    "sha256": "315913dd9c6106d1a5833eabc5f0caa88ebda9dbed72440aab2fbd46bab14bb4"
+                    "size": 278145,
+                    "sha256": "65b2004cf30dacd29c7501b082b5fb3d0ba5d32b44155d403fc5cfe7a71f655b"
                   },
                   "mengsan_colorless_rend.png": {
                     "type": "file",
-                    "size": 3293457,
-                    "sha256": "36a641178ee9c13eaf78cc96656e445e5147d09b07ca2b05c82e0a30c440ad26"
+                    "size": 283787,
+                    "sha256": "b9055a923b42f6e443d1b71329a03bcc9dbfe6c1a8a74a7e93dbb3609a56752e"
                   },
                   "mengsan_colorless_restlessness.png": {
                     "type": "file",
-                    "size": 2907076,
-                    "sha256": "e1d87fa3e36dd61fd5b84779f6ef4b0f0341c3216cca763c83e6d9a1dc1fe737"
+                    "size": 262597,
+                    "sha256": "d2d61ade4282f626d20bb7a6df84e5694c02d48fe33f0930e5397a8722729e26"
                   },
                   "mengsan_colorless_rolling_boulder.png": {
                     "type": "file",
-                    "size": 3318250,
-                    "sha256": "d9e7faabcde18d42c6dcc4f66ab0e822a930a8fba0e2060f42d1655991cbd253"
+                    "size": 287181,
+                    "sha256": "d89ee006722c93bd7212c3ac51144f1fef1b3825261c42cfeb08f4cdf34cc64f"
                   },
                   "mengsan_colorless_salvo.png": {
                     "type": "file",
-                    "size": 3228759,
-                    "sha256": "00da2f4a4bc69909cd89b187b96776d104a667ddf728d330ffd12a0aec4c222e"
+                    "size": 282695,
+                    "sha256": "1f9c7094e7c828f230698704c6d15ce21b2f3253c15bd63633bbb79708f93a29"
                   },
                   "mengsan_colorless_scrawl.png": {
                     "type": "file",
-                    "size": 3092946,
-                    "sha256": "72a71d758a258a37437f26106cab486e55c26a451fc19bb1abf885f0da7b8f44"
+                    "size": 262420,
+                    "sha256": "e7e698d14481c65cf27be3bf2d3a7e5ca341609b61e767e469c8f39b2215f649"
                   },
                   "mengsan_colorless_secret_technique.png": {
                     "type": "file",
-                    "size": 3031198,
-                    "sha256": "20a686c1a98bc730af4ced690487ec6f0d3d140be2b5c474696325a648958f2d"
+                    "size": 268518,
+                    "sha256": "72a55e11ce97402a9e23e72183605d3fb9e05e0118c67bb4ad4409a9fc068e42"
                   },
                   "mengsan_colorless_secret_weapon.png": {
                     "type": "file",
-                    "size": 3100884,
-                    "sha256": "05858a388df685c1dbc2b60e6a3bb6e441d8991d01a3293b0613d8eb71a22bfb"
+                    "size": 273623,
+                    "sha256": "f12d3fd96bf5e527f6474592d800b1137d13b6cb919e414c2f88cd1bcc7fef89"
                   },
                   "mengsan_colorless_seeker_strike.png": {
                     "type": "file",
-                    "size": 3226533,
-                    "sha256": "6dac80c8ff7afe7659ad69cb4d2db02c366c0c02e6088e9bd395418e9b74148f"
+                    "size": 271654,
+                    "sha256": "01b61d7c17df2b2d3ea22eb5e869939002f4c6b11e94ff412da5d59f11113c7d"
                   },
                   "mengsan_colorless_shockwave.png": {
                     "type": "file",
-                    "size": 3123692,
-                    "sha256": "c4b10848314eeb75e3e4ca588f4a34f886cfbcd8f585d5b68391ff8d3affb16f"
+                    "size": 275327,
+                    "sha256": "3b43d39b5e5647bfbe34755fd16b6aaaebc5901fd45baaa8e8d90200de4895e3"
                   },
                   "mengsan_colorless_splash.png": {
                     "type": "file",
-                    "size": 3008746,
-                    "sha256": "0a8a4393dc4462de1f33bd03a1173792a3b29d4f92a235dd1b6dd0ecbc41dd6d"
+                    "size": 267132,
+                    "sha256": "4c1ed146f59f4941a6754c7200518d640dea110d80ce894db472d4bdd35ac3aa"
                   },
                   "mengsan_colorless_stratagem.png": {
                     "type": "file",
-                    "size": 3124646,
-                    "sha256": "55375fcebdaa50dea41f55ef29d349880beca781d3e583584d9d8e377a498247"
+                    "size": 271810,
+                    "sha256": "e64cf224b829653d842a41e9e2b18779b7c5bcbf4567cf78c89f08becd99d6fd"
                   },
                   "mengsan_colorless_tag_team.png": {
                     "type": "file",
-                    "size": 3222820,
-                    "sha256": "62f3a67a893d485c0a376ed96e7d0a97c69429d7648cd4075f72a8b074878907"
+                    "size": 286097,
+                    "sha256": "4613562c13e79da7242d93debea39c94f875f0d5c139dc6dfa881108e6aab49d"
                   },
                   "mengsan_colorless_the_ball.png": {
                     "type": "file",
-                    "size": 3304542,
-                    "sha256": "4e3673066a4b80a7c902896fea95f42e9fb9b71a058bb4309ee085df7f0d8a2a"
+                    "size": 283974,
+                    "sha256": "c242e6e38bd72926da5b57c081b2ce701f80c7b6247c9a71a682c394a63d907a"
                   },
                   "mengsan_colorless_the_bomb.png": {
                     "type": "file",
-                    "size": 3150065,
-                    "sha256": "b2d0d8799316933ae0bed6cd3b925bf729b448de3daf1d769918b5a41d79de78"
+                    "size": 273486,
+                    "sha256": "fa31d1822611d50b3790cba97dd02da2fc5c97388f11a6d9b7d7ae1ffedc9951"
                   },
                   "mengsan_colorless_the_gambit.png": {
                     "type": "file",
-                    "size": 3194137,
-                    "sha256": "cd37df03c949469af917d0150f73416cf05cc087dfb67fc9879d69238fdbff74"
+                    "size": 276239,
+                    "sha256": "7cadc0e76adfc3d205c5a61ef72aaa576fb162590215e59c9b0ea10c7f2c1289"
                   },
                   "mengsan_colorless_thinking_ahead.png": {
                     "type": "file",
-                    "size": 3141303,
-                    "sha256": "7bd6b4edb3e8bb92d8b90773df68570831c1be948a103a426433191dd5135b60"
+                    "size": 279676,
+                    "sha256": "e80070350482d483e22c41fc66100cc9534ac8e8dfdb4164add29393a34003bf"
                   },
                   "mengsan_colorless_thrumming_hatchet.png": {
                     "type": "file",
-                    "size": 3114116,
-                    "sha256": "e7f9630a4d218eba20870c15d93a96eb2d5bea7f8697c4792832dd99e91e705b"
+                    "size": 273242,
+                    "sha256": "870a9d775881b1b524d7db36ce1bf46e78c8c755369bd0cd04dab3bce50234ec"
                   },
                   "mengsan_colorless_ultimate_defend.png": {
                     "type": "file",
-                    "size": 3310196,
-                    "sha256": "45d4d4418254f13366deea71137d5b891177b49c981ac9c83293a000f7e8462c"
+                    "size": 282973,
+                    "sha256": "3fdad038b62f41a7d73f4001b0aabe09a0bba72659fdfb31a9f4b1f265b4df52"
                   },
                   "mengsan_colorless_ultimate_strike.png": {
                     "type": "file",
-                    "size": 3222462,
-                    "sha256": "25652e3b55614c84b25c27ae63605bae88bb0e284d4c6181474d0e2cca9e074a"
+                    "size": 272282,
+                    "sha256": "6eca5b583b462751d701fee97db39054ab093e61c8896b0460857d6c7e72325b"
                   },
                   "mengsan_colorless_volley.png": {
                     "type": "file",
-                    "size": 3086676,
-                    "sha256": "fdd8ca3936a72134d3085b34d69c5bd73b1e80d6f443908aa2bd48fe13b52892"
+                    "size": 276470,
+                    "sha256": "0718f961b9615886f12356e23d60774ede4d465728422a64ce9420fe02a59c20"
                   },
                   "mengsan_curse_ascenders_bane.png": {
                     "type": "file",
-                    "size": 3156093,
-                    "sha256": "f12a36ffcd6f0dba728fcc7eddfef3323c04a33115bd4c3e53e3a4931b25587d"
+                    "size": 275151,
+                    "sha256": "bb9d6e1ef9eacfece52788636d663abcc575af8e1d87ff15147e6e52a9942d4e"
                   },
                   "mengsan_curse_bad_luck.png": {
                     "type": "file",
-                    "size": 3075399,
-                    "sha256": "3aa36640e3a47477931176fadd7423ab0016b2d0b53e1d293b933f421aa723f4"
+                    "size": 277750,
+                    "sha256": "8ac4cd8aca8bc7cb50e7f4ea3c3d0568693fa01332a1cb4de199bb7318cef539"
                   },
                   "mengsan_curse_clumsy.png": {
                     "type": "file",
-                    "size": 3320908,
-                    "sha256": "d4fd3da9b1dc49625f7e2d5d612234cb5f57ab75616ce1c2c5eb609e893dd628"
+                    "size": 283974,
+                    "sha256": "b0ba7a80b320b386ed2100c9763d6872a083b9c0a36ee1e4ee851eaa64152980"
                   },
                   "mengsan_curse_curse_of_the_bell.png": {
                     "type": "file",
-                    "size": 3190971,
-                    "sha256": "d52d05e8ee1c3355ec34440694538049f6c3a9fac591d0a2d44947a9dde2ff7c"
+                    "size": 280240,
+                    "sha256": "81a2e85b2b37b6ba7685b8091f76570faf0755a01bf883fbab3a8b47a442325e"
                   },
                   "mengsan_curse_debt.png": {
                     "type": "file",
-                    "size": 3206708,
-                    "sha256": "073aa84c0268bffae9cc017222bef8a1a8e8ba364abd6b64c3dee61a382f8c6e"
+                    "size": 279904,
+                    "sha256": "5fcb34d9144fb3f1c1ff7828650938076bbad45179b4df50d670e5d4962adf5b"
                   },
                   "mengsan_curse_decay.png": {
                     "type": "file",
-                    "size": 3159488,
-                    "sha256": "4e4bb998c9d410bac843201e1161bf85da03797d3e7f46ebb22943e3bf2c45bc"
+                    "size": 283528,
+                    "sha256": "5dfb95eaa4673717187a62221824f1d7424972a5530c4c4a3713f76bf5a5ac73"
                   },
                   "mengsan_curse_doubt.png": {
                     "type": "file",
-                    "size": 3272171,
-                    "sha256": "aa0e651e89cb3199f9568e5c00d72b842be96104a96698b8b484b8755862cce1"
+                    "size": 269347,
+                    "sha256": "4710d3e31ee5c1d55e7b1a1baefeb25e77357e8913b8b6f7df713e4fab7ae0d4"
                   },
                   "mengsan_curse_enthralled.png": {
                     "type": "file",
-                    "size": 3093077,
-                    "sha256": "08df7fda97faf5bacbd9402eaccad5f03e16a69364464a6a97ada181e3fa3ac1"
+                    "size": 276307,
+                    "sha256": "07356451a786ec006bb8e2f987c680c3ce31565601b9ab22cfae952596877afd"
                   },
                   "mengsan_curse_folly.png": {
                     "type": "file",
-                    "size": 3100483,
-                    "sha256": "02707297707414f7eca6da31881b57f70d9d9805a06498f2363ec5793a91251b"
+                    "size": 269943,
+                    "sha256": "193281c95c083ecd5185e80e409647049694284fdd0a166376e647fcd590c376"
                   },
                   "mengsan_curse_greed.png": {
                     "type": "file",
-                    "size": 3283765,
-                    "sha256": "0ba7674f5e8a2d07360389f45330666fc793e55c5f77abfd500f513db2bf9fed"
+                    "size": 276772,
+                    "sha256": "d5a3c8cfec9d066da0a6e9dcd8b143b3a16b38208b3e3ed4b064c01e4f57ae1c"
                   },
                   "mengsan_curse_guilty.png": {
                     "type": "file",
-                    "size": 3026762,
-                    "sha256": "69bbe906990f27813ac542428549e33c29285cb44bf521515000c1c1d0702e83"
+                    "size": 264642,
+                    "sha256": "b394381030f8e4a69bd5e5054380bc9a7cd26ddeb1c98e7f3ff33d522a9a8ff9"
                   },
                   "mengsan_curse_injury.png": {
                     "type": "file",
-                    "size": 3232271,
-                    "sha256": "ae043cfe8f0e5fb50ed75287b82494b7b38a918a331b6bf6a017e3283f4c4226"
+                    "size": 278371,
+                    "sha256": "ed1ae130675c0eb1cf7f5cf1cad288d5a527d1930915d83388e541187e0e12b5"
                   },
                   "mengsan_curse_normality.png": {
                     "type": "file",
-                    "size": 3015776,
-                    "sha256": "c2dd8e2fe83165c8129a2ff05ae1b86d5f4cfa258420280ccf49cd0d033f2c01"
+                    "size": 273981,
+                    "sha256": "bc52a95c96e47ba75db1c8edd77add90bef93441cbe92d6617b8bf4fdba9eeec"
                   },
                   "mengsan_curse_poor_sleep.png": {
                     "type": "file",
-                    "size": 3195332,
-                    "sha256": "b3934757b27c91e96322227b64bae769addc87338cd9d2b18c0bdf8169165b7f"
+                    "size": 266665,
+                    "sha256": "87075450b54f3ec32ff5f108ed369b7ec1bbfb0c2522d8b72a86f5c6af8993ce"
                   },
                   "mengsan_curse_regret.png": {
                     "type": "file",
-                    "size": 3197963,
-                    "sha256": "72f758eaa98a1fe254f025cf4096807498a8b9536a4cd085a6f8ac6cec9af2c9"
+                    "size": 276828,
+                    "sha256": "b7a0e2a41ae61dafb422b7dc1726147dabd56fdac49e245acc1d89543f5e42a5"
                   },
                   "mengsan_curse_shame.png": {
                     "type": "file",
-                    "size": 3159251,
-                    "sha256": "e7090eb518f5ff5c022c77ced36866e3477c62319388feb99045ac0a24fcb289"
+                    "size": 266707,
+                    "sha256": "ff047529cf2c3a71517a5b1a8bb51291e05739b5eb4d4b265f04b9ec37331705"
                   },
                   "mengsan_curse_spore_mind.png": {
                     "type": "file",
-                    "size": 3210425,
-                    "sha256": "00dca10bcf03085d3d343c14fcc3703c5f3b3170ab992e74069a2cd730117177"
+                    "size": 288927,
+                    "sha256": "a1e4b54c2e1019404873fe6a4975651912612572c1b3a1a830b015d733a5a554"
                   },
                   "mengsan_curse_writhe.png": {
                     "type": "file",
-                    "size": 3277925,
-                    "sha256": "2dbaee5d8d3070f01d6bb0503c3235b6601fe4af7b5217fc4e17271161f7ed10"
+                    "size": 284680,
+                    "sha256": "600a6f8b961cabfa9d756049235550a1dd46647a8355b77f0a63f2eb50320a0e"
                   },
                   "mengsan_dazed_shuying.png": {
                     "type": "file",
-                    "size": 3232164,
-                    "sha256": "422244600455c716960bcc5f1aaf028733061b7f5b01e174125b9a46cab200ad"
+                    "size": 283230,
+                    "sha256": "3de4c3d4c4569b27a6810bf9b8acef633a990bb8fee7143a7a829f6c7628aee3"
                   },
                   "mengsan_event_abundance.png": {
                     "type": "file",
-                    "size": 3175446,
-                    "sha256": "829339ea6c9f232b2004c179782393036629709e8eec6949cd6aa0d8c1b37950"
+                    "size": 269699,
+                    "sha256": "5a1bba818e2a231c88839ddd98d69193bde2b494bf41d6e67ad969d09057c9a7"
                   },
                   "mengsan_event_apotheosis.png": {
                     "type": "file",
-                    "size": 3202650,
-                    "sha256": "3e213766a173b3c01004a5faf3b53481233f19375f4281929196d75dff37573e"
+                    "size": 273199,
+                    "sha256": "e98a1d5269b18e5bf04acc9b986b109586d6a23df694a954240b814e48d2c55e"
                   },
                   "mengsan_event_apparition.png": {
                     "type": "file",
-                    "size": 3276116,
-                    "sha256": "07100920c178b5bfd383e5ced6fb9d6353c8d1995c80e9fedf409c7184cb0e0d"
+                    "size": 272007,
+                    "sha256": "826016f8ee0ad7c5cbc94718c336d3c8289da62d1ae5eb1127519d10f7fa4516"
                   },
                   "mengsan_event_brightest_flame.png": {
                     "type": "file",
-                    "size": 3088445,
-                    "sha256": "e3abc30102a32ca9f91fb9af30bf3cd2790ff550388090d117e7978e31dede15"
+                    "size": 263639,
+                    "sha256": "bf578528a2d1535deef8c96592ed0d41f8401ba8f2585055704808c6f4c78673"
                   },
                   "mengsan_event_byrd_swoop.png": {
                     "type": "file",
-                    "size": 3303389,
-                    "sha256": "3769b6f25018f510ad489bfcdc5cb327c02c5aafd0a1b9ca780792b3c0fe13a8"
+                    "size": 281465,
+                    "sha256": "edd98958390d0aa1d5c08513dff384949bc26bd66931fac68afb8340399b9a57"
                   },
                   "mengsan_event_enlightenment.png": {
                     "type": "file",
-                    "size": 3306552,
-                    "sha256": "5eb347d0984e569e43b792b044abd478d53d9cb9c9eecc5ba4e97773747a2699"
+                    "size": 270347,
+                    "sha256": "8573f419ec40d129b6283f672fb0fd838ed53400e71974642f2845f75743206e"
                   },
                   "mengsan_event_exterminate.png": {
                     "type": "file",
-                    "size": 3481990,
-                    "sha256": "a0e53996ab3943760329f1aab87e1bc414964f5b88a19778415beecd61cb98be"
+                    "size": 282715,
+                    "sha256": "ecc46404183fe3e16072718a1c46c6606156b00996e452878784d09392b54a4c"
                   },
                   "mengsan_event_feeding_frenzy.png": {
                     "type": "file",
-                    "size": 2991504,
-                    "sha256": "e7261af1c355fc358b15a8131d9b60909b6ba30db94b4d6f948802c3e3158c92"
+                    "size": 264932,
+                    "sha256": "c01d5e4fd9e98f091f5ab72e88e6f7bff711bc3bc4630cfe213040405e5d8877"
                   },
                   "mengsan_event_mad_science_chaos.png": {
                     "type": "file",
-                    "size": 3225466,
-                    "sha256": "2aa820d8c2f380eba5108df919295c4a509c33360bc934e678c72a60fa18d902"
+                    "size": 276192,
+                    "sha256": "effa31a6020a3cac2d57ae0b2edb7a59738617da8b2e39f2e1b51ce82fa58527"
                   },
                   "mengsan_event_mad_science_choking.png": {
                     "type": "file",
-                    "size": 3144566,
-                    "sha256": "a8e5960f8d10e1a8ad9e390d309d50525f8831b82d139b3e65fe6caa3653e31d"
+                    "size": 276078,
+                    "sha256": "414549fa03ffd6a8f94a38f5b980a5e0086d25ebd0da92449967a4dab07f31aa"
                   },
                   "mengsan_event_mad_science_curious.png": {
                     "type": "file",
-                    "size": 3128414,
-                    "sha256": "2f42323201b656cfaba157c9f45ba8795518bb5cd5a4a65af9d6d8c5474d7a57"
+                    "size": 265391,
+                    "sha256": "85587295ae53b74dbee096b20b1e81fa653bc0f1696fc2a409a8e2b37686a3d1"
                   },
                   "mengsan_event_mad_science_energized.png": {
                     "type": "file",
-                    "size": 3208057,
-                    "sha256": "3de4101bff5223dd7b115294b67835fc7a849ca667ed729e6b6b8576125ffbcf"
+                    "size": 276428,
+                    "sha256": "8dcee40efbfe3fcf1f309ed61f687e5ab10744a15840433222ecb2ee1f0008a1"
                   },
                   "mengsan_event_mad_science_expertise.png": {
                     "type": "file",
-                    "size": 3158770,
-                    "sha256": "a28fbf79892ab046388381a20e435f69bf53a6ba21148a3741c284989742a4b7"
+                    "size": 276858,
+                    "sha256": "508ce82a4b8b168afdbbd6480dfcc291a74b8221d1ade27c75d0c1ef4fc607d0"
                   },
                   "mengsan_event_mad_science_improvement.png": {
                     "type": "file",
-                    "size": 3101461,
-                    "sha256": "f85a01280f85571848917e9375a122e17e7dbe0d6750766cbeeba18ffc85927f"
+                    "size": 271401,
+                    "sha256": "8fd7f188c32e98484e34866b96a6c304d263f8bb3db471720975f4dbd19fcc42"
                   },
                   "mengsan_event_mad_science_sapping.png": {
                     "type": "file",
-                    "size": 3167779,
-                    "sha256": "0cff4b294bbbc3c0097fc6036fd1febf49a82cb777b85b1ef4e2b7cf1aa0d344"
+                    "size": 278026,
+                    "sha256": "b2bafdc9e70535af7d63155e3c83c6033a0738362cb66f64d623beb44712e9e7"
                   },
                   "mengsan_event_mad_science_violence.png": {
                     "type": "file",
-                    "size": 3217299,
-                    "sha256": "07eb2165f6bda2bfce8c8267c83ff7caefc617105a33b0e99dd8e3c99582a97d"
+                    "size": 268534,
+                    "sha256": "97a52c1f62fd31f3195effbb0e64e079656229fdf18d162d3f348b380b8ebbd3"
                   },
                   "mengsan_event_mad_science_wisdom.png": {
                     "type": "file",
-                    "size": 3108692,
-                    "sha256": "ff24a151489315ad9cef2bdec1d3adaa0dfd3bc5590870ac333b8af9d019d787"
+                    "size": 268269,
+                    "sha256": "52bc2d0e9033700bd7304deb6a2f0f924da82a54c07c7f6dcdcf2d6b9dfcd2a6"
                   },
                   "mengsan_event_maul.png": {
                     "type": "file",
-                    "size": 3146092,
-                    "sha256": "7d66cab5f938b31c6191be72693251fb28b447a6a357f4888af712296d8b6090"
+                    "size": 284044,
+                    "sha256": "c0a4314159170fc2010fce968df611c8b5a75c5dd44430a3154bfd92f66f677d"
                   },
                   "mengsan_event_metamorphosis.png": {
                     "type": "file",
-                    "size": 3255357,
-                    "sha256": "5af1bb8458b9533114d88eef94c91730094fa7d23190406fa86910f5006a97bf"
+                    "size": 278294,
+                    "sha256": "e0f9de80f12db20c3b0a8986d372a63ce92f44f113969518ab6ea2b2195ade79"
                   },
                   "mengsan_event_neows_fury.png": {
                     "type": "file",
-                    "size": 3270494,
-                    "sha256": "e77228e317921968bc584f015c5cb5a018093eb8e8f8e14f68655d088fbd7175"
+                    "size": 279982,
+                    "sha256": "6a01878172f2723ef8f8ac46850b47150ab47f47da4ec684d1b4311860f4d1e0"
                   },
                   "mengsan_event_peck.png": {
                     "type": "file",
-                    "size": 3245605,
-                    "sha256": "d7fa9557a82e46219917686a77fe1341cc57f843c166f65c63e8895885f29f88"
+                    "size": 279189,
+                    "sha256": "19c98a11ff34b6af855974daff7997488fef32213915f950687344429f4bbc60"
                   },
                   "mengsan_event_relax.png": {
                     "type": "file",
-                    "size": 3151165,
-                    "sha256": "6cb2956664d30064d741fb76bd1f8444e470acdb3b294b006f64bb4d58ef4e68"
+                    "size": 276048,
+                    "sha256": "574a2d3481fadd3ad47e6479d4232b3b1dc7d6ac610b62103baac7fb4387d3c4"
                   },
                   "mengsan_event_squash.png": {
                     "type": "file",
-                    "size": 3209656,
-                    "sha256": "a280aa3721788e4fa71c718de80a6ae30658b6557b43a46dd06edf70b2df72a8"
+                    "size": 280931,
+                    "sha256": "d3d6551cea871ccb1d5ac0fb55bf1e16efa1d83432e0b53f4043faec3b105892"
                   },
                   "mengsan_event_toric_toughness.png": {
                     "type": "file",
-                    "size": 3097893,
-                    "sha256": "735a500a48f344a755aeb94a2d6f40e2eb1b3692a109c60595d83ebc5635e7b2"
+                    "size": 276230,
+                    "sha256": "1d3a11eea2030204e99d3a3c56ffb340d6ad7367c13e407ae224566fa1395989"
                   },
                   "mengsan_event_whistle.png": {
                     "type": "file",
-                    "size": 3288482,
-                    "sha256": "585c5c4a5885c930a1c9f72dbdb5c1d4617d672481bae40f91f44256335474f2"
+                    "size": 275267,
+                    "sha256": "bbcfa89a15e6fe123bf0beea19a5344650998a6c721a9d9ce80a1350940e2bfe"
                   },
                   "mengsan_event_wish.png": {
                     "type": "file",
-                    "size": 3052956,
-                    "sha256": "ec05fe126b5b533aba8eb31294ec446a72d7cbe61808e906075ad80271996dbb"
+                    "size": 265676,
+                    "sha256": "271dab6a6ecfaa480f2b81286ff412fbf1b09d061ea39af60f2e227e5a5f6744"
                   },
                   "mengsan_fangxue.png": {
                     "type": "file",
@@ -2899,348 +2899,348 @@
                   },
                   "mengsan_ic_ashen_strike.png": {
                     "type": "file",
-                    "size": 3380843,
-                    "sha256": "62bb1d4a3cce45797e6ce257b690f127596acee491dd0b3091bf52018b839480"
+                    "size": 286604,
+                    "sha256": "f12fb1c4259d96e45810f9a2ea735dc4f2a47ad693b6a2cf0681c474042d27fb"
                   },
                   "mengsan_ic_barricade.png": {
                     "type": "file",
-                    "size": 3184834,
-                    "sha256": "39ee5e80832d97b79c82400b6f42c03a8701288447b37b698f7f5db8d80dcba6"
+                    "size": 274873,
+                    "sha256": "e21f5f02f32e91e074b103e0c361d121b201bf3f66df725f9abe51bb8182699b"
                   },
                   "mengsan_ic_battle_ready.png": {
                     "type": "file",
-                    "size": 3106395,
-                    "sha256": "5392a0ace902bdd1487e5ca97ea469ba73efbbabab26f237ce76ef2ae7f4526f"
+                    "size": 281316,
+                    "sha256": "09eab1ad1bd94e206a2df6a70114c86c2a8f029877172c2b90554ed62cdb3eed"
                   },
                   "mengsan_ic_battle_trance.png": {
                     "type": "file",
-                    "size": 3151914,
-                    "sha256": "c327d3554861c1d2dc13c81d8142197bfa07359abac54c8611968168c12256d8"
+                    "size": 280228,
+                    "sha256": "318db72236c1d8ca244016a610f5e36c792fd942bbe672d914dbe31aaa628ddf"
                   },
                   "mengsan_ic_blaze.png": {
                     "type": "file",
-                    "size": 3375895,
-                    "sha256": "75804bfb929e75b4ced9f332807fd74003127b3f83f72ccfe6d4d9f35a26bb13"
+                    "size": 285931,
+                    "sha256": "7855b331d2bfbbfa94547d37aeced861c52777c69fad77d136190375f9f03cdc"
                   },
                   "mengsan_ic_bludgeon.png": {
                     "type": "file",
-                    "size": 3389225,
-                    "sha256": "79c71b0419b979f7f06ffa12be1761ab41244d33c721c1a679d0448d00b29337"
+                    "size": 287941,
+                    "sha256": "b67f775d2db7012cd1ca80252f9fd751f31494ba3c516089d6ba9a98e4c7521a"
                   },
                   "mengsan_ic_bodyguard.png": {
                     "type": "file",
-                    "size": 3343236,
-                    "sha256": "50da52b4a1ee4537d6328d311bbb4842f7de74796613784f9d6d53f5f3d5f32e"
+                    "size": 283829,
+                    "sha256": "0b015d31c67fd9c86763f30aa718900bdbc847547b128ec3a64f4b8afe8cb184"
                   },
                   "mengsan_ic_boulder.png": {
                     "type": "file",
-                    "size": 3285153,
-                    "sha256": "bff97d7a6f172b16cb3bb0434face4173bda907355516975efd0b177abdcb727"
+                    "size": 278980,
+                    "sha256": "c7ad606c1b336a656a1c49a9ea1f94d8c623039da1781af3277c6362b2ec745d"
                   },
                   "mengsan_ic_brand.png": {
                     "type": "file",
-                    "size": 3294776,
-                    "sha256": "8f0da53ec9a4ba94742f7b08aab5c8c065ad7d7f06d0456c7b8beea9edc0156c"
+                    "size": 277039,
+                    "sha256": "181b20a9c40e174914d1da6e373fbf98aa8968b5bac3d6c025aba28bf026200c"
                   },
                   "mengsan_ic_break.png": {
                     "type": "file",
-                    "size": 3312419,
-                    "sha256": "59e6a3748d903a508f5a2fb1fe4160848ab301b7f82b43b15c90daa88134c992"
+                    "size": 282143,
+                    "sha256": "a8e2b0a5a52e731e161fbe1019c56df8cf35cdf97bf49ff44f1af8e9739cbeb0"
                   },
                   "mengsan_ic_bully.png": {
                     "type": "file",
-                    "size": 3295672,
-                    "sha256": "11e917a6a33573ea00f187afb8b18c313887e901f30d8ea09dfb206c6dcd5ff3"
+                    "size": 285649,
+                    "sha256": "4c2566155e5096dafcc57078d3224e2c0b95ad2ca96fefdf944bfbcb17b7a182"
                   },
                   "mengsan_ic_burning_pact.png": {
                     "type": "file",
-                    "size": 3261391,
-                    "sha256": "e3163733cefc1f8c99f0d6549329e0fff3fb3a6c15dbb917d455173d39fa6a85"
+                    "size": 281128,
+                    "sha256": "b17552873bc5e7c7d7cfb3337a58d73288f8e4a5e4aedec9edeeb40efdc8a647"
                   },
                   "mengsan_ic_clash.png": {
                     "type": "file",
-                    "size": 3375675,
-                    "sha256": "c61999fb8ee8d70150348630fc773d7391f2239d01289acb1cb98906ad6b29b6"
+                    "size": 287097,
+                    "sha256": "5b15696ffe6f419309d3d0be712e18043e3746d10adc97e29b360c95f8f394aa"
                   },
                   "mengsan_ic_colossus.png": {
                     "type": "file",
-                    "size": 3446064,
-                    "sha256": "95758ea8bc56299aa7f29f48eed911ece7fa11fbbfd77d6ee865e3142002a607"
+                    "size": 292362,
+                    "sha256": "f3dce17e4b06d5eb9d8f67c74942bef4bde6a0e435e08fbe4d4c8984dea34a94"
                   },
                   "mengsan_ic_conflagration.png": {
                     "type": "file",
-                    "size": 3383784,
-                    "sha256": "24340736d1292a3e199148b02c6a395d91e94ee541833a7d9acf472285046967"
+                    "size": 277137,
+                    "sha256": "31fc8317518d907157ae0102b6c4f27d25c1fbcf65cb08601b532ed439b552d9"
                   },
                   "mengsan_ic_corruption.png": {
                     "type": "file",
-                    "size": 3321262,
-                    "sha256": "040e1f40a9205862b4893fefbbfd0fbde2530983694bafd1509347830b60bf26"
+                    "size": 282239,
+                    "sha256": "510f072f999d46ccccff9451a74e3c5b89f30bfa34d2b6768da13a289b52e0ff"
                   },
                   "mengsan_ic_crimson_mantle.png": {
                     "type": "file",
-                    "size": 3315436,
-                    "sha256": "7a0b60005554b2ecff4eada7096b5be930146e51769cc6f3a5784fc8f6f84459"
+                    "size": 280963,
+                    "sha256": "0da2398d9ec8a3b0384fb9d2c0138c25d72761988d9d01d74f9128c31f490673"
                   },
                   "mengsan_ic_cruelty.png": {
                     "type": "file",
-                    "size": 3318267,
-                    "sha256": "d538eac00eeb64bda764b32555207e79de8eb860d4b9e80377f0566534f8dc4a"
+                    "size": 284558,
+                    "sha256": "2b9fd288a8e862a398eaa43027abe22089fce1bb9b507481db326002e753382f"
                   },
                   "mengsan_ic_dark_embrace.png": {
                     "type": "file",
-                    "size": 2966840,
-                    "sha256": "ffdd9cc3fbd16ff58c647d4e05c6e8dd78f348140de2a0651dffe40e4ec49cdd"
+                    "size": 270814,
+                    "sha256": "21027bb399dda93c33b002753df1a73b382352913cc2c673b4ff85ee4d2c338d"
                   },
                   "mengsan_ic_demon_form.png": {
                     "type": "file",
-                    "size": 3414331,
-                    "sha256": "33b54e87e86d88c50e9995ea6849eed9e2f65dc0a2aa50a8a72b8ddc3b209165"
+                    "size": 293315,
+                    "sha256": "8d62cec70f7ed69030801d62279b2e1d7caf82c4c2cc32a07c6e3efcc326392b"
                   },
                   "mengsan_ic_demonic_shield.png": {
                     "type": "file",
-                    "size": 3363214,
-                    "sha256": "1f2ccf30e3534948282ac9cec36aeb1eb8a76161f4970188610f4ebd564a6cf1"
+                    "size": 284972,
+                    "sha256": "50f3b5e9278393ec37faba009e3ea591cd1adc2ce07633240ed8490c11e7b6fa"
                   },
                   "mengsan_ic_dismantle.png": {
                     "type": "file",
-                    "size": 3290705,
-                    "sha256": "1524381ee0fd906e7c287017ac2c07df01a2128837635c958456d90f8a116526"
+                    "size": 286452,
+                    "sha256": "bff545f4709221adf0b10c7629efb247f64be4ebd833cd71ef5c5a12f5b588c6"
                   },
                   "mengsan_ic_dominate.png": {
                     "type": "file",
-                    "size": 3314562,
-                    "sha256": "1b054572525b494046efc2df72e87446a121bee8084a6ab022f526d8e9f0076f"
+                    "size": 287224,
+                    "sha256": "5f679ced55ad9d87da8a6fbd4a37695b152ae2a60d94da827b52acb99941dc5b"
                   },
                   "mengsan_ic_drum_of_battle.png": {
                     "type": "file",
-                    "size": 3155334,
-                    "sha256": "498552963fda156c5f179fd7a3b4ceb1adaa6e8f9e4e02d864508a95a17c21ce"
+                    "size": 276748,
+                    "sha256": "51a69700fd6adb684ed23da50eb5b3a58c502aa5b9dc392602d08cb35a504863"
                   },
                   "mengsan_ic_dual_wield.png": {
                     "type": "file",
-                    "size": 3219368,
-                    "sha256": "a22ebfe2790fe287f16e91f3bf767b1bdd2770c86559ee39060dfac2708dee2e"
+                    "size": 284469,
+                    "sha256": "4e26f6c875e554ac095c1c33874f3df78f21e0b5a86352055447f7b64016be46"
                   },
                   "mengsan_ic_eager.png": {
                     "type": "file",
-                    "size": 3155388,
-                    "sha256": "30fc98f684f1f4d1e428245b89917b7bb68c037b5d7582a8f7eeab99685d2b5d"
+                    "size": 271026,
+                    "sha256": "3d6294313d96f73d9567112a8f6ae241ea267293d36bfe71b236eb31ad1dc42d"
                   },
                   "mengsan_ic_entrench.png": {
                     "type": "file",
-                    "size": 3500692,
-                    "sha256": "38f8a2cb023b54a49d9c85bb523c4c7f8c6ea60d6ed30d2e02825358fba5a900"
+                    "size": 286869,
+                    "sha256": "3f744ff75751d60611c5261d399bb918a3836b3c91415cf8fea6a01d832da540"
                   },
                   "mengsan_ic_evil_eye.png": {
                     "type": "file",
-                    "size": 3403431,
-                    "sha256": "cbf7f72b018401d6cc208b8f03440417d0943d70e1f91fc3f6ce9f3279f997f0"
+                    "size": 283650,
+                    "sha256": "2faa8de463e92655b64073f52d9345e538f131de868c48aaf54f59485ef8f119"
                   },
                   "mengsan_ic_feed.png": {
                     "type": "file",
-                    "size": 3195433,
-                    "sha256": "e68e07bae5c148ada1a33964265fc9eb9a0d4388fee3e35f6f9b0fef0f53afc8"
+                    "size": 275805,
+                    "sha256": "a1c982f3d5377adcaa39b96ef19a580feef01ce431d9adecfba68a28fcc7c6e0"
                   },
                   "mengsan_ic_feel_no_pain.png": {
                     "type": "file",
-                    "size": 3148743,
-                    "sha256": "216044b33d3dcab884597a5382d932b34be68b36700de401952107e96bcdb83c"
+                    "size": 277116,
+                    "sha256": "779915e2e1bacf218b82dce39fa4106573aae52947e84848d02bcddced92a6fa"
                   },
                   "mengsan_ic_ferocity.png": {
                     "type": "file",
-                    "size": 3156966,
-                    "sha256": "7b71c93f5fe9a48c63f52c4072c021ff8bd3da26e89a478cdec9ca675ed150c2"
+                    "size": 270349,
+                    "sha256": "f1b310f38a32b769d50514b2aa6045ddfa7cfbef2b8f98651f51d3a3f38dcad6"
                   },
                   "mengsan_ic_fiend_fire.png": {
                     "type": "file",
-                    "size": 3445601,
-                    "sha256": "8e10353d6717f4f649acf821b3e3b4af70a058d40aef7e86ceef3b70fb413d5f"
+                    "size": 277055,
+                    "sha256": "701ff87c2394c59e674abca313a4ed11ec754a1dd2aff47d08d65e69bc4244b1"
                   },
                   "mengsan_ic_fight_me.png": {
                     "type": "file",
-                    "size": 3312407,
-                    "sha256": "3bd8d2bf23c8fa667cb40297716218bb55f3cceb12e77b841651aebf9c7f5545"
+                    "size": 282457,
+                    "sha256": "cebfbdd33a0fba5b5f464dacee6c780e006208e86a73e8ec3a8964ff46cff0a5"
                   },
                   "mengsan_ic_flame_barrier.png": {
                     "type": "file",
-                    "size": 3459567,
-                    "sha256": "c73225d6181f96b6d5f35ef306d858c73b60d3af986cf0232e704374413a134a"
+                    "size": 280002,
+                    "sha256": "7ddf27c302f035ab69503b072912d55f8d82d1b1842f11c6dbacde90f1110264"
                   },
                   "mengsan_ic_forgotten_ritual.png": {
                     "type": "file",
-                    "size": 3345779,
-                    "sha256": "8a2b56f31440771c5c853d1dfe9860e507675b9d330ff0a48f7d11762e51f537"
+                    "size": 281565,
+                    "sha256": "ad78b78f6e2df161e6adb776bfcf6bdf3bd246908d769dd5fd9b0010449ce25b"
                   },
                   "mengsan_ic_grapple.png": {
                     "type": "file",
-                    "size": 3215001,
-                    "sha256": "512ddb86f8ea7489b5b292cdcd4f0d7d892ccd7c4a2bba0e218c06325f23646c"
+                    "size": 283038,
+                    "sha256": "91c01d8f4e752bc86f279026fe28aa59f3bb392ffc05cacad3d8246eb28b1604"
                   },
                   "mengsan_ic_hellraiser.png": {
                     "type": "file",
-                    "size": 3258334,
-                    "sha256": "b0a15fd06317803c7f29537a03527d41ae430f53595a7ff92ba491cdb068b76e"
+                    "size": 284015,
+                    "sha256": "c4192aa411e1a856541dedd8c2fc5bd65cb19d93f78601370adbb7e0b14a3d79"
                   },
                   "mengsan_ic_hemokinesis.png": {
                     "type": "file",
-                    "size": 3582165,
-                    "sha256": "e7392585c268ccca314b9be969951fc803e011beaf2cc3c72d578c0561b674d8"
+                    "size": 285990,
+                    "sha256": "b0e34131c20486d348bb251e72fe90daef35eb8fe1f3f039072914d92b14b094"
                   },
                   "mengsan_ic_howl_from_beyond.png": {
                     "type": "file",
-                    "size": 3196502,
-                    "sha256": "801203f8103404b55c861450d104866975eb2dd379233c8d19de370a83c4ea9d"
+                    "size": 271644,
+                    "sha256": "d70d78d493e6ce8833d19c898a3e7f4f91d796bb25419fad43c5c2290e127ae4"
                   },
                   "mengsan_ic_impervious.png": {
                     "type": "file",
-                    "size": 3398556,
-                    "sha256": "45366fc69d3c6b7b91fe15611c76f693fe2f445406e53ef582b3379447759f18"
+                    "size": 291942,
+                    "sha256": "c6be856ad7f613a9d1b224a6828327cc3d806bdeb30edee084b2b024c2a2eede"
                   },
                   "mengsan_ic_infernal_blade.png": {
                     "type": "file",
-                    "size": 3081535,
-                    "sha256": "10cfbfdd41d76c924f4c6fa74f57dc6546c181f26602c091e602ad0234b4ee07"
+                    "size": 272334,
+                    "sha256": "fb3336e31b3410ea8816ec07978a38f8c8b48318c60a3c5076817f9253d1af87"
                   },
                   "mengsan_ic_inferno.png": {
                     "type": "file",
-                    "size": 3389310,
-                    "sha256": "b1108d5cb2cefa40f9a4a5ea13a924a2624a57b4ca7c2ae8b7e7086ba09b090d"
+                    "size": 284674,
+                    "sha256": "29d668178da39d120f696cc61070724896544b956e4ea39e58829b51b096dddc"
                   },
                   "mengsan_ic_inflame.png": {
                     "type": "file",
-                    "size": 3236167,
-                    "sha256": "f9ee9fd58e4d5e74669665e0cbbc9050a0b61aa3ec2a798f97da97c1a6d44e1c"
+                    "size": 286512,
+                    "sha256": "d0a2e4f6b74104a044c007b18c65322def8f93f9ff466032431aded78b2e35f6"
                   },
                   "mengsan_ic_juggernaut.png": {
                     "type": "file",
-                    "size": 3433571,
-                    "sha256": "4faca2d750999826ca934c45ea648850233b4038207b6cf1d5f05eb6ffd34f49"
+                    "size": 289780,
+                    "sha256": "1a8d78383b168b8309d7259201a266297281ca0fb56ed4f9f443bfe79a13181e"
                   },
                   "mengsan_ic_juggle.png": {
                     "type": "file",
-                    "size": 3320003,
-                    "sha256": "d3f8d1394131b5f7d6cbeef9b8eb89ac25b0c108d79267210d5b6f9f7adcf513"
+                    "size": 287046,
+                    "sha256": "7ceb0f74cbd69653a24afe5e2618c224b0e86921e54534668401cfc7efd93769"
                   },
                   "mengsan_ic_midnight.png": {
                     "type": "file",
-                    "size": 3163175,
-                    "sha256": "e0f68012e73f192a2cc169235eb0b49f27b6991c37a5e8862cdb4f32d010d39b"
+                    "size": 272404,
+                    "sha256": "d4653cb196c2a7e23bd235be2175109ea5b1a01091eaa5fe23fe43adc3b55ced"
                   },
                   "mengsan_ic_not_yet.png": {
                     "type": "file",
-                    "size": 3398829,
-                    "sha256": "dddcd2e90d84883c33653169df1591633b944932aaaf6f34f43be10724007515"
+                    "size": 276205,
+                    "sha256": "f4ec82032ded94ffe2cf52b8ec0f9a8e6f9b6ae7dcf1ebea768679334efdcd33"
                   },
                   "mengsan_ic_offering.png": {
                     "type": "file",
-                    "size": 3358902,
-                    "sha256": "a8ac083487185734223c31e1e428f9ee78c0dad7e6e37baa201bb33a44e974b5"
+                    "size": 286348,
+                    "sha256": "ba4df8f33423d64efaa11a7433636d4e6a856c13695b0a0de0ad83f5177ad0cc"
                   },
                   "mengsan_ic_pacts_end.png": {
                     "type": "file",
-                    "size": 3444230,
-                    "sha256": "c23a5eba95bf6d44519eb890580ac576ea5477f96345cd9c58b03183d74179bc"
+                    "size": 290271,
+                    "sha256": "d061728b60b3e034ab04d2157c796a8f97687b435351866982388bf3b6e35866"
                   },
                   "mengsan_ic_pillage.png": {
                     "type": "file",
-                    "size": 3371280,
-                    "sha256": "f7aba0b71d6cbd43d6de528713e7b2ca015c35a99826dcfbd8cb04f9d8e4c684"
+                    "size": 291912,
+                    "sha256": "a424a0810cd9fc7bdced39fd6904ae5cff475115fafc725c0bf726dbce4db857"
                   },
                   "mengsan_ic_primal_force.png": {
                     "type": "file",
-                    "size": 3284334,
-                    "sha256": "c3b0d479166fae86e39f60739118fb993baae2d9c2e0ff2bc0b606d95b436b84"
+                    "size": 283856,
+                    "sha256": "3d7edeb8c8f1eb0e8618a47fa0b69863a798bc5d43ebd2b3be36e918de5798f7"
                   },
                   "mengsan_ic_pyre.png": {
                     "type": "file",
-                    "size": 3272678,
-                    "sha256": "e29710c3846fbe3571460232bbe337f502b1a5cb3928774b0796b16339030e3f"
+                    "size": 274583,
+                    "sha256": "e34631b6111df2949a1160693bdd3ac9f026857c53bc0929c500ae15e6eb07df"
                   },
                   "mengsan_ic_rage.png": {
                     "type": "file",
-                    "size": 3254815,
-                    "sha256": "178f291ccb5760f122b335b63963432e0e547f54b6d2a94b95641c382e60b708"
+                    "size": 286146,
+                    "sha256": "a90e6dd8ef551cab903c75da07800d7ec203d6c055c32bc5d292d50d5a080418"
                   },
                   "mengsan_ic_rally.png": {
                     "type": "file",
-                    "size": 3208925,
-                    "sha256": "5ca01c9b5ab51118da8afe5f5019ac9c8394d21c3153260d307d3c1e83de9159"
+                    "size": 278772,
+                    "sha256": "19e97f203eda683749b39125ca4e55b979a03a397cee6bc8c0fe516065d09d86"
                   },
                   "mengsan_ic_relentless_assault.png": {
                     "type": "file",
-                    "size": 3157513,
-                    "sha256": "d5093dcfc00a559844f160f6a07a32c5633047312f04e2c84cf385850f4565c1"
+                    "size": 277053,
+                    "sha256": "91b3099fdd45ce4793dc6620519421af2e198782b710a4f0069f227c32a2e0c8"
                   },
                   "mengsan_ic_rupture.png": {
                     "type": "file",
-                    "size": 3242389,
-                    "sha256": "a7d85597a367d43006abb2bc54fc1adade5f1fe396d80aa64b1d1fc0790c5517"
+                    "size": 280778,
+                    "sha256": "ff355f5f28889c0f52c79a169abfdf07d5e7f0f934d5615bb888ba82e518864d"
                   },
                   "mengsan_ic_second_wind.png": {
                     "type": "file",
-                    "size": 3326737,
-                    "sha256": "c00a2886359ff2cc6e067de86ef0126040934bd079e1d65b12a58e749bbc48f8"
+                    "size": 288240,
+                    "sha256": "fd59f3dfc89d5f2203c2f73d37eb1b6be929e86e88a76360b2b79acf423f3a11"
                   },
                   "mengsan_ic_stampede.png": {
                     "type": "file",
-                    "size": 3340733,
-                    "sha256": "3e7ecc806b9c528cdd2e2de45eaf04926e9fd0a49a71ae06602e1fb9938e6804"
+                    "size": 286742,
+                    "sha256": "1683abb1cd4a04876d04054a71217dcd57aa21fd9a9562332caf9a9fec36d481"
                   },
                   "mengsan_ic_stoke.png": {
                     "type": "file",
-                    "size": 3224630,
-                    "sha256": "2f2947c935a95aa22e7aea17e5b684e8077d0ccfd56348d404a3dea40e428850"
+                    "size": 274723,
+                    "sha256": "0c87883f06657ac82988687710d999cc519cc505bef60c998494ab94fd31f549"
                   },
                   "mengsan_ic_stomp.png": {
                     "type": "file",
-                    "size": 3230547,
-                    "sha256": "ed2a8f438c40c486e4efbc128c45bce568137d3d87a4d97ad2a3b69317e43342"
+                    "size": 282210,
+                    "sha256": "85f63f23137dce14ed09f1b5d2f04375351e259168225821770882161a6369a8"
                   },
                   "mengsan_ic_stone_armor.png": {
                     "type": "file",
-                    "size": 3409260,
-                    "sha256": "f72619cfaed0d7b433dc58a6204751e292a4e69cde3089417ce346894ebe683f"
+                    "size": 291873,
+                    "sha256": "9891d4a8157d0f6ff1f3330ecb780260d2ed39ff72788e9753d1d5a636c4cf62"
                   },
                   "mengsan_ic_taunt.png": {
                     "type": "file",
-                    "size": 3260651,
-                    "sha256": "122103d43fb1053d12d172c2a488bae9f7a6765c6d36ea2d3b13412a2de6e33d"
+                    "size": 282698,
+                    "sha256": "f94d828893a7c6dd327713c0b872b1d73be99793bf63ded6c6a16c490134f024"
                   },
                   "mengsan_ic_tear_asunder.png": {
                     "type": "file",
-                    "size": 3318965,
-                    "sha256": "df905976f4888b4eccc1418591a38c725f9c45cd579097adbf255c5f3ba2aeae"
+                    "size": 281800,
+                    "sha256": "6413c5272babc2636c97d76014b6fc40d769c3704b91df99012e6511986ada9b"
                   },
                   "mengsan_ic_thrash.png": {
                     "type": "file",
-                    "size": 3408839,
-                    "sha256": "8277ecb7faf2df11ad9e05de620b47ea44f20a866ff02fb9ff042ec8479bfad4"
+                    "size": 285268,
+                    "sha256": "b14efee9ffd36f81642a012c8221a9450eacaa5b2dd00a2c5e27685e4db38673"
                   },
                   "mengsan_ic_twin_strike.png": {
                     "type": "file",
-                    "size": 3465328,
-                    "sha256": "a2e60f67dfff10789fd453f1525941238389786f3dc5e71788a30d312b751914"
+                    "size": 294861,
+                    "sha256": "da1f3e62917e32af6075d4be404e30d59fafe262cdf39eb8dbaa2c9807a5cbd2"
                   },
                   "mengsan_ic_unleash.png": {
                     "type": "file",
-                    "size": 3412724,
-                    "sha256": "3dd9906996d07deaa06e1b56839609175a1d9d88bccdd9237465844c3e5882bc"
+                    "size": 286537,
+                    "sha256": "c012976e9e8d7d05156812994fe07c937c6bc30d94680ee1d656f697ae6911cc"
                   },
                   "mengsan_ic_unshakable.png": {
                     "type": "file",
-                    "size": 3286732,
-                    "sha256": "a7540f94fe98fce1434928b6a204f96f2f036a3db81579e499b2a31a7d9c6184"
+                    "size": 280071,
+                    "sha256": "e2251ad2c80eccbc947bf709a5a509ddc259b81bab9710493ee2b085215c17f1"
                   },
                   "mengsan_ic_uppercut.png": {
                     "type": "file",
-                    "size": 3369967,
-                    "sha256": "0935723010a4fd761821e827e6d456a07c63ac937beb0ca8421415d2bd67bc9d"
+                    "size": 290682,
+                    "sha256": "e831ba734e7872528b687d161644b5e735630bb26dc88a4623b302a4743f0a6d"
                   },
                   "mengsan_infection_shuying.png": {
                     "type": "file",
-                    "size": 3154682,
-                    "sha256": "7a47a79522cf9c684efce578b43197936a37feca7e229097d86903118e5a5862"
+                    "size": 276669,
+                    "sha256": "b1c457adceb378b8a816f4f33531a44e8f8fb0787296f104649b9584fd378890"
                   },
                   "mengsan_jianbingdaji.png": {
                     "type": "file",
@@ -3249,8 +3249,8 @@
                   },
                   "mengsan_jianyi.png": {
                     "type": "file",
-                    "size": 308533,
-                    "sha256": "8440f6dc36bbc3fec6bd7406f2a0623aae37f63e7cbc1a7dc7b912805f4c9f38"
+                    "size": 246696,
+                    "sha256": "3c79ffad964fc6c47a779250bcb2db050e973e77d9c4d85ec7facf0c2ab2b9fc"
                   },
                   "mengsan_pomie.png": {
                     "type": "file",
@@ -3284,8 +3284,8 @@
                   },
                   "mengsan_slimed_shuying.png": {
                     "type": "file",
-                    "size": 3173387,
-                    "sha256": "6185d04b40409525e0eb8268eb55ff0a047ad68833169230936dca937c37b05e"
+                    "size": 272310,
+                    "sha256": "628e65fe0b93ca2f9f769a3d21d2d764b86e9a0f7f8d6945e7d4c0350a5f807e"
                   },
                   "mengsan_songjianwushi.png": {
                     "type": "file",
@@ -3294,48 +3294,48 @@
                   },
                   "mengsan_status_beckon.png": {
                     "type": "file",
-                    "size": 3089872,
-                    "sha256": "ec9aa4385fcffa00030390c2bf02ed833cf7b4200d268955831949e3deb4c22d"
+                    "size": 275940,
+                    "sha256": "7151d406f0f84200274ae097fe2f0713faebbb529b44a4d70e16c25d841a32d3"
                   },
                   "mengsan_status_burn.png": {
                     "type": "file",
-                    "size": 3202565,
-                    "sha256": "fee1bddc02b755972e99be68fd354ec69cb9b6286a15c9c8203ed2708bb29904"
+                    "size": 275450,
+                    "sha256": "6ecb4e9e00a34ec107f2ab819bd5cb4d53e8a758c0636457af7b0291603ba895"
                   },
                   "mengsan_status_debris.png": {
                     "type": "file",
-                    "size": 3212683,
-                    "sha256": "8f251585e1487a3d8c04111eaac50ca7860745a8386107c0497f777fdc2ac3ec"
+                    "size": 273356,
+                    "sha256": "df7b1a6688b3593f21156d002a3cbe341b59914df2d677d0d4d91f7c3bee59b2"
                   },
                   "mengsan_status_deprecated_card.png": {
                     "type": "file",
-                    "size": 3211849,
-                    "sha256": "9dc7828e6e5559479d48a2f26144ca40ee365b5587183496d41085bc01f7464e"
+                    "size": 281733,
+                    "sha256": "4513f24a0d869fd7a8ce2b0f73eee82cedf728ba29c569149a954077a9b25972"
                   },
                   "mengsan_status_frantic_escape.png": {
                     "type": "file",
-                    "size": 3331510,
-                    "sha256": "e5b328f4f8efae481d25ef7fc2739c4f614ff05ee65799363a4194e229406526"
+                    "size": 284940,
+                    "sha256": "2d0d970b649f953cf0669c1b84148bff34f6c29973cbe057eb5854ce885eb594"
                   },
                   "mengsan_status_soot.png": {
                     "type": "file",
-                    "size": 3164859,
-                    "sha256": "885f2f1557cb9483c0bc0538c6eb3f1abb017809883d24a2f864732df4e48bef"
+                    "size": 276940,
+                    "sha256": "9552ab959116a6affd80ced87a995bfa2f5b64e78d4f30d2d61fbc9eff869b1c"
                   },
                   "mengsan_status_toxic.png": {
                     "type": "file",
-                    "size": 3047189,
-                    "sha256": "d2e6f92ba539b91a21cd3eb836f2b28c21e81548fbc1fcbf1686680533bc39c6"
+                    "size": 275844,
+                    "sha256": "f0739dfb734f439885d835e771e1f28f637998607599bdb103196c277b456d47"
                   },
                   "mengsan_status_void.png": {
                     "type": "file",
-                    "size": 2969653,
-                    "sha256": "63ad2acb439b474b93a250398cb153063c01c74ddd4ce7c82a8717f743495ef1"
+                    "size": 272942,
+                    "sha256": "7ded29e99a7afd2800d8abf26330e763496927a8cb85840e01ee2109311b692a"
                   },
                   "mengsan_status_wither.png": {
                     "type": "file",
-                    "size": 3329606,
-                    "sha256": "265095ea049e38be62725ece19e91c15ff6abb232a4276779b93555ce0dccad1"
+                    "size": 282926,
+                    "sha256": "6c75a9f900f3874b2d2a75b46bcda8e7459622cfee9b6aac3ca69069df5a62bb"
                   },
                   "mengsan_tiezhanbo.png": {
                     "type": "file",
@@ -3359,8 +3359,8 @@
                   },
                   "mengsan_wound_shuying.png": {
                     "type": "file",
-                    "size": 3102499,
-                    "sha256": "16aa7c0485416028c1ac4990ceb6d9f850dc93d63a74bfa3514dfddd101f6c29"
+                    "size": 263671,
+                    "sha256": "0200dc20035003f354822e5c545fc9a8cff53469f7c0085a9931c4d67d866c1b"
                   },
                   "mengsan_wuzhuang.png": {
                     "type": "file",
@@ -3796,33 +3796,33 @@
             "children": {
               "battle-director.js": {
                 "type": "file",
-                "size": 13125,
-                "sha256": "a82a031a5d92f4e734625a40793db883ef96bd4c9b56bfef5bc56f2b982e4aea"
+                "size": 12944,
+                "sha256": "ba3adfa4793a1ef3e2da9959a39fad62789fcd6f41b84e9e342c81ff88edbbff"
               },
               "battle-flow.js": {
                 "type": "file",
-                "size": 5900,
-                "sha256": "1ae2db34176a7fc5d19e5001316e1f2aac4b1a883662bafc43af8cb95775970b"
+                "size": 5801,
+                "sha256": "9ceffe9539c1d303f75eb23e4512554c174e602f85f53e9f9a37e2fb1afe7bb1"
               },
               "battle-loop.js": {
                 "type": "file",
-                "size": 3652,
-                "sha256": "8ff23c71320c91cee2955cabfd8384190a07b80cbddd44bba50fcf9fef4daeb0"
+                "size": 3565,
+                "sha256": "0af53c3d317fe9816594c2786bf5a1bfa960babf0c135b9b4d524794730efbcf"
               },
               "battle-resources.js": {
                 "type": "file",
-                "size": 3095,
-                "sha256": "0da540600249f9addb23eecfc218930c2a376a0f357eb3a16b628d4c20817020"
+                "size": 3040,
+                "sha256": "6e29789023111c4f7b91a11d7169069cc6b9d0087a3451d526233fcf03f389a2"
               },
               "battle-session.js": {
                 "type": "file",
-                "size": 5561,
-                "sha256": "ab9880fc1934a87d1ca6640778605ec33e9812c94930567f868a84fd29e56ad7"
+                "size": 5455,
+                "sha256": "5e50205af67054761876aa37fbd02ebefc3225f8d1a90afcd708c215ae8e5518"
               },
               "battle-settlement.js": {
                 "type": "file",
-                "size": 12024,
-                "sha256": "74e6647cf5ff050962c3e171c1f48747e7a373fdcd5fc35b3ad9c170cbe8931f"
+                "size": 11994,
+                "sha256": "be8ef59f8dba0c9cd1f3032ea1de1615058476d1a591c1858b4fa180a13ee578"
               },
               "combat-rules.js": {
                 "type": "file",
@@ -3831,33 +3831,33 @@
               },
               "death-blow.js": {
                 "type": "file",
-                "size": 1151,
-                "sha256": "aa3ba0da315ae81ae8430c50a57203889838adac8d533aa5400a4bb9976becf5"
+                "size": 1113,
+                "sha256": "d0222776b90acacd2fc672559bf59d8c0376cfae68294d5a9603551ed182a0c1"
               },
               "engine-session.js": {
                 "type": "file",
-                "size": 3763,
-                "sha256": "1addfa8f6a6e1e56d2dd32b6d1249ef84aa0aaa1ca049a7e0ccb688be51261bb"
+                "size": 3680,
+                "sha256": "6aaad4dd6641caea0c0e02028239e355a7b83c3d53b64f704989b56376855750"
               },
               "intent-damage.js": {
                 "type": "file",
-                "size": 1298,
-                "sha256": "616a18728b31677b70cc14b88af027c4cc912ae90f11de41355b900ed2c29ea1"
+                "size": 1266,
+                "sha256": "c0efe2d26f5ee76f090c5ef04b8607def99ad1a3315dedd5c2b8e42aff218a7d"
               },
               "intent-effects.js": {
                 "type": "file",
-                "size": 2411,
-                "sha256": "0f3dc871427bf718b64ce057a08d6b98b100e66fad9f803662818b03cda1e3c1"
+                "size": 2362,
+                "sha256": "dd4209231232acde790a127db4fe2ba004a6c380ea44a542f882256c36d2b13f"
               },
               "skill-teardown.js": {
                 "type": "file",
-                "size": 6849,
-                "sha256": "5f92d02d245aa3021ea47b245b221c58987b1e5770fe4329eef6ae733b0810ff"
+                "size": 6702,
+                "sha256": "49116eed862780a17c9d67182b103bceec3b28621355e16f7351b36520896320"
               },
               "stun-intent.js": {
                 "type": "file",
-                "size": 1340,
-                "sha256": "898f9e64b80c5a963229eed340455f810eec2c1777bb98ba599d56101ba11bf7"
+                "size": 1295,
+                "sha256": "3a73747311bbae29cd03a3327f0ff398aa085f2d2e480d4013f2f8f15d09f810"
               }
             }
           },
@@ -3866,23 +3866,23 @@
             "children": {
               "battle.js": {
                 "type": "file",
-                "size": 1771,
-                "sha256": "bdb4d429b14b98d7d5434afb2d11039938b7eaea37cf5f87a3fba86fc958b254"
+                "size": 1729,
+                "sha256": "702bf42803374567630ebfc87515d14e6e7a8c3e33b49f16bdc98ac5e1954451"
               },
               "definitions.js": {
                 "type": "file",
-                "size": 2505,
-                "sha256": "f2c02c24fa7704ce4800969c5e4183840c556386bb4fe29a51ef25070636c3df"
+                "size": 2464,
+                "sha256": "2ff3db8f5db20416f218b184ad980b9adc93d82197a6f296726e0c76a49e2abe"
               },
               "intents.js": {
                 "type": "file",
-                "size": 2952,
-                "sha256": "935f5f1ec90ba7e0cd0539db9c51ad5ba11e9063bbbd060a56f4ef6c34bfe00d"
+                "size": 2888,
+                "sha256": "514212bec0e6b523a0eea5857212d3369da4eef84cf812866baf5e9a4f3407fc"
               },
               "state.js": {
                 "type": "file",
-                "size": 4436,
-                "sha256": "ea5e5fd29a695a6d65fd1ad4aeb8ed97f5dfbdb3b34f8748f099140cd27341e3"
+                "size": 4372,
+                "sha256": "8117b0a9c4b9c56ffa7ce8b367ffc89dd69ddacc19f93114c8fedb894cb8f33c"
               }
             }
           },
@@ -3891,8 +3891,8 @@
             "children": {
               "affixes.js": {
                 "type": "file",
-                "size": 1124,
-                "sha256": "f65993cabf6fe9b01e9a41de4ff0d47aba56eb67cd9e00d4a67cd87d9ed9bce8"
+                "size": 1114,
+                "sha256": "6f5a0975192aa3b159c3c6886a0214fd101869fccd866d2de831afc56f3fcb72"
               },
               "battle-card-copy.js": {
                 "type": "file",
@@ -3901,23 +3901,23 @@
               },
               "battle-card-reclaim.js": {
                 "type": "file",
-                "size": 1551,
-                "sha256": "397a0c05591122d91bed20499cdd0b55f3fddcdaa6a2d6cf8d7f4434c1306feb"
+                "size": 1522,
+                "sha256": "c38d2f86719d682027be75e8a30639cabeb1cf4d7db87aef2304327181161fe8"
               },
               "battle-energy.js": {
                 "type": "file",
-                "size": 1502,
-                "sha256": "cee19be46c41d274bf706c2add12f64834980ddb32526862e78de37bda28caef"
+                "size": 1469,
+                "sha256": "dc1e4e9c215a5c3c3a93c6637c72dfd54e622688a243618a4cfafdbf77130af9"
               },
               "block-draw.js": {
                 "type": "file",
-                "size": 1197,
-                "sha256": "4770aa0a753b80d103e3c087bbe2046609e99a05dcbc5c388526ba87c554b7ce"
+                "size": 1178,
+                "sha256": "fb93243cd983e35e4aaf95fd4f4ea9012cdb62c62ca0d080703918f5364dc5fa"
               },
               "card-data.js": {
                 "type": "file",
-                "size": 3457,
-                "sha256": "0bafffc9e6e9c6bd8bae74948bc9b1742450adbda6a9dcb80206054c27bfbbe3"
+                "size": 3405,
+                "sha256": "a943104aa2e0115b21a40ff03cd46533680bfa4d088e8906f54bc1ec99c798d0"
               },
               "card-definitions.js": {
                 "type": "file",
@@ -3941,8 +3941,8 @@
               },
               "hand-exhaust.js": {
                 "type": "file",
-                "size": 2673,
-                "sha256": "904bd21885750bcb5cabee5478d74a9f5e61651d2b9aeaff1f7b41559f1665e6"
+                "size": 2627,
+                "sha256": "36c64653a3646921f511d2721df69f7c75e6a38a11abaa5e2b09280aa0d38b98"
               },
               "hand-upgrade.js": {
                 "type": "file",
@@ -3951,8 +3951,8 @@
               },
               "havoc-play.js": {
                 "type": "file",
-                "size": 1921,
-                "sha256": "dad0d45cbbd0a8f13a9aa0c238d14b3c6e7553eb3795e3291e2c53d5b69bd7d0"
+                "size": 1885,
+                "sha256": "60292a9bf9fef09c4fbb3cbc5ac4e87267f1b0a01650f4ddd2a23d4f65e33bb0"
               },
               "infection-card.js": {
                 "type": "file",
@@ -4002,8 +4002,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 32174,
-                        "sha256": "4ba74b97668b97b99099efd19fdba2e81da02e2ab3764b332fc71cbd135b87cd"
+                        "size": 30960,
+                        "sha256": "6d4b62e53fcbd2a509d335670a07a75b5dce1268bc146f27a10113c68b86e0a5"
                       },
                       "index.js": {
                         "type": "file",
@@ -4022,8 +4022,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 6704,
-                        "sha256": "35d43aa2ada598257fe0d0c18f5ea746d67429c0d9a3d73b145dedb363fe50df"
+                        "size": 6436,
+                        "sha256": "a85d48996fe637e1bb8b976d370e4fb49d1a2bb1e1dd6e9befc1ff6fa1827d9d"
                       }
                     }
                   },
@@ -4037,8 +4037,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 14820,
-                        "sha256": "0badede4d570d625e371f3e06750d708c381f2eff3f14e54f1a803690f28c1c9"
+                        "size": 14249,
+                        "sha256": "b195639153c1cb6a3ac48d5af364c9a915a34e96d844ec4e4848d914e5896017"
                       }
                     }
                   },
@@ -4097,8 +4097,8 @@
                       },
                       "traits.js": {
                         "type": "file",
-                        "size": 8277,
-                        "sha256": "38e1b081a3789f3760c4a0889b34803667006b326dce1f8e2aa2c862d997a549"
+                        "size": 8178,
+                        "sha256": "bd813bd37feec90300edd14d3d23fcca301d75ff32fca096555e3bbc35bd162d"
                       }
                     }
                   },
@@ -4112,8 +4112,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 405,
-                        "sha256": "93244ab064a100fa9a93f0cb19acc1d22b6ce17036b2f5cc71fd4f1db42f8497"
+                        "size": 399,
+                        "sha256": "ec004403090107d462d6948751154b03ad6f88a16ac6a844d1898f79e6184386"
                       },
                       "runtime.js": {
                         "type": "file",
@@ -4127,8 +4127,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 4513,
-                        "sha256": "16de512e265f4062ed9fa077d655a416147308b72d0893348c0ad8c27f5b89b3"
+                        "size": 4334,
+                        "sha256": "7ca46d39b6f3cf99189d86811a4d618dc759117c66e796a3e00ec70621765dc2"
                       }
                     }
                   }
@@ -4136,8 +4136,8 @@
               },
               "personal-piles.js": {
                 "type": "file",
-                "size": 24202,
-                "sha256": "47c23c71b36d6643953a783b3a74c85494cd2f04880d9cbfa44db69e47cfb32f"
+                "size": 23856,
+                "sha256": "c02754f949c5853dbabb7e2df42189f82f994d6cc6fb3cdab57a3df784d0f03b"
               },
               "rampage.js": {
                 "type": "file",
@@ -4146,8 +4146,8 @@
               },
               "random-hand-exhaust.js": {
                 "type": "file",
-                "size": 1293,
-                "sha256": "486758ef934e381bd825a46b07e140f5f28e08eceadba25dd9f107ffefe80372"
+                "size": 1274,
+                "sha256": "7729cee9b27b696012e6ebf5287fa828e7fa6faf5a68a963a5529e2e9ee2fae6"
               },
               "rarity-data.js": {
                 "type": "file",
@@ -4186,8 +4186,8 @@
               },
               "starting-deck.js": {
                 "type": "file",
-                "size": 1668,
-                "sha256": "89367f707791d9f275b5fd5b6cf54b4d47e80fe9133b4a314a9a0bf4b9cdea3f"
+                "size": 1638,
+                "sha256": "44b221d309a96884a51f9ed402b4625200e61ab3c2af79db450102ad0813a37b"
               },
               "status-cards.js": {
                 "type": "file",
@@ -4196,13 +4196,13 @@
               },
               "strike-counter.js": {
                 "type": "file",
-                "size": 1534,
-                "sha256": "a3de2b465d19a2f14de20ad51e915b4e3459def64fb355627ed2791865a83af6"
+                "size": 1503,
+                "sha256": "a1058fe9ec2f8d3bf21eae61326cc74435bce25a49a67ba024f0c516065a4e89"
               },
               "temporary-strength.js": {
                 "type": "file",
-                "size": 3764,
-                "sha256": "5b843d1f9367108e190a4170644c644f83e113d728ada4fb7d2a997f12ea2fc7"
+                "size": 3689,
+                "sha256": "f9720c6896583b3a7d682949945414ef6b6c1d17a906cfa6c8968c3bf5e455fa"
               },
               "upgrades.js": {
                 "type": "file",
@@ -4228,8 +4228,8 @@
           },
           "config.js": {
             "type": "file",
-            "size": 875,
-            "sha256": "7fa71a17b12d31b1e8ce279b396c0969ddcf8986a6d6ce9e9583aa476b4685c9"
+            "size": 847,
+            "sha256": "738e1aa69e580ea2540827248cfb551a99da7d8096184e089705a90242662031"
           },
           "content": {
             "type": "directory",
@@ -4262,8 +4262,8 @@
                       },
                       "map.js": {
                         "type": "file",
-                        "size": 1793,
-                        "sha256": "a43b1516a93509fa4035ae6c23d4b106566248161a61eb15983b36e0c9495747"
+                        "size": 1761,
+                        "sha256": "cdc3ef153ccde6acac639c1ebc16383fe16e8ffd52935f915b80f27c95ecbb2d"
                       },
                       "nibbit-pair.js": {
                         "type": "file",
@@ -4277,8 +4277,8 @@
                       },
                       "rewards.js": {
                         "type": "file",
-                        "size": 797,
-                        "sha256": "dc9c450a77abe5cd35c4ab46dc8833e49287a9d63fa773bb0da1fd64525eb77a"
+                        "size": 772,
+                        "sha256": "8a6f09e56748957693bfcf7a428670a3fbcfde90c746278e8fa372a51a32d3cf"
                       },
                       "stories": {
                         "type": "directory",
@@ -4290,8 +4290,8 @@
                           },
                           "liubei-opening.js": {
                             "type": "file",
-                            "size": 5731,
-                            "sha256": "1d61fbea5194a1960d9e6bc95d0f5b733687afae7d769a1ac9e0846be97341b4"
+                            "size": 5658,
+                            "sha256": "23195b5af712b591d388c9d874a27a2cb19e70bd7a966fb88228bc349353eb99"
                           }
                         }
                       }
@@ -4336,13 +4336,13 @@
               },
               "registry.js": {
                 "type": "file",
-                "size": 7581,
-                "sha256": "71a6aa7e0048992fb38e0a3084f793f4874deefd614bbba3a84d22dea45e0a7a"
+                "size": 7479,
+                "sha256": "436dd3b3cb759045765778a3cfa1cdc93264646ed97b191197fcb2ec19e1788c"
               },
               "scenario-characters.js": {
                 "type": "file",
-                "size": 9835,
-                "sha256": "608a47959212ece33171e7d12c2116701e09dac98634f97279e294192e03dfc0"
+                "size": 9732,
+                "sha256": "c2678ddedd3349829eb9b3daca1862842ea6da2e928f8edda41c62d4d72e884d"
               },
               "shared": {
                 "type": "directory",
@@ -4354,8 +4354,8 @@
                   },
                   "rewards.js": {
                     "type": "file",
-                    "size": 9046,
-                    "sha256": "ed2b83da3e322cd6e1d2bf15c5011757faf380e1b8343efbebdb06c83c311736"
+                    "size": 8893,
+                    "sha256": "867ac35043e5ae50a20349f944f2514c5e6201b71f2f92ca9fd28a0a26fe11f0"
                   }
                 }
               }
@@ -4371,8 +4371,8 @@
             "children": {
               "actions.js": {
                 "type": "file",
-                "size": 34417,
-                "sha256": "97461914dd3a40e0bba6cb5e1ff41fe34208ab996dafcc64ed5a33d0d3cdebc5"
+                "size": 33807,
+                "sha256": "4d07d53c1aa85278190217194cf68180ef428411dd89dafb5cdae7568a11500b"
               },
               "artifact-status.js": {
                 "type": "file",
@@ -4411,8 +4411,8 @@
               },
               "flyconid-intent.js": {
                 "type": "file",
-                "size": 1743,
-                "sha256": "6ff2be31555c591a872cc0ffcc7aea99a7bc9b6bd5156993f8847156eef8637b"
+                "size": 1705,
+                "sha256": "cd65c7e8004c4810eb5bafda7b20563900ec4f264cfd352e2607f9d6050ab631"
               },
               "fogmog-battle.js": {
                 "type": "file",
@@ -4441,13 +4441,13 @@
               },
               "leafmedium-intent.js": {
                 "type": "file",
-                "size": 1462,
-                "sha256": "ae373c29e39891992b857afaf11befac1354f163026a797e8bf13ad8d81b71ad"
+                "size": 1436,
+                "sha256": "ef04089133b4ec6157e48788eaa62c506a424c7e4ef479219529689f4b6bfc81"
               },
               "leafslime-goop.js": {
                 "type": "file",
-                "size": 1653,
-                "sha256": "133da2f627601e79aa51b6eb87acff777a3ca60c74d142b0d205c40ccbfef3f0"
+                "size": 1627,
+                "sha256": "a65b6a00bf246951abed47fb66a6d476849d7cb427169524a1d2ce722ab4758b"
               },
               "leafslime-intent.js": {
                 "type": "file",
@@ -4461,8 +4461,8 @@
               },
               "monster.js": {
                 "type": "file",
-                "size": 11658,
-                "sha256": "1464b42fce32b9266724c8f0eaa06923c1171cff539c337c96af1cc32bd7bc8a"
+                "size": 11416,
+                "sha256": "d6b6bbbece20f50da448adbba8f775acf5f155084008e8f44a61a30d2d1b2aef"
               },
               "nibbit-intent.js": {
                 "type": "file",
@@ -4481,8 +4481,8 @@
               },
               "raider-intent.js": {
                 "type": "file",
-                "size": 2060,
-                "sha256": "b15b89d53914c472c3ef4f2e54e3551bb6a80cd783c21d340676189c2e22c948"
+                "size": 2021,
+                "sha256": "70580ade399e910e817e3929a41dc2da52bfadf36fb3b494a17a86effab27ee1"
               },
               "shrinker-intent.js": {
                 "type": "file",
@@ -4511,8 +4511,8 @@
               },
               "twigslime-intent.js": {
                 "type": "file",
-                "size": 1299,
-                "sha256": "dd772c38e732ebcdda6e5b0ecd4725f73b36cb880ff156f3aaa64470a53633bc"
+                "size": 1273,
+                "sha256": "26a3437ffc95bec9638911537e5b572f4b12d8a94a06d6df358d73237a181830"
               },
               "vantom-intent.js": {
                 "type": "file",
@@ -4536,8 +4536,8 @@
             "children": {
               "dialogue-choice.js": {
                 "type": "file",
-                "size": 837,
-                "sha256": "e00707810480b281bf3e8c25923cf09997d06cf2dc3b7eea35c5a1a47c5cd3dd"
+                "size": 820,
+                "sha256": "b85e45995226cb30a488d5742c09a407ad9557d95e29136dd72fbaf695a4005f"
               },
               "encounter-progress.js": {
                 "type": "file",
@@ -4551,28 +4551,28 @@
               },
               "mode-storage.js": {
                 "type": "file",
-                "size": 3833,
-                "sha256": "83ce9bb6191644f547a0dd79bd46ba86be149047b3e24844a4757270f6a09fcf"
+                "size": 3740,
+                "sha256": "7e266df0de15e4f2252600f10a21a09c01949680c1aaaaf5453591b9df3573d4"
               },
               "reward-package.js": {
                 "type": "file",
-                "size": 1561,
-                "sha256": "2cee489f48e5f9d4bfbb9fd1e50dc6d41cf9f778b21432e5aea1bb6730b21364"
+                "size": 1527,
+                "sha256": "acd839d139bef9d22036e7bcb7acad8c5f25aea1c2a615d224020d97f4e7f313"
               },
               "reward.js": {
                 "type": "file",
-                "size": 3332,
-                "sha256": "77e29120ef5bc20b27865c342e5abda0357063b591e226908f8c4bc0f5320c21"
+                "size": 3308,
+                "sha256": "31cb0895cfa98696cefd7301b967ba3652aee2c4401f7770e64d6a2cf68b53f0"
               },
               "state.js": {
                 "type": "file",
-                "size": 14841,
-                "sha256": "82a9b2aef527046c9ffb4bbfc470ec2230e6ec42881467a643655a5723a79269"
+                "size": 14578,
+                "sha256": "5cb6ac5494251f2a9ac68344862d74736e7ba076dc0e1eafdd06e9eac0923724"
               },
               "story.js": {
                 "type": "file",
-                "size": 737,
-                "sha256": "4db3cf98d5a102cf5bf6d3022b0bdb4c7d70430537e2c4a6a9e541822951f016"
+                "size": 718,
+                "sha256": "0719c33cf849fd2b647e4e4ff987560c5f9ea2a015b4acecc57269fb6b562059"
               }
             }
           },
@@ -4586,23 +4586,23 @@
             "children": {
               "battle.js": {
                 "type": "file",
-                "size": 5015,
-                "sha256": "976e13531625ba00d2941d482d36d9dfd5cf22d1b8de66b519e8b3b928f8a6c9"
+                "size": 4893,
+                "sha256": "e3b9977b9a20a2c85b3cb01792c996b5255920f455ab07ab537a6f9c915eb470"
               },
               "combat.js": {
                 "type": "file",
-                "size": 4101,
-                "sha256": "1fd264d6d07be511cde006ab18f14e5ac8170ad539083a20a3259b1b70548202"
+                "size": 4018,
+                "sha256": "d5d2c53a596a3772e0f0931f56b0db423cbc69f20847318a9aa77dfb1d2c0e92"
               },
               "definitions.js": {
                 "type": "file",
-                "size": 4707,
-                "sha256": "894f66d2a98761926655124f0cbd05acd20aaa8335d61d838fd3cd6bf550d224"
+                "size": 4608,
+                "sha256": "e974f83405153b994b9135cf6ed3998a28ac8313bd42042075db9460cf9edc6f"
               },
               "rooms.js": {
                 "type": "file",
-                "size": 1032,
-                "sha256": "88af2a408d062f78f98dded9e7de4a51c98468eefe217e827d43aa34e3a7410f"
+                "size": 1010,
+                "sha256": "331664f916965f8d72ac9db50a59c5ff4f18f7a95c6beb5eeb9e44d247ffd053"
               }
             }
           },
@@ -4611,46 +4611,46 @@
             "children": {
               "bonds.js": {
                 "type": "file",
-                "size": 4499,
-                "sha256": "2580f60f3b9aac29206a8e1198322505a2283bf81ea379d3a6ca31251f42d5e3"
+                "size": 4415,
+                "sha256": "275713f94c9ede664537104a1eb483ac198b477ecc3e5cca52bc51208b3b274d"
               },
               "card-library.js": {
                 "type": "file",
-                "size": 20776,
-                "sha256": "7d5d1be851490b9d1ccda7b3acf621bf2dbb608f47e0284a200ce788889d7f90"
+                "size": 20528,
+                "sha256": "b58a96859599082e83da6e8c9026619392cf9a72ebe7223d86e078de3ea14d56"
               },
               "dialogue.js": {
                 "type": "file",
-                "size": 7842,
-                "sha256": "e61b22cf27f810a45404e0d05969b03e0a6603d581f8cf7a052a3c30348325f7"
+                "size": 7649,
+                "sha256": "a405f315270c24cdb2c53ba4e211a3fd5bf9bb582335d5dbf910adb5622deac6"
               },
               "energy-display.js": {
                 "type": "file",
-                "size": 511,
-                "sha256": "37bc74971d52429c7e1c3d9d0c2dcccb29a61e968ac1bf4eb0a2330801d8fd69"
+                "size": 498,
+                "sha256": "b12157ac3008c0e63fb384fe5fefe54964b86436652c73670f6a4c4faa4ad1da"
               },
               "flow-ui.js": {
                 "type": "file",
-                "size": 3106,
-                "sha256": "f19d26b3ccd5579885bd9fe9a3444f4d06125898020b165acf91ad2d1f6a37e0"
+                "size": 3044,
+                "sha256": "76032d73c27bd3ba3a54064a7cfc1741f3fea379e26636da3037000943ef6450"
               },
               "gm-manager.js": {
                 "type": "file",
-                "size": 4727,
-                "sha256": "1ffcf493ffcc4d9b16911e81ff62b15693213355c3226270e5224b03042e8868"
+                "size": 4636,
+                "sha256": "e6feac7f157824fba6436330612267f98158a95c8db64b4ee5019e65d1fb8324"
               },
               "hand": {
                 "type": "directory",
                 "children": {
                   "adapter.js": {
                     "type": "file",
-                    "size": 955,
-                    "sha256": "dbec5a22b19ba7790c2118328701331b9065cdd7877ad237fa6ba635aad0ab6b"
+                    "size": 935,
+                    "sha256": "91adc86b2810e27bd09d07297ac427cbbc151936f4dd8736ab1413b4eab78a0c"
                   },
                   "diagnostics.js": {
                     "type": "file",
-                    "size": 740,
-                    "sha256": "9ea7729febf7cba177dcf76ff8a65ef3c0f44ff3e8cc020bbb39a4654837293b"
+                    "size": 723,
+                    "sha256": "f41c12348a508a7a1505fbc311b9c4b3cf85be038cc93e467a5f094bf1e5dde3"
                   },
                   "fan.js": {
                     "type": "file",
@@ -4659,8 +4659,8 @@
                   },
                   "index.js": {
                     "type": "file",
-                    "size": 9105,
-                    "sha256": "a236f0ed58ad3f7953cc79b04d688efa3c7a394d2fbeb3d5ac2eef15f7242fa7"
+                    "size": 8916,
+                    "sha256": "4c423b3a2690f35112d1b111e940fc25ba8d760e64380a43e37f3373ff3df72a"
                   },
                   "input.js": {
                     "type": "file",
@@ -4669,60 +4669,60 @@
                   },
                   "overlays.js": {
                     "type": "file",
-                    "size": 3135,
-                    "sha256": "d89e62b5c73b64dfbd2f449e95b6362d2273ef57bc8db72f552af200d3dc2ad8"
+                    "size": 3060,
+                    "sha256": "8c9d53b0fb1856378ca72d3a7cc3de814f0668914e7cb89bce697cabc22a7fb4"
                   },
                   "style.css": {
                     "type": "file",
-                    "size": 35634,
-                    "sha256": "c31ed6dd5b7b2e9d48125f8503512d3af2c0050cb9144dcfdc9d571c351450d6"
+                    "size": 35504,
+                    "sha256": "29b0cbad19570fda49a86f1e65476df9863f3d22a38927e009659e5cbfdcef89"
                   }
                 }
               },
               "intent-display.js": {
                 "type": "file",
-                "size": 10744,
-                "sha256": "a920a929183f2815c6ef4226af0585be0f876196b6a061e287b02654068f7083"
+                "size": 10556,
+                "sha256": "feb7fdb208d4ee540a0fe66b329402c8587f22dcdb8de2e1eb455b7d6af9a185"
               },
               "map": {
                 "type": "directory",
                 "children": {
                   "index.js": {
                     "type": "file",
-                    "size": 62,
-                    "sha256": "6fb7e6e2547eec9d421727b9d6794e3c96d8e3a77984d7688544a67a00c4999d"
+                    "size": 61,
+                    "sha256": "6fc56c6c084508a39d801521a103f8c39eea90eb895f47a78924997241d9f932"
                   },
                   "renderer.js": {
                     "type": "file",
-                    "size": 25409,
-                    "sha256": "a9282e2e6ce30973be064a73ce01b5e13cd580179bde24f9482661e9a2b94571"
+                    "size": 24919,
+                    "sha256": "89cec835a8479b0fb4ba455179edc2200c9ef7d0d864fc9702921732d0074db6"
                   }
                 }
               },
               "navigation.js": {
                 "type": "file",
-                "size": 5274,
-                "sha256": "22bf6b5ec02c4917311540aac56c1c20b43df5b761acdb867937399db2c2c7c6"
+                "size": 5154,
+                "sha256": "213d24bfee22e7c6a57312198e21a4877c43b6a6b42e238efa5107f1b08092b8"
               },
               "relics.js": {
                 "type": "file",
-                "size": 3452,
-                "sha256": "98049bd5a21a314475211fdb681b4989075b8eca4d33d58e88f4fd4cec19455e"
+                "size": 3371,
+                "sha256": "bc24cd2eb4644bcf329a7acac28820feab22b0e4648a1d25ea9e1e3d8120f1a6"
               },
               "reward-package.js": {
                 "type": "file",
-                "size": 4316,
-                "sha256": "1c584d2c5bd7252eeaeeaa1da5dbfb11c3df7c364dab0c82f557ca1981afb70a"
+                "size": 4256,
+                "sha256": "0ca1458434ebe616fd29eebbbb9314c03249673fc9a9e2cbae6ee09be4cdc16e"
               },
               "reward-ui.js": {
                 "type": "file",
-                "size": 15399,
-                "sha256": "ad9e727b90aef2cfcea2a7f757b5c12e43655ea055d0729fd955173076a80ef9"
+                "size": 15170,
+                "sha256": "70a1bd26b1ec730bc7cdf04bddf160f2e3ae8daadd54c4c38c5263549aa88dee"
               },
               "style.css": {
                 "type": "file",
-                "size": 78961,
-                "sha256": "beaa52e86c3f30144c55333c110e973944180c5d2f17f275821ce75cfbdf2a37"
+                "size": 77404,
+                "sha256": "7f05fd95ed996f70411a02893cbfd6f1b25e4cd426acc58858800703d52ad946"
               },
               "virtual-card-grid.js": {
                 "type": "file",

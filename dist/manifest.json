@@ -1,11 +1,11 @@
 {
-  "version": "2.0.1.1-rc.1",
-  "generated_at": "2026-10-04T11:24:22.012885+00:00",
+  "version": "2.0.2.1",
+  "generated_at": "2026-10-04T20:26:18.324852+00:00",
   "algorithm": "sha256",
   "update_channels": true,
   "file_count": 278,
-  "size_bytes": 55481243,
-  "folder_sha256": "4e8e4d9e1f1f51c4687aa26b055887479a5ea48d6bfac1a149a3ed10259e8c49",
+  "size_bytes": 55472293,
+  "folder_sha256": "874bf6414e4d4f761bc9ccb25a6a8f46e2efdf35609887ea856b9b68b3c8c9a3",
   "core": [
     "extension.js",
     "menu.js",
@@ -400,16 +400,16 @@
       "sha256": "356aa9473ab72ad43850c13451fd15a25c6ce2d93678cd0dcba5568d10443b40"
     },
     "extension.js": {
-      "size": 15464,
-      "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
+      "size": 15459,
+      "sha256": "9656c118dfc744e89fef826d75fc1d58515507021ad1e710d7fd6d479cc631ee"
     },
     "function.js": {
       "size": 33746,
       "sha256": "df1aa3102a214986723af365da1029485680519d355a1ff88973eb36f8a6f909"
     },
     "menu.js": {
-      "size": 25104,
-      "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
+      "size": 24566,
+      "sha256": "d6f1fb89707de3558ca9a00814a1d79f12f5799cd85328e764e02a66e4ffba5e"
     },
     "pve/audio/dead/十二生肖/chenlong.mp3": {
       "size": 68757,
@@ -816,272 +816,272 @@
       "sha256": "ab0ec7394ee47c6d2b71a2a6617e854c9a6725a965af693ef18ce3b659e9fedd"
     },
     "pve/boss/card.js": {
-      "size": 171,
-      "sha256": "3c0a2d89226ed8ea5dfb5238221d63b117a6624e027cde03ba6671dfd5548c2c"
+      "size": 165,
+      "sha256": "81618e415c8932e76e88a8552be215143dc7fb075d24df30332646c8ba8df160"
     },
     "pve/boss/character.js": {
-      "size": 260,
-      "sha256": "3777e2a7cc00bf3b6e9842f65acf314df2786cb8596ee213254e074738782de4"
+      "size": 253,
+      "sha256": "ae70f8ee9c4aab84f6f6edac88cd6095a6213d19948d366c32d983f58c8bc2f3"
     },
     "pve/boss/characterFilter.js": {
-      "size": 210,
-      "sha256": "e0cffda20018e8abb3c208359221633f049c77d9246bfc492f740430162c05a1"
+      "size": 204,
+      "sha256": "f9b6cbe34f75d43b2493ffbaa137baebaebe1118b36ea731e5270497c7e88dfa"
     },
     "pve/boss/characterTitle.js": {
-      "size": 207,
-      "sha256": "f28a5994a540f50851a2a8c66733e8d326f8de59169f2f22a556243837cf0bc2"
+      "size": 201,
+      "sha256": "8be70f8fa2ada89d26697b87234ee38e60d19b51d6d6dcc754e37455030810d0"
     },
     "pve/boss/dynamicTranslate.js": {
-      "size": 287,
-      "sha256": "924be3ff97147ac8f113eb35ef1aeadab0b3227b1eca61fe5d4d5197242ced30"
+      "size": 280,
+      "sha256": "ab9d2e77ab3df1fb6c57a0b678b4866f1ded3d3d2af9e2c309fcf7c43105a015"
     },
     "pve/boss/index.js": {
-      "size": 1137,
-      "sha256": "578e2c7f50e42c5e92b445e9bcf0dafa68f28ff2415877c4b1ff492783152372"
+      "size": 1105,
+      "sha256": "ee95a08cec01c8dd33ad7469c33c2eaa18ab1697c0d668a930e4c943dcc24b96"
     },
     "pve/boss/intro.js": {
-      "size": 207,
-      "sha256": "6fe542ceb77e006a80810c95145b614ae13487acad5abd59059652417dbfb3ac"
+      "size": 201,
+      "sha256": "fbfacd5ccd33ff90844ea94eba09aa9072c24a8fbdb5ac259f1ad42ffb4860eb"
     },
     "pve/boss/merge.js": {
-      "size": 940,
-      "sha256": "47e0aa7f324b0e8d13737aa07065a18bef69049a6c4c5eafd61996024e84b387"
+      "size": 918,
+      "sha256": "482113df0ab59b0c5f1fb9c080cedee2a0c19f52613409fd0cb600213f555edf"
     },
     "pve/boss/perfectPairs.js": {
-      "size": 198,
-      "sha256": "228d84d6013ad2b11f789363854bc05dcfe259fdfadaee84acb95421497927ca"
+      "size": 192,
+      "sha256": "bdaf0a62c1480eed16a37258fe74c7f405380e889e43d41da0ef08f5f8436c49"
     },
     "pve/boss/pinyin.js": {
-      "size": 178,
-      "sha256": "34acc90748a2ce6de749d841e371b11a75bd169b782d6bd2672cb50a70bdb21b"
+      "size": 172,
+      "sha256": "85a0c2248d2b6c69391816a76d62e9eb6a4288f68d3647bc27a89e2a697c6fc2"
     },
     "pve/boss/sets.js": {
-      "size": 502,
-      "sha256": "78de634dd7eebc7b6657b23bafa74ea274568e303179eb489f052bae1d19d044"
+      "size": 488,
+      "sha256": "6809745b6ed34f473e0726c87ed41c30d48bc0b95cc4b5ec4796dc169582810c"
     },
     "pve/boss/sets/qingqingzijin/card.js": {
-      "size": 126,
-      "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+      "size": 121,
+      "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
     },
     "pve/boss/sets/qingqingzijin/character.js": {
-      "size": 2464,
-      "sha256": "8f7b1710cec7d7d90f62127330abb838163d91c29603fab7b8920711b1ec31e7"
+      "size": 2395,
+      "sha256": "d303c8e2b14b9b859c08368e1740dd31782385951169f59b0d82e0894d4f9592"
     },
     "pve/boss/sets/qingqingzijin/characterFilter.js": {
-      "size": 66,
-      "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+      "size": 63,
+      "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
     },
     "pve/boss/sets/qingqingzijin/characterTitle.js": {
-      "size": 64,
-      "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+      "size": 61,
+      "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
     },
     "pve/boss/sets/qingqingzijin/dynamicTranslate.js": {
-      "size": 4248,
-      "sha256": "13ef52691ea5f23176608b21471d80e03285941e7687f69c3c93af5aeccf7e64"
+      "size": 4155,
+      "sha256": "660534f1ca8e49c531ceb3872321694d27556d031e8f97740aa2410084c8c3c4"
     },
     "pve/boss/sets/qingqingzijin/index.js": {
-      "size": 1002,
-      "sha256": "850ce3d5771d926310a26293d40e9724c2dca292bb178d121d69a251e089ef26"
+      "size": 973,
+      "sha256": "663d9089071b4fc5886dfbfb0ad532501683bcbf54726ab707dfe86219575917"
     },
     "pve/boss/sets/qingqingzijin/intro.js": {
-      "size": 64,
-      "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+      "size": 61,
+      "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
     },
     "pve/boss/sets/qingqingzijin/perfectPairs.js": {
-      "size": 58,
-      "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+      "size": 55,
+      "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
     },
     "pve/boss/sets/qingqingzijin/pinyin.js": {
-      "size": 48,
-      "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+      "size": 45,
+      "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
     },
     "pve/boss/sets/qingqingzijin/skill.js": {
-      "size": 32647,
-      "sha256": "c8d59ee3938a960416cf21330d3b5561d9bc63ad2b65db790de7791058bdb437"
+      "size": 31461,
+      "sha256": "1f92669bb3148b99a297c9591e77d472e64157b98093b1445fcbedef58703aaa"
     },
     "pve/boss/sets/qingqingzijin/sort.js": {
-      "size": 340,
-      "sha256": "c14a970e669bff9a46fa95a1fe225c6256c7b6bf5904255d86ae7193a2fbb247"
+      "size": 326,
+      "sha256": "12eab1f489c156bc4d4e76f5cad45fcea4cb207ef5bd654845c6768990abcc50"
     },
     "pve/boss/sets/qingqingzijin/translate.js": {
-      "size": 4639,
-      "sha256": "e802c830329f35d2619cd1b0573699bf7f43cb3da7bc4bdc10344620793187aa"
+      "size": 4582,
+      "sha256": "abbee642d2172a12bde54fb4af14a2090c28b8f0e9dfa6a6f583d959e3313b99"
     },
     "pve/boss/sets/qingqingzijin/voices.js": {
-      "size": 46,
-      "sha256": "54787af1d4efcd35f20c5eca55db2e60f0cd160d7fed728440542f118e7ae44a"
+      "size": 43,
+      "sha256": "d7f3da55f8b2e8bf77ace03bd4911497a4abb9e1f942555f7685337801278205"
     },
     "pve/boss/sets/shiershengxiao/card.js": {
-      "size": 126,
-      "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+      "size": 121,
+      "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
     },
     "pve/boss/sets/shiershengxiao/character.js": {
-      "size": 4340,
-      "sha256": "90b33dfe2843a1fbef325fd4c0e56c72e603d67b6d80858d7f78fc4092f7a33b"
+      "size": 4205,
+      "sha256": "916d49cb0300f6fe4be738d45aa23cf4dc3dc65c4bedce78e993ffdad10de965"
     },
     "pve/boss/sets/shiershengxiao/characterFilter.js": {
-      "size": 66,
-      "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+      "size": 63,
+      "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
     },
     "pve/boss/sets/shiershengxiao/characterTitle.js": {
-      "size": 64,
-      "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+      "size": 61,
+      "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
     },
     "pve/boss/sets/shiershengxiao/dynamicTranslate.js": {
-      "size": 68,
-      "sha256": "906eb5fd3a454b60015c93756f9c7c5314a226972b9361b227d498d28bae1544"
+      "size": 65,
+      "sha256": "d409295767b35e4867e5aa6fae92020f2a8943f71569af5539436648a345bd2f"
     },
     "pve/boss/sets/shiershengxiao/index.js": {
-      "size": 1002,
-      "sha256": "7f38b79454730d249bac4b13644338e8f92e962f69e6bdb547540e7b296d5d34"
+      "size": 973,
+      "sha256": "ae301e4d28b670aaa9841a61553cb8cd2f43acf2016874469ecedc0cb04413c7"
     },
     "pve/boss/sets/shiershengxiao/intro.js": {
-      "size": 64,
-      "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+      "size": 61,
+      "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
     },
     "pve/boss/sets/shiershengxiao/perfectPairs.js": {
-      "size": 58,
-      "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+      "size": 55,
+      "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
     },
     "pve/boss/sets/shiershengxiao/pinyin.js": {
-      "size": 48,
-      "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+      "size": 45,
+      "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
     },
     "pve/boss/sets/shiershengxiao/skill.js": {
-      "size": 15413,
-      "sha256": "e180512e49aa6f9274253c70d56987080a61ec0388999a3cbec269024ffe8306"
+      "size": 14844,
+      "sha256": "00a93659a0eb68757291b05117f82cc19222b8cb6c7653114fb69f8a83312f83"
     },
     "pve/boss/sets/shiershengxiao/sort.js": {
-      "size": 406,
-      "sha256": "be03f8ab9f2be5c32ea37df8f058788fd19750ede246e2038406c90dc6ce2cea"
+      "size": 390,
+      "sha256": "245b6847978bf2321137bb4b0636a5bfbab33c903310ab91c7028d7582bdf855"
     },
     "pve/boss/sets/shiershengxiao/translate.js": {
-      "size": 2941,
-      "sha256": "c2f770ecea7c27a54fc665c621dc95655e9a827836990fd9eee65dd327ddbd31"
+      "size": 2890,
+      "sha256": "d6a6568e0484d1fcd5674a0a447aea7d6b87dd5613d91c2a3f31edb9d7bee243"
     },
     "pve/boss/sets/shiershengxiao/voices.js": {
-      "size": 1507,
-      "sha256": "45e6a08bfe638bbc2f79edd7642e1303090c8e81be65fce9886199563bc95311"
+      "size": 1468,
+      "sha256": "31d90482253665abc46b7b013645461c6c0def19b3a0159d3aa70389be9402fb"
     },
     "pve/boss/sets/tianshu/card.js": {
-      "size": 126,
-      "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+      "size": 121,
+      "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
     },
     "pve/boss/sets/tianshu/character.js": {
-      "size": 2509,
-      "sha256": "97ae40a03a777ce170d4ddef64132d071b5b379574ed87ec326f10ca52ca3e2f"
+      "size": 2428,
+      "sha256": "4b67d1a4f06f96247e7495341d80554dc535a98e5208cf242701e8a11b10a23c"
     },
     "pve/boss/sets/tianshu/characterFilter.js": {
-      "size": 66,
-      "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+      "size": 63,
+      "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
     },
     "pve/boss/sets/tianshu/characterTitle.js": {
-      "size": 64,
-      "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+      "size": 61,
+      "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
     },
     "pve/boss/sets/tianshu/dynamicTranslate.js": {
-      "size": 5803,
-      "sha256": "15e4e97f0ab62f916f1fd42966ad93c18748bf9ef56ecd2f56d97be62b9ece70"
+      "size": 5676,
+      "sha256": "76d3a303b4b59e084b1a53328e97b189bffe0e98f29c5301b235f011a325dcf3"
     },
     "pve/boss/sets/tianshu/index.js": {
-      "size": 1002,
-      "sha256": "cc538ae9e76177c89ca2e67edde68d68f371700a802cc9d5348e521a8e664b68"
+      "size": 973,
+      "sha256": "07fc499a405320e0bd922c8c3c8f82e998d90c56395235f76001bee21ce1623e"
     },
     "pve/boss/sets/tianshu/intro.js": {
-      "size": 64,
-      "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+      "size": 61,
+      "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
     },
     "pve/boss/sets/tianshu/perfectPairs.js": {
-      "size": 58,
-      "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+      "size": 55,
+      "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
     },
     "pve/boss/sets/tianshu/pinyin.js": {
-      "size": 48,
-      "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+      "size": 45,
+      "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
     },
     "pve/boss/sets/tianshu/skill.js": {
-      "size": 23174,
-      "sha256": "2768ff21576e5d9a55b1d97d9bb866060370e342cb95f9cd5be0e341470acced"
+      "size": 22253,
+      "sha256": "e61fb3da297ec046408a6cb408fff146db4967f0982a935ec988865c1cb2d9d1"
     },
     "pve/boss/sets/tianshu/sort.js": {
-      "size": 400,
-      "sha256": "42238b8b9a1a1fcbdd4f6d2f8092a49558ef923a1443f07f57371f40bd4506c4"
+      "size": 384,
+      "sha256": "97b4b441fa0480468bfb63b475d2dfc26e8b7bc85f03a5686f7d9d7ad0d5aa7f"
     },
     "pve/boss/sets/tianshu/translate.js": {
-      "size": 4799,
-      "sha256": "baa234a4f9b902e647f0df3a5189ac65312332fa20c998727c855d9afad0c56c"
+      "size": 4740,
+      "sha256": "021b77d6ee7ada8c9962826db17e316dcdba186496630a38794d9283e8ba16e1"
     },
     "pve/boss/sets/tianshu/voices.js": {
-      "size": 609,
-      "sha256": "020d42f5a8ab6cfe2189de4f8b27aea2f5eb8f0c92eabeccc30a69311fc684bb"
+      "size": 603,
+      "sha256": "392188be3370d7c437641c48424c04fc732bdb13cfc91c447de5556e4ac34ba2"
     },
     "pve/boss/sets/zhuoguiquxie/card.js": {
-      "size": 126,
-      "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+      "size": 121,
+      "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
     },
     "pve/boss/sets/zhuoguiquxie/character.js": {
-      "size": 3411,
-      "sha256": "c6a79c1c08f94156276fcaa45236f9bc2166a4e2e0351f286981ef5dac5c73dc"
+      "size": 3301,
+      "sha256": "f369b61f9b68accdcde3c04723f145146d8b43c45f087590193c2eecbad0e871"
     },
     "pve/boss/sets/zhuoguiquxie/characterFilter.js": {
-      "size": 66,
-      "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+      "size": 63,
+      "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
     },
     "pve/boss/sets/zhuoguiquxie/characterTitle.js": {
-      "size": 64,
-      "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+      "size": 61,
+      "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
     },
     "pve/boss/sets/zhuoguiquxie/dynamicTranslate.js": {
-      "size": 7041,
-      "sha256": "fadb1892b7209b031674f31ecbb4932a27ede38ad649a42ec689f4db1b02bf78"
+      "size": 6870,
+      "sha256": "3e51c0d9a7ffacb8dc17a01dbd36631cbc75d94e771cdeba0e6c74c7e43a2fee"
     },
     "pve/boss/sets/zhuoguiquxie/index.js": {
-      "size": 1002,
-      "sha256": "892502aaa8fdf6cf1874ab8e564504053ae8168d37c41e2abcb1546e9f90357d"
+      "size": 973,
+      "sha256": "6ca0fa67dd8b5fc83aaac37d22e2f2665beb2134a606c75e8c641632bf467af8"
     },
     "pve/boss/sets/zhuoguiquxie/intro.js": {
-      "size": 64,
-      "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+      "size": 61,
+      "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
     },
     "pve/boss/sets/zhuoguiquxie/perfectPairs.js": {
-      "size": 58,
-      "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+      "size": 55,
+      "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
     },
     "pve/boss/sets/zhuoguiquxie/pinyin.js": {
-      "size": 48,
-      "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+      "size": 45,
+      "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
     },
     "pve/boss/sets/zhuoguiquxie/skill.js": {
-      "size": 46766,
-      "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
+      "size": 45067,
+      "sha256": "02dcd87c7fa51022fff1549a33a84264c9db4408c8001d542e998fafbd50ce9c"
     },
     "pve/boss/sets/zhuoguiquxie/sort.js": {
-      "size": 390,
-      "sha256": "3855904cdc28e6301b9f9177b6c8e04d943ef44fd002a2ce83de5aab7572930c"
+      "size": 375,
+      "sha256": "d196e9c0ed205b24df471ffac455017ae5bfd98045a6cddeccc5934e6713da01"
     },
     "pve/boss/sets/zhuoguiquxie/translate.js": {
-      "size": 6820,
-      "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
+      "size": 6739,
+      "sha256": "e77e8914eccbf69bea102324bd48902e98a144d1c8023f1df704ad7af3bf6516"
     },
     "pve/boss/sets/zhuoguiquxie/voices.js": {
-      "size": 2115,
-      "sha256": "d93f873a87649d413d1fc7b827c8bdb01e5f61cc11d9650f64b59de9d575e9e1"
+      "size": 2079,
+      "sha256": "a7352f7b2c1cb2bea35c259d0501bac97e05c5ff775d08e09801b2dd70c9817f"
     },
     "pve/boss/shared.js": {
       "size": 416,
       "sha256": "9c0c7b0757172078f920a91cc27569456c2d1e3134130391c88ec5ab86370f79"
     },
     "pve/boss/skill.js": {
-      "size": 271,
-      "sha256": "dcfad38fde564a88baba111100cd9b121e156478e16c8b31a286adbb0aeffd23"
+      "size": 264,
+      "sha256": "aec438c3af87f02f714579fc048bc301d9f1bc4c2e0aa4b28c504c440dda7781"
     },
     "pve/boss/sort.js": {
-      "size": 330,
-      "sha256": "f7ec05f54d771ded03a4c50b1b56a6b4e48cf530e4755796a879edd714278334"
+      "size": 323,
+      "sha256": "ed8ae6a07446dd489ac21a08c83656b1cf5716a7ad46d343241b3decf9aec4a9"
     },
     "pve/boss/translate.js": {
-      "size": 272,
-      "sha256": "f58cf928b22b712fcb374f19e5fd3343d4035e2702388b0d09b11abdd1499376"
+      "size": 265,
+      "sha256": "77b8f54f51025615d4a093c885156324d21325caf03c856fd0369736b4580ff2"
     },
     "pve/boss/voices.js": {
       "size": 682,
@@ -1288,12 +1288,12 @@
       "sha256": "0b5a1ec26d8a8881057aa1fc8d95fecaf06fa6753d23c99a4978de83f8c44ec6"
     },
     "tianshu/config.js": {
-      "size": 29707,
-      "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
+      "size": 29040,
+      "sha256": "e76b17a94d713930a9349b73c3d6492881adeefcfeb646c81423f4d5d2e42b3f"
     },
     "tianshu/extension.js": {
-      "size": 76830,
-      "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
+      "size": 75685,
+      "sha256": "4f8daf966a68f1402d8aee95592318167a51df8c36445fad82824984849f429d"
     },
     "tianshu/shuYing_Skill_Xvxiang1.mp3": {
       "size": 15451,
@@ -1304,24 +1304,24 @@
       "sha256": "f809d6e3ea5114f78a0773314c23b4120ccbd763b1f2f0f1f400753287af76f7"
     },
     "update.txt": {
-      "size": 3953,
-      "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
+      "size": 3903,
+      "sha256": "8ef4a71189bdfc4068e0ebab27dad13f7551354f72a0c6ed51d77b62c8c06fb2"
     },
     "voices.js": {
       "size": 1711,
       "sha256": "975c58fe201cbbc0027af5038504064382a195df278085a75eca03b2ddace75a"
     },
     "yuanshen/extension.js": {
-      "size": 1082,
-      "sha256": "a630d543c3648700cb2e3525588643382a0d72779aa8725ee5ecaa7ceaf48d0e"
+      "size": 1044,
+      "sha256": "9fc00f856d6d5e3ae90d5a05f963c96574b0fad7e824c361fab5b70d01dff715"
     },
     "yuanshen/八重神子/1.jpg": {
       "size": 331322,
       "sha256": "e7a5f5d79278582e93c1b5277bc823f57c4e1ad2ce85ffa7d43ef1187aa5a5d7"
     },
     "yuanshen/八重神子/character.js": {
-      "size": 12302,
-      "sha256": "2a3dbbc035f9a6595906a3bce88b192bf521f94cab0b6f12df5833da3c2f6c4e"
+      "size": 11986,
+      "sha256": "54e1bb2e200b4d43a85f8d1741b6c16f76800592629757654bfb12a409cc4813"
     },
     "yuanshen/八重神子/shuYing_Shashengying1.mp3": {
       "size": 15466,
@@ -1360,8 +1360,8 @@
       "sha256": "7664f30a84fcdf24b7d8719db74e89de97dca904fec62e514e5a611bae21d0cd"
     },
     "yuanshen/可莉/character.js": {
-      "size": 11072,
-      "sha256": "3ee1fc9fcf08ac0d1fa9a6f2e617a7a95a45d2cd313415f66906f64ec9299bf4"
+      "size": 10773,
+      "sha256": "424ef7516b3fa311c1abf1c0be69ca63f4d6af4b4a0490d1d451724400b9b5e1"
     },
     "yuanshen/可莉/shuYing_Honghong1.mp3": {
       "size": 134764,
@@ -1406,7 +1406,7 @@
   },
   "tree": {
     "type": "directory",
-    "name": "术樱包",
+    "name": "source-for-manifest",
     "children": {
       "LICENSE": {
         "type": "file",
@@ -1570,8 +1570,8 @@
       },
       "extension.js": {
         "type": "file",
-        "size": 15464,
-        "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
+        "size": 15459,
+        "sha256": "9656c118dfc744e89fef826d75fc1d58515507021ad1e710d7fd6d479cc631ee"
       },
       "function.js": {
         "type": "file",
@@ -1580,8 +1580,8 @@
       },
       "menu.js": {
         "type": "file",
-        "size": 25104,
-        "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
+        "size": 24566,
+        "sha256": "d6f1fb89707de3558ca9a00814a1d79f12f5799cd85328e764e02a66e4ffba5e"
       },
       "pve": {
         "type": "directory",
@@ -2151,58 +2151,58 @@
             "children": {
               "card.js": {
                 "type": "file",
-                "size": 171,
-                "sha256": "3c0a2d89226ed8ea5dfb5238221d63b117a6624e027cde03ba6671dfd5548c2c"
+                "size": 165,
+                "sha256": "81618e415c8932e76e88a8552be215143dc7fb075d24df30332646c8ba8df160"
               },
               "character.js": {
                 "type": "file",
-                "size": 260,
-                "sha256": "3777e2a7cc00bf3b6e9842f65acf314df2786cb8596ee213254e074738782de4"
+                "size": 253,
+                "sha256": "ae70f8ee9c4aab84f6f6edac88cd6095a6213d19948d366c32d983f58c8bc2f3"
               },
               "characterFilter.js": {
                 "type": "file",
-                "size": 210,
-                "sha256": "e0cffda20018e8abb3c208359221633f049c77d9246bfc492f740430162c05a1"
+                "size": 204,
+                "sha256": "f9b6cbe34f75d43b2493ffbaa137baebaebe1118b36ea731e5270497c7e88dfa"
               },
               "characterTitle.js": {
                 "type": "file",
-                "size": 207,
-                "sha256": "f28a5994a540f50851a2a8c66733e8d326f8de59169f2f22a556243837cf0bc2"
+                "size": 201,
+                "sha256": "8be70f8fa2ada89d26697b87234ee38e60d19b51d6d6dcc754e37455030810d0"
               },
               "dynamicTranslate.js": {
                 "type": "file",
-                "size": 287,
-                "sha256": "924be3ff97147ac8f113eb35ef1aeadab0b3227b1eca61fe5d4d5197242ced30"
+                "size": 280,
+                "sha256": "ab9d2e77ab3df1fb6c57a0b678b4866f1ded3d3d2af9e2c309fcf7c43105a015"
               },
               "index.js": {
                 "type": "file",
-                "size": 1137,
-                "sha256": "578e2c7f50e42c5e92b445e9bcf0dafa68f28ff2415877c4b1ff492783152372"
+                "size": 1105,
+                "sha256": "ee95a08cec01c8dd33ad7469c33c2eaa18ab1697c0d668a930e4c943dcc24b96"
               },
               "intro.js": {
                 "type": "file",
-                "size": 207,
-                "sha256": "6fe542ceb77e006a80810c95145b614ae13487acad5abd59059652417dbfb3ac"
+                "size": 201,
+                "sha256": "fbfacd5ccd33ff90844ea94eba09aa9072c24a8fbdb5ac259f1ad42ffb4860eb"
               },
               "merge.js": {
                 "type": "file",
-                "size": 940,
-                "sha256": "47e0aa7f324b0e8d13737aa07065a18bef69049a6c4c5eafd61996024e84b387"
+                "size": 918,
+                "sha256": "482113df0ab59b0c5f1fb9c080cedee2a0c19f52613409fd0cb600213f555edf"
               },
               "perfectPairs.js": {
                 "type": "file",
-                "size": 198,
-                "sha256": "228d84d6013ad2b11f789363854bc05dcfe259fdfadaee84acb95421497927ca"
+                "size": 192,
+                "sha256": "bdaf0a62c1480eed16a37258fe74c7f405380e889e43d41da0ef08f5f8436c49"
               },
               "pinyin.js": {
                 "type": "file",
-                "size": 178,
-                "sha256": "34acc90748a2ce6de749d841e371b11a75bd169b782d6bd2672cb50a70bdb21b"
+                "size": 172,
+                "sha256": "85a0c2248d2b6c69391816a76d62e9eb6a4288f68d3647bc27a89e2a697c6fc2"
               },
               "sets.js": {
                 "type": "file",
-                "size": 502,
-                "sha256": "78de634dd7eebc7b6657b23bafa74ea274568e303179eb489f052bae1d19d044"
+                "size": 488,
+                "sha256": "6809745b6ed34f473e0726c87ed41c30d48bc0b95cc4b5ec4796dc169582810c"
               },
               "sets": {
                 "type": "directory",
@@ -2212,68 +2212,68 @@
                     "children": {
                       "card.js": {
                         "type": "file",
-                        "size": 126,
-                        "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+                        "size": 121,
+                        "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
                       },
                       "character.js": {
                         "type": "file",
-                        "size": 2464,
-                        "sha256": "8f7b1710cec7d7d90f62127330abb838163d91c29603fab7b8920711b1ec31e7"
+                        "size": 2395,
+                        "sha256": "d303c8e2b14b9b859c08368e1740dd31782385951169f59b0d82e0894d4f9592"
                       },
                       "characterFilter.js": {
                         "type": "file",
-                        "size": 66,
-                        "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+                        "size": 63,
+                        "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
                       },
                       "characterTitle.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+                        "size": 61,
+                        "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
                       },
                       "dynamicTranslate.js": {
                         "type": "file",
-                        "size": 4248,
-                        "sha256": "13ef52691ea5f23176608b21471d80e03285941e7687f69c3c93af5aeccf7e64"
+                        "size": 4155,
+                        "sha256": "660534f1ca8e49c531ceb3872321694d27556d031e8f97740aa2410084c8c3c4"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 1002,
-                        "sha256": "850ce3d5771d926310a26293d40e9724c2dca292bb178d121d69a251e089ef26"
+                        "size": 973,
+                        "sha256": "663d9089071b4fc5886dfbfb0ad532501683bcbf54726ab707dfe86219575917"
                       },
                       "intro.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+                        "size": 61,
+                        "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
                       },
                       "perfectPairs.js": {
                         "type": "file",
-                        "size": 58,
-                        "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+                        "size": 55,
+                        "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
                       },
                       "pinyin.js": {
                         "type": "file",
-                        "size": 48,
-                        "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+                        "size": 45,
+                        "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 32647,
-                        "sha256": "c8d59ee3938a960416cf21330d3b5561d9bc63ad2b65db790de7791058bdb437"
+                        "size": 31461,
+                        "sha256": "1f92669bb3148b99a297c9591e77d472e64157b98093b1445fcbedef58703aaa"
                       },
                       "sort.js": {
                         "type": "file",
-                        "size": 340,
-                        "sha256": "c14a970e669bff9a46fa95a1fe225c6256c7b6bf5904255d86ae7193a2fbb247"
+                        "size": 326,
+                        "sha256": "12eab1f489c156bc4d4e76f5cad45fcea4cb207ef5bd654845c6768990abcc50"
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 4639,
-                        "sha256": "e802c830329f35d2619cd1b0573699bf7f43cb3da7bc4bdc10344620793187aa"
+                        "size": 4582,
+                        "sha256": "abbee642d2172a12bde54fb4af14a2090c28b8f0e9dfa6a6f583d959e3313b99"
                       },
                       "voices.js": {
                         "type": "file",
-                        "size": 46,
-                        "sha256": "54787af1d4efcd35f20c5eca55db2e60f0cd160d7fed728440542f118e7ae44a"
+                        "size": 43,
+                        "sha256": "d7f3da55f8b2e8bf77ace03bd4911497a4abb9e1f942555f7685337801278205"
                       }
                     }
                   },
@@ -2282,68 +2282,68 @@
                     "children": {
                       "card.js": {
                         "type": "file",
-                        "size": 126,
-                        "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+                        "size": 121,
+                        "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
                       },
                       "character.js": {
                         "type": "file",
-                        "size": 4340,
-                        "sha256": "90b33dfe2843a1fbef325fd4c0e56c72e603d67b6d80858d7f78fc4092f7a33b"
+                        "size": 4205,
+                        "sha256": "916d49cb0300f6fe4be738d45aa23cf4dc3dc65c4bedce78e993ffdad10de965"
                       },
                       "characterFilter.js": {
                         "type": "file",
-                        "size": 66,
-                        "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+                        "size": 63,
+                        "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
                       },
                       "characterTitle.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+                        "size": 61,
+                        "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
                       },
                       "dynamicTranslate.js": {
                         "type": "file",
-                        "size": 68,
-                        "sha256": "906eb5fd3a454b60015c93756f9c7c5314a226972b9361b227d498d28bae1544"
+                        "size": 65,
+                        "sha256": "d409295767b35e4867e5aa6fae92020f2a8943f71569af5539436648a345bd2f"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 1002,
-                        "sha256": "7f38b79454730d249bac4b13644338e8f92e962f69e6bdb547540e7b296d5d34"
+                        "size": 973,
+                        "sha256": "ae301e4d28b670aaa9841a61553cb8cd2f43acf2016874469ecedc0cb04413c7"
                       },
                       "intro.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+                        "size": 61,
+                        "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
                       },
                       "perfectPairs.js": {
                         "type": "file",
-                        "size": 58,
-                        "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+                        "size": 55,
+                        "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
                       },
                       "pinyin.js": {
                         "type": "file",
-                        "size": 48,
-                        "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+                        "size": 45,
+                        "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 15413,
-                        "sha256": "e180512e49aa6f9274253c70d56987080a61ec0388999a3cbec269024ffe8306"
+                        "size": 14844,
+                        "sha256": "00a93659a0eb68757291b05117f82cc19222b8cb6c7653114fb69f8a83312f83"
                       },
                       "sort.js": {
                         "type": "file",
-                        "size": 406,
-                        "sha256": "be03f8ab9f2be5c32ea37df8f058788fd19750ede246e2038406c90dc6ce2cea"
+                        "size": 390,
+                        "sha256": "245b6847978bf2321137bb4b0636a5bfbab33c903310ab91c7028d7582bdf855"
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 2941,
-                        "sha256": "c2f770ecea7c27a54fc665c621dc95655e9a827836990fd9eee65dd327ddbd31"
+                        "size": 2890,
+                        "sha256": "d6a6568e0484d1fcd5674a0a447aea7d6b87dd5613d91c2a3f31edb9d7bee243"
                       },
                       "voices.js": {
                         "type": "file",
-                        "size": 1507,
-                        "sha256": "45e6a08bfe638bbc2f79edd7642e1303090c8e81be65fce9886199563bc95311"
+                        "size": 1468,
+                        "sha256": "31d90482253665abc46b7b013645461c6c0def19b3a0159d3aa70389be9402fb"
                       }
                     }
                   },
@@ -2352,68 +2352,68 @@
                     "children": {
                       "card.js": {
                         "type": "file",
-                        "size": 126,
-                        "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+                        "size": 121,
+                        "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
                       },
                       "character.js": {
                         "type": "file",
-                        "size": 2509,
-                        "sha256": "97ae40a03a777ce170d4ddef64132d071b5b379574ed87ec326f10ca52ca3e2f"
+                        "size": 2428,
+                        "sha256": "4b67d1a4f06f96247e7495341d80554dc535a98e5208cf242701e8a11b10a23c"
                       },
                       "characterFilter.js": {
                         "type": "file",
-                        "size": 66,
-                        "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+                        "size": 63,
+                        "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
                       },
                       "characterTitle.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+                        "size": 61,
+                        "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
                       },
                       "dynamicTranslate.js": {
                         "type": "file",
-                        "size": 5803,
-                        "sha256": "15e4e97f0ab62f916f1fd42966ad93c18748bf9ef56ecd2f56d97be62b9ece70"
+                        "size": 5676,
+                        "sha256": "76d3a303b4b59e084b1a53328e97b189bffe0e98f29c5301b235f011a325dcf3"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 1002,
-                        "sha256": "cc538ae9e76177c89ca2e67edde68d68f371700a802cc9d5348e521a8e664b68"
+                        "size": 973,
+                        "sha256": "07fc499a405320e0bd922c8c3c8f82e998d90c56395235f76001bee21ce1623e"
                       },
                       "intro.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+                        "size": 61,
+                        "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
                       },
                       "perfectPairs.js": {
                         "type": "file",
-                        "size": 58,
-                        "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+                        "size": 55,
+                        "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
                       },
                       "pinyin.js": {
                         "type": "file",
-                        "size": 48,
-                        "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+                        "size": 45,
+                        "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 23174,
-                        "sha256": "2768ff21576e5d9a55b1d97d9bb866060370e342cb95f9cd5be0e341470acced"
+                        "size": 22253,
+                        "sha256": "e61fb3da297ec046408a6cb408fff146db4967f0982a935ec988865c1cb2d9d1"
                       },
                       "sort.js": {
                         "type": "file",
-                        "size": 400,
-                        "sha256": "42238b8b9a1a1fcbdd4f6d2f8092a49558ef923a1443f07f57371f40bd4506c4"
+                        "size": 384,
+                        "sha256": "97b4b441fa0480468bfb63b475d2dfc26e8b7bc85f03a5686f7d9d7ad0d5aa7f"
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 4799,
-                        "sha256": "baa234a4f9b902e647f0df3a5189ac65312332fa20c998727c855d9afad0c56c"
+                        "size": 4740,
+                        "sha256": "021b77d6ee7ada8c9962826db17e316dcdba186496630a38794d9283e8ba16e1"
                       },
                       "voices.js": {
                         "type": "file",
-                        "size": 609,
-                        "sha256": "020d42f5a8ab6cfe2189de4f8b27aea2f5eb8f0c92eabeccc30a69311fc684bb"
+                        "size": 603,
+                        "sha256": "392188be3370d7c437641c48424c04fc732bdb13cfc91c447de5556e4ac34ba2"
                       }
                     }
                   },
@@ -2422,68 +2422,68 @@
                     "children": {
                       "card.js": {
                         "type": "file",
-                        "size": 126,
-                        "sha256": "5fa35745834d9494a4be460c4f1cb842ee56ec797f7eaa45b7df6122c87c92ee"
+                        "size": 121,
+                        "sha256": "d903002b4cc800b916e44729798bf5aa0a0f8ea0ba361620959591be723924d7"
                       },
                       "character.js": {
                         "type": "file",
-                        "size": 3411,
-                        "sha256": "c6a79c1c08f94156276fcaa45236f9bc2166a4e2e0351f286981ef5dac5c73dc"
+                        "size": 3301,
+                        "sha256": "f369b61f9b68accdcde3c04723f145146d8b43c45f087590193c2eecbad0e871"
                       },
                       "characterFilter.js": {
                         "type": "file",
-                        "size": 66,
-                        "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
+                        "size": 63,
+                        "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
                       },
                       "characterTitle.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
+                        "size": 61,
+                        "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
                       },
                       "dynamicTranslate.js": {
                         "type": "file",
-                        "size": 7041,
-                        "sha256": "fadb1892b7209b031674f31ecbb4932a27ede38ad649a42ec689f4db1b02bf78"
+                        "size": 6870,
+                        "sha256": "3e51c0d9a7ffacb8dc17a01dbd36631cbc75d94e771cdeba0e6c74c7e43a2fee"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 1002,
-                        "sha256": "892502aaa8fdf6cf1874ab8e564504053ae8168d37c41e2abcb1546e9f90357d"
+                        "size": 973,
+                        "sha256": "6ca0fa67dd8b5fc83aaac37d22e2f2665beb2134a606c75e8c641632bf467af8"
                       },
                       "intro.js": {
                         "type": "file",
-                        "size": 64,
-                        "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
+                        "size": 61,
+                        "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
                       },
                       "perfectPairs.js": {
                         "type": "file",
-                        "size": 58,
-                        "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
+                        "size": 55,
+                        "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
                       },
                       "pinyin.js": {
                         "type": "file",
-                        "size": 48,
-                        "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
+                        "size": 45,
+                        "sha256": "626d5bd4048920086440e9fbf32d2ad3eadd2ff5413591ef8d76c3a165fc758a"
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 46766,
-                        "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
+                        "size": 45067,
+                        "sha256": "02dcd87c7fa51022fff1549a33a84264c9db4408c8001d542e998fafbd50ce9c"
                       },
                       "sort.js": {
                         "type": "file",
-                        "size": 390,
-                        "sha256": "3855904cdc28e6301b9f9177b6c8e04d943ef44fd002a2ce83de5aab7572930c"
+                        "size": 375,
+                        "sha256": "d196e9c0ed205b24df471ffac455017ae5bfd98045a6cddeccc5934e6713da01"
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 6820,
-                        "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
+                        "size": 6739,
+                        "sha256": "e77e8914eccbf69bea102324bd48902e98a144d1c8023f1df704ad7af3bf6516"
                       },
                       "voices.js": {
                         "type": "file",
-                        "size": 2115,
-                        "sha256": "d93f873a87649d413d1fc7b827c8bdb01e5f61cc11d9650f64b59de9d575e9e1"
+                        "size": 2079,
+                        "sha256": "a7352f7b2c1cb2bea35c259d0501bac97e05c5ff775d08e09801b2dd70c9817f"
                       }
                     }
                   }
@@ -2496,18 +2496,18 @@
               },
               "skill.js": {
                 "type": "file",
-                "size": 271,
-                "sha256": "dcfad38fde564a88baba111100cd9b121e156478e16c8b31a286adbb0aeffd23"
+                "size": 264,
+                "sha256": "aec438c3af87f02f714579fc048bc301d9f1bc4c2e0aa4b28c504c440dda7781"
               },
               "sort.js": {
                 "type": "file",
-                "size": 330,
-                "sha256": "f7ec05f54d771ded03a4c50b1b56a6b4e48cf530e4755796a879edd714278334"
+                "size": 323,
+                "sha256": "ed8ae6a07446dd489ac21a08c83656b1cf5716a7ad46d343241b3decf9aec4a9"
               },
               "translate.js": {
                 "type": "file",
-                "size": 272,
-                "sha256": "f58cf928b22b712fcb374f19e5fd3343d4035e2702388b0d09b11abdd1499376"
+                "size": 265,
+                "sha256": "77b8f54f51025615d4a093c885156324d21325caf03c856fd0369736b4580ff2"
               },
               "voices.js": {
                 "type": "file",
@@ -2808,13 +2808,13 @@
           },
           "config.js": {
             "type": "file",
-            "size": 29707,
-            "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
+            "size": 29040,
+            "sha256": "e76b17a94d713930a9349b73c3d6492881adeefcfeb646c81423f4d5d2e42b3f"
           },
           "extension.js": {
             "type": "file",
-            "size": 76830,
-            "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
+            "size": 75685,
+            "sha256": "4f8daf966a68f1402d8aee95592318167a51df8c36445fad82824984849f429d"
           },
           "shuYing_Skill_Xvxiang1.mp3": {
             "type": "file",
@@ -2830,8 +2830,8 @@
       },
       "update.txt": {
         "type": "file",
-        "size": 3953,
-        "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
+        "size": 3903,
+        "sha256": "8ef4a71189bdfc4068e0ebab27dad13f7551354f72a0c6ed51d77b62c8c06fb2"
       },
       "voices.js": {
         "type": "file",
@@ -2843,8 +2843,8 @@
         "children": {
           "extension.js": {
             "type": "file",
-            "size": 1082,
-            "sha256": "a630d543c3648700cb2e3525588643382a0d72779aa8725ee5ecaa7ceaf48d0e"
+            "size": 1044,
+            "sha256": "9fc00f856d6d5e3ae90d5a05f963c96574b0fad7e824c361fab5b70d01dff715"
           },
           "八重神子": {
             "type": "directory",
@@ -2856,8 +2856,8 @@
               },
               "character.js": {
                 "type": "file",
-                "size": 12302,
-                "sha256": "2a3dbbc035f9a6595906a3bce88b192bf521f94cab0b6f12df5833da3c2f6c4e"
+                "size": 11986,
+                "sha256": "54e1bb2e200b4d43a85f8d1741b6c16f76800592629757654bfb12a409cc4813"
               },
               "shuYing_Shashengying1.mp3": {
                 "type": "file",
@@ -2911,8 +2911,8 @@
               },
               "character.js": {
                 "type": "file",
-                "size": 11072,
-                "sha256": "3ee1fc9fcf08ac0d1fa9a6f2e617a7a95a45d2cd313415f66906f64ec9299bf4"
+                "size": 10773,
+                "sha256": "424ef7516b3fa311c1abf1c0be69ca63f4d6af4b4a0490d1d451724400b9b5e1"
               },
               "shuYing_Honghong1.mp3": {
                 "type": "file",
@@ -2976,7 +2976,7 @@
       "entry": "mengsan/register.js",
       "manifest": "dist/modules/mengsan.json",
       "file_count": 457,
-      "size_bytes": 705652979,
+      "size_bytes": 145118687,
       "legacy_manifest": "dist/modules/mengsan.legacy.json"
     }
   }
