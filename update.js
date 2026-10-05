@@ -107,7 +107,7 @@ async function verifyLocalFile(file, manifest, shuYing, full = fullVerification)
 }
 
 async function runFilePool(items, handler, options = {}) {
-    const concurrency = options.concurrency || (lib.device ? 2 : 4);
+    const concurrency = options.concurrency || (lib.device ? 4 : 8);
     const budget = lib.device ? 24 * 1024 * 1024 : 64 * 1024 * 1024;
     const controller = new AbortController();
     const results = new Array(items.length);
