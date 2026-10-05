@@ -1,5 +1,5 @@
 import { openCardLibrary } from "../card-library.js";
-import { askMenu, openModeSelection } from "../navigation.js";
+import { askMenu, openModeSelection, openNonameMenu } from "../navigation.js";
 import { ui, get } from "../../../../../noname.js";
 import config from "../../config.js";
 import { getRelic } from "../../relics/definitions.js";
@@ -317,6 +317,17 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             });
         }) });
         createMenuAction({ icon: "settings", name: "设置与说明", description: "显示、音效与玩法说明 · 开发中", onClick: () => showMenuPage("设置与说明", "个性化与帮助", parent => renderPlaceholder(parent, "后续将在这里提供显示、音效和操作设置。")) });
+        createMenuAction({ icon: "settings", name: "显示 Noname 菜单", description: "打开无名杀原生菜单，管理扩展与游戏设置",
+            onClick: async event => {
+                event.stopPropagation();
+                setMenuOpen(false);
+                try { await openNonameMenu(); }
+                catch (error) {
+                    console.error("梦三打开 Noname 菜单失败：", error);
+                    await askMenu("暂时无法显示菜单", error.message || "请稍后重试。", [{ id: "close", name: "回到行军图" }]);
+                }
+            },
+        }).setAttribute("aria-haspopup", "dialog");
     }
 
     function handleEscape(event) {

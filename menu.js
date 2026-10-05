@@ -206,22 +206,38 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         nopointer: true,
     };
 
-    const channelText = channel => `更新通道：${channel == "preview" ? "测试版" : "正式版"}（点击切换）`;
+    const channelText = channel => `更新通道：<b>${channel == "preview" ? "测试版" : "正式版"}</b>（点击选择）`;
     menu.update_channel = {
         name: channelText(updater.getUpdateChannel()),
         clear: true,
-        intro: "切换后立即从当前下载源的对应标签下载并校验文件，完成后需重启游戏。测试版可能回退到较早的内容。",
+        intro: "打开选择窗口，确认后下载所选通道的更新，完成后需重启游戏。",
         async onclick() {
             if (!shuYing.m_bIsDownload) {
-                alert("有其他文件正在下载，请稍后再试吧。");
+                alert("正在处理其他操作，请稍后再试。");
                 return;
             }
 
             const current = updater.getUpdateChannel();
-            const next = current == "preview" ? "stable" : "preview";
             shuYing.m_bIsDownload = false;
-            this.innerHTML = `正在切换到${next == "preview" ? "测试版" : "正式版"}…`;
             try {
+                const next = await shuYing.chooseSingleOptionDialog({
+                    title: "选择更新通道",
+                    intro: "确认后会下载所选通道的更新，完成后需重启游戏。测试版的版本可能早于当前正式版。",
+                    defaultKey: current, currentKey: current,
+                    cancelable: true, variant: "settings", confirmText: "切换并更新",
+                    options: [
+                        {
+                            key: "stable", name: "正式版", tag: current == "stable" ? "当前使用" : "日常游玩",
+                            description: "接收正式发布的版本，适合日常游玩。"
+                        },
+                        {
+                            key: "preview", name: "测试版", tag: current == "preview" ? "当前使用" : "提前体验",
+                            description: "提前体验新内容，可能包含尚未完善的功能。"
+                        },
+                    ],
+                });
+                if (!next || next == current) return;
+                this.innerHTML = `正在切换到${next == "preview" ? "测试版" : "正式版"}…`;
                 const version = await updater.checkVersion(shuYing, {
                     channel: next,
                     switchChannel: true,
@@ -235,29 +251,53 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
                 const text = channelText(updater.getUpdateChannel());
                 menu.update_channel.name = text;
                 this.innerHTML = text;
+                shuYing.m_bIsDownload = true;
             }
         },
     };
 
-    const sourceText = source => `下载源：${source == "github" ? "GitHub" : "Gitea"}（点击切换）`;
+    const sourceText = source => `下载源：<b>${source == "github" ? "GitHub" : "Gitea"}</b>（点击选择）`;
     menu.update_source = {
         name: sourceText(updater.getUpdateSource()),
         clear: true,
-        intro: "选择从 GitHub 或 Gitea 获取标签与文件；切换后刷新在线版本，实际下载由版本检测触发。",
-        onclick() {
+        intro: "打开下载源选择窗口；确认后刷新在线版本，不会立即下载文件。",
+        async onclick() {
             if (!shuYing.m_bIsDownload) {
-                alert("有其他文件正在下载，请稍后再试吧。");
+                alert("正在处理其他操作，请稍后再试。");
                 return;
             }
 
-            const next = updater.getUpdateSource() == "github" ? "gitea" : "github";
-            game.saveConfig("shuYing_update_source", next);
-            const text = sourceText(next);
-            menu.update_source.name = text;
-            this.innerHTML = text;
-            game.saveConfig("shuYing_online_version", null);
-            shuYing.updateOnlineVersionMenu(null, "检测中...");
-            shuYing.getVersion();
+            const current = updater.getUpdateSource();
+            shuYing.m_bIsDownload = false;
+            try {
+                const next = await shuYing.chooseSingleOptionDialog({
+                    title: "选择下载源",
+                    intro: "确认后保存下载源并刷新在线版本，不会立即下载文件。需要更新时，请点击“版本检测”。",
+                    defaultKey: current, currentKey: current,
+                    cancelable: true, variant: "settings", confirmText: "保存下载源",
+                    options: [
+                        {
+                            key: "gitea", name: "Gitea", tag: current == "gitea" ? "当前使用" : "默认下载源",
+                            description: "从 Gitea 获取版本信息和更新文件（国内源，下载速度上限1.4M）"
+                        },
+                        {
+                            key: "github", name: "GitHub", tag: current == "github" ? "当前使用" : "可选下载源",
+                            description: "从 GitHub 获取版本信息和更新文件。"
+                        },
+                    ],
+                });
+                if (!next || next == current) return;
+                game.saveConfig("shuYing_update_source", next);
+                game.saveConfig("shuYing_online_version", null);
+                shuYing.updateOnlineVersionMenu(null, "检测中...");
+                void shuYing.getVersion();
+            }
+            finally {
+                const text = sourceText(updater.getUpdateSource());
+                menu.update_source.name = text;
+                this.innerHTML = text;
+                shuYing.m_bIsDownload = true;
+            }
         },
     };
 
@@ -343,18 +383,63 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         },
     };
 
+    const mengsanLabelId = "shuying_mengsan_module_status";
+    const mengsanStates = {
+        checking: ["检测中", "请稍候"],
+        installed: ["已安装", "点击卸载"],
+        disabled: ["未安装", "点击安装"],
+        installing: ["安装未完成", "点击修复"],
+        repair: ["待修复", "点击修复"],
+        uninstalling: ["卸载未完成", "继续卸载"],
+        unknown: ["状态未确认", "点击检查"],
+        working: ["处理中", "请稍候"],
+    };
+    const mengsanLabelHTML = status => {
+        const [label, action] = mengsanStates[status] || mengsanStates.unknown;
+        return `梦三模式：<b>${label}</b>（${action}）`;
+    };
+    let mengsanLabelNode = null;
+    let mengsanStatusRequest = 0;
+    let mengsanModuleOperating = false;
+    const renderMengsanStatus = status => {
+        const content = mengsanLabelHTML(status);
+        menu.mengsanModule.name = `<span id="${mengsanLabelId}" style="white-space:normal;">${content}</span>`;
+        // Keep the existing node so closing the menu during a download still refreshes it.
+        mengsanLabelNode = document.getElementById(mengsanLabelId) || mengsanLabelNode;
+        if (mengsanLabelNode) mengsanLabelNode.innerHTML = content;
+    };
+    shuYing.updateMengsanModuleMenu = async () => {
+        const request = ++mengsanStatusRequest;
+        mengsanLabelNode = document.getElementById(mengsanLabelId) || mengsanLabelNode;
+        if (mengsanModuleOperating) { renderMengsanStatus("working"); return; }
+        let status;
+        try { status = await updater.getMengsanModuleStatus(); }
+        catch (error) {
+            console.error("读取梦三安装状态失败：", error);
+            status = "unknown";
+        }
+        if (request == mengsanStatusRequest) renderMengsanStatus(status);
+    };
     menu.mengsanModule = {
-        name: "梦三模式（按需安装/卸载）",
+        name: `<span id="${mengsanLabelId}" style="white-space:normal;">${mengsanLabelHTML("checking")}</span>`,
         clear: true,
-        onclick() {
-            if (shuYing.m_bIsDownload) {
-                shuYing.m_bIsDownload = false;
-                updater.manageMengsanModule(shuYing);
-            } else {
+        async onclick() {
+            if (!shuYing.m_bIsDownload) {
                 alert("有其他文件正在下载，请稍后再试吧。");
+                return;
+            }
+            shuYing.m_bIsDownload = false;
+            mengsanModuleOperating = true;
+            ++mengsanStatusRequest; // Discard any pre-operation status lookup still in flight.
+            renderMengsanStatus("working");
+            try { await updater.manageMengsanModule(shuYing); }
+            finally {
+                mengsanModuleOperating = false;
+                await shuYing.updateMengsanModuleMenu();
             }
         },
     };
+    void shuYing.updateMengsanModuleMenu();
 
     menu.repairBug = {
         name: "本地资源修复",
