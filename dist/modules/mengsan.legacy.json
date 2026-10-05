@@ -1,5 +1,5 @@
 {
-  "version": "2.0.1.1-rc.1",
+  "version": "2.0.2.3-rc.2",
   "module_id": "mengsan",
   "snapshot": "legacy",
   "files": [
@@ -309,6 +309,7 @@
     "mengsan/battle/battle-resources.js",
     "mengsan/battle/battle-session.js",
     "mengsan/battle/battle-settlement.js",
+    "mengsan/battle/camps.js",
     "mengsan/battle/combat-rules.js",
     "mengsan/battle/death-blow.js",
     "mengsan/battle/engine-session.js",
