@@ -5,6 +5,156 @@ const githubRepositoryApi = "https://api.github.com/repos/Shu-Ying/noname-shuyin
 const githubRawBase = "https://raw.githubusercontent.com/Shu-Ying/noname-shuying";
 const coreTempDir = "extension/术樱包/.update_tmp";
 let fileMutationUncertain = false;
+const verifiedCacheKey = "shuYing_update_verified_files";
+let verifiedFiles = new Map();
+let sessionVerified = new Set();
+let verificationContext = null;
+let verificationDirty = false;
+let fullVerification = false;
+
+function cacheContext() {
+    if (lib.node?.fs && typeof window.__dirname == "string") return `node:${window.__dirname}`;
+    if (hasCordovaFiles()) return `cordova:${localStorage.getItem("noname_inited")}`;
+    return null; // The browser file service exposes no reliable modification timestamp.
+}
+
+function beginUpdate(shuYing, full = false) {
+    fullVerification = full;
+    verificationContext = cacheContext();
+    verifiedFiles = new Map();
+    sessionVerified = new Set();
+    verificationDirty = false;
+    const saved = lib.config[verifiedCacheKey];
+    if (verificationContext && saved?.schema == 1 && saved.context == verificationContext
+        && saved.files && typeof saved.files == "object" && !Array.isArray(saved.files)) {
+        for (const [file, entry] of Object.entries(saved.files)) {
+            if (isSafeManifestPath(file) && entry && typeof entry.sha256 == "string" && /^[a-f0-9]{64}$/.test(entry.sha256)
+                && Number.isSafeInteger(entry.size) && entry.size >= 0 && typeof entry.fingerprint == "string") {
+                verifiedFiles.set(file, { ...entry });
+            }
+        }
+    }
+    shuYing._updateLogs = [];
+    shuYing._updateLogDirty = false;
+    shuYing._updateLogDisabled = false;
+    shuYing._progressRendered = 0;
+    shuYing._updateStarted = Date.now();
+    shuYing._updateStats = { cached: 0, hashed: 0 };
+}
+
+function relativeTarget(target) {
+    const prefix = "extension/术樱包/";
+    if (!target.startsWith(prefix)) return null;
+    const file = target.slice(prefix.length);
+    return isSafeManifestPath(file) && !file.startsWith(".update_tmp/") && file != "log.txt" ? file : null;
+}
+
+function invalidateVerifiedFile(target) {
+    const file = relativeTarget(target);
+    if (!file) return;
+    if (verifiedFiles.delete(file)) verificationDirty = true;
+    sessionVerified.delete(file);
+}
+
+async function persistVerificationCache() {
+    if (!verificationContext || !verificationDirty) return;
+    await saveUpdaterConfig({ [verifiedCacheKey]: {
+        schema: 1, context: verificationContext, files: Object.fromEntries(verifiedFiles),
+    } });
+    verificationDirty = false;
+}
+
+async function invalidateBeforeChanges(files) {
+    for (const file of files) invalidateVerifiedFile(`extension/术樱包/${file}`);
+    // Commit invalidation before mutation, including same-size writes on coarse timestamps.
+    await persistVerificationCache();
+}
+
+function sameMetadata(left, right) {
+    return !!left && !!right && left.size == right.size && left.fingerprint == right.fingerprint;
+}
+
+function rememberVerified(target, info, metadata) {
+    const file = relativeTarget(target);
+    if (!verificationContext || !file || !metadata || metadata.size != info.size) return;
+    verifiedFiles.set(file, { sha256: info.sha256, size: info.size, fingerprint: metadata.fingerprint });
+    sessionVerified.add(file);
+    verificationDirty = true;
+}
+
+async function verifyLocalFile(file, manifest, shuYing, full = fullVerification) {
+    const target = `extension/术樱包/${file}`;
+    const info = manifest.files[file];
+    try {
+        const before = await fileMetadata(target);
+        const cached = verifiedFiles.get(file);
+        if ((!full || sessionVerified.has(file)) && before && cached
+            && cached.sha256 == info.sha256 && cached.size == info.size && sameMetadata(cached, before)) {
+            if (shuYing?._updateStats) shuYing._updateStats.cached++;
+            return;
+        }
+        invalidateVerifiedFile(target);
+        await verifyFile(file, await readFile(target), manifest);
+        const after = await fileMetadata(target);
+        if (before && !sameMetadata(before, after)) throw new Error(`校验期间文件发生变化：${file}`);
+        rememberVerified(target, info, sameMetadata(before, after) ? after : null);
+        if (shuYing?._updateStats) shuYing._updateStats.hashed++;
+    }
+    catch (error) {
+        invalidateVerifiedFile(target);
+        throw error;
+    }
+}
+
+async function runFilePool(items, handler, options = {}) {
+    const concurrency = options.concurrency || (lib.device ? 2 : 4);
+    const budget = lib.device ? 24 * 1024 * 1024 : 64 * 1024 * 1024;
+    const controller = new AbortController();
+    const results = new Array(items.length);
+    let next = 0, active = 0, reserved = 0, failure = null;
+    return await new Promise((resolve, reject) => {
+        const fail = error => {
+            const cause = operationError(error) || new Error("资源任务失败");
+            if (!failure) { failure = cause; controller.abort(cause); }
+            if (cause.operationUncertain) failure.operationUncertain = true;
+        };
+        const pump = () => {
+            while (!failure && active < concurrency && next < items.length) {
+                // Bound estimated working memory; a file exceeding the budget runs alone.
+                let weight;
+                try { weight = Math.min(budget, Math.max(1, options.weight?.(items[next]) || 1)); }
+                catch (error) { fail(error); break; }
+                if (active && reserved + weight > budget) break;
+                const index = next++;
+                active++;
+                reserved += weight;
+                Promise.resolve().then(() => handler(items[index], index, controller.signal))
+                    .then(value => { results[index] = value; })
+                    .catch(fail).finally(() => { active--; reserved -= weight; pump(); });
+            }
+            if (!active && (failure || next == items.length)) {
+                if (failure) {
+                    if (fileMutationUncertain) failure.operationUncertain = true;
+                    reject(failure);
+                }
+                else resolve(results);
+            }
+        };
+        pump();
+    });
+}
+
+async function finishUpdate(shuYing) {
+    try {
+        await persistVerificationCache();
+    }
+    catch (error) { addLog(shuYing, `校验缓存保存失败，下次重新检查：${getErrorMessage(error)}`); }
+    if (shuYing._updateStarted) {
+        const stats = shuYing._updateStats;
+        addLog(shuYing, `本次耗时 ${((Date.now() - shuYing._updateStarted) / 1000).toFixed(1)} 秒；缓存通过 ${stats?.cached || 0} 次，完整校验通过 ${stats?.hashed || 0} 次`);
+    }
+    await flushLog(shuYing);
+}
 
 function parseVersion(version) {
     const match = /^(\d+)\.(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$/.exec(version);
@@ -135,10 +285,10 @@ function getLogText(shuYing) {
 
 async function writeLog(shuYing) {
     if (!shuYing || typeof game.writeFile != "function") return;
-    await writeFile(getLogText(shuYing), "extension/术樱包", "log.txt");
+    await writeFile(getLogText(shuYing), "extension/术樱包", "log.txt", { diagnostic: true });
 }
 
-async function addLog(shuYing, message) {
+function addLog(shuYing, message) {
     if (!shuYing) return;
 
     if (!Array.isArray(shuYing._updateLogs)) {
@@ -147,13 +297,27 @@ async function addLog(shuYing, message) {
 
     const time = new Date().toLocaleString();
     shuYing._updateLogs.push(`[${time}] ${message}`);
+    shuYing._updateLogDirty = true;
+    if (!shuYing._updateLogTimer && !shuYing._updateLogDisabled) {
+        shuYing._updateLogTimer = setTimeout(() => { void flushLog(shuYing); }, 1000);
+    }
+}
 
-    try {
-        await writeLog(shuYing);
-    }
-    catch (error) {
+async function flushLog(shuYing) {
+    clearTimeout(shuYing._updateLogTimer);
+    shuYing._updateLogTimer = null;
+    if (shuYing._updateLogWrite) await shuYing._updateLogWrite;
+    if (!shuYing._updateLogDirty || shuYing._updateLogDisabled) return;
+    shuYing._updateLogDirty = false;
+    const operation = writeLog(shuYing).catch(error => {
+        shuYing._updateLogDisabled = true;
+        clearTimeout(shuYing._updateLogTimer);
+        shuYing._updateLogTimer = null;
         console.error("写入术樱包日志失败：", error);
-    }
+    });
+    shuYing._updateLogWrite = operation;
+    await operation;
+    if (shuYing._updateLogWrite == operation) shuYing._updateLogWrite = null;
 }
 
 function escapeHTML(text) {
@@ -175,17 +339,26 @@ function formatBytes(bytes) {
 function setProgress(shuYing, options = {}) {
     if (!shuYing?.text) return;
 
+    const now = Date.now();
+    if (!options.force && now - (shuYing._progressRendered || 0) < 120) return;
+    shuYing._progressRendered = now;
+
     const current = Math.max(0, Number(options.current) || 0);
     const total = Math.max(0, Number(options.total) || 0);
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
+    const percent = options.totalBytes > 0
+        ? Math.min(100, Math.round((options.bytes || 0) / options.totalBytes * 100))
+        : total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
     const title = options.title || "资源更新";
     const status = options.status || "准备中";
     const file = options.file || "";
+    const transfer = options.totalBytes > 0
+        ? `${formatBytes(options.bytes || 0)} / ${formatBytes(options.totalBytes)} · ${formatBytes(options.speed || 0)}/秒`
+        : `${current}/${total}`;
 
     shuYing.text.innerHTML = `
         <div style="position:static;box-sizing:border-box;writing-mode:horizontal-tb;text-orientation:mixed;display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;width:100%;">
             <div style="position:static;box-sizing:border-box;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;min-width:0;">${escapeHTML(title)}</div>
-            <div style="position:static;box-sizing:border-box;font-size:12px;color:rgba(245,241,232,0.72);white-space:nowrap;word-break:keep-all;flex:0 0 auto;">${current}/${total}</div>
+            <div style="position:static;box-sizing:border-box;font-size:12px;color:rgba(245,241,232,0.72);white-space:nowrap;word-break:keep-all;flex:0 0 auto;">${escapeHTML(transfer)}</div>
         </div>
         <div style="position:static;box-sizing:border-box;display:block;width:100%;height:8px;min-height:8px;border-radius:999px;background:linear-gradient(90deg,#6ee7b7 0%,#60a5fa ${percent}%,rgba(255,255,255,0.14) ${percent}%,rgba(255,255,255,0.14) 100%);overflow:hidden;"></div>
         <div style="position:static;box-sizing:border-box;writing-mode:horizontal-tb;text-orientation:mixed;display:flex;justify-content:space-between;gap:10px;font-size:12px;color:rgba(245,241,232,0.82);min-width:0;width:100%;">
@@ -211,27 +384,120 @@ function splitPath(path) {
     };
 }
 
-async function fetchFile(path, tag, source) {
-    const response = await fetch(getRemoteUrl(tag, path, source));
-    if (!response.ok) throw new Error(`${path} 下载失败：${response.status}`);
-
-    return await response.arrayBuffer();
+async function waitForRetry(delay, signal) {
+    if (signal?.aborted) throw signal.reason || new Error("下载已停止");
+    await new Promise((resolve, reject) => {
+        const cancel = () => {
+            clearTimeout(timer);
+            signal.removeEventListener("abort", cancel);
+            reject(signal.reason || new Error("下载已停止"));
+        };
+        const timer = setTimeout(() => { signal?.removeEventListener("abort", cancel); resolve(); }, delay);
+        signal?.addEventListener("abort", cancel, { once: true });
+    });
 }
 
-async function writeTargetFile(data, target) {
+async function fetchFile(path, tag, source, options = {}) {
+    for (let attempt = 0; ; attempt++) {
+        if (options.signal?.aborted) throw options.signal.reason || new Error("下载已停止");
+        const controller = new AbortController();
+        const cancel = () => controller.abort(options.signal.reason);
+        options.signal?.addEventListener("abort", cancel, { once: true });
+        let timer, reader, timedOut = false;
+        const resetTimeout = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { timedOut = true; controller.abort(new Error(`${path} 下载超时`)); }, 60000);
+        };
+        options.onProgress?.(0, 0);
+        try {
+            resetTimeout();
+            const response = await fetch(getRemoteUrl(tag, path, source), { signal: controller.signal });
+            reader = response.body?.getReader?.();
+            if (!response.ok) {
+                const error = new Error(`${path} 下载失败：${response.status}`);
+                error.retryable = [408, 429, 500, 502, 503, 504].includes(response.status);
+                throw error;
+            }
+            if (!reader) {
+                const data = await response.arrayBuffer();
+                if (Number.isSafeInteger(options.size) && data.byteLength > options.size) {
+                    throw new Error(`${path} 下载数据超过清单大小`);
+                }
+                options.onProgress?.(data.byteLength, data.byteLength);
+                return data;
+            }
+            const chunks = [];
+            let loaded = 0;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                loaded += value.byteLength;
+                if (Number.isSafeInteger(options.size) && loaded > options.size) {
+                    throw new Error(`${path} 下载数据超过清单大小`);
+                }
+                chunks.push(value);
+                options.onProgress?.(loaded, value.byteLength);
+                resetTimeout();
+            }
+            const data = new Uint8Array(loaded);
+            let offset = 0;
+            for (const chunk of chunks) { data.set(chunk, offset); offset += chunk.byteLength; }
+            return data.buffer;
+        }
+        catch (error) {
+            if (options.signal?.aborted || attempt >= 2
+                || !(timedOut || error?.retryable || error instanceof TypeError)) throw error;
+            await addLog(options.shuYing, `下载重试 ${attempt + 1}/2：${path}；${getErrorMessage(error)}`);
+        }
+        finally {
+            clearTimeout(timer);
+            options.signal?.removeEventListener("abort", cancel);
+            if (reader) await reader.cancel().catch(() => {});
+        }
+        await waitForRetry(600 * (attempt + 1), options.signal);
+    }
+}
+
+function downloadProgress(shuYing, files, manifest) {
+    const received = new Map();
+    const totalBytes = files.reduce((sum, file) => sum + manifest.files[file].size, 0);
+    const started = Date.now();
+    let transferred = 0, completed = 0, bytes = 0;
+    const render = (file, force = false) => {
+        setProgress(shuYing, { title: "下载更新", status: `下载并校验（${completed}/${files.length}）`,
+            file, current: completed, total: files.length, bytes, totalBytes,
+            speed: transferred / Math.max(0.1, (Date.now() - started) / 1000), force });
+    };
+    return {
+        receive(file, loaded, delta) {
+            const value = Math.min(loaded, manifest.files[file].size);
+            bytes += value - (received.get(file) || 0);
+            received.set(file, value);
+            transferred += delta;
+            render(file);
+        },
+        complete(file) { completed++; render(file, completed == files.length); },
+        finish() { addLog(shuYing, `下载及准备完成：${files.length} 个文件，${formatBytes(totalBytes)}，用时 ${((Date.now() - started) / 1000).toFixed(1)} 秒`); },
+    };
+}
+
+async function writeTargetFile(data, target, verifiedInfo = null) {
     if (typeof game.writeFile != "function") {
         throw new Error("当前环境不支持写入文件");
     }
 
     const targetInfo = splitPath(target);
-    await writeFile(data, targetInfo.dir, targetInfo.name);
+    const metadata = await writeFile(data, targetInfo.dir, targetInfo.name);
+    if (verifiedInfo) rememberVerified(target, verifiedInfo, metadata);
 }
 
-async function downloadFile(path, target, manifest) {
-    const data = await fetchFile(path, manifest.tag_name, manifest.source);
+async function downloadFile(path, target, manifest, options = {}) {
+    const data = await fetchFile(path, manifest.tag_name, manifest.source,
+        { ...options, size: manifest.files[path]?.size });
     if (manifest?.files?.[path]) {
         await verifyFile(path, data, manifest);
     }
+    if (options.signal?.aborted) throw options.signal.reason || new Error("下载已停止");
     await writeTargetFile(data, target);
     return data;
 }
@@ -471,6 +737,34 @@ function checkFile(path) {
     });
 }
 
+function fileMetadata(path) {
+    assertLocalPath(path);
+    return fileOperation(`读取文件属性：${path}`, (resolve, reject) => {
+        if (lib.node?.fs && typeof window.__dirname == "string") {
+            lib.node.fs.stat(lib.node.path.join(window.__dirname, path), (error, stat) => {
+                if (error?.code == "ENOENT") { resolve(null); return; }
+                if (error) { reject(error); return; }
+                if (!stat.isFile() || !Number.isFinite(stat.mtimeMs) || !Number.isFinite(stat.ctimeMs)) {
+                    resolve(null);
+                    return;
+                }
+                resolve({ size: stat.size, fingerprint: `node:${stat.dev}:${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}` });
+            });
+        }
+        else if (hasCordovaFiles()) {
+            cordovaEntry(path).then(entry => entry.file(file => {
+                try {
+                    const modified = Number(file.lastModified) || new Date(file.lastModifiedDate).getTime();
+                    resolve(Number.isFinite(modified) && modified > 0
+                        ? { size: file.size, fingerprint: `cordova:${modified}` } : null);
+                }
+                catch { resolve(null); }
+            }, reject)).catch(error => error?.code == 1 ? resolve(null) : reject(error));
+        }
+        else resolve(null);
+    });
+}
+
 async function safeCheckFile(path) {
     // An unreadable file must never be treated as a missing file during replacement.
     return await checkFile(path);
@@ -536,7 +830,7 @@ function hasCordovaFiles() {
     return !!lib.device && typeof window.resolveLocalFileSystemURL == "function";
 }
 
-function cordovaEntry(path, create = false) {
+function cordovaEntry(path, create = false, mutation = create) {
     return fileOperation(`打开文件：${path}`, (resolve, reject) => {
         const root = localStorage.getItem("noname_inited");
         if (!root) throw new Error("无法确定游戏文件目录");
@@ -544,7 +838,7 @@ function cordovaEntry(path, create = false) {
             try { entry.getFile(path, { create }, resolve, reject); }
             catch (error) { reject(error); }
         }, reject);
-    }, create);
+    }, mutation);
 }
 
 function readFile(path) {
@@ -565,12 +859,13 @@ function readFile(path) {
     });
 }
 
-async function writeFile(data, path, name) {
+async function writeFile(data, path, name, options = {}) {
     const target = `${path.replace(/\/$/, "")}/${name}`;
     assertLocalPath(target);
+    invalidateVerifiedFile(target);
     await fileOperation(`写入文件：${target}`, (resolve, reject) => {
         if (hasCordovaFiles()) {
-            cordovaEntry(target, true).then(entry => entry.createWriter(writer => {
+            cordovaEntry(target, true, !options.diagnostic).then(entry => entry.createWriter(writer => {
                 let truncated = false;
                 writer.onerror = () => reject(writer.error || new Error("写入失败"));
                 writer.onwriteend = () => {
@@ -606,7 +901,9 @@ async function writeFile(data, path, name) {
             if (error) reject(error);
             else resolve();
         });
-    }, true);
+    }, !options.diagnostic);
+    if (options.diagnostic) return null;
+    const before = await fileMetadata(target);
     const actual = toUint8Array(await readFile(target));
     const expected = toUint8Array(data);
     let equal = actual.length == expected.length;
@@ -614,11 +911,14 @@ async function writeFile(data, path, name) {
     if (!equal) {
         throw new Error(`文件落盘校验失败：${target}`);
     }
+    const after = await fileMetadata(target);
+    return sameMetadata(before, after) ? after : null;
 }
 
 async function removeFile(path) {
     assertMutationReady();
     assertLocalPath(path);
+    invalidateVerifiedFile(path);
     const exists = await checkFile(path);
     if (exists == -1) return;
     if (exists != 1) throw new Error(`待删除路径不是文件：${path}`);
@@ -706,21 +1006,24 @@ async function downloadCoreFiles(shuYing, manifest) {
     await updateAllFiles(shuYing, manifest, files);
 }
 
-async function getChangedFiles(manifest) {
-    if (typeof game.readFile != "function") {
-        throw new Error("当前环境不支持校验本地文件");
-    }
-    const changed = [];
-    for (const file of getManifestFileKeys(manifest)) {
-        try {
-            const data = await readFile(`extension/术樱包/${file}`);
-            await verifyFile(file, data, manifest);
-        }
-        catch (error) {
-            changed.push(file);
-        }
-    }
-    return changed;
+async function getChangedFiles(manifest, shuYing) {
+    if (typeof game.readFile != "function") throw new Error("当前环境不支持校验本地文件");
+    const files = getManifestFileKeys(manifest);
+    let checked = 0;
+    const started = Date.now();
+    const results = await runFilePool(files, async file => {
+        let changed = null;
+        try { await verifyLocalFile(file, manifest, shuYing); }
+        catch (error) { changed = file; }
+        checked++;
+        if (shuYing) setProgress(shuYing, {
+            title: "检查更新", status: fullVerification ? "完整校验资源" : "检查资源变化",
+            file, current: checked, total: files.length, force: checked == files.length,
+        });
+        return changed;
+    }, { concurrency: lib.device ? 1 : 2, weight: file => manifest.files[file].size * 3 });
+    await addLog(shuYing, `资源检查完成：${files.length} 个文件，用时 ${((Date.now() - started) / 1000).toFixed(1)} 秒`);
+    return results.filter(Boolean);
 }
 
 function makeLegacyModuleManifest(manifest, moduleId) {
@@ -791,7 +1094,11 @@ function getMengsanRecord() {
 
 async function saveMengsanRecord(record) {
     const version = record.status == "disabled" ? "disabled" : record.version || "legacy";
-    // Both keys commit together; saveConfig/putDB request success is too early.
+    await saveUpdaterConfig({ [mengsanRecordKey]: record, [mengsanVersionKey]: version });
+}
+
+async function saveUpdaterConfig(values) {
+    // Publish only after both the IndexedDB transaction and its requests commit.
     lib.status.reload++;
     try {
         if (lib.db) {
@@ -802,10 +1109,9 @@ async function saveMengsanRecord(record) {
                     transaction = lib.db.transaction(["config"], "readwrite");
                     transaction.oncomplete = () => resolve();
                     transaction.onerror = event => { requestError = event.target?.error; };
-                    transaction.onabort = () => reject(transaction.error || requestError || new Error("梦三安装记录未能保存"));
+                    transaction.onabort = () => reject(transaction.error || requestError || new Error("更新记录未能保存"));
                     const store = transaction.objectStore("config");
-                    store.put(record, mengsanRecordKey);
-                    store.put(version, mengsanVersionKey);
+                    for (const [key, value] of Object.entries(values)) store.put(value, key);
                 }
                 catch (error) {
                     try { transaction?.abort(); } catch {}
@@ -817,12 +1123,10 @@ async function saveMengsanRecord(record) {
             const key = `${lib.configprefix}config`;
             const config = JSON.parse(localStorage.getItem(key) || "{}");
             if (!config || typeof config != "object" || Array.isArray(config)) throw new Error("本地配置格式无效");
-            config[mengsanRecordKey] = record;
-            config[mengsanVersionKey] = version;
+            Object.assign(config, values);
             localStorage.setItem(key, JSON.stringify(config));
         }
-        lib.config[mengsanRecordKey] = record;
-        lib.config[mengsanVersionKey] = version;
+        Object.assign(lib.config, values);
     }
     finally { game.reload2(); }
 }
@@ -885,9 +1189,8 @@ async function installMengsanFiles(shuYing, manifest, files, previousManifest = 
     try {
         await updateAllFiles(shuYing, manifest, files, operationRoot);
         filesApplied = true;
-        for (const file of currentFiles) {
-            await verifyFile(file, await readFile(`extension/术樱包/${file}`), manifest);
-        }
+        const invalid = await getChangedFiles(manifest, shuYing);
+        if (invalid.length) throw new Error(`梦三模块校验失败：${invalid.slice(0, 5).join("、")}`);
         await saveMengsanRecord({ status: "installed", version: manifest.version,
             source: manifest.source, files: currentFiles });
     }
@@ -978,21 +1281,23 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
     let retainRecovery = false;
     try {
         ensureProgressNode(shuYing);
+        await invalidateBeforeChanges([...files, ...obsoleteFiles]);
         await createDir(`${newRoot}/`);
         await createDir(`${oldRoot}/`);
         await createFolders(`${newRoot}/`, files);
         await createFolders(`${oldRoot}/`, [...files, ...obsoleteFiles]);
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            setProgress(shuYing, {
-                title: "版本更新", status: "下载并校验", file,
-                current: i, total: files.length * 2,
-            });
+        const progress = downloadProgress(shuYing, files, manifest);
+        await runFilePool(files, async (file, index, signal) => {
             staged.add(file);
-            await downloadFile(file, `${newRoot}/${file}`, manifest);
-        }
+            await downloadFile(file, `${newRoot}/${file}`, manifest, {
+                signal, shuYing, onProgress: (loaded, delta) => progress.receive(file, loaded, delta),
+            });
+            progress.complete(file);
+        }, { weight: file => manifest.files[file].size * 4 });
+        progress.finish();
 
+        const installStarted = Date.now();
         await createFolders("extension/术樱包/", files);
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -1007,11 +1312,14 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
             }
 
             setProgress(shuYing, {
-                title: "版本更新", status: "写入中", file,
-                current: files.length + i, total: files.length * 2,
+                title: "安装更新", status: "写入并检查", file,
+                current: i, total: files.length, force: i == 0,
             });
+            const prepared = await readFile(`${newRoot}/${file}`);
+            // Recheck staged bytes before publishing a verification receipt.
+            await verifyFile(file, prepared, manifest);
             installed.push(file);
-            await writeTargetFile(await readFile(`${newRoot}/${file}`), target);
+            await writeTargetFile(prepared, target, manifest.files[file]);
         }
         for (const file of obsoleteFiles) {
             const target = `extension/术樱包/${file}`;
@@ -1025,6 +1333,8 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
         }
         await removeManifestOldPaths(shuYing, manifest);
         filesInstalled = true;
+        setProgress(shuYing, { title: "安装更新", status: "文件处理完成", current: files.length, total: files.length, force: true });
+        await addLog(shuYing, `文件替换完成，用时 ${((Date.now() - installStarted) / 1000).toFixed(1)} 秒`);
     }
     catch (error) {
         const rollbackFiles = filesInstalled || error.operationUncertain ? []
@@ -1079,44 +1389,10 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
 }
 
 async function downloadList(shuYing, files, manifest) {
-    let finished = 0;
-    const total = files.length;
-
-    for (const file of files) {
-        const target = `extension/术樱包/${file}`;
-        try {
-            await addLog(shuYing, `检查：${file}`);
-            setProgress(shuYing, { title: "查漏补缺", status: "检查本地文件", file: target, current: finished, total });
-            const exists = typeof game.checkFile == "function" ? await safeCheckFile(target) : 0;
-
-            if (exists == 1 && typeof game.readFile == "function") {
-                try {
-                    await verifyFile(file, await readFile(target), manifest);
-                    finished++;
-                    await addLog(shuYing, `校验通过，跳过：${file}`);
-                    setProgress(shuYing, { title: "查漏补缺", status: "校验通过", file: target, current: finished, total });
-                    continue;
-                }
-                catch (error) {
-                    await addLog(shuYing, `本地文件需修复：${file}；${getErrorMessage(error)}`);
-                }
-            }
-
-            await addLog(shuYing, `下载：${file}`);
-            setProgress(shuYing, { title: "查漏补缺", status: "下载中", file: target, current: finished, total });
-            await downloadFile(file, target, manifest);
-            if (manifest?.files?.[file]) {
-                await addLog(shuYing, `校验通过：${file}`);
-            }
-            finished++;
-            await addLog(shuYing, `完成：${file}`);
-            setProgress(shuYing, { title: "查漏补缺", status: "已完成", file: target, current: finished, total });
-        }
-        catch (error) {
-            await addLog(shuYing, `失败：${file}；${getErrorMessage(error)}`);
-            throw new Error(`${file} 处理失败：${getErrorMessage(error)}`);
-        }
-    }
+    // Repair also stages downloads before sequential replacement and rollback.
+    const changed = await getChangedFiles(manifest, shuYing);
+    const allowed = new Set(files);
+    await updateAllFiles(shuYing, manifest, changed.filter(file => allowed.has(file)));
 }
 
 async function getOnlineVersion(channel = getUpdateChannel(),
@@ -1127,7 +1403,8 @@ async function getOnlineVersion(channel = getUpdateChannel(),
 
 async function checkVersion(shuYing, options = {}) {
     try {
-        shuYing._updateLogs = [];
+        beginUpdate(shuYing);
+        ensureProgressNode(shuYing);
         await addLog(shuYing, "版本检查开始");
         const onlineVersion = await getOnlineVersion(options.channel, options.source);
         const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
@@ -1161,7 +1438,7 @@ async function checkVersion(shuYing, options = {}) {
             );
         }
 
-        const changed = await getChangedFiles(manifest);
+        const changed = await getChangedFiles(manifest, shuYing);
         const obsolete = await getObsoleteFiles(manifest);
         let mengsanManifest = null;
         let mengsanChanged = [];
@@ -1180,7 +1457,7 @@ async function checkVersion(shuYing, options = {}) {
                         getManifestFileKeys(previousMengsan)
                     );
                 }
-                mengsanChanged = await getChangedFiles(mengsanManifest);
+                mengsanChanged = await getChangedFiles(mengsanManifest, shuYing);
                 mengsanObsolete = await getObsoleteFiles(mengsanManifest);
             }
             catch (error) {
@@ -1234,8 +1511,11 @@ async function checkVersion(shuYing, options = {}) {
         return null;
     }
     finally {
-        removeProgressNode(shuYing);
-        setBusy(shuYing, false);
+        try { await finishUpdate(shuYing); }
+        finally {
+            removeProgressNode(shuYing);
+            setBusy(shuYing, false);
+        }
     }
 }
 
@@ -1247,7 +1527,7 @@ async function repairMissingFiles(shuYing) {
     }
 
     try {
-        shuYing._updateLogs = [];
+        beginUpdate(shuYing, true);
         await addLog(shuYing, "查漏补缺开始");
         ensureProgressNode(shuYing);
         setProgress(shuYing, { title: "查漏补缺", status: "获取校验清单", current: 0, total: 1 });
@@ -1296,9 +1576,8 @@ async function repairMissingFiles(shuYing) {
         await createFolders("extension/术樱包/", files, shuYing);
 
         await downloadList(shuYing, files, manifest);
-        await removeManifestOldPaths(shuYing, manifest);
         if (mengsanManifest) {
-            const moduleChanged = await getChangedFiles(mengsanManifest);
+            const moduleChanged = await getChangedFiles(mengsanManifest, shuYing);
             await installMengsanFiles(shuYing, mengsanManifest, moduleChanged, previousMengsan);
         }
 
@@ -1312,15 +1591,18 @@ async function repairMissingFiles(shuYing) {
         alert("查漏补缺失败，请查看 extension/术樱包/log.txt");
     }
     finally {
-        removeProgressNode(shuYing);
-        setBusy(shuYing, false);
+        try { await finishUpdate(shuYing); }
+        finally {
+            removeProgressNode(shuYing);
+            setBusy(shuYing, false);
+        }
     }
 }
 
 async function manageMengsanModule(shuYing) {
     setBusy(shuYing, true);
     try {
-        shuYing._updateLogs = [];
+        beginUpdate(shuYing);
         assertMutationReady();
         const record = getMengsanRecord();
         const localVersion = lib.config.shuYing_local_version || "0.0.0.0";
@@ -1341,6 +1623,7 @@ async function manageMengsanModule(shuYing) {
                 source: record?.source || getUpdateSource(), files,
             };
             await saveMengsanRecord(pending);
+            await invalidateBeforeChanges(files);
             ensureProgressNode(shuYing);
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -1382,59 +1665,42 @@ async function manageMengsanModule(shuYing) {
         alert(`${hint}\n${getErrorMessage(error)}\n请查看 extension/术樱包/log.txt。`);
     }
     finally {
-        removeProgressNode(shuYing);
-        setBusy(shuYing, false);
+        try { await finishUpdate(shuYing); }
+        finally {
+            removeProgressNode(shuYing);
+            setBusy(shuYing, false);
+        }
     }
 }
 
 async function repairCoreFiles(shuYing) {
-    let shouldDownload = false;
-    let manifest;
-    let coreFiles;
-
     try {
-        manifest = await getManifest();
-        coreFiles = getManifestCoreFiles(manifest);
-    }
-    catch (error) {
-        console.error(error);
-        alert("获取服务器校验清单失败，请检查网络或 manifest.json。");
-        setBusy(shuYing, false);
-        return;
-    }
-
-    if (typeof game.readFile != "function") {
-        shouldDownload = confirm("此端暂不支持本地资源检查。如有问题，点击确定重新下载核心文件。");
-    }
-    else {
-        try {
-            for (const file of coreFiles) {
-                await readFile(`extension/术樱包/${file}`);
-            }
-            shouldDownload = confirm("本地资源文件检测无误，若有问题点击确定重新下载主要js文件(包含关键js文件, 请勿关机、断网等操作，注意备份！)");
-        }
-        catch (error) {
-            console.error(error);
-            shouldDownload = confirm("本地资源不完整！点击确认重新获取！");
-        }
-    }
-
-    if (!shouldDownload) {
-        setBusy(shuYing, false);
-        return;
-    }
-
-    try {
+        beginUpdate(shuYing, true);
+        ensureProgressNode(shuYing);
+        await addLog(shuYing, "核心文件修复开始");
+        const manifest = await getManifest();
+        const files = getManifestCoreFiles(manifest);
+        if (!files.length) throw new Error("校验清单缺少核心文件");
+        const coreManifest = { ...manifest, files: Object.fromEntries(files.map(file => [file, manifest.files[file]])) };
+        const changed = await getChangedFiles(coreManifest, shuYing);
+        const message = changed.length ? `有 ${changed.length} 个核心文件需修复，是否重新下载核心文件？`
+            : "核心文件校验通过，是否仍重新下载核心文件？";
+        if (!confirm(message)) return;
         await downloadCoreFiles(shuYing, manifest);
+        await addLog(shuYing, "核心文件修复完成");
         alert("下载完成，重启生效");
     }
     catch (error) {
         console.error(error);
+        await addLog(shuYing, `核心文件修复失败：${getErrorMessage(error)}`);
         alert("核心文件下载或校验失败，请检查服务器文件与 manifest.json 是否一致。");
     }
     finally {
-        removeProgressNode(shuYing);
-        setBusy(shuYing, false);
+        try { await finishUpdate(shuYing); }
+        finally {
+            removeProgressNode(shuYing);
+            setBusy(shuYing, false);
+        }
     }
 }
 
