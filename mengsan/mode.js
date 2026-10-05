@@ -15,6 +15,7 @@ import { ironcladBlocksDraw, ironcladPreservesBlock, afterIroncladDraw, beforeIr
 import { afterSharedDraw, beforeSharedBlock, sharedStrengthPenalty } from "./cards/shared-hooks.js";
 import { hasCardAffix } from "./cards/intrinsic-affixes.js";
 import { createBattleEnergy } from "./cards/battle-energy.js";
+import { setBattleCamp, createCampPlayerMethods, campAttitude } from "./battle/camps.js";
 import { createRandomHandExhauster } from "./cards/random-hand-exhaust.js";
 import { createBattleCardCopier } from "./cards/battle-card-copy.js";
 import { createBattleCardReclaimer } from "./cards/battle-card-reclaim.js";
@@ -335,15 +336,6 @@ const shuffleBattlePile = (run, cards) => {
     }
 };
 
-const setBattleCamp = (player, camp) => {
-    player.storage.mengsanCamp_shuying = camp;
-    player.side = camp === "enemy";
-    player.identity = player === game.me ? "zhu" : camp === "ally" ? "zhong" : "fan";
-    player.setIdentity(player.identity);
-    player.identityShown = true;
-    player.ai.shown = 1;
-    player.classList.add("mengsan-hide-identity-shuying");
-};
 const initBattleUnit = (player, spec) => {
     // 只在实际入场且未指定生命时，用征程随机源抽取各怪物的普通生命范围；资料列表不消耗随机数。
     const monsterSpec = spec.camp === "enemy" && spec.hp == null ?
@@ -612,7 +604,6 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         log: message => game.log(message),
     });
     if (!session.active) return;
-    game.zhu = me;
     if (run.player.maxHp == null) {
         run.player.maxHp = me.maxHp;
         run.player.hp = me.hp;
@@ -723,7 +714,6 @@ const registerPlayers = (session, players) => {
                 const index = list.indexOf(player); if (index >= 0) list.splice(index, 1);
             }
             if (game.me === player) game.me = null;
-            if (game.zhu === player) game.zhu = null;
             player.remove();
         });
     }
@@ -893,11 +883,10 @@ const startJourney = async () => {
                 await routeRun(run);
 };
 
-const createMode = identityMode => {
-    const identityElement = identityMode.element || {};
-    const identityPlayer = identityElement.player || {};
-    const nativeChangeHujia = identityPlayer.changeHujia || lib.element.Player.prototype.changeHujia;
-    const nativeChangeHp = identityPlayer.changeHp || lib.element.Player.prototype.changeHp;
+const createMode = () => {
+    const nativeChangeHujia = lib.element.Player.prototype.changeHujia;
+    const nativeChangeHp = lib.element.Player.prototype.changeHp;
+    const nativeAddSkill = lib.element.Player.prototype.addSkill;
     const cardContext = {
         game, get, lib, random:nextRandom, status:_status, getBattle:()=>activeBattle,
         copyToDiscard: createBattleCardCopier(game, () => activeBattle),
@@ -921,10 +910,9 @@ const createMode = identityMode => {
     const modeCards = createMengsanCards({cardPacks,isBattleActive:cardContext.isBattleActive});
 
     return {
-        ...identityMode,
         name: MODE_ID,
-        character: { ...(identityMode.character || {}), ...createScenarioCharacters(lib.element.Character) },
-        card: { ...(identityMode.card || {}), ...modeCards.card },
+        character: createScenarioCharacters(lib.element.Character),
+        card: modeCards.card,
         connect: false,
         start: [
             async () => {
@@ -933,9 +921,14 @@ const createMode = identityMode => {
             },
         ],
         element: {
-            ...identityElement,
             player: {
-                ...identityPlayer,
+                ...createCampPlayerMethods(game),
+                addSkill(skill, ...args) {
+                    // 初始武将技能由核心过滤；同时阻止奖励、剧情等动态授予主公技。
+                    if (Array.isArray(skill)) skill = skill.filter(name => !lib.skill[name]?.zhuSkill);
+                    else if (lib.skill[skill]?.zhuSkill) return;
+                    return nativeAddSkill.call(this, skill, ...args);
+                },
                 async dieAfter() {
                     // 原生死亡已成立；在战斗结算关闭会话前落实斩杀的永久收益。
                     if(this.isDead())await cardPacks.onDeath(_status.event);
@@ -948,11 +941,7 @@ const createMode = identityMode => {
                         message => game.log(message));
                     game.checkResult();
                 },
-                dieAfter2() {}, // Identity-mode kill rewards/loyalist penalties do not apply here.
-                isFriendOf(player) { return this === player || (this.storage.mengsanCamp_shuying === player?.storage?.mengsanCamp_shuying); },
-                isEnemyOf(player) { return Boolean(player && this.storage.mengsanCamp_shuying !== player.storage?.mengsanCamp_shuying); },
-                getEnemies(filter, includeDie) { return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => this.isEnemyOf(p) && (!filter || filter(p))); },
-                getFriends(filter, includeDie) { const self = filter === true; return game[includeDie ? "filterPlayer2" : "filterPlayer"](p => (p !== this || self) && this.isFriendOf(p) && (typeof filter !== "function" || filter(p))); },
+                dieAfter2() {}, // 击杀不额外摸牌或弃牌，奖励由梦三结算流程处理。
                 changeHp(num, popup) {
                     const next = nativeChangeHp.call(this, num, popup);
                     if (activeBattle?.session.active) capInkletHpLoss(this, next);
@@ -985,7 +974,12 @@ const createMode = identityMode => {
             },
         },
         game: {
-            ...(identityMode.game || {}),
+            getVideoName() {
+                const me = game.me;
+                const names = [me?.name1 || me?.name, me?.name2].filter(Boolean);
+                return [names.map(name => get.translation(name)).join("/") || "梦三",
+                    "梦三" + (_status.mengsanEncounter_shuying?.name ? " · " + _status.mengsanEncounter_shuying.name : "")];
+            },
             mengsanSetEnemyIntent_shuying(player, intent) {
                 const update = activeBattle?.intentUI.get(player);
                 if (!update) return false;
@@ -1239,11 +1233,10 @@ const createMode = identityMode => {
             },
         },
         get: {
-            ...(identityMode.get || {}),
-            rawAttitude(from, to) { return from === to || from.storage.mengsanCamp_shuying === to.storage.mengsanCamp_shuying ? 8 : -8; },
+            rawAttitude: campAttitude,
+            realAttitude: campAttitude,
         },
         skill: {
-            ...(identityMode.skill || {}),
             ...cardPacks.skills,
             ...createRelicSkills(() => activeBattle, () => game.me),
             ...createRelicCombatSkills(() => activeBattle, () => game.me),
@@ -1829,7 +1822,10 @@ const createMode = identityMode => {
             },
         },
         translate: {
-            ...(identityMode.translate || {}),
+            mengsan_ally_shuying: "友",
+            mengsan_ally_shuying2: "友方",
+            mengsan_enemy_shuying: "敌",
+            mengsan_enemy_shuying2: "敌方",
             ...modeCards.translate,
             ...scenarioTranslations,
             mengsan_draw_shuying: "梦三牌组",
@@ -1912,26 +1908,7 @@ export async function createMengsanMode() {
         const style = lib.init.css(`${STYLE_PATH}/ui`, "style", resolve);
         style.addEventListener("error", resolve, { once: true });
     });
-    const identityMode = await new Promise((resolve, reject) => {
-        let received = false;
-        const receiveMode = mode => {
-            if (!mode || typeof mode !== "object" || mode.name !== "identity") {
-                reject(new Error("梦三启动失败：未取得有效的身份模式，请检查游戏核心与身份模式文件。"));
-                return;
-            }
-            received = true;
-            resolve(mode);
-        };
-        // 部分核心仅通过回调交付模式；新版也可能返回 Promise。
-        const loading = game.loadModeAsync("identity", receiveMode, reject);
-        if (loading && typeof loading.then === "function") {
-            Promise.resolve(loading).then(mode => {
-                // 回调版的 Promise 可能返回 undefined，此时模式已由回调交付。
-                if (!received) receiveMode(mode);
-            }, reject);
-        }
-    });
-    const mode = createMode(identityMode);
+    const mode = createMode();
     mode.splash = "ext:术樱包/pve/images/tianshu.jpg";
     return mode;
 }

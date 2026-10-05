@@ -2,6 +2,22 @@
 
 `register.js` 是扩展加载入口，`mode.js` 负责组装模式、注册技能并连接各领域模块，`config.js` 提供模式配置。发布器和外部扩展应继续从 `register.js` 加载，避免依赖内部文件路径。
 
+梦三独立组装模式，不加载或继承身份模式。敌我关系统一由
+`battle/camps.js` 读取角色的 `storage.mengsanCamp_shuying`：主角、支援和
+羁绊助战为 `ally`，怪物及敌方援军为 `enemy`。`side` 与梦三专属的
+`identity` 标记只用于核心及界面兼容，不赋予主公、忠臣或反贼规则。
+
+技能应使用 `isFriendOf` / `isEnemyOf`、`getFriends` / `getEnemies` 或
+`get.attitude` 判断敌我。基础态度为同阵营及自身 `+8`、对立阵营 `-8`，
+未设置有效阵营的其他对象为 `0`；剧情切换阵营后按新阵营判断。
+`get.effect`、`get.effect_use`、`get.damageEffect`、`get.recoverEffect` 和
+牌价值、技能效果修正继续使用核心算法，并通过上述态度计算行动收益。
+有益效果不一律视为正收益，伤害也不一律视为负收益，仍遵循技能自己的 AI 配置。
+
+梦三不启用主公技，初始技能及动态授予技能均按此限制处理。阵营始终公开，
+出牌或技能的 `logAi` / `addExpose` 调用不推断隐藏身份；击杀不附加身份奖惩，
+胜负与奖励沿用梦三关卡和结算流程。
+
 | 目录 | 职责 |
 | --- | --- |
 | `battle/` | 战斗会话、回合、结算、费用与通用战斗效果 |
