@@ -1912,7 +1912,25 @@ export async function createMengsanMode() {
         const style = lib.init.css(`${STYLE_PATH}/ui`, "style", resolve);
         style.addEventListener("error", resolve, { once: true });
     });
-    const identityMode = await game.loadModeAsync("identity");
+    const identityMode = await new Promise((resolve, reject) => {
+        let received = false;
+        const receiveMode = mode => {
+            if (!mode || typeof mode !== "object" || mode.name !== "identity") {
+                reject(new Error("梦三启动失败：未取得有效的身份模式，请检查游戏核心与身份模式文件。"));
+                return;
+            }
+            received = true;
+            resolve(mode);
+        };
+        // 部分核心仅通过回调交付模式；新版也可能返回 Promise。
+        const loading = game.loadModeAsync("identity", receiveMode, reject);
+        if (loading && typeof loading.then === "function") {
+            Promise.resolve(loading).then(mode => {
+                // 回调版的 Promise 可能返回 undefined，此时模式已由回调交付。
+                if (!received) receiveMode(mode);
+            }, reject);
+        }
+    });
     const mode = createMode(identityMode);
     mode.splash = "ext:术樱包/pve/images/tianshu.jpg";
     return mode;
