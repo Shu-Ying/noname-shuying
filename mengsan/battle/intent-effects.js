@@ -2,11 +2,10 @@ import { applyMengsanDebuff } from "../monsters/artifact-status.js";
 import { applyTangled } from "../monsters/vine-tangled.js";
 import { attackHitCount, outgoingAttackDamage } from "./intent-damage.js";
 import { beginDeathBlow, isDeathBlowIntent } from "./death-blow.js";
+import { campEnemy } from "./camps.js";
 
 export const getIntentHostiles = (game, source) =>
-    game.players.filter(target => target !== source && target.isAlive() &&
-        target.storage?.mengsanCamp_shuying !==
-            source.storage?.mengsanCamp_shuying);
+    game.players.filter(target => target.isAlive() && campEnemy(source, target));
 
 export function createIntentExecutor(game, getActiveBattle) {
     const active = source => source.isAlive() &&
