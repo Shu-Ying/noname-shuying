@@ -1096,6 +1096,109 @@
     }
 }
 
+/* 更新设置：沿用选择窗口材质，两个选项与取消/确认按钮适配窄屏。 */
+.shuYing-option-dialog-mask[data-variant="settings"] {
+    --setting-muted: #d1c9bc;
+    --setting-focus: #ffe2a0;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)) !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog {
+    width: min(600px, 100%) !important;
+    max-height: calc(100vh - 32px) !important;
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom))) !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-title,
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-intro,
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-controls {
+    flex: none !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-intro,
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-tag,
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-description {
+    color: var(--setting-muted) !important;
+    font-size: 14px !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    min-height: 0 !important;
+    gap: 12px !important;
+    padding: 18px !important;
+    overflow-x: hidden !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-card {
+    min-height: 170px !important;
+    padding: 38px 18px 18px !important;
+    transform: none !important;
+    touch-action: manipulation;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-order {
+    display: none !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-name {
+    margin-top: 0 !important;
+    font-size: 25px !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-description {
+    margin-top: 12px !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-controls {
+    gap: 12px !important;
+    padding: 0 18px 18px !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-confirm {
+    flex: 1 !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    padding: 10px 8px !important;
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+    touch-action: manipulation;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-cancel {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(232, 190, 99, 0.4) !important;
+    color: var(--setting-muted) !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] button:focus-visible {
+    outline: 2px solid var(--setting-focus) !important;
+    outline-offset: 2px !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] button:active:not(:disabled) {
+    opacity: 0.85 !important;
+}
+
+.shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-confirm:disabled {
+    opacity: 0.5 !important;
+    cursor: default !important;
+    box-shadow: none !important;
+}
+
+@media screen and (max-width: 520px) {
+    .shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-options {
+        grid-template-columns: minmax(0, 1fr) !important;
+        padding: 12px !important;
+    }
+
+    .shuYing-option-dialog-mask[data-variant="settings"] .shuYing-option-dialog-card {
+        min-height: 140px !important;
+    }
+}
+
 /* 天书对局羁绊入口与概览：不依赖十周年 UI 节点，原版和扩展 UI 共用。 */
 .shuYing-bond-overview-button {
     all: unset !important;

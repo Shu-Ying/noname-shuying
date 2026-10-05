@@ -225,7 +225,8 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
     };
 
     // 创建可复用的对局单选界面；单击选中卡片，确认后返回对应键值。
-    shuYing.chooseSingleOptionDialog = ({ title = "请选择", intro = "", options = [], defaultKey = null } = {}) => {
+    shuYing.chooseSingleOptionDialog = ({ title = "请选择", intro = "", options = [], defaultKey = null,
+        currentKey = null, cancelable = false, variant = "default", confirmText = "确定" } = {}) => {
         return new Promise(resolve => {
             const items = options.map(option => typeof option == "string" ? { key: option, name: option } : option)
                 .filter(option => option?.key);
@@ -240,18 +241,26 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                 if (parent) parent.appendChild(node);
                 return node;
             };
+            const previousFocus = document.activeElement;
             const mask = createNode("div", "shuYing-option-dialog-mask", null, document.body);
+            mask.dataset.variant = variant;
             const dialog = createNode("div", "shuYing-option-dialog", null, mask);
+            dialog.setAttribute("role", "dialog");
+            dialog.setAttribute("aria-modal", "true");
+            dialog.setAttribute("aria-label", title);
             createNode("div", "shuYing-option-dialog-title", title, dialog);
             if (intro) createNode("div", "shuYing-option-dialog-intro", intro, dialog);
             const optionArea = createNode("div", "shuYing-option-dialog-options", null, dialog);
             const controls = createNode("div", "shuYing-option-dialog-controls", null, dialog);
             let closed = false;
+            let onKeydown = null;
             let selectedKey = defaultKey && items.some(item => item.key == defaultKey) ? defaultKey : items[0].key;
             const finish = key => {
                 if (closed) return;
                 closed = true;
+                if (onKeydown) document.removeEventListener("keydown", onKeydown, true);
                 mask.remove();
+                if (cancelable && previousFocus?.isConnected) previousFocus.focus?.({ preventScroll: true });
                 resolve(key);
             };
             const refreshSelection = () => {
@@ -260,6 +269,7 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                     card.classList.toggle("selected", selected);
                     card.setAttribute("aria-pressed", String(selected));
                 });
+                confirm.disabled = currentKey != null && selectedKey == currentKey;
             };
             items.forEach((option, index) => {
                 const card = createNode("button", "shuYing-option-dialog-card", null, optionArea);
@@ -276,14 +286,44 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                     refreshSelection();
                 });
             });
-            const confirm = createNode("button", "shuYing-option-dialog-confirm", "确定", controls);
+            if (cancelable) {
+                const cancel = createNode("button", "shuYing-option-dialog-confirm shuYing-option-dialog-cancel", "取消", controls);
+                cancel.type = "button";
+                cancel.addEventListener("click", event => { event.stopPropagation(); finish(null); });
+            }
+            const confirm = createNode("button", "shuYing-option-dialog-confirm", confirmText, controls);
             confirm.type = "button";
             confirm.addEventListener("click", event => {
                 event.stopPropagation();
-                finish(selectedKey);
+                if (!confirm.disabled) finish(selectedKey);
             });
-            mask.addEventListener("click", event => event.stopPropagation());
+            mask.addEventListener("click", event => {
+                event.stopPropagation();
+                if (cancelable && event.target == mask) finish(null);
+            });
             dialog.addEventListener("click", event => event.stopPropagation());
+            if (cancelable) {
+                dialog.addEventListener("keydown", event => event.stopPropagation());
+                onKeydown = event => {
+                    if (event.key == "Escape") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        finish(null);
+                    }
+                    else if (event.key == "Tab") {
+                        const buttons = Array.from(dialog.querySelectorAll("button:not(:disabled)"));
+                        const first = buttons[0], last = buttons[buttons.length - 1];
+                        if (!dialog.contains(document.activeElement)
+                            || event.shiftKey && document.activeElement == first
+                            || !event.shiftKey && document.activeElement == last) {
+                            event.preventDefault();
+                            (event.shiftKey ? last : first)?.focus();
+                        }
+                        event.stopPropagation();
+                    }
+                };
+                document.addEventListener("keydown", onKeydown, true);
+            }
             refreshSelection();
             const initial = Array.from(optionArea.querySelectorAll(".shuYing-option-dialog-card")).find(node => node.dataset.key == selectedKey)
                 || optionArea.querySelector(".shuYing-option-dialog-card");

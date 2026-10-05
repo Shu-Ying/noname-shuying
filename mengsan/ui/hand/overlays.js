@@ -2,13 +2,30 @@ import { cardUpgradeLevel } from "../../cards/upgrades.js";
 import { isXCostCard } from "../../battle/combat-rules.js";
 import { applyCardRarity } from "../../cards/rarity.js";
 
-export function createHandOverlays(document, cardCost) {
+export function createHandOverlays(document, cardCost, { definitions, translations } = {}) {
   const entries = new Map();
   const setData = (node, key, value) => {
     if (node.dataset[key] !== value) node.dataset[key] = value;
   };
   function refresh(card) {
     if (!card.name) return;
+    // Opt in only the mode's registered complete illustrations; native card skins stay native.
+    // Re-evaluate after card.init/transformation, without adding child text for Decade UI to scan.
+    const definition = definitions?.[card.name];
+    const localArt = definition?.fullimage === true &&
+      definition.image === `ext:术樱包/mengsan/assets/cards/${card.name}.png`;
+    if (localArt) {
+      setData(card, "mengsanLocalArt", "full");
+      const title = translations?.[card.name];
+      if (typeof title === "string" && Array.from(title).length >= 4) {
+        setData(card, "mengsanLongName", "true");
+      } else {
+        delete card.dataset.mengsanLongName;
+      }
+    } else {
+      delete card.dataset.mengsanLocalArt;
+      delete card.dataset.mengsanLongName;
+    }
     let entry = entries.get(card);
     if (!entry) {
       const cost = document.createElement("span");
@@ -58,6 +75,8 @@ export function createHandOverlays(document, cardCost) {
     entry.upgrade.remove();
     entry.border?.remove();
     entry.rarity.remove();
+    delete card.dataset.mengsanLocalArt;
+    delete card.dataset.mengsanLongName;
     delete card.dataset.mengsanRarity;
     delete card.dataset.mengsanRarityLabel;
     for (const key of ["accent", "dark", "ink", "metal"]) card.style.removeProperty(`--ms-rarity-${key}`);

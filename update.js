@@ -40,6 +40,7 @@ function beginUpdate(shuYing, full = false) {
     shuYing._progressRendered = 0;
     shuYing._updateStarted = Date.now();
     shuYing._updateStats = { cached: 0, hashed: 0 };
+    void shuYing.updateMengsanModuleMenu?.();
 }
 
 function relativeTarget(target) {
@@ -154,6 +155,7 @@ async function finishUpdate(shuYing) {
         addLog(shuYing, `本次耗时 ${((Date.now() - shuYing._updateStarted) / 1000).toFixed(1)} 秒；缓存通过 ${stats?.cached || 0} 次，完整校验通过 ${stats?.hashed || 0} 次`);
     }
     await flushLog(shuYing);
+    await shuYing.updateMengsanModuleMenu?.();
 }
 
 function parseVersion(version) {
@@ -1097,6 +1099,28 @@ async function saveMengsanRecord(record) {
     await saveUpdaterConfig({ [mengsanRecordKey]: record, [mengsanVersionKey]: version });
 }
 
+async function getMengsanModuleStatus() {
+    const record = getMengsanRecord();
+    if (record) return record.status;
+    const version = lib.config[mengsanVersionKey];
+    if (version) return version == "disabled" ? "disabled" : "installed";
+
+    // Legacy ZIP installations may have no receipt; inspect only the local entry.
+    const entry = "extension/术樱包/mengsan/register.js";
+    if (lib.node?.fs || hasCordovaFiles() || typeof game.checkFile == "function") {
+        const exists = await checkFile(entry);
+        return exists == 1 ? "installed" : exists == -1 ? "disabled" : "unknown";
+    }
+    if (typeof game.readFile == "function") {
+        try { await readFile(entry); return "installed"; }
+        catch (error) {
+            if (error?.code == "ENOENT" || error?.code == 1) return "disabled";
+            throw error;
+        }
+    }
+    return "unknown";
+}
+
 async function saveUpdaterConfig(values) {
     // Publish only after both the IndexedDB transaction and its requests commit.
     lib.status.reload++;
@@ -1712,4 +1736,5 @@ export default {
     repairMissingFiles,
     repairCoreFiles,
     manageMengsanModule,
+    getMengsanModuleStatus,
 };

@@ -1,7 +1,65 @@
-import { lib, game, ui } from "../../../../noname.js";
+import { lib, game, ui, _status } from "../../../../noname.js";
 import { save } from "../../../../noname/util/config.js";
 
 let selectingMode = false;
+let nonameMenuTask = null;
+
+// Open the engine's real settings menu without ending the current expedition flow.
+export const openNonameMenu = async () => {
+    if (nonameMenuTask) return nonameMenuTask;
+    const container = ui.menuContainer;
+    if (!container?.isConnected || typeof ui.click?.config !== "function"
+        || typeof ui.click?.configMenu !== "function") {
+        throw new Error("Noname 菜单尚未加载，请稍后重试。");
+    }
+    nonameMenuTask = new Promise((resolve, reject) => {
+        const previousFocus = document.activeElement;
+        const initiallyHidden = container.classList.contains("hidden");
+        const wasPaused = _status.paused2;
+        const layerClass = "mengsan-noname-menu-open-shuying";
+        const hadLayerClass = ui.window.classList.contains(layerClass);
+        const previousTabindex = container.getAttribute("tabindex");
+        const overlays = Array.from(ui.window.querySelectorAll(".mengsan-overlay-shuying"))
+            .map(node => ({ node, inert: node.inert }));
+        let closed = false;
+        const finish = error => {
+            if (closed) return;
+            closed = true;
+            observer.disconnect();
+            if (!hadLayerClass) ui.window.classList.remove(layerClass);
+            for (const { node, inert } of overlays) node.inert = inert;
+            if (previousTabindex == null) container.removeAttribute("tabindex");
+            else container.setAttribute("tabindex", previousTabindex);
+            if (previousFocus?.isConnected) previousFocus.focus?.({ preventScroll: true });
+            if (error) reject(error);
+            else resolve();
+        };
+        const observer = new MutationObserver(() => {
+            if (!container.isConnected || container.classList.contains("hidden")) finish();
+        });
+        try {
+            observer.observe(container, { attributes: true, attributeFilter: ["class"] });
+            observer.observe(ui.window, { childList: true });
+            ui.window.classList.add(layerClass);
+            for (const { node } of overlays) node.inert = true;
+            if (initiallyHidden) ui.click.config();
+            if (container.classList.contains("hidden")) throw new Error("Noname 菜单未能打开，请稍后重试。");
+            container.setAttribute("tabindex", "-1");
+            container.focus({ preventScroll: true });
+        } catch (error) {
+            if (initiallyHidden) {
+                try {
+                    if (!container.classList.contains("hidden")) ui.click.configMenu();
+                } catch (closeError) { console.error("Noname 菜单关闭失败：", closeError); }
+                if (wasPaused) game.pause2();
+                else game.resume2();
+            }
+            finish(error);
+        }
+    });
+    try { await nonameMenuTask; }
+    finally { nonameMenuTask = null; }
+};
 
 // Reuse the registered engine splash, not reload-to-the-current-mode or a fake mode list.
 export const openModeSelection = async () => {
@@ -96,11 +154,14 @@ export const mountMenu = (overlay, options = {}) => {
         if (opened) return;
         opened = true;
         options.onOpen?.();
+        let action = null;
         try {
-            const action = await askMenu("征程菜单", "退出不删除存档。未完成的节点与对话将在下次进入时重新开始。", [
+            action = await askMenu("征程菜单", "退出不删除存档。未完成的节点与对话将在下次进入时重新开始。", [
                 { id: "resume", name: "继续当前界面" },
+                { id: "noname", name: "显示 Noname 菜单" },
                 { id: "exit", name: "返回模式选择" },
             ]);
+            if (action === "noname") { await openNonameMenu(); return; }
             if (action !== "exit") return;
             const confirmed = await askMenu("返回模式选择？", "保留上次已完成节点的存档。本次尚未完成的内容不会提交。", [
                 { id: "cancel", name: "留在梦三" },
@@ -108,8 +169,10 @@ export const mountMenu = (overlay, options = {}) => {
             ]);
             if (confirmed === "confirm") await openModeSelection();
         } catch (error) {
-            console.error("梦三返回模式选择失败：", error);
-            await askMenu("暂时无法返回", "没有清除征程。请关闭提示后重试。", [{ id: "close", name: "回到当前界面" }]);
+            console.error("梦三菜单操作失败：", error);
+            await askMenu(action === "noname" ? "暂时无法显示菜单" : "暂时无法返回",
+                action === "noname" ? error.message || "请关闭提示后重试。" : "没有清除征程。请关闭提示后重试。",
+                [{ id: "close", name: "回到当前界面" }]);
         } finally {
             opened = false;
             options.onClose?.();

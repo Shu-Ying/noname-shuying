@@ -7,7 +7,9 @@ import { createHandInput } from "./input.js";
 export async function mountHandUI(player, session, env) {
   const { ui, document, window, cardCost, styleURL } = env;
   const adapter = createHandAdapter(player, ui);
-  const overlays = createHandOverlays(document, card => cardCost(card, player));
+  const overlays = createHandOverlays(document, card => cardCost(card, player), {
+    definitions: env.lib?.card, translations: env.lib?.translate,
+  });
   const fan = createHandFan(adapter, env);
   let input = null;
   const restores = [];
