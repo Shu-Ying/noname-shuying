@@ -6,6 +6,7 @@ import { getRelic } from "../../relics/definitions.js";
 import { createRelicIcon } from "../relic-icon.js";
 import { renderBonds } from "../bonds.js";
 import { getSelectableNodes } from "../../progression/state.js";
+import { getDiagnostics } from "../../../diagnostics/index.js";
 
 // Original vector pictograms; no external image/font requests.
 const iconPaths = {
@@ -187,6 +188,8 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             if (result === "exit") await openModeSelection();
         } catch (error) {
             console.error(error);
+            getDiagnostics().scope("mengsan.map").error("map.operation.failed", error,
+                { runId: run.runId, revision: run.revision });
             await askMenu("暂时无法返回", "征程未被清除，请重试。", [{ id: "close", name: "关闭提示" }]);
         } finally { exitButton.disabled = false; }
     });
@@ -258,7 +261,9 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
         createText("mengsan-map-menu-action-name-shuying", "卡牌库", copy);
         createText("mengsan-map-menu-action-description-shuying", `共 ${run.player.deck.length} 张 · 查看花色、点数、属性和卡牌详情`, copy);
         library.appendChild(copy);
-        library.addEventListener("click", () => { closeCardLibrary = openCardLibrary(run); });
+        library.addEventListener("click", () => { closeCardLibrary = openCardLibrary(run, {
+            onClose(handle) { if (closeCardLibrary === handle) closeCardLibrary = null; },
+        }); });
         parent.appendChild(library);
         const appendNames = (title, values, emptyText) => {
             createText("mengsan-map-inventory-section-title-shuying", title, parent);
@@ -308,7 +313,10 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             if (back) back.disabled = busy;
         }), ".mengsan-bonds-shuying button") });
         createMenuAction({ icon: "book", name: "图鉴", description: "卡牌图鉴 · 查看全部梦三卡牌、效果与费用",
-            onClick: () => { closeCardLibrary = openCardLibrary(run, { view: "catalog", title: "卡牌图鉴", eyebrow: "梦三 · 图鉴" }); }
+            onClick: () => { closeCardLibrary = openCardLibrary(run, {
+                view: "catalog", title: "卡牌图鉴", eyebrow: "梦三 · 图鉴",
+                onClose(handle) { if (closeCardLibrary === handle) closeCardLibrary = null; },
+            }); }
         }).setAttribute("aria-haspopup", "dialog");
         createMenuAction({ icon: "record", name: "征程记录", description: `已通过 ${run.statistics?.completedNodes || 0} 个节点`, onClick: () => showMenuPage("征程记录", "本次征程的阶段统计", parent => {
             const list = ui.create.div(".mengsan-map-record-list-shuying", parent);
@@ -326,6 +334,7 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
                 try { await openNonameMenu(); }
                 catch (error) {
                     console.error("梦三打开 Noname 菜单失败：", error);
+                    getDiagnostics().scope("mengsan.map").error("menu.open.failed", error);
                     await askMenu("暂时无法显示菜单", error.message || "请稍后重试。", [{ id: "close", name: "回到行军图" }]);
                 }
             },

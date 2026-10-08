@@ -2,6 +2,7 @@ import { bondDefinitions, getBondCombat, getBondDeck }
     from "../bonds/definitions.js";
 import { getBondIntents } from "../bonds/intents.js";
 import { bondProbability, ensureBonds, selectBond } from "../bonds/state.js";
+import { getDiagnostics } from "../../diagnostics/index.js";
 
 export function renderBonds(parent, run, saveRun, onBusy = () => {}) {
     const bonds = ensureBonds(run);
@@ -33,6 +34,8 @@ export function renderBonds(parent, run, saveRun, onBusy = () => {}) {
             updated.querySelector('button[aria-pressed="true"]')
                 ?.focus({ preventScroll: true });
         } catch (error) {
+            getDiagnostics().scope("mengsan.bonds").error("selection.save.failed", error,
+                { runId: run.runId, revision: run.revision, bondId: id });
             selectBond(run, previous);
             status.textContent = "保存失败，请重试。";
             console.error("梦三助战选择保存失败", error);

@@ -1,6 +1,8 @@
 // 保留完整滚动高度，只挂载可见行与上下各两行；滚动时不重建仍可见的卡牌。
 export function createVirtualCardGrid(viewport, grid, createCard) {
     const mounted = new Map();
+    const cached = new Map();
+    const maxCached = 24;
     let records = [], columns = 1, height = 218, gap = 8, padding = 5, viewportHeight = 0;
     let frame = 0, disposed = false;
     function draw() {
@@ -14,11 +16,14 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
         for (const [index, node] of mounted) {
             if ((index < first || index >= end) && node !== document.activeElement) {
                 node.remove(); mounted.delete(index);
+                cached.set(index, node);
+                while (cached.size > maxCached) cached.delete(cached.keys().next().value);
             }
         }
         for (let index = first; index < end; index++) {
             if (mounted.has(index)) continue;
-            const node = createCard(records[index], index);
+            const node = cached.get(index) || createCard(records[index], index);
+            cached.delete(index);
             node.dataset.cardIndex = String(index);
             node.style.gridRow = String(Math.floor(index / columns) + 1);
             node.style.gridColumn = String(index % columns + 1);
@@ -75,7 +80,7 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
     return {
         setRecords(value) {
             // 调用方更新筛选栏后再统一量尺寸，避免用旧高度先生成一批预览。
-            records = value; mounted.clear(); grid.replaceChildren();
+            records = value; mounted.clear(); cached.clear(); grid.replaceChildren();
         },
         layout,
         focus,
@@ -84,7 +89,8 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
             disposed = true; cancelAnimationFrame(frame);
             viewport.removeEventListener("scroll", schedule);
             grid.removeEventListener("keydown", keydown);
-            mounted.clear(); records = [];
+            mounted.clear(); cached.clear(); records = [];
+            grid.replaceChildren();
         },
     };
 }

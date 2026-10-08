@@ -1,4 +1,5 @@
 // Candidate only. No engine globals, event prototype patches, or save writes.
+import { getDiagnostics } from "../../diagnostics/index.js";
 const owners = new WeakMap();
 
 export function createBattleSession(id) {
@@ -7,6 +8,11 @@ export function createBattleSession(id) {
     let state = "running", disposePromise = null;
     const pending = new Set(), events = new Set(), resources = new Map(), errors = [];
     const waiters = new Set();
+    const diagnostics = getDiagnostics().scope("mengsan.session", () => ({
+        sessionId: id, state, pendingTasks: pending.size,
+        eventCount: events.size, resourceCount: resources.size,
+        recordedErrors: errors.length,
+    }));
     const notify = () => { for (const wake of waiters) wake(); waiters.clear(); };
     const ensureRunning = () => { if (state !== "running") throw new Error("Session is stopping"); };
     const claim = object => {
@@ -20,6 +26,7 @@ export function createBattleSession(id) {
         if (!(promise instanceof Promise)) throw new TypeError("Native completion Promise required");
         pending.add(promise);
         promise.then(() => { pending.delete(promise); notify(); }, error => {
+            diagnostics.error("task.failed", error);
             errors.push(error); pending.delete(promise); notify();
         });
         return promise;
@@ -58,9 +65,13 @@ export function createBattleSession(id) {
         requestStop() {
             if (state !== "running") return false;
             state = "stopping";
+            diagnostics.info("stop.requested");
             // Only explicitly registered events. Do not erase global next/after or guess ownership.
             for (const event of events) {
-                try { event.finish(); } catch (error) { errors.push(error); }
+                try { event.finish(); } catch (error) {
+                    diagnostics.error("event.finish.failed", error, { eventName: event.name });
+                    errors.push(error);
+                }
             }
             notify();
             return true;
@@ -80,7 +91,10 @@ export function createBattleSession(id) {
             disposePromise = (async () => {
                 // Reverse acquisition order; stop at first failure to preserve dependent resources.
                 for (const [resource, release] of [...resources].reverse()) {
-                    await release(resource);
+                    await diagnostics.step("resource.release", () => release(resource), {
+                        resourceType: resource?.constructor?.name,
+                        playerId: resource?.playerid, nodeName: resource?.nodeName,
+                    });
                     resources.delete(resource); owners.delete(resource);
                 }
                 for (const event of events) owners.delete(event);

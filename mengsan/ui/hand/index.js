@@ -20,6 +20,7 @@ export async function mountHandUI(player, session, env) {
   let disposed = false;
   let observer, resizeObserver, pointer = null, nativeInput = false;
   let finishStyleLoad = null, refreshTimer = null;
+  let refreshFrame = null;
   const touchScrollClasses = new Map();
   let layoutEnabled = false, warned = false;
   const log = (message, error) => {
@@ -72,6 +73,15 @@ export async function mountHandUI(player, session, env) {
     }
     overlays.sync(adapter.cards());
   }
+  function scheduleRefresh() {
+    if (disposed || document.hidden || refreshFrame !== null) return;
+    const draw = () => {
+      refreshFrame = null;
+      if (!document.hidden) refresh();
+    };
+    refreshFrame = typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame(draw) : window.setTimeout(draw, 16);
+  }
   function listen(target, type, listener, options) {
     target.addEventListener(type, listener, options);
     restores.push(() => target.removeEventListener(type, listener, options));
@@ -120,6 +130,11 @@ export async function mountHandUI(player, session, env) {
     if (disposed || !nativeInput) return;
     nativeInput = false;
     window.clearTimeout(refreshTimer);
+    if (refreshFrame !== null) {
+      if (typeof window.requestAnimationFrame === "function") window.cancelAnimationFrame(refreshFrame);
+      else window.clearTimeout(refreshFrame);
+      refreshFrame = null;
+    }
     refreshTimer = window.setTimeout(refresh, 0);
   }
   function restoreTouchScroll() {
@@ -154,6 +169,11 @@ export async function mountHandUI(player, session, env) {
     disposed = true;
     finishStyleLoad?.();
     window.clearTimeout(refreshTimer);
+    if (refreshFrame !== null) {
+      if (typeof window.requestAnimationFrame === "function") window.cancelAnimationFrame(refreshFrame);
+      else window.clearTimeout(refreshFrame);
+      refreshFrame = null;
+    }
     restoreTouchScroll();
     observer?.disconnect();
     resizeObserver?.disconnect();
@@ -201,7 +221,7 @@ export async function mountHandUI(player, session, env) {
       listen(container, "touchend", () => restoreTouchScroll(), true);
       listen(container, "touchcancel", () => restoreTouchScroll(), true);
     }
-    observer = new window.MutationObserver(refresh);
+    observer = new window.MutationObserver(scheduleRefresh);
     for (const zone of adapter.zones) {
       observer.observe(zone, { childList: true, subtree: true,
         attributes: true, attributeFilter: ["class"] });
@@ -211,7 +231,7 @@ export async function mountHandUI(player, session, env) {
       observer.observe(adapter.root.parentNode, { childList: true });
     }
     if (window.ResizeObserver && adapter.root) {
-      resizeObserver = new window.ResizeObserver(refresh);
+      resizeObserver = new window.ResizeObserver(scheduleRefresh);
       resizeObserver.observe(adapter.root);
     }
     if (window.PointerEvent && adapter.root) {
@@ -221,6 +241,7 @@ export async function mountHandUI(player, session, env) {
       listen(window, "pointercancel", endInput, true);
       listen(window, "blur", () => endInput());
     }
+    listen(document, "visibilitychange", scheduleRefresh);
     refresh();
     diagnose(`已挂载手牌 UI，独立排列=${layoutEnabled}`);
     return { refresh, dispose };

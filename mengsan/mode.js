@@ -64,7 +64,7 @@ import { STRANGLER_CHARACTER, isStrangler, rollStranglerHp, recordStranglerActio
 import { JAXFRUIT_CHARACTER, isJaxfruit, rollJaxfruitHp, recordJaxfruitAction } from "./monsters/jaxfruit-intent.js";
 import { CRAWLER_CHARACTER, isCrawler, rollCrawlerHp, recordCrawlerAction } from "./monsters/crawler-intent.js";
 import { INKLET_CHARACTER, isInklet, rollInkletHp, recordInkletAction, capInkletHpLoss } from "./monsters/inklet-intent.js";
-import { mountEnemyIntent } from "./ui/intent-display.js";
+import { mountEnemyIntent, refreshEnemyIntents } from "./ui/intent-display.js";
 import { createFogmogBattle } from "./monsters/fogmog-battle.js";
 import { createPhrogBattle } from "./monsters/phrog-battle.js";
 import { PHROG_CHARACTER, WRIGGLER_CHARACTER, INFESTED_COUNT, isPhrogActor, isWriggler, rollPhrogHp, rollWrigglerHp, recordPhrogAction, initializePhrog, skipSpawnedWriggler } from "./monsters/phrog-intent.js";
@@ -96,6 +96,7 @@ import { mountGMManager } from "./ui/gm-manager.js";
 import { createPlayerTeardown } from "./battle/skill-teardown.js";
 import { createBattleResources } from "./battle/battle-resources.js";
 import { createModeStorage } from "./progression/mode-storage.js";
+import { getDiagnostics } from "../diagnostics/index.js";
 import { createBattleSession } from "./battle/battle-session.js";
 import { observeFreshEvent } from "./battle/engine-session.js";
 import { runPhaseLoop, stopBattleTurn } from "./battle/battle-loop.js";
@@ -143,7 +144,26 @@ const clearRun = modeStorage.clearRun;
 const showMap = run => renderMap(run, { saveRun });
 let battleSequence = 0;
 let activeBattle = null;
-const reportFlowError = error => { console.error("梦三流程暂停，未自动清档：", error); };
+const diagnosticService = getDiagnostics();
+const diagnostics = diagnosticService.scope("mengsan.mode");
+diagnosticService.registerContext("mengsan", () => {
+    const run = _status.mengsanRun_shuying;
+    const manager = _status.eventManager;
+    return {
+        runId: run?.runId, revision: run?.revision, actIndex: run?.actIndex,
+        character: run?.player?.character, hp: run?.player?.hp,
+        sessionId: activeBattle?.session.id,
+        flowState: activeBattle?.flow.state, pendingTasks: activeBattle?.session.pendingCount,
+        save: modeStorage.lastWrite,
+        engine: { paused: _status.paused, paused2: _status.paused2,
+            tempEvent: manager?.tempEvent?.name,
+            eventStack: manager?.eventStack?.slice(-8).map(event => ({ name: event?.name })) },
+    };
+});
+const reportFlowError = error => {
+    diagnostics.error("journey.failed", error);
+    console.error("梦三流程暂停，未自动清档：", error);
+};
 
 const chooseRun = async savedRun => {
     const available = savedRun?.status === "running";
@@ -663,7 +683,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     });
     for (const skill of [
         "mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_ic_bridge_shuying", "mengsan_shared_bridge_shuying",
-        "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
+        "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_intent_refresh_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
         "mengsan_flyconid_action_shuying", "mengsan_raider_action_shuying",
         "mengsan_fogmog_action_shuying", "mengsan_mawler_action_shuying",
@@ -756,8 +776,9 @@ const registerPlayers = (session, players) => {
         });
     }
 };
-const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
+const makeFlow = (releaseSkills = async () => {}, releaseBattle = () => {}) => createBattleFlow({
     releaseSkills,
+    releaseBattle,
     presentVictory: pending => {
         if (pending.bondGrowth) {
             const growth = pending.bondGrowth;
@@ -803,7 +824,10 @@ const requestBattleFinish = outcome => {
     const current = activeBattle;
     if (!current) return false;
     // Complete the original card and all queued replays before snapshotting a victory.
-    if(outcome==="victory" && current.sharedPendingUses?.size){current.sharedDeferredVictory=true;return false;}
+    if(outcome==="victory" && current.sharedPendingUses?.size){
+        diagnostics.info("victory.deferred", { pendingUses: current.sharedPendingUses.size });
+        current.sharedDeferredVictory=true;return false;
+    }
     for (const player of game.dead) {
         recordBondDeath(player, _status.mengsanRun_shuying,
             message => game.log(message));
@@ -826,10 +850,12 @@ const awaitSettlement = async (flow, initial = flow.wait()) => {
         try { return await operation; }
         catch (error) {
             if (flow.state !== "retryable") throw error;
+            diagnostics.error("settlement.prompt", error, { flowState: flow.state });
             const action = await chooseButtons("结算未完成", [
                 {id:"retry",name:"重试保存与结算"},
                 {id:"exit",name:"保留已保存进度并返回模式选择"},
             ], "已提交的奖励不会重发。技能释放失败时请返回模式选择，避免重复调用释放回调。");
+            diagnostics.info("settlement.prompt.action", { action });
             if (action === "exit") { await openModeSelection(); throw error; }
             operation = flow.retry();
         }
@@ -840,14 +866,20 @@ const playBattle = async (run, node, encounter) => {
     if (lib.onfree) await new Promise(resolve => lib.onfree.push(resolve));
     await quiesceEngine(_status);
     const session = createBattleSession(`${run.runId}:${++battleSequence}`);
-    const resources = createBattleResources(session, {game,ui,_status});
-    let current;
-    const flow = makeFlow(() => current.releaseSkills?.());
+    let resources = createBattleResources(session, {game,ui,_status});
+    let current, root;
+    const flow = makeFlow(() => current.releaseSkills?.(), () => {
+        if (activeBattle === current) activeBattle = null;
+        for (const key of Object.keys(current)) {
+            if (key !== "session" && key !== "flow") delete current[key];
+        }
+        root = null; resources = null;
+    });
     let finished;
     const signal = new Promise(resolve => { finished = resolve; });
     current = {session, flow, finished, resources, players: new Set(), monsterPiles: new Map(), energyUI: new Map(), intentUI: new Map()};
     activeBattle = current;
-    const root = new lib.element.GameEvent("mengsanBattle", false, _status.eventManager);
+    root = new lib.element.GameEvent("mengsanBattle", false, _status.eventManager);
     current.root = root;
     const previousRoot = _status.eventManager.rootEvent;
     session.ownResource({}, () => {
@@ -1754,6 +1786,15 @@ const createMode = () => {
                     player.storage.mengsanVulnerable_shuying = remaining;
                     if (remaining) player.markSkill("mengsan_vulnerable_shuying");
                     else player.removeSkill("mengsan_vulnerable_shuying");
+                },
+            },
+            mengsan_intent_refresh_shuying: {
+                trigger: { global: ["useCardAfter", "useSkillAfter", "respondAfter", "changeHpAfter", "dieAfter", "phaseAfter"] },
+                forced: true, silent: true, popup: false, priority: -1000,
+                filter() { return Boolean(activeBattle?.session.active); },
+                async content() {
+                    const session = activeBattle?.session;
+                    if (session?.active) refreshEnemyIntents(session);
                 },
             },
             mengsan_scenario_shuying: {
