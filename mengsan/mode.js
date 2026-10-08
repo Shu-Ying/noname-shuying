@@ -1746,7 +1746,10 @@ const createMode = () => {
                 trigger: { global: ["useCardAfter", "useSkillAfter", "respondAfter", "changeHpAfter", "dieAfter", "phaseAfter"] },
                 forced: true, silent: true, popup: false, priority: -1000,
                 filter() { return Boolean(activeBattle?.session.active); },
-                content() { refreshEnemyIntents(activeBattle.session); },
+                async content() {
+                    const session = activeBattle?.session;
+                    if (session?.active) refreshEnemyIntents(session);
+                },
             },
             mengsan_scenario_shuying: {
                 trigger: { global: ["changeHpAfter", "gainAfter", "loseAfter", "dieAfter", "turnOverAfter", "linkAfter", "phaseAfter"] },
