@@ -1,25 +1,20 @@
-# 遗物资源待补清单
+# 遗物原图资源
 
-当前所有遗物的 `image` 均为 `null`，使用文字名称和效果说明，
-不会加载不存在的图片。后续图片统一放入 `mengsan/assets/relics/`，
-补齐时更新 `definitions.js` 并接入展示；本次不生成占位图片。
+298 件 Wiki 遗物已从用户提供的 v0.111.0 图集匹配，并逐字节复制至
+`mengsan/assets/relics/<wikiId>.png`。没有重绘或生成占位图片。
 
-| 遗物 | 稳定 ID | 建议图片文件名 | 状态 |
-| --- | --- | --- | --- |
-| 燃烧之血 | `mengsan_burning_blood_shuying` | `burning_blood.png` | 待提供 |
-| 蛇之戒指 | `mengsan_snake_ring_shuying` | `snake_ring.png` | 待提供 |
-| 长蛇戒指 | `mengsan_long_snake_ring_shuying` | `long_snake_ring.png` | 待提供 |
-| 千年积木 | `mengsan_millennium_puzzle_shuying` | `millennium_puzzle.png` | 待提供 |
-| 摆动球 | `mengsan_pendulum_shuying` | `pendulum.png` | 待提供 |
-| 束带（既有道具） | `mengsan_hand_charm_shuying` | `hand_charm.png` | 待提供 |
-| 餐券 | `mengsan_meal_ticket_shuying` | `meal_ticket.png` | 待提供 |
-| 草莓 | `mengsan_strawberry_shuying` | `strawberry.png` | 待提供 |
-| 弹珠袋 | `mengsan_bag_of_marbles_shuying` | `bag_of_marbles.png` | 待提供 |
-| 灯笼 | `mengsan_lantern_shuying` | `lantern.png` | 待提供 |
-| 红面具 | `mengsan_red_mask_shuying` | `red_mask.png` | 待提供 |
-| 皇家枕头 | `mengsan_regal_pillow_shuying` | `regal_pillow.png` | 待提供 |
-| 节日拉炮 | `mengsan_festive_poppers_shuying` | `festive_poppers.png` | 待提供 |
-| 金刚杵 | `mengsan_vajra_shuying` | `vajra.png` | 待提供 |
+每张原文件名、运行时路径、尺寸、字节数、透明通道与 SHA-256 见
+[manifest.json](../assets/relics/manifest.json)，逐件映射也列入
+[实现记录](IMPLEMENTATION-20261006.md)。所有图片在480×672、300 KiB以内。
 
-建议使用统一尺寸的透明背景 PNG，实际尺寸和视觉风格在资源制作时确定。
-图片仅负责外观，不承载名称、效果或触发计数。
+| 特殊条目 | 图集源文件 | 运行时文件 |
+| --- | --- | --- |
+| 美味饼干 | yummy_cookie_ironclad.png | yummy_cookie.png |
+| 遗忘之魂 | lost_soul.png | forgotten_soul.png |
+| 布质果实 | looming_fruit_2.png | looming_fruit.png |
+
+美味饼干的另外四种角色图仍保留在源图集；当前梦三默认只映射刘备/铁甲战士。
+束带是既有梦三道具，不属于Wiki的298件遗物，无对应图集图片，继续文字展示。
+
+战斗遗物栏、背包、选遗物、商店、战利品清单使用这些图片；加载错误保留名称和描述。
+资源检查仅证明文件完整与对应，实际游戏内显示仍待验收。

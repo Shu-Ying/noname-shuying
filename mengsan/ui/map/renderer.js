@@ -3,6 +3,7 @@ import { askMenu, openModeSelection, openNonameMenu } from "../navigation.js";
 import { ui, get } from "../../../../../noname.js";
 import config from "../../config.js";
 import { getRelic } from "../../relics/definitions.js";
+import { createRelicIcon } from "../relic-icon.js";
 import { renderBonds } from "../bonds.js";
 import { getSelectableNodes } from "../../progression/state.js";
 
@@ -269,8 +270,9 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             values.forEach(value => {
                 const row = ui.create.div(".mengsan-map-inventory-row-shuying", list);
                 const relic = getRelic(value);
+                const icon=createRelicIcon(relic?.image);if(icon)row.appendChild(icon);
                 createText("", relic?.name || get.translation(value) || value, row);
-                createText("", relic?.description || "已获得", row);
+                createText("", relic ? `${relic.pool} · ${relic.tier}${relic.ancient ? ` · ${relic.ancient}` : ""}：${relic.description}${relic.implementation==="pending" ? `（${relic.implementationNote}）` : ""}` : "已获得", row);
             });
         };
         const supports = run.player.supports || [];

@@ -4,6 +4,8 @@ import { applySharedBattleEndCards } from "../cards/shared-battle-end.js";
 import { settleBondBattle } from "../bonds/state.js";
 import { recordNormalBattleVictory } from "../progression/encounter-progress.js";
 import { stripBattleProgress } from "../progression/map-checkpoint.js";
+import { grantGold } from "../relics/progression.js";
+import { heldRelics } from "../relics/definitions.js";
 import { prepareRewardPackage, applyRewardPackage }
     from "../progression/reward-package.js";
 
@@ -11,9 +13,9 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const idFor = (run, node) => JSON.stringify([run.runId, run.actIndex, node.id]);
 export function createBattleSettlement({
     store, config, getRandomRewardChoices, applyReward, completeNode,
-    enterNextAct, createRun, now = Date.now, logRewardPackage = () => {},
+    enterNextAct, createRun, now = Date.now, logRewardPackage = () => {}, resolveRelicChoices = async () => {},
 }) {
-    let item = null, committed = null, commitPromise = null;
+    let item = null, committed = null, commitPromise = null, choicePromise = null, choiceSignature = null;
     const readRun = () => store.read()[config.saveKey];
     function current(storage, runId) {
         const run = storage[config.saveKey];
@@ -30,7 +32,7 @@ export function createBattleSettlement({
             throw new Error("Stale node or revision");
         }
     }
-    return Object.freeze({
+    const api = {
         readRun,
         // 创建内存候选不调用存档写入；阵亡弹窗等待多久都不改上次地图存档。
         async prepare({run: snapshot, node, encounter, hp, outcome = "victory"}) {
@@ -53,7 +55,7 @@ export function createBattleSettlement({
                 base.statistics.defeatedEnemies += encounter.defeatedEnemies ?? 1;
             }
             const relicRecovery = hp > 0
-                ? applyBattleEndRelics(base, outcome) : 0;
+                ? applyBattleEndRelics(base, outcome, {node,encounter}) : 0;
             const elite = !encounter.boss && encounter.tier === "elite";
             const rewardPool = encounter.boss ? "shared.pool.boss.premium"
                 : elite ? "shared.pool.battle.elite" : encounter.rewardPool;
@@ -62,10 +64,11 @@ export function createBattleSettlement({
             }).filter(c => c.name) : [];
             const fixedRewards = [...(encounter.fixedRewards || [])];
             // 同一内存候选固定这件遗物；选择或跳过卡牌均领取，不在 UI 抽取。
-            if (outcome === "victory" && elite) {
-                const [relic] = getRandomRewardChoices(base,
-                    encounter.guaranteedRelicPool || "shared.pool.elite.relics", 1);
-                if (relic) fixedRewards.push(relic.id);
+            if (outcome === "victory") {
+                const extra=heldRelics(base).reduce((n,r)=>n+(elite ? r.rule.eliteRelics || 0 : 0)+(encounter.boss && base.actIndex===0 ? r.rule.actOneBossRelics || 0 : 0),0);
+                const count=(elite ? 1 : 0)+extra;
+                const relics=count>0 ? getRandomRewardChoices(base,encounter.guaranteedRelicPool || "shared.pool.elite.relics",count) : [];
+                for(const relic of relics)fixedRewards.push(relic.id);
             }
             // 金币随最终结果一次性提交。
             const choices = outcome === "victory" && !encounter.rewardPackage
@@ -133,8 +136,7 @@ export function createBattleSettlement({
                     // 结果只计算一次；保存失败后的重试不再次发放金币。
                     for (const gold of item.choices.filter(c => c.kind === "gold")) {
                         if (!Number.isSafeInteger(gold.amount) || gold.amount < 0) throw new Error("Invalid pending gold reward");
-                        result.player.gold += gold.amount;
-                        result.statistics.goldEarned += gold.amount;
+                        grantGold(result,gold.amount);
                     }
                     if (reward) {
                         applyReward(result, reward.effectId || reward.id);
@@ -143,6 +145,7 @@ export function createBattleSettlement({
                 } else {
                     for (const rewardId of item.fixedRewards || []) applyReward(result, rewardId);
                 }
+                await resolveRelicChoices(result);
                 if (!completeNode(result, item.nodeId)) throw new Error("Node completion failed");
                 route = item.boss && !enterNextAct(result) ? "victory" : "map";
             } else result.status = "failed";
@@ -194,5 +197,17 @@ export function createBattleSettlement({
             }).finally(() => { commitPromise = null; });
             return commitPromise;
         },
-    });
+    };
+    const chooseOnce=api.choose;
+    api.choose=(runId,id,choiceId)=>{
+        const signature=JSON.stringify([runId,id,choiceId]);
+        if(choicePromise){
+            if(signature!==choiceSignature)return Promise.reject(new Error("Another reward choice is pending"));
+            return choicePromise;
+        }
+        choiceSignature=signature;
+        choicePromise=chooseOnce(runId,id,choiceId).finally(()=>{choicePromise=null;choiceSignature=null;});
+        return choicePromise;
+    };
+    return Object.freeze(api);
 }

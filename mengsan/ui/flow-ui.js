@@ -1,5 +1,6 @@
 import { ui } from "../../../../noname.js";
 import { mountMenu } from "./navigation.js";
+import { createRelicIcon } from "./relic-icon.js";
 
 export const chooseButtons = (title, choices, description = "", options = {}) => new Promise(resolve => {
     const previousFocus = document.activeElement;
@@ -33,6 +34,7 @@ export const chooseButtons = (title, choices, description = "", options = {}) =>
         button.type = "button";
         button.className = "mengsan-choice-shuying";
         button.dataset.choice = choice.id;
+        const icon=createRelicIcon(choice.image);if(icon){button.classList.add("has-relic-image");button.appendChild(icon);}
         if (choice.danger) button.classList.add("danger");
         const name = document.createElement("span");
         name.className = "mengsan-choice-name-shuying";

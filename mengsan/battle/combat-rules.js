@@ -5,6 +5,7 @@ import { cardUpgradeLevel, cardUpgradeRule } from "../cards/upgrades.js";
 import { cardPackCosts } from "../cards/packs/data.js";
 import { ironcladCardOwner, ironcladCost, ironcladCardIsFree } from "../cards/ironclad-hooks.js";
 import { sharedCardCost, sharedCardIsFree } from "../cards/shared-hooks.js";
+import { relicCardCost, relicFreeCard, relicXBonus } from "../relics/hooks.js";
 export const PLAYER_ENERGY = 3;
 export const PLAYER_HAND_LIMIT = 3;
 export const SHA_DAMAGE = 6;
@@ -20,12 +21,12 @@ const validXEnergy = player => Number.isSafeInteger(xEnergy(player)) && xEnergy(
 const xTax = player => player?.storage?.mengsanTangled_shuying > 0 ? 1 : 0;
 export const cardCost = (card, player = null) => {
     player ||= ironcladCardOwner(card);
-    if (ironcladCardIsFree(player,card) || sharedCardIsFree(player,card)) return 0;
+    if (ironcladCardIsFree(player,card) || sharedCardIsFree(player,card) || relicFreeCard(player,card)) return 0;
     // 数值接口用于支付；X 的展示标签由牌定义/图鉴和空文本手牌叠层提供。
     if (isXCostCard(card)) return validXEnergy(player) ? xEnergy(player) : 0;
     const rule = cardUpgradeLevel(card) ? cardUpgradeRule(card.name) : null;
     const base = rule?.cost ?? cardPackCosts[card?.name] ?? COSTS[card?.name] ?? 1;
-    return sharedCardCost(player,card,ironcladCost(player,card,base)) +
+    return relicCardCost(player,card,sharedCardCost(player,card,ironcladCost(player,card,base))) +
         (player?.storage?.mengsanTangled_shuying > 0 && isAttackCard(card) ? 1 : 0);
 };
 
@@ -70,7 +71,7 @@ function isFreeCardUse(player, card, event) {
 
 export const canPayCard = (player, card, event = _status.event) => {
     if (isXCostCard(card)) return validXEnergy(player) &&
-        (isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card) || xEnergy(player) >= xTax(player));
+        (isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card) || relicFreeCard(player,card) || xEnergy(player) >= xTax(player));
     return isFreeCardUse(player, card, event) ||
         (player?.storage?.mengsanEnergy_shuying ?? Infinity) >= cardCost(card, player);
 };
@@ -82,8 +83,8 @@ export const payCard = (player, card, event = _status.event, battle = null) => {
         const existing = xUses.get(event);
         if (existing) return existing.player === player && existing.name === card.name;
         if (!canPayCard(player, card, event)) return false;
-        const free = isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card);
-        const count = xEnergy(player) - (free ? 0 : xTax(player));
+        const free = isFreeCardUse(player, card, event) || ironcladCardIsFree(player,card) || sharedCardIsFree(player,card) || relicFreeCard(player,card);
+        const count = xEnergy(player) - (free ? 0 : xTax(player)) + relicXBonus(player);
         xUses.set(event, { player, name: card.name, count, battle,
             session: battle?.session, taken: false });
         if (!free) player.storage.mengsanEnergy_shuying = 0;

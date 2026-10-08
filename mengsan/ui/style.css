@@ -1385,6 +1385,13 @@ body.mengsan-battle-ui-shuying :is(
 .mengsan-relic-list-shuying h3 { margin: 0 0 8px; color: #ffe0a1; }
 .mengsan-relic-list-shuying p { margin: 0 0 6px; line-height: 1.7; }
 .mengsan-relic-list-shuying small { color: #d1bd9c; }
+.mengsan-relic-icon-shuying { position: relative !important; width: 48px; height: 48px; flex: none; object-fit: contain; }
+.mengsan-relic-list-shuying section > .mengsan-relic-icon-shuying { float: left; margin: 0 14px 8px 0; }
+.mengsan-choice-shuying.has-relic-image { position: relative; padding-left: 76px; }
+.mengsan-choice-shuying.has-relic-image > .mengsan-relic-icon-shuying { position: absolute !important; left: 14px; top: 50%; transform: translateY(-50%); }
+.mengsan-map-inventory-row-shuying > .mengsan-relic-icon-shuying { width: 40px; height: 40px; }
+.mengsan-relic-choice-tile-shuying .mengsan-card-choice-art-shuying img { padding: 14px; box-sizing: border-box; background: transparent; }
+.mengsan-relic-choice-tile-shuying .mengsan-card-choice-art-shuying:has(img) .mengsan-card-choice-glyph-shuying { display: none; }
 @media (max-height: 500px) {
     .mengsan-battle-relics-button-shuying { top: 122px; }
 }

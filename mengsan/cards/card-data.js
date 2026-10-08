@@ -1,6 +1,7 @@
 import { cardDefinitions, canAcquireCard } from "./card-definitions.js";
 import { cardUpgradeRule } from "./upgrades.js";
 import { WITHER_CARD, MAX_WITHER_LEVEL } from "./wither-card.js";
+import { afterRelicDeckAdd } from "../relics/hooks.js";
 
 const suits = ["spade", "heart", "club", "diamond"];
 
@@ -51,5 +52,6 @@ export function addCardToDeck(run, spec) {
     if (!Array.isArray(run?.player?.deck)) throw new Error("梦三牌组无效");
     if (run.player.deck.some(existing => existing.id === card.id)) throw new Error(`梦三牌 ID 重复：${card.id}`);
     run.player.deck.push(card);
+    afterRelicDeckAdd(run, card);
     return card;
 }

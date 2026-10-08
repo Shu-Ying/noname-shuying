@@ -1,6 +1,6 @@
 import { createScenarioCharacters, scenarioTranslations } from "./content/scenario-characters.js";
 import { createMengsanCards } from "./cards/mode-cards.js";
-import { createStrikeCounter } from "./cards/strike-counter.js";
+import { createStrikeCounter, isStrikeCard } from "./cards/strike-counter.js";
 import { resolveRetiredCardReward } from "./cards/retired-cards.js";
 import { createBlockDrawer } from "./cards/block-draw.js";
 import { createHandUpgrader } from "./cards/hand-upgrade.js";
@@ -21,12 +21,14 @@ import { createBattleCardCopier } from "./cards/battle-card-copy.js";
 import { createBattleCardReclaimer } from "./cards/battle-card-reclaim.js";
 import { createTemporaryStrength, temporaryStrengthAmount, temporaryStrengthExpires, expireTemporaryStrength, clearTemporaryStrength, forgetTemporaryStrength } from "./cards/temporary-strength.js";
 import { createRelicBattle, createRelicSkills } from "./relics/battle.js";
-import { grantRelic, getRelic, initializeRelicMaxHp }
+import { grantRelic, getRelic, initializeRelicMaxHp, heldRelics, relicShopRewardIds, canAcquireRelic }
     from "./relics/definitions.js";
 import { mountRelics } from "./ui/relics.js";
 import { createOpeningEffects, createRelicCombatSkills }
     from "./relics/combat.js";
-import { applyRoomRelics, restRecovery } from "./relics/rooms.js";
+import { applyRoomRelics, restRecovery, relicRestChoices, relicShopPrice, recordRelicShopPurchase, applyRelicNodeEnter } from "./relics/rooms.js";
+import { grantGold, resolveRelicChoices, relicState } from "./relics/progression.js";
+import { bindRelicHooks, relicBlockAmount, relicBlocksDraw, flushRelicExhaust } from "./relics/hooks.js";
 import { buildBattlePlan, consumeSupports, createBattleDirector, grantSupport } from "./battle/battle-director.js";
 import { installPersonalPiles } from "./cards/personal-piles.js";
 import { createMonster } from "./monsters/monster.js";
@@ -230,9 +232,13 @@ const chooseReward = async (run, rewardConfig = {}) => {
     const rewardId = await chooseButtons(title, choices, rewardConfig.description);
     const reward = choices.find(choice => choice.id == rewardId);
     if (reward) applyReward(run, reward.effectId || reward.id);
+    await finishRelicChoices(run);
 };
 
+const finishRelicChoices = run => resolveRelicChoices(run,chooseButtons,{cardName:name=>get.translation(name) || name});
+
 const finishStoryNode = async (run, node) => {
+    applyRelicNodeEnter(run,node);
     const content = config.nodeContents?.[node.contentId];
     if (!content || content.kind != "dialogue") {
         await setupBattle(run, node);
@@ -266,8 +272,12 @@ const finishStoryNode = async (run, node) => {
 };
 
 const finishUtilityNode = async (run, node) => {
+    applyRelicNodeEnter(run,node);
+    applyRoomRelics(run,node,"enter");
     if (node.type == "rest") {
-        const choice = await chooseButtons("休息节点", [
+        const used=new Set(),tent=heldRelics(run).some(r=>r.rule.allRestOptions);
+        while(true){
+        const choices=[
             { id: "heal", name: "休息",
                 description: `回复 ${restRecovery(run)} 点生命` },
             { id: "upgrade", name: "磨砺",
@@ -275,12 +285,16 @@ const finishUtilityNode = async (run, node) => {
                     ? "随机强化一张尚未满级的可强化牌"
                     : "没有可强化卡牌",
                 disabled: !hasUpgradeableCard(run.player.deck) },
-        ]);
-        if (choice === "heal") {
-            const result = applyRoomRelics(run, node, choice);
-            if (result) game.log(`休息回复${result.recovered}点生命`,
-                ...result.relics.map(relic => relic.name));
-        } else applyReward(run, choice);
+        ...relicRestChoices(run)].filter(choice=>!used.has(choice.id));
+        if(tent)choices.push({id:"done",name:"离开休息处"});
+        if(!choices.some(choice=>!choice.disabled))break;
+        const choice=await chooseButtons("休息节点",choices);
+        if(choice==="done")break;
+        const result=applyRoomRelics(run,node,choice); used.add(choice);
+        if(result?.recovered)game.log(`回复${result.recovered}点生命`);
+        await finishRelicChoices(run);
+        if(!tent)break;
+        }
     }
     else if (node.type == "chest") {
         await chooseReward(run, {
@@ -290,21 +304,39 @@ const finishUtilityNode = async (run, node) => {
         });
     }
     else if (node.type == "shop") {
-        const result = applyRoomRelics(run, node, "enter");
-        if (result) {
-            game.log(`遗物【餐券】进入商店回复${result.recovered}点生命`);
-            await saveRun(run);
+        const stockKey=`${run.actIndex}:${node.id}`,state=relicState(run);
+        const sampleRelic=(exclude=[])=>{
+            const eligible=relicShopRewardIds.filter(id=>!exclude.includes(id) && canAcquireRelic(run,config.rewards[id]?.relic));
+            return eligible.length ? eligible[Math.floor(nextRandom(run)*eligible.length)] : null;
+        };
+        state.shopStock ||= {};
+        if(!state.shopStock[stockKey]){
+            const stock=[];for(let i=0;i<3;i++)stock.push(sampleRelic(stock));state.shopStock[stockKey]=stock;
         }
-        const price = 20;
-        const choice = await chooseButtons("商店 Demo", [
+        const purchased=new Set();
+        await saveRun(run);
+        while(true){
+        const price = relicShopPrice(run,20),relicPrice=relicShopPrice(run,120);
+        const stock=relicState(run).shopStock[stockKey];
+        const choices=[
             { id: "card_sha", name: `购买【杀】（${price}金币）`, description: "加入个人牌组", disabled: run.player.gold < price || !canAcquireCard(run.player.character, "sha") },
             { id: "heal", name: `恢复生命（${price}金币）`, description: "回复 8 点生命", disabled: run.player.gold < price },
-            { id: "leave", name: "离开", description: "暂不购买" },
-        ]);
+        ].filter(choice=>!purchased.has(choice.id));
+        stock.forEach((id,index)=>{const reward=config.rewards[id];if(reward && canAcquireRelic(run,reward.relic))choices.push({id:`relic:${index}`,name:`${reward.name}（${relicPrice}金币）`,description:reward.description,image:reward.image,disabled:run.player.gold<relicPrice});});
+        choices.push({id:"leave",name:"离开",description:"结束购物"});
+        const choice=await chooseButtons("商店",choices);
         if (choice != "leave" && choice != null) {
-            if (run.player.gold < price || (choice === "card_sha" && !canAcquireCard(run.player.character, "sha"))) throw new Error("梦三商店购买资格无效");
-            applyReward(run, choice);
-            run.player.gold -= price;
+            const selected=choices.find(item=>item.id===choice);
+            if(!selected || selected.disabled)throw new Error("梦三商店购买资格无效");
+            const relicIndex=choice.startsWith("relic:") ? Number(choice.slice(6)) : null;
+            const cost=relicIndex!==null ? relicPrice : price;
+            if(run.player.gold<cost)throw new Error("梦三商店金币不足");
+            run.player.gold-=cost;recordRelicShopPurchase(run);
+            applyReward(run,relicIndex!==null ? stock[relicIndex] : choice);
+            await finishRelicChoices(run);
+            if(relicIndex!==null)relicState(run).shopStock[stockKey][relicIndex]=heldRelics(run).some(r=>r.wikiId==="the_courier") ? sampleRelic(relicState(run).shopStock[stockKey]) : null;
+            else if(!heldRelics(run).some(r=>r.wikiId==="the_courier"))purchased.add(choice);
+        } else break;
         }
     }
     else {
@@ -320,8 +352,7 @@ const finishUtilityNode = async (run, node) => {
         const choice = await chooseButtons("随机事件", choices);
         if (choice == "branch") insertStoryNode(run, node.id);
         else if (choice == "gold") {
-            run.player.gold += 15;
-            run.statistics.goldEarned += 15;
+            grantGold(run,15);
         }
     }
     completeNode(run, node.id);
@@ -614,15 +645,19 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     me.hp = Math.max(1, Math.min(run.player.hp, me.maxHp));
     me.update();
     currentBattle.relics = createRelicBattle(run, {
-        active: () => session.active && me.hp > 0,
+        active: () => session.active,
+        owner: me, node, encounter,
+        piles:currentBattle.personalPiles,
+        isStrike: card => isStrikeCard(card,lib),
         draw: number => game.mengsanDraw_shuying(me, number),
         effect: createOpeningEffects(game, me,
-            () => currentBattle.energyUI.get(me)?.()),
+            () => currentBattle.energyUI.get(me)?.(), () => nextRandom(run)),
         log: (relic, effect) => {
             game.log(me, `遗物【${relic.name}】发动：${effect}`);
             currentBattle.relicUI?.refresh();
         },
     });
+    bindRelicHooks(me,session,currentBattle.relics);
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
@@ -648,6 +683,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         "mengsan_stun_clear_shuying",
         "mengsan_relics_shuying",
         "mengsan_relic_attack_shuying",
+        "mengsan_relic_boot_shuying",
     ]) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
@@ -664,7 +700,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     for (const participant of participants) currentBattle.monsterPiles.get(participant)?.drawInnate();
     if (!session.active) return;
     activeBattle.personalPiles.resetOpeningHand();
-    await game.mengsanDraw_shuying(me, 4);
+    await game.mengsanDraw_shuying(me, Math.max(0,4+currentBattle.relics.drawAdjustment));
     if (!session.active) return;
     activeBattle.personalPiles.drawInnate();
     await currentBattle.relics.start();
@@ -684,10 +720,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
             currentBattle.personalPiles.trimOpeningHand(
                 4 + currentBattle.relics.openingHandBonus);
         }
-        if (currentBattle.players.has(player) && player.hujia > 0 && !ironcladPreservesBlock(player))
-            await player.changeHujia(-player.hujia);
+        if (currentBattle.players.has(player) && player.hujia > 0 && !ironcladPreservesBlock(player)) {
+            const keep=player===me ? currentBattle.relics.retainedBlock(player.hujia) : 0;
+            if(player.hujia>keep)await player.changeHujia(keep-player.hujia);
+        }
         if (player.storage.mengsanMaxEnergy_shuying != null) {
-            player.storage.mengsanEnergy_shuying = player.storage.mengsanMaxEnergy_shuying;
+            player.storage.mengsanEnergy_shuying = player===me ? currentBattle.relics.resetEnergy(player.storage.mengsanMaxEnergy_shuying,player.storage.mengsanEnergy_shuying) : player.storage.mengsanMaxEnergy_shuying;
             currentBattle.energyUI.get(player)?.();
         }
         if (player === me) currentBattle.fogmog.beforeRound();
@@ -727,12 +765,13 @@ const makeFlow = (releaseSkills = async () => {}) => createBattleFlow({
                 growth.gain}%，当前${growth.level}级（${growth.progress}%）`);
         }
         if (pending.relicRecovery > 0) {
-            game.log(`遗物【燃烧之血】战后回复${pending.relicRecovery}点生命`);
+            game.log(`遗物战后回复${pending.relicRecovery}点生命`);
         }
         return playDialogue(pending.victoryDialogue,
             { run: pending.base, title: "战后剧情" });
     },
     settlement:createBattleSettlement({store:modeStorage, config,
+        resolveRelicChoices:finishRelicChoices,
         getRandomRewardChoices, applyReward, completeNode, enterNextAct, createRun,
         logRewardPackage: (pack, selection) => {
             const card = pack.upgradeChoices.find(card =>
@@ -835,6 +874,7 @@ const playBattle = async (run, node, encounter) => {
     return result;
 };
 const setupBattle = async (run, node, encounter = getNodeEncounter(run, node)) => {
+    applyRelicNodeEnter(run,node);
     const result = await playBattle(run, node, encounter);
     if (!result) return;
     if (result.route === "map") await routeRun(result.run, result.nextNode, true);
@@ -932,6 +972,7 @@ const createMode = () => {
                 async dieAfter() {
                     // 原生死亡已成立；在战斗结算关闭会话前落实斩杀的永久收益。
                     if(this.isDead())await cardPacks.onDeath(_status.event);
+                    if(this.isDead())await activeBattle?.relics?.enemyDeath(this);
                     clearKinOwnerIntents(game, activeBattle, this);
                     clearConstrictSource(activeBattle, this);
                     clearShrinkSource(activeBattle, this);
@@ -945,10 +986,14 @@ const createMode = () => {
                 changeHp(num, popup) {
                     const next = nativeChangeHp.call(this, num, popup);
                     if (activeBattle?.session.active) capInkletHpLoss(this, next);
+                    if(this===game.me && activeBattle?.session.active && next.num<0){
+                        const parent=next.getParent(),armor=parent?.name==="damage" && !parent.nohujia && !this.hasSkillTag("nohujia") ? this.hujia || 0 : 0;
+                        next.num=activeBattle.relics?.beforeHpLoss(next.num,armor) ?? next.num;
+                    }
                     return next;
                 },
                 changeHujia(num, type) {
-                    if(activeBattle?.session.active && type!=="damage")num=beforeIroncladBlock(this,beforeSharedBlock(this,num??1,_status.event),_status.event);
+                    if(activeBattle?.session.active && type!=="damage")num=relicBlockAmount(this,beforeIroncladBlock(this,beforeSharedBlock(this,num??1,_status.event),_status.event),_status.event);
                     // 脆弱只削减正向获得的护甲，不改变受伤时消耗护甲的数值。
                     if (this.storage?.mengsanFrail_shuying > 0 && (num == null || num > 0) && type !== "damage") {
                         num = Math.floor((num ?? 1) * 0.75);
@@ -1197,7 +1242,7 @@ const createMode = () => {
             },
             async mengsanDraw_shuying(player, number = 1) {
                 if (!player?.storage?.mengsanPlayer_shuying || number <= 0) return [];
-                if(ironcladBlocksDraw(player))return [];
+                if(ironcladBlocksDraw(player) || relicBlocksDraw(player))return [];
                 const battle = _status.mengsanBattle_shuying;
                 const run = _status.mengsanRun_shuying;
                 if (!battle || battle.drawPile.length + battle.discardPile.length < number) {
@@ -1211,6 +1256,7 @@ const createMode = () => {
                 game.log(player, "从个人牌堆摸了", get.cnNumber(result.length), "张牌");
                 await afterSharedDraw(player,result);
                 await afterIroncladDraw(player,result);
+                await flushRelicExhaust(player);
                 return result;
             },
             mengsanFinishBattle_shuying() {
@@ -1701,7 +1747,7 @@ const createMode = () => {
                 },
                 async content(event, trigger, player) {
                     if (event.triggername === "damageBegin1") {
-                        trigger.num = Math.ceil(trigger.num * (1.5 + cardPacks.vulnerableBonus(trigger.source, player)));
+                        trigger.num = Math.ceil(trigger.num * ((trigger.source===game.me && activeBattle?.relics?.has("paper_phrog") ? 1.75 : 1.5) + cardPacks.vulnerableBonus(trigger.source, player)));
                         return;
                     }
                     const remaining = Math.max(0, (player.storage.mengsanVulnerable_shuying || 0) - 1);

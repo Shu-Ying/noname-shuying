@@ -16,6 +16,8 @@ tools/*.mjs
 
 *.mjs
 *.cjs
+!mengsan/tools/check-sts2-relics.mjs
+!mengsan/tools/write-sts2-relics-report.mjs
 
 # Local updater downloads and runtime logs
 /.update_tmp/

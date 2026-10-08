@@ -12,6 +12,7 @@ import { isAttackCard } from "../../../monsters/vine-tangled.js";
 import { applyMengsanDebuff, consumeArtifact } from "../../../monsters/artifact-status.js";
 import { isStunned } from "../../../battle/stun-intent.js";
 import { canPayCard, isActiveCardUse, authorizeFreeCardUse, takeXCardUse, cardCost } from "../../../battle/combat-rules.js";
+import { grantGold } from "../../../relics/progression.js";
 
 const BRIDGE="mengsan_shared_bridge_shuying", RULES="mengsan_shared_rules_shuying", END="mengsan_shared_end_shuying", LIMIT="mengsan_shared_limit_shuying", AFTER="mengsan_shared_after_shuying";
 const safe=n=>Number.isSafeInteger(n) && n>=0;
@@ -586,7 +587,8 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
                 seen.add(e);const entry=kills.get(e);if(!entry||entry.claimed||entry.target!==event.player)continue;
                 entry.claimed=true;const {s,gold}=entry;
                 if(valid(s.player,s.token)&&s.player===game.me&&entry.target.isDead()){
-                    const run=s.token.run;add(run.player,"gold",gold);add(run.statistics,"goldEarned",gold);
+                    const run=s.token.run,before=run.player.maxHp;grantGold(run,gold);
+                    if(run.player.maxHp>before)await s.player.gainMaxHp(run.player.maxHp-before);
                 }break;
             }
         },

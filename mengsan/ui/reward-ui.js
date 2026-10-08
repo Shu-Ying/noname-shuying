@@ -2,6 +2,7 @@ import { lib, get } from "../../../../noname.js";
 import { cardCost } from "../battle/combat-rules.js";
 import { cardUpgradeRule } from "../cards/upgrades.js";
 import { getRelic } from "../relics/definitions.js";
+import { relicImageURL, createRelicIcon } from "./relic-icon.js";
 
 import { getCardRarity, applyCardRarity } from "../cards/rarity.js";
 import { cleanCardDescription } from "../cards/description.js";
@@ -69,7 +70,7 @@ export function chooseRelicDialog(choices, options = {}) {
         ...options,
     }, choice => {
         const relic = getRelic(choice.relic);
-        return { name: relic.name, type: "遗物", image: null, cost: null,
+        return { name: relic.name, type: `${relic.tier} · ${relic.pool}${relic.ancient ? ` · ${relic.ancient}` : ""}`, image: relicImageURL(relic.image), cost: null,
             description: relic.description };
     });
 }
@@ -85,7 +86,7 @@ function chooseRewardDialog(choices) {
         if (isCardReward(choice)) return viewCard(choice);
         const relic = getRelic(choice.relic);
         return { name: relic?.name || choice.name, type: relic ? "遗物" : "奖励",
-            image: null, cost: null,
+            image: relicImageURL(relic?.image), cost: null,
             description: plainText(relic?.description || choice.description) };
     });
 }
@@ -119,6 +120,7 @@ function chooseTilesDialog(choices, {
             const view = viewChoice(choice);
             if (describeChoice) view.description = describeChoice(choice);
             const card = element("button", "mengsan-card-choice-tile-shuying", null, cards);
+            if(getRelic(choice.relic))card.classList.add("mengsan-relic-choice-tile-shuying");
             card.type = "button";
             if (view.rarity) applyCardRarity(card, cardNameOf(choice));
             card.setAttribute("aria-label", `${view.name}，${view.type}${view.rarity ? `，稀有度：${view.rarity.label}` : ""}，${view.description}。${actionLabel}`);
@@ -177,6 +179,7 @@ export function chooseVictoryOptions(options, {
         // Read-only loot list: inspecting a reward must not select or award it.
         for (const reward of rewardItems) {
             const item = element("p", "mengsan-victory-option-copy-shuying", null, board);
+            const icon=createRelicIcon(getRelic(reward.relic)?.image);if(icon)item.appendChild(icon);
             element("strong", "", reward.name || reward.id, item);
             if (reward.description) element("small", "", plainText(reward.description), item);
         }

@@ -68,7 +68,10 @@ acts.forEach(act => {
     });
 });
 Object.entries(rewardPools).forEach(([poolId, rewardIds]) => {
-    if (!Array.isArray(rewardIds) || rewardIds.length < 3) throw new Error(`梦三奖励池至少需要三项：${poolId}`);
+    // Dedicated relic catalogs can legitimately contain fewer than three
+    // implemented rewards. Existing gameplay pools retain their three-item gate.
+    const minimum = /^shared\.pool\.relic\.(?:shop|event|initial|ancient\.[a-z]+)$/.test(poolId) ? 1 : 3;
+    if (!Array.isArray(rewardIds) || rewardIds.length < minimum) throw new Error(`梦三奖励池至少需要${minimum}项：${poolId}`);
     if (new Set(rewardIds).size != rewardIds.length) throw new Error(`梦三奖励池存在重复项：${poolId}`);
     rewardIds.forEach(rewardId => {
         if (!rewards[rewardId]) throw new Error(`梦三奖励不存在：${poolId} -> ${rewardId}`);
