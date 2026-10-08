@@ -27,6 +27,7 @@ export function createDiagnostics(options = {}) {
   const maxDiskBytes = options.maxDiskBytes ?? 5 * 1024 * 1024;
   const maxFiles = options.maxFiles ?? 64;
   const maxPending = options.maxPending ?? 12;
+  const maxPendingBytes = options.maxPendingBytes ?? 2 * 1024 * 1024;
   const flushMs = options.flushMs ?? 1000;
   const recent = [], contexts = new Map(), pending = new Map();
   const errors = new WeakMap(), fingerprints = new Map(), listeners = [];
@@ -35,6 +36,7 @@ export function createDiagnostics(options = {}) {
   let flushTimer = null, worker = null, stopped = false, unavailable = false;
   let latestReport = null, droppedRecords = 0, droppedWrites = 0;
   let inventory = null, inventoryKind = null;
+  let pendingBytes = 0;
   const metadata = snapshot({
     extension: "术樱包", extensionVersion: options.version || "unknown",
     engineVersion: env.lib?.version || "unknown", launchId,
@@ -86,17 +88,19 @@ export function createDiagnostics(options = {}) {
         context: contextFor(extra),
       };
       if (error !== undefined) entry.error = serializeError(error);
-      const item = { entry, bytes: 0 };
+      const item = { entry, bytes: 0, text: "" };
       recent.push(item);
       if (level === "ERROR") createReport(entry, error);
-      const text = JSON.stringify(entry) + "\n";
-      const bytes = byteLength(text);
+      const text = JSON.stringify(entry);
+      const bytes = byteLength(text) + 1;
+      item.text = text;
+      delete item.entry;
       item.bytes = bytes; memoryBytes += bytes;
       if (journalBytes + bytes > maxJournalBytes && journal.length) {
         enqueue(runtimeName(), journal.join(""));
         segment++; journal = []; journalBytes = 0; queuedRevision = -1;
       }
-      journal.push(text); journalBytes += bytes; revision++;
+      journal.push(text + "\n"); journalBytes += bytes; revision++;
       while (recent.length > 400 || memoryBytes > maxMemoryBytes) {
         memoryBytes -= recent.shift().bytes; droppedRecords++;
       }
@@ -128,14 +132,22 @@ export function createDiagnostics(options = {}) {
       schemaVersion: 1, reportId: known.id, firstSeen: known.first,
       lastSeen: entry.time, occurrences: known.count, environment: metadata,
       storageAtCapture: snapshot(storageStatus()), firstFailure: known.firstFailure,
-      failure: entry, records: recent.map(item => item.entry),
+      failure: entry,
       droppedRecords, droppedWrites,
     };
-    let text = JSON.stringify(report, null, 2);
-    while (byteLength(text) > maxReportBytes && report.records.length > 1) {
-      report.records.shift(); report.droppedRecords++;
-      text = JSON.stringify(report, null, 2);
+    const records = recent.map(item => {
+      const text = item.text || JSON.stringify(item.entry);
+      return { text, bytes: item.text ? item.bytes - 1 : byteLength(text) };
+    });
+    let start = 0;
+    let bytes = byteLength(JSON.stringify(report)) + 14
+      + records.reduce((total, item) => total + item.bytes + 1, 0);
+    while (bytes + 32 > maxReportBytes && start < records.length - 1) {
+      bytes -= records[start++].bytes + 1;
     }
+    report.droppedRecords += start;
+    const text = JSON.stringify(report).slice(0, -1) + ',"records":['
+      + records.slice(start).map(item => item.text).join(",") + "]}";
     latestReport = { id: known.id, file, revision: known.count,
       persisted: false, event: entry.event };
     enqueue(file, text, true, known.count);
@@ -143,12 +155,19 @@ export function createDiagnostics(options = {}) {
 
   function enqueue(name, text, priority = false, reportRevision = null) {
     if (unavailable || stopped) return;
-    if (!pending.has(name) && pending.size >= maxPending) {
-      const victim = [...pending].find(([, item]) => !item.priority)?.[0];
+    const bytes = byteLength(text);
+    const previous = pending.get(name);
+    if (previous) { pendingBytes -= previous.bytes; pending.delete(name); }
+    if (bytes > maxPendingBytes) { droppedWrites++; return; }
+    while (pending.size >= maxPending || pendingBytes + bytes > maxPendingBytes) {
+      const victim = [...pending].find(([, item]) => !item.priority)?.[0]
+        || (priority ? pending.keys().next().value : null);
       if (!victim) { droppedWrites++; return; }
+      pendingBytes -= pending.get(victim).bytes;
       pending.delete(victim); droppedWrites++;
     }
-    pending.set(name, { text, priority, reportRevision });
+    pending.set(name, { text, bytes, priority, reportRevision });
+    pendingBytes += bytes;
     startWorker();
   }
 
@@ -182,6 +201,7 @@ export function createDiagnostics(options = {}) {
           || pending.keys().next().value;
         const item = pending.get(name);
         pending.delete(name);
+        pendingBytes -= item.bytes;
         try {
           await storage.write(name, item.text);
           if (latestReport?.file === name && latestReport.revision === item.reportRevision) {
@@ -190,10 +210,10 @@ export function createDiagnostics(options = {}) {
           }
           try { await prune(name, item.text); } catch { inventory = null; }
         } catch {
-          unavailable = true; pending.clear();
+          unavailable = true; pending.clear(); pendingBytes = 0;
         }
       }
-    }).catch(() => { unavailable = true; pending.clear(); }).finally(() => {
+    }).catch(() => { unavailable = true; pending.clear(); pendingBytes = 0; }).finally(() => {
       worker = null;
       if (pending.size && !unavailable) startWorker();
     });
@@ -305,6 +325,7 @@ export function createDiagnostics(options = {}) {
     flush,
     status: () => snapshot({ enabled: true, ...storageStatus(),
       unavailable, latestReport, droppedRecords, droppedWrites,
+      pendingFiles: pending.size, pendingBytes,
       runtimeFile: runtimeName(), launchId }),
     dispose() {
       void flush(); stopped = true; clearTimeout(flushTimer);

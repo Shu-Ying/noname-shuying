@@ -2,6 +2,56 @@
 import { attackHitCount, previewAttackDamage } from "../battle/intent-damage.js";
 import { isDeathBlowIntent } from "../battle/death-blow.js";
 import { isStunIntent } from "../battle/stun-intent.js";
+import { getDiagnostics } from "../../diagnostics/index.js";
+
+const intentPollers = new WeakMap();
+const intentFields = ["damage", "hits", "intentType", "summon", "slimed", "infection",
+    "wound", "ringing", "plow", "dazed", "debuff", "stacks", "block", "strength", "sleep", "shrink"];
+
+export function refreshEnemyIntents(session) {
+    intentPollers.get(session)?.schedule();
+}
+
+function observeIntents(session, document, update) {
+    let group = intentPollers.get(session);
+    if (!group) {
+        const callbacks = new Set();
+        const host = document.defaultView || globalThis;
+        let frame = null;
+        const tick = () => {
+            if (document.hidden || session.active === false) return;
+            for (const callback of callbacks) {
+                try { callback(); }
+                catch (error) {
+                    getDiagnostics().scope("mengsan.intent").error("refresh.failed", error);
+                }
+            }
+        };
+        const schedule = () => {
+            if (frame !== null || document.hidden) return;
+            const draw = () => { frame = null; tick(); };
+            frame = host.requestAnimationFrame ? host.requestAnimationFrame(draw) : host.setTimeout(draw, 16);
+        };
+        const timer = host.setInterval(tick, 500);
+        timer?.unref?.();
+        document.addEventListener?.("visibilitychange", schedule);
+        group = { callbacks, schedule, dispose() {
+            host.clearInterval(timer);
+            if (frame !== null) {
+                if (host.requestAnimationFrame) host.cancelAnimationFrame(frame);
+                else host.clearTimeout(frame);
+            }
+            document.removeEventListener?.("visibilitychange", schedule);
+            intentPollers.delete(session);
+        } };
+        intentPollers.set(session, group);
+    }
+    group.callbacks.add(update);
+    return () => {
+        group.callbacks.delete(update);
+        if (!group.callbacks.size) group.dispose();
+    };
+}
 
 export function attackIconForDamage(damage) {
     if (!Number.isInteger(damage) || damage < 0) {
@@ -60,9 +110,9 @@ export function mountEnemyIntent(player, session, assetBase, document,
     badge.append(damageLine, debuffLine, blockLine, buffLine);
     player.appendChild(badge);
     let currentIntent = null;
-    let timer;
+    let previous = null, unsubscribe = () => {};
     session.ownResource(badge, () => {
-        clearInterval(timer);
+        unsubscribe(); previous = null; currentIntent = null;
         badge.remove();
     });
     const refresh = () => {
@@ -180,9 +230,23 @@ export function mountEnemyIntent(player, session, assetBase, document,
         if (badge.getAttribute("aria-label") !== label) badge.setAttribute("aria-label", label);
         badge.hidden = false;
     };
-    timer = setInterval(refresh, 100);
+    const poll = () => {
+        const values = intentFields.map(key => currentIntent?.[key]);
+        values.push(player.maxHp);
+        if (currentIntent?.damage != null) {
+            const target = getTarget();
+            const targets = Array.isArray(target) ? target : [target];
+            for (const current of targets.length ? targets : [null]) {
+                values.push(previewAttackDamage(currentIntent, player, current));
+            }
+        }
+        if (previous && previous.length === values.length && values.every((value, index) => Object.is(value, previous[index]))) return;
+        refresh(); previous = values;
+    };
+    unsubscribe = observeIntents(session, document, poll);
     return intent => {
         currentIntent = intent;
-        refresh();
+        previous = null;
+        poll();
     };
 }

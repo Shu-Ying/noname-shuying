@@ -62,7 +62,7 @@ import { STRANGLER_CHARACTER, isStrangler, rollStranglerHp, recordStranglerActio
 import { JAXFRUIT_CHARACTER, isJaxfruit, rollJaxfruitHp, recordJaxfruitAction } from "./monsters/jaxfruit-intent.js";
 import { CRAWLER_CHARACTER, isCrawler, rollCrawlerHp, recordCrawlerAction } from "./monsters/crawler-intent.js";
 import { INKLET_CHARACTER, isInklet, rollInkletHp, recordInkletAction, capInkletHpLoss } from "./monsters/inklet-intent.js";
-import { mountEnemyIntent } from "./ui/intent-display.js";
+import { mountEnemyIntent, refreshEnemyIntents } from "./ui/intent-display.js";
 import { createFogmogBattle } from "./monsters/fogmog-battle.js";
 import { createPhrogBattle } from "./monsters/phrog-battle.js";
 import { PHROG_CHARACTER, WRIGGLER_CHARACTER, INFESTED_COUNT, isPhrogActor, isWriggler, rollPhrogHp, rollWrigglerHp, recordPhrogAction, initializePhrog, skipSpawnedWriggler } from "./monsters/phrog-intent.js";
@@ -648,7 +648,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     });
     for (const skill of [
         "mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_ic_bridge_shuying", "mengsan_shared_bridge_shuying",
-        "mengsan_card_affixes_shuying", "mengsan_scenario_shuying",
+        "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_intent_refresh_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
         "mengsan_flyconid_action_shuying", "mengsan_raider_action_shuying",
         "mengsan_fogmog_action_shuying", "mengsan_mawler_action_shuying",
@@ -1741,6 +1741,12 @@ const createMode = () => {
                     if (remaining) player.markSkill("mengsan_vulnerable_shuying");
                     else player.removeSkill("mengsan_vulnerable_shuying");
                 },
+            },
+            mengsan_intent_refresh_shuying: {
+                trigger: { global: ["useCardAfter", "useSkillAfter", "respondAfter", "changeHpAfter", "dieAfter", "phaseAfter"] },
+                forced: true, silent: true, popup: false, priority: -1000,
+                filter() { return Boolean(activeBattle?.session.active); },
+                content() { refreshEnemyIntents(activeBattle.session); },
             },
             mengsan_scenario_shuying: {
                 trigger: { global: ["changeHpAfter", "gainAfter", "loseAfter", "dieAfter", "turnOverAfter", "linkAfter", "phaseAfter"] },

@@ -132,15 +132,26 @@ export function openCardLibrary(run, options = {}) {
         if (typeof window !== "undefined") window.removeEventListener?.("resize", fitCards);
         if (dialog.open) dialog.close();
         dialog.remove();
+        list.replaceChildren(); detailPanel.replaceChildren(); body.replaceChildren();
+        dialog.replaceChildren();
+        catalogRecords = null; descriptionCache = new WeakMap();
+        selectedButton = null; current = [];
+        virtualGrid = null; sizeObserver = null;
         if (previousFocus?.isConnected) previousFocus.focus();
+        const onClose = options.onClose;
+        options = {}; run = null;
+        onClose?.(close);
     };
     button("关闭", header, close);
     let view = !options.sections && options.view === "catalog" ? "catalog" : "deck";
     const navigation = element("nav", "ms-deck-tabs", null, dialog);
     navigation.setAttribute("aria-label", "卡牌列表视图");
-    navigation.hidden = Boolean(options.sections);
     const deckTab = button("持有牌", navigation, () => { view = "deck"; render(); });
     const catalogTab = button("图鉴", navigation, () => { view = "catalog"; render(); });
+    deckTab.hidden = catalogTab.hidden = Boolean(options.sections);
+    let sectionIndex = 0;
+    const sectionTabs = options.sections ? options.sections().map((section, index) =>
+        button(section.title, navigation, () => { sectionIndex = index; render(); })) : [];
     const filters = element("div", "ms-catalog-filters", null, dialog);
     function field(label) {
         const wrapper = element("label", "ms-catalog-field", null, filters);
@@ -179,13 +190,13 @@ export function openCardLibrary(run, options = {}) {
     summary.setAttribute("aria-live", "polite");
     const body = element("div", "ms-deck-body", null, dialog);
     const footer = element("p", "ms-deck-footer", "点击卡牌查看完整介绍 · 仅供查看，不改变牌组或抽牌顺序", dialog);
-    const current = Array.isArray(run?.player?.deck) ? run.player.deck : [];
-    let detail = false, selectedButton = null, scrollTop = 0;
-    const list = element("div", options.sections ? "ms-deck-grid" : "ms-deck-grid ms-library-grid", null, body);
+    let current = Array.isArray(run?.player?.deck) ? run.player.deck : [];
+    let detail = false, selectedButton = null, scrollTop = 0, orderedView = false;
+    const list = element("div", "ms-deck-grid ms-library-grid", null, body);
     const detailPanel = element("section", "ms-deck-detail", null, body);
     detailPanel.hidden = true;
     let catalogRecords = null, descriptionCache = new WeakMap();
-    if (!options.sections) virtualGrid = createVirtualCardGrid(body, list, createTile);
+    virtualGrid = createVirtualCardGrid(body, list, createTile);
     function back() {
         detail = false; detailPanel.hidden = true; list.hidden = false;
         detailPanel.replaceChildren(); body.scrollTop = scrollTop; fitCards();
@@ -214,12 +225,13 @@ export function openCardLibrary(run, options = {}) {
         body.scrollTop = 0; backButton.focus();
     }
     function fitCards() {
-        if (options.sections || closed || !body.clientHeight) return;
+        if (closed || !body.clientHeight) return;
         const padding = getComputedStyle(body);
         const available = body.clientHeight - parseFloat(padding.paddingTop) - parseFloat(padding.paddingBottom);
-        const height = Math.max(64, Math.min(218, Math.floor((available - 8) / 2)));
+        const rows = available >= 264 ? 2 : 1;
+        const height = Math.max(128, Math.min(218, Math.floor((available - (rows - 1) * 8) / rows)));
         dialog.style.setProperty("--ms-card-height", String(height) + "px");
-        dialog.style.setProperty("--ms-card-art-width", String(Math.max(8, Math.min(98, Math.floor((height - 80) * 5 / 7)))) + "px");
+        dialog.style.setProperty("--ms-card-art-width", String(Math.max(8, Math.min(98, Math.floor((height - (orderedView ? 104 : 80)) * 5 / 7)))) + "px");
         virtualGrid?.layout(height);
     }
     function createTile(record, index) {
@@ -240,7 +252,6 @@ export function openCardLibrary(run, options = {}) {
         clearTimeout(searchTimer);
         detail = false; list.hidden = false; detailPanel.hidden = true;
         detailPanel.replaceChildren();
-        if (!virtualGrid) list.replaceChildren();
         body.scrollTop = 0;
         selectedButton = null;
         const catalog = !options.sections && view === "catalog";
@@ -248,8 +259,22 @@ export function openCardLibrary(run, options = {}) {
         deckTab.setAttribute("aria-pressed", String(!catalog));
         catalogTab.setAttribute("aria-pressed", String(catalog));
         list.classList.toggle("ms-catalog-grid", catalog);
-        let records = [];
-        if (catalog) {
+        let records = [], emptyMessage = "此处暂无卡牌。";
+        orderedView = false;
+        if (options.sections) {
+            const sections = options.sections();
+            const section = sections[sectionIndex];
+            orderedView = Boolean(section?.ordered);
+            if (section?.ordered) emptyMessage = "剩余牌堆为空；下一次摸牌需按规则洗切弃牌堆，洗切后的顺序尚未确定。";
+            sectionTabs.forEach((tab, index) => {
+                tab.textContent = `${sections[index].title} · ${sections[index].cards.length}`;
+                tab.setAttribute("aria-pressed", String(index === sectionIndex));
+            });
+            records = (section?.cards || []).map(card => ({ card, ordered: section.ordered }));
+            summary.textContent = section?.ordered
+                ? "剩余牌堆按从左到右、从上到下的顺序摸取；第 1 张为下一张。"
+                : `${section?.title || "牌堆"} · 共 ${records.length} 张`;
+        } else if (catalog) {
             const query = search.value.trim().toLocaleLowerCase();
             catalogRecords ||= getCardCatalog().map(card => {
                 const details = describeCatalogCard(card);
@@ -273,24 +298,11 @@ export function openCardLibrary(run, options = {}) {
         }
         footer.textContent = catalog ? "图鉴仅供查阅，不会获得卡牌或改变征程牌组 · 点击卡牌查看完整介绍" :
             "点击卡牌查看完整介绍 · 仅供查看，不改变牌组或抽牌顺序";
-        if (virtualGrid) {
-            virtualGrid.setRecords(catalog ? records : current.map(card => ({ card })));
-            if (!(catalog ? records : current).length) {
-                element("p", "ms-deck-empty", catalog ? "没有符合筛选的卡牌，可清空筛选后查看全部图鉴。" : "此处暂无卡牌。", list);
-            }
-            fitCards();
-            return;
+        virtualGrid.setRecords(catalog || options.sections ? records : current.map(card => ({ card })));
+        if (!(catalog || options.sections ? records : current).length) {
+            element("p", "ms-deck-empty", catalog ? "没有符合筛选的卡牌，可清空筛选后查看全部图鉴。" : emptyMessage, list);
         }
-        const sections = catalog ? [{ title: "", cards: records.map(record => record.card) }] :
-            options.sections ? options.sections() : [{ title: "", cards: current }];
-        for (const section of sections) {
-            const cards = section.cards;
-            if (section.title) element("h3", "ms-deck-section", `${section.title} · ${cards.length} 张`, list);
-            if (!cards.length) element("p", "ms-deck-empty", catalog ? "没有符合筛选的卡牌，可清空筛选后查看全部图鉴。" : section.ordered ? "剩余牌堆为空；下一次摸牌需按规则洗切弃牌堆，洗切后的顺序尚未确定。" : "此处暂无卡牌。", list);
-            cards.forEach((card, index) => {
-                list.appendChild(createTile({ card, ordered: section.ordered }, index));
-            });
-        }
+        fitCards();
     }
     dialog.addEventListener("cancel", event => { event.preventDefault(); if (detail) back(); else close(); });
     dialog.addEventListener("close", close);
@@ -300,10 +312,10 @@ export function openCardLibrary(run, options = {}) {
     document.body.appendChild(dialog);
     try { dialog.showModal(); } catch (error) { close(); throw error; }
     fitCards();
-    if (!options.sections && typeof ResizeObserver !== "undefined") {
+    if (typeof ResizeObserver !== "undefined") {
         sizeObserver = new ResizeObserver(fitCards);
         sizeObserver.observe(body);
-    } else if (!options.sections && typeof window !== "undefined") {
+    } else if (typeof window !== "undefined") {
         window.addEventListener?.("resize", fitCards);
     }
     header.querySelector("button").focus();
@@ -327,6 +339,7 @@ export function mountBattlePiles(session, battle) {
         closeDialog?.();
         closeDialog = openCardLibrary(null, {
             title: "战斗牌堆", eyebrow: "梦三 · 个人牌堆",
+            onClose(handle) { if (closeDialog === handle) closeDialog = null; },
             sections: () => [
                 { title: "剩余牌堆", cards: battle.drawPile, ordered: true },
                 { title: "弃牌堆", cards: battle.discardPile, ordered: false },
