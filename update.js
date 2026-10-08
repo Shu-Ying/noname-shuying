@@ -292,6 +292,8 @@ async function writeLog(shuYing) {
 
 function addLog(shuYing, message) {
     if (!shuYing) return;
+    try { shuYing.diagnostics?.scope("updater").info("update.message", { message }); }
+    catch {}
 
     if (!Array.isArray(shuYing._updateLogs)) {
         shuYing._updateLogs = [];
@@ -305,6 +307,14 @@ function addLog(shuYing, message) {
     }
 }
 
+function recordUpdateError(shuYing, event, error, context = {}) {
+    try {
+        shuYing?.diagnostics?.scope("updater").error(event, error, {
+            channel: getUpdateChannel(), source: getUpdateSource(), ...context,
+        });
+    } catch {}
+}
+
 async function flushLog(shuYing) {
     clearTimeout(shuYing._updateLogTimer);
     shuYing._updateLogTimer = null;
@@ -316,6 +326,7 @@ async function flushLog(shuYing) {
         clearTimeout(shuYing._updateLogTimer);
         shuYing._updateLogTimer = null;
         console.error("写入术樱包日志失败：", error);
+        recordUpdateError(shuYing, "legacyLog.write.failed", error);
     });
     shuYing._updateLogWrite = operation;
     await operation;
@@ -1226,7 +1237,10 @@ async function installMengsanFiles(shuYing, manifest, files, previousManifest = 
             else if (!previousManifest && !oldFiles.length) recovery = { status: "disabled", files: [], version: "disabled" };
         }
         try { await saveMengsanRecord(recovery); }
-        catch (saveError) { console.error("安装中断记录仍保持待处理状态：", saveError); }
+        catch (saveError) {
+            recordUpdateError(shuYing, "installation.receipt.failed", saveError);
+            console.error("安装中断记录仍保持待处理状态：", saveError);
+        }
         throw error;
     }
 }
@@ -1377,6 +1391,7 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
             catch (rollbackError) {
                 failedRollback.push(file);
                 console.error("文件回滚失败：", file, rollbackError);
+                recordUpdateError(shuYing, "rollback.failed", rollbackError, { file });
             }
         }
         retainRecovery = !!failedRollback.length || !!error.operationUncertain;
@@ -1391,7 +1406,10 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
                     error: getErrorMessage(error),
                 }, null, 2), `${operationRoot}/recovery.json`);
             }
-            catch (saveError) { console.error("恢复说明写入失败，旧文件仍保留：", operationRoot, saveError); }
+            catch (saveError) {
+                recordUpdateError(shuYing, "recovery.receipt.failed", saveError, { operationRoot });
+                console.error("恢复说明写入失败，旧文件仍保留：", operationRoot, saveError);
+            }
             await addLog(shuYing, `回滚未完成，恢复文件已保留在：${operationRoot}`);
         }
         throw error;
@@ -1405,6 +1423,7 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
                 }
                 catch (cleanupError) {
                     console.error("临时文件清理失败，不改变安装结果：", file, cleanupError);
+                    recordUpdateError(shuYing, "temporary.cleanup.failed", cleanupError, { file });
                     break; // An unavailable backend must not cause one timeout per file.
                 }
             }
@@ -1530,6 +1549,7 @@ async function checkVersion(shuYing, options = {}) {
     }
     catch (error) {
         console.error(error);
+        recordUpdateError(shuYing, "version.update.failed", error);
         await addLog(shuYing, `版本更新失败：${getErrorMessage(error)}`);
         alert("版本检测或下载失败，请检查网络或服务器配置。");
         return null;
@@ -1611,6 +1631,7 @@ async function repairMissingFiles(shuYing) {
     }
     catch (error) {
         console.error(error);
+        recordUpdateError(shuYing, "missing.repair.failed", error);
         await addLog(shuYing, `查漏补缺失败：${getErrorMessage(error)}`);
         alert("查漏补缺失败，请查看 extension/术樱包/log.txt");
     }
@@ -1682,6 +1703,7 @@ async function manageMengsanModule(shuYing) {
     }
     catch (error) {
         console.error(error);
+        recordUpdateError(shuYing, "module.manage.failed", error);
         await addLog(shuYing, `梦三模块操作失败：${getErrorMessage(error)}`);
         const status = lib.config[mengsanRecordKey]?.status;
         const hint = status == "uninstalling" ? "卸载未完成，重启后梦三暂停加载，可再次点击此按钮继续卸载。"
@@ -1716,6 +1738,7 @@ async function repairCoreFiles(shuYing) {
     }
     catch (error) {
         console.error(error);
+        recordUpdateError(shuYing, "core.repair.failed", error);
         await addLog(shuYing, `核心文件修复失败：${getErrorMessage(error)}`);
         alert("核心文件下载或校验失败，请检查服务器文件与 manifest.json 是否一致。");
     }

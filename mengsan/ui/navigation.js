@@ -1,5 +1,6 @@
 import { lib, game, ui, _status } from "../../../../noname.js";
 import { save } from "../../../../noname/util/config.js";
+import { getDiagnostics } from "../../diagnostics/index.js";
 
 let selectingMode = false;
 let nonameMenuTask = null;
@@ -50,7 +51,10 @@ export const openNonameMenu = async () => {
             if (initiallyHidden) {
                 try {
                     if (!container.classList.contains("hidden")) ui.click.configMenu();
-                } catch (closeError) { console.error("Noname 菜单关闭失败：", closeError); }
+                } catch (closeError) {
+                    getDiagnostics().scope("mengsan.navigation").error("menu.close.failed", closeError);
+                    console.error("Noname 菜单关闭失败：", closeError);
+                }
                 if (wasPaused) game.pause2();
                 else game.resume2();
             }
@@ -170,6 +174,7 @@ export const mountMenu = (overlay, options = {}) => {
             if (confirmed === "confirm") await openModeSelection();
         } catch (error) {
             console.error("梦三菜单操作失败：", error);
+            getDiagnostics().scope("mengsan.navigation").error("menu.operation.failed", error);
             await askMenu(action === "noname" ? "暂时无法显示菜单" : "暂时无法返回",
                 action === "noname" ? error.message || "请关闭提示后重试。" : "没有清除征程。请关闭提示后重试。",
                 [{ id: "close", name: "回到当前界面" }]);

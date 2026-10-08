@@ -19,7 +19,9 @@ tools/*.mjs
 
 # Local updater downloads and runtime logs
 /.update_tmp/
+/.planning/
 /mengsan/logs/
+/logs/
 *.log
 
 # Local credentials; keep shareable environment templates

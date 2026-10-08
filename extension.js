@@ -2,10 +2,11 @@ import { lib, game, ui, get, ai, _status } from "../../noname.js";
 import updater from "./update.js"
 import func from "./function.js"
 import initShuYingMenu from "./menu.js";
+import { configureDiagnostics } from "./diagnostics/index.js";
 
 export const type = "extension";
 export let shuYing = new Object();
-const shuYingLocalVersion = "2.0.2.3-rc.2";
+const shuYingLocalVersion = "2.0.2.3-rc.3";
 
 shuYing.name = "术樱包";
 shuYing.editable = false;
@@ -16,6 +17,11 @@ shuYing.text = {};                                          //中上方文本
 shuYing.text_style = {};                                    //中上方文本样式
 shuYing.moduleCache = {};                                   //动态加载模块缓存，避免同一文件重复import
 shuYing.voices = {};                                        //语音台词表，voices.js缺失时保持为空
+shuYing.diagnostics = configureDiagnostics({
+    lib, game, window, document, version: shuYingLocalVersion,
+    extensionRoot: shuYing.url,
+});
+const diagnostics = shuYing.diagnostics.scope("extension");
 
 //按需加载扩展内部模块。optional为true时，文件缺失只关闭对应功能，不中断整个扩展入口。
 shuYing.loadModule = async (path, label, optional = true) => {
@@ -24,6 +30,7 @@ shuYing.loadModule = async (path, label, optional = true) => {
             .then(module => module.default ?? module)
             .catch(error => {
                 const message = `术樱包：${label || path}加载失败`;
+                diagnostics.error("module.load.failed", error, { path, label, optional });
                 if (!optional) throw error;
                 console.warn(message, error);
                 return null;
@@ -125,6 +132,7 @@ shuYing.getVersion = (callback) => {
         .catch(error => {
             if (requestId != shuYing.versionRequestId) return null;
             console.error("术樱包获取在线版本失败：", error);
+            diagnostics.error("version.lookup.failed", error);
             shuYing.updateOnlineVersionMenu(null, "获取失败");
             return null;
         });
@@ -245,7 +253,7 @@ shuYing.initCharacter = async () => {
 }
 
 //初始化游戏时
-shuYing.precontent = async () => {
+shuYing.precontent = () => diagnostics.step("precontent", async () => {
     await shuYing.loadVoices();
     shuYing.initCSS();
     shuYing.initFunction();
@@ -273,7 +281,7 @@ shuYing.precontent = async () => {
     initShuYingMenu({ lib, game, ui, shuYing, updater });
     shuYing.getVersion();
     await shuYing.initCharacter();
-};
+});
 
 shuYing.config = () => {
 

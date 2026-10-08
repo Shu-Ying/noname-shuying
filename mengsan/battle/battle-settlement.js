@@ -4,6 +4,7 @@ import { applySharedBattleEndCards } from "../cards/shared-battle-end.js";
 import { settleBondBattle } from "../bonds/state.js";
 import { recordNormalBattleVictory } from "../progression/encounter-progress.js";
 import { stripBattleProgress } from "../progression/map-checkpoint.js";
+import { getDiagnostics } from "../../diagnostics/index.js";
 import { prepareRewardPackage, applyRewardPackage }
     from "../progression/reward-package.js";
 
@@ -14,6 +15,11 @@ export function createBattleSettlement({
     enterNextAct, createRun, now = Date.now, logRewardPackage = () => {},
 }) {
     let item = null, committed = null, commitPromise = null;
+    const diagnostics = getDiagnostics().scope("mengsan.settlement", () => ({
+        settlementId: item?.id, runId: item?.base.runId,
+        nodeId: item?.nodeId, pendingState: item?.state,
+        route: item?.route, commitReceipt: !!committed,
+    }));
     const readRun = () => store.read()[config.saveKey];
     function current(storage, runId) {
         const run = storage[config.saveKey];
@@ -27,6 +33,11 @@ export function createBattleSettlement({
     function validateCheckpoint(run, snapshot, nodeId) {
         if (run.actIndex !== snapshot.actIndex || run.revision !== snapshot.revision ||
             run.map?.nodes.find(node => node.id === nodeId)?.completed !== false) {
+            diagnostics.warn("checkpoint.mismatch", {
+                expectedRevision: snapshot.revision, actualRevision: run.revision,
+                expectedAct: snapshot.actIndex, actualAct: run.actIndex,
+                nodeId, completed: run.map?.nodes.find(node => node.id === nodeId)?.completed,
+            });
             throw new Error("Stale node or revision");
         }
     }
@@ -75,6 +86,10 @@ export function createBattleSettlement({
                     getRandomRewardChoices) : null;
             item = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(fixedRewards), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, elite, outcome, relicRecovery, bondGrowth};
             item.rewardPackage = copy(rewardPackage);
+            diagnostics.info("prepared", {
+                outcome, choices: choices.map(choice => choice.id), fixedRewards,
+                expectedRevision: snapshot.revision, actualRevision: run.revision,
+            });
             if (outcome === "victory" && !rewardPackage) {
                 item.rewardMode = "one-or-skip";
             }
@@ -149,6 +164,7 @@ export function createBattleSettlement({
             // 在内存锁定最终结果（包括随机牌实例），只在 commit 写入地图进度。
             item.state = "chosen"; item.choiceId = copy(choiceId); item.result = stripBattleProgress(result);
             item.route = route; item.completedAt = now();
+            diagnostics.info("choice.applied", { choiceId, route });
             if (item.rewardPackage && item.outcome === "victory") {
                 logRewardPackage(item.rewardPackage, choiceId);
             }
@@ -157,8 +173,11 @@ export function createBattleSettlement({
         async commit(runId, id) {
             const item = pending(runId, id);
             if (item.state !== "chosen") throw new Error("Player choice required before saving");
-            if (committed) return {...copy(committed), duplicate:true};
-            if (commitPromise) return commitPromise;
+            if (committed) {
+                diagnostics.info("commit.duplicate");
+                return {...copy(committed), duplicate:true};
+            }
+            if (commitPromise) { diagnostics.info("commit.inflight"); return commitPromise; }
             commitPromise = store.update(storage => {
                 const saved = storage[config.saveKey];
                 const prior = storage[config.profileKey]?.completedRuns?.find(r => r.runId === runId && r.settlementId === id);
@@ -188,8 +207,9 @@ export function createBattleSettlement({
                     else delete storage[config.saveKey]; // Same transaction as profile; never a second clear write.
                 }
                 return {route:item.route, run:item.route === "new" ? copy(item.nextRun) : result, duplicate:false};
-            }).then(result => {
+            }, { runId, settlementId: id, nodeId: item.nodeId }).then(result => {
                 committed = copy(result);
+                diagnostics.info("commit.receipt", { duplicate: result.duplicate, route: result.route });
                 return copy(committed);
             }).finally(() => { commitPromise = null; });
             return commitPromise;

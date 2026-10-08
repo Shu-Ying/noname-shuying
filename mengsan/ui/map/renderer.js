@@ -5,6 +5,7 @@ import config from "../../config.js";
 import { getRelic } from "../../relics/definitions.js";
 import { renderBonds } from "../bonds.js";
 import { getSelectableNodes } from "../../progression/state.js";
+import { getDiagnostics } from "../../../diagnostics/index.js";
 
 // Original vector pictograms; no external image/font requests.
 const iconPaths = {
@@ -186,6 +187,8 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
             if (result === "exit") await openModeSelection();
         } catch (error) {
             console.error(error);
+            getDiagnostics().scope("mengsan.map").error("map.operation.failed", error,
+                { runId: run.runId, revision: run.revision });
             await askMenu("暂时无法返回", "征程未被清除，请重试。", [{ id: "close", name: "关闭提示" }]);
         } finally { exitButton.disabled = false; }
     });
@@ -324,6 +327,7 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
                 try { await openNonameMenu(); }
                 catch (error) {
                     console.error("梦三打开 Noname 菜单失败：", error);
+                    getDiagnostics().scope("mengsan.map").error("menu.open.failed", error);
                     await askMenu("暂时无法显示菜单", error.message || "请稍后重试。", [{ id: "close", name: "回到行军图" }]);
                 }
             },

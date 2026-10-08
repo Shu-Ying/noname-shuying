@@ -383,6 +383,21 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         },
     };
 
+    menu.diagnosticLogs = {
+        name: "诊断日志位置",
+        clear: true,
+        async onclick() {
+            await shuYing.diagnostics?.flush();
+            const status = shuYing.diagnostics?.status();
+            if (!status?.enabled) { alert("诊断日志尚未初始化。"); return; }
+            const report = status.latestReport;
+            alert(`日志位置：${status.location}\n` +
+                (report ? `最近报告：${report.file}\n保存状态：${report.persisted ? "已保存" : "最新报告尚未保存"}` +
+                    (report.savedStorage ? `\n报告位置：${report.savedStorage.location}` : "") : "本次运行尚无错误报告。") +
+                (status.unavailable ? "\n持久化失败，后续诊断记录仅保留在当前运行内存。" : ""));
+        },
+    };
+
     const mengsanLabelId = "shuying_mengsan_module_status";
     const mengsanStates = {
         checking: ["检测中", "请稍候"],
@@ -416,6 +431,7 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         try { status = await updater.getMengsanModuleStatus(); }
         catch (error) {
             console.error("读取梦三安装状态失败：", error);
+            shuYing.diagnostics?.scope("menu").error("module.status.failed", error);
             status = "unknown";
         }
         if (request == mengsanStatusRequest) renderMengsanStatus(status);

@@ -20,11 +20,13 @@ export function createBattleResources(session, {game, ui, _status}) {
     session.ownResource({}, () => {
         for (const card of cards) card.remove();
         for (const [node,parent] of nodes) if (node.parentNode === parent) node.remove();
-        for (const {object,key,value,descriptor} of fields.reverse()) {
+        for (const {object,key,value,descriptor} of fields.slice().reverse()) {
             if (object[key] !== value) continue; // A replacement owned by another subsystem survives.
             if (descriptor) Object.defineProperty(object,key,descriptor); else delete object[key];
         }
         game.phaseNumber = counters.phaseNumber; game.roundNumber = counters.roundNumber;
+        cards.clear(); nodes.clear(); fields.length = 0;
+        before.clear(); uiBefore.clear();
     });
     return Object.freeze({
         field,
@@ -49,6 +51,7 @@ export function createBattleResources(session, {game, ui, _status}) {
                 for (const key of ["currentPhase","lastPhasedPlayer","roundStart"]) {
                     if (owned.has(_status[key])) delete _status[key];
                 }
+                owned.clear();
             });
         },
     });
