@@ -6,6 +6,7 @@ import { cardDefinitions } from "./card-definitions.js";
 import { hasCardAffix } from "./intrinsic-affixes.js";
 import { sharedHooks } from "./shared-hooks.js";
 import { queueIroncladExhaust, flushIroncladExhaust, ironcladSkillExhausts, ironcladHooks } from "./ironclad-hooks.js";
+import { queueRelicExhaust, queueRelicShuffle } from "../relics/hooks.js";
 
 
 export function installPersonalPiles(session, owner, battle, run, resources, env) {
@@ -25,7 +26,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         if (card.storage?.mengsanExhausted_shuying) return false;
         card.storage.mengsanExhausted_shuying = true;
         battle.exhaustPile.push(snapshot(card)); exhaustTotal++;
-        queueIroncladExhaust(owner, card); refresh(); return true;
+        queueIroncladExhaust(owner, card); queueRelicExhaust(owner, card); refresh(); return true;
     }
     const personal = () => {
         if (released || forcedPublic) return false;
@@ -125,6 +126,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         const cards = [...draw.childNodes, ...discard.childNodes];
         if (!cards.length) return false;
         shuffle(run, cards);
+        queueRelicShuffle(owner);
         for (const card of cards) { card.fix?.(); draw.appendChild(card); }
         refresh();
         return true;

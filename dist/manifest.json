@@ -1,16 +1,19 @@
 {
-  "version": "2.0.1.1-rc.1",
-  "generated_at": "2026-10-04T11:24:22.012885+00:00",
+  "version": "2.0.2.3-rc.3",
+  "generated_at": "2026-10-08T15:53:16.835760+00:00",
   "algorithm": "sha256",
   "update_channels": true,
-  "file_count": 278,
-  "size_bytes": 55481243,
-  "folder_sha256": "4e8e4d9e1f1f51c4687aa26b055887479a5ea48d6bfac1a149a3ed10259e8c49",
+  "file_count": 281,
+  "size_bytes": 47971941,
+  "folder_sha256": "8211bd35c6c1ce35b7e4ce7f36016d7afa8b3d4c51dd64d5ff47c5cabee72f8a",
   "core": [
     "extension.js",
     "menu.js",
     "function.js",
     "update.js",
+    "diagnostics/index.js",
+    "diagnostics/serialize.js",
+    "diagnostics/storage.js",
     "tianshu/extension.js",
     "tianshu/config.js",
     "pve/boss/index.js",
@@ -292,8 +295,8 @@
   "removeDirectories": [],
   "files": {
     "LICENSE": {
-      "size": 35147,
-      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      "size": 35821,
+      "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b"
     },
     "character/audio/ganning/fenwei_shuying1.mp3": {
       "size": 83302,
@@ -344,20 +347,20 @@
       "sha256": "f330d2665fd2c9bb85cd4a80f596f44a283c715333a1bf8aafffa5ef030c5126"
     },
     "character/character.js": {
-      "size": 653,
-      "sha256": "6cbd7ec49ec9b9ec362f5dadb4251c219ecd468a099a082f17da86c61e0823f2"
+      "size": 673,
+      "sha256": "e90a755479cce77fa083926f221065bae3e42fa6c347537fe05a5c4d00fef72f"
     },
     "character/characterFilter.js": {
-      "size": 63,
-      "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
+      "size": 66,
+      "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
     },
     "character/characterTitle.js": {
-      "size": 61,
-      "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
+      "size": 64,
+      "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
     },
     "character/dynamicTranslate.js": {
-      "size": 872,
-      "sha256": "63a56c336e881b15e08374656863b67b7465eedf6af683f8bade3d33b12f2704"
+      "size": 883,
+      "sha256": "58b234c5f801b6d7ec65ea5344d4cb075f9b2e1d2f4df65ef95ea24b3ddba995"
     },
     "character/images/ganning_shuying.jpg": {
       "size": 1580990,
@@ -368,48 +371,60 @@
       "sha256": "ff13df281bd289d63033d2c52b8d31f2a9f0a8d9cdc0ad525db06b899411f4cb"
     },
     "character/index.js": {
-      "size": 1002,
-      "sha256": "ef3dcf49147bead5a4b58c56aa23f983e7fda7c4769f276f1f228293f87acc33"
+      "size": 1030,
+      "sha256": "3e365b2c30eb0f9a890f7b4ed777f337a0ea4a202e7db0132e4b533a5ad5bbb0"
     },
     "character/intro.js": {
-      "size": 61,
-      "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
+      "size": 64,
+      "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
     },
     "character/perfectPairs.js": {
-      "size": 55,
-      "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
+      "size": 58,
+      "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
     },
     "character/skill.js": {
-      "size": 31285,
-      "sha256": "608ad1b6463bda8318b91f729dce0cdf98a223d0a72fd1fac35cf32b49e69c08"
+      "size": 32111,
+      "sha256": "78294951c6d0e53ab2ad718aa128d437e3eea2579bb9644546a79864875e21f6"
     },
     "character/sort.js": {
-      "size": 112,
-      "sha256": "42cf6bb834aca4ff883aa196604f3d9d2d9047bb320cf56a633aae4ecbb5ce4c"
+      "size": 116,
+      "sha256": "a2864d98878342280c81bc527a1168b4dccf7976dc40e49c50c9037679bc7ca5"
     },
     "character/translate.js": {
-      "size": 2091,
-      "sha256": "2a31d41939f1d636f9c1b2378d0f15cf7aa5c9e2caa35b465066deb4f877e4bb"
+      "size": 2108,
+      "sha256": "e533d53409068342100dbdb42ec0832aac656988ca42a168a915dd851e7b4d06"
     },
     "character/voices.js": {
-      "size": 43,
-      "sha256": "d7f3da55f8b2e8bf77ace03bd4911497a4abb9e1f942555f7685337801278205"
+      "size": 46,
+      "sha256": "54787af1d4efcd35f20c5eca55db2e60f0cd160d7fed728440542f118e7ae44a"
+    },
+    "diagnostics/index.js": {
+      "size": 14862,
+      "sha256": "bb89045b70dd36ba3539b74ea80725e57f28bfae4d332c04c1e8319d99258bd6"
+    },
+    "diagnostics/serialize.js": {
+      "size": 5607,
+      "sha256": "1456abb806511dcbe2f3cfea5f036741d8c0761a7a6c1f008a73c52007d1086d"
+    },
+    "diagnostics/storage.js": {
+      "size": 8047,
+      "sha256": "3d6b861ce1186cd7d8123b61e7e8095f36bc2af041b13ab3511b04bb0b375f86"
     },
     "extension.css": {
-      "size": 51738,
-      "sha256": "356aa9473ab72ad43850c13451fd15a25c6ce2d93678cd0dcba5568d10443b40"
+      "size": 57424,
+      "sha256": "f62d07820aa0f93915719bdd334b3513673b0b02d94e89f12deed3c07c4731dd"
     },
     "extension.js": {
-      "size": 15464,
-      "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
+      "size": 16317,
+      "sha256": "eee5e5ec1ba9f34a613d14812f1829c8aec656080812533596405434551983f6"
     },
     "function.js": {
-      "size": 33746,
-      "sha256": "df1aa3102a214986723af365da1029485680519d355a1ff88973eb36f8a6f909"
+      "size": 36629,
+      "sha256": "33ba3335fee271173fc454b25c5122e9e2b686eabdff30a54599e5cd31800710"
     },
     "menu.js": {
-      "size": 25104,
-      "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
+      "size": 30671,
+      "sha256": "3b6af8ff6d53c289f94fbaa320be91c3a7a0b554ba999e0bfc26ae6227981862"
     },
     "pve/audio/dead/十二生肖/chenlong.mp3": {
       "size": 68757,
@@ -1012,8 +1027,8 @@
       "sha256": "baa234a4f9b902e647f0df3a5189ac65312332fa20c998727c855d9afad0c56c"
     },
     "pve/boss/sets/tianshu/voices.js": {
-      "size": 609,
-      "sha256": "020d42f5a8ab6cfe2189de4f8b27aea2f5eb8f0c92eabeccc30a69311fc684bb"
+      "size": 615,
+      "sha256": "0c36f009f74fff163dda7865a3c3e493a2da73c39d44c4873bc1eadd24c3a6b0"
     },
     "pve/boss/sets/zhuoguiquxie/card.js": {
       "size": 126,
@@ -1052,24 +1067,24 @@
       "sha256": "4a8648524425c2edfb8595971476398ff3c513d27ff4850895c0839945b5c1c6"
     },
     "pve/boss/sets/zhuoguiquxie/skill.js": {
-      "size": 46766,
-      "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
+      "size": 46830,
+      "sha256": "bb729ce909a0e2c3d11c0833741eaf6493e6e13c2689926ae444f2d55dd24bb0"
     },
     "pve/boss/sets/zhuoguiquxie/sort.js": {
       "size": 390,
       "sha256": "3855904cdc28e6301b9f9177b6c8e04d943ef44fd002a2ce83de5aab7572930c"
     },
     "pve/boss/sets/zhuoguiquxie/translate.js": {
-      "size": 6820,
-      "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
+      "size": 6823,
+      "sha256": "a0dde570b580beb633432ee1d74c2051520d7e5829c584297fec0c87e62c2684"
     },
     "pve/boss/sets/zhuoguiquxie/voices.js": {
       "size": 2115,
       "sha256": "d93f873a87649d413d1fc7b827c8bdb01e5f61cc11d9650f64b59de9d575e9e1"
     },
     "pve/boss/shared.js": {
-      "size": 416,
-      "sha256": "9c0c7b0757172078f920a91cc27569456c2d1e3134130391c88ec5ab86370f79"
+      "size": 425,
+      "sha256": "61bef51415590e0d37ea7d08f5b34306fd1dd3c7591cd8de77dc7ed629c49b98"
     },
     "pve/boss/skill.js": {
       "size": 271,
@@ -1084,8 +1099,8 @@
       "sha256": "f58cf928b22b712fcb374f19e5fd3343d4035e2702388b0d09b11abdd1499376"
     },
     "pve/boss/voices.js": {
-      "size": 682,
-      "sha256": "a72b8a89b18f393665e773678630422bb8dd115abc6cb668374a7057be8659cb"
+      "size": 700,
+      "sha256": "08e50d4bc547950b939949f2d1f12bf08aefbc65e84f26cddd76b33b242f11a0"
     },
     "pve/images/tianshu.jpg": {
       "size": 250592,
@@ -1200,8 +1215,8 @@
       "sha256": "6787f2d322dcb02edc41bb282388623ac6d1fe9bd5966ba6fe017a7cb2bbe929"
     },
     "pve/images/青青子衿/simayi_boss_shuying.jpg": {
-      "size": 7770307,
-      "sha256": "4752a33861a9ed55633de356e60819a73918cc99c82f3c0544a0befc29515473"
+      "size": 195590,
+      "sha256": "26933ced3153897bb9cc7f25f2a8098e0d376235c538946e1a22e6b91b4d1ddc"
     },
     "pve/images/青青子衿/yuanshu_boss_shuying.jpg": {
       "size": 2155807,
@@ -1284,32 +1299,32 @@
       "sha256": "15adcfb80bd22035c604703005ae22d1721eeafcc0a1ee09c89c73713cd3d03a"
     },
     "tianshu/bondSkills.js": {
-      "size": 41588,
-      "sha256": "0b5a1ec26d8a8881057aa1fc8d95fecaf06fa6753d23c99a4978de83f8c44ec6"
+      "size": 42902,
+      "sha256": "cd0a38257095269f5cee24e246d7c5961b849026375fab6f9754468dd9df329c"
     },
     "tianshu/config.js": {
       "size": 29707,
       "sha256": "9b331adca63ff4b43dc06f707c3bd728d3ce0269b1c1f4cedec5e42281f13ff0"
     },
     "tianshu/extension.js": {
-      "size": 76830,
-      "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
+      "size": 77106,
+      "sha256": "02e3cdd9b05b7912ee0454b9aff918576e128c1294b64ea722dcd3d2c446a872"
     },
     "tianshu/shuYing_Skill_Xvxiang1.mp3": {
       "size": 15451,
       "sha256": "41914d7d542ddfb93c89aefffc245869d63a9fb2f52293df8e6667009832afd8"
     },
     "update.js": {
-      "size": 60005,
-      "sha256": "f809d6e3ea5114f78a0773314c23b4120ccbd763b1f2f0f1f400753287af76f7"
+      "size": 77689,
+      "sha256": "07b1a8e332fdb996e47455b34106d09d749701bf3cd26dd843d016edc03ae266"
     },
     "update.txt": {
-      "size": 3953,
-      "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
+      "size": 4849,
+      "sha256": "605be3429a648ecd676c85ac3e42598be129ab6a19d93b77fc34d7735e090f93"
     },
     "voices.js": {
-      "size": 1711,
-      "sha256": "975c58fe201cbbc0027af5038504064382a195df278085a75eca03b2ddace75a"
+      "size": 1756,
+      "sha256": "e25930cca7ea95af9337d01a098795c1e14dd2c9628baaeb0b7c7c140fca9c9f"
     },
     "yuanshen/extension.js": {
       "size": 1082,
@@ -1406,12 +1421,12 @@
   },
   "tree": {
     "type": "directory",
-    "name": "术樱包",
+    "name": "source",
     "children": {
       "LICENSE": {
         "type": "file",
-        "size": 35147,
-        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        "size": 35821,
+        "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b"
       },
       "character": {
         "type": "directory",
@@ -1493,23 +1508,23 @@
           },
           "character.js": {
             "type": "file",
-            "size": 653,
-            "sha256": "6cbd7ec49ec9b9ec362f5dadb4251c219ecd468a099a082f17da86c61e0823f2"
+            "size": 673,
+            "sha256": "e90a755479cce77fa083926f221065bae3e42fa6c347537fe05a5c4d00fef72f"
           },
           "characterFilter.js": {
             "type": "file",
-            "size": 63,
-            "sha256": "92164cec19b58e3a27d92426fbe227c426dff1391b2f56b2329a676a5fc4faf7"
+            "size": 66,
+            "sha256": "0dc51d476375435b50ea965fd540a6afb19134d974fe183bd924225dc3842062"
           },
           "characterTitle.js": {
             "type": "file",
-            "size": 61,
-            "sha256": "f4be860d37d46261a6d45e30bce661d301d79d548aeef0bfc2e8ad67fe783cea"
+            "size": 64,
+            "sha256": "b736420c47616f5e6493bc0e5d00a1a6803e8540e312ff99b0a5ae2d2de17b6f"
           },
           "dynamicTranslate.js": {
             "type": "file",
-            "size": 872,
-            "sha256": "63a56c336e881b15e08374656863b67b7465eedf6af683f8bade3d33b12f2704"
+            "size": 883,
+            "sha256": "58b234c5f801b6d7ec65ea5344d4cb075f9b2e1d2f4df65ef95ea24b3ddba995"
           },
           "images": {
             "type": "directory",
@@ -1528,60 +1543,80 @@
           },
           "index.js": {
             "type": "file",
-            "size": 1002,
-            "sha256": "ef3dcf49147bead5a4b58c56aa23f983e7fda7c4769f276f1f228293f87acc33"
+            "size": 1030,
+            "sha256": "3e365b2c30eb0f9a890f7b4ed777f337a0ea4a202e7db0132e4b533a5ad5bbb0"
           },
           "intro.js": {
             "type": "file",
-            "size": 61,
-            "sha256": "68187ccda36e322c0483a735e6de6e04e5d7ded9e6f6aa9a3e931f4400db2a5e"
+            "size": 64,
+            "sha256": "17fc80689618ad9d3601cc9ccb692e38eb7b66de82e21c75c246c749f2bdf1fd"
           },
           "perfectPairs.js": {
             "type": "file",
-            "size": 55,
-            "sha256": "7f2bd697eaaff284d2b356321a402a3cc7c0139ff6fdf339f6cbdd8da208a05f"
+            "size": 58,
+            "sha256": "a9b5f18910cf92cd6a727cf254ad8d6e1e2ba60a9cf35e9a458da34ce4fda49f"
           },
           "skill.js": {
             "type": "file",
-            "size": 31285,
-            "sha256": "608ad1b6463bda8318b91f729dce0cdf98a223d0a72fd1fac35cf32b49e69c08"
+            "size": 32111,
+            "sha256": "78294951c6d0e53ab2ad718aa128d437e3eea2579bb9644546a79864875e21f6"
           },
           "sort.js": {
             "type": "file",
-            "size": 112,
-            "sha256": "42cf6bb834aca4ff883aa196604f3d9d2d9047bb320cf56a633aae4ecbb5ce4c"
+            "size": 116,
+            "sha256": "a2864d98878342280c81bc527a1168b4dccf7976dc40e49c50c9037679bc7ca5"
           },
           "translate.js": {
             "type": "file",
-            "size": 2091,
-            "sha256": "2a31d41939f1d636f9c1b2378d0f15cf7aa5c9e2caa35b465066deb4f877e4bb"
+            "size": 2108,
+            "sha256": "e533d53409068342100dbdb42ec0832aac656988ca42a168a915dd851e7b4d06"
           },
           "voices.js": {
             "type": "file",
-            "size": 43,
-            "sha256": "d7f3da55f8b2e8bf77ace03bd4911497a4abb9e1f942555f7685337801278205"
+            "size": 46,
+            "sha256": "54787af1d4efcd35f20c5eca55db2e60f0cd160d7fed728440542f118e7ae44a"
+          }
+        }
+      },
+      "diagnostics": {
+        "type": "directory",
+        "children": {
+          "index.js": {
+            "type": "file",
+            "size": 14862,
+            "sha256": "bb89045b70dd36ba3539b74ea80725e57f28bfae4d332c04c1e8319d99258bd6"
+          },
+          "serialize.js": {
+            "type": "file",
+            "size": 5607,
+            "sha256": "1456abb806511dcbe2f3cfea5f036741d8c0761a7a6c1f008a73c52007d1086d"
+          },
+          "storage.js": {
+            "type": "file",
+            "size": 8047,
+            "sha256": "3d6b861ce1186cd7d8123b61e7e8095f36bc2af041b13ab3511b04bb0b375f86"
           }
         }
       },
       "extension.css": {
         "type": "file",
-        "size": 51738,
-        "sha256": "356aa9473ab72ad43850c13451fd15a25c6ce2d93678cd0dcba5568d10443b40"
+        "size": 57424,
+        "sha256": "f62d07820aa0f93915719bdd334b3513673b0b02d94e89f12deed3c07c4731dd"
       },
       "extension.js": {
         "type": "file",
-        "size": 15464,
-        "sha256": "f59c38efab9c337b7f8938e1f71034a2e58ea8b5b00470f5ef2ec61e26a9b5e4"
+        "size": 16317,
+        "sha256": "eee5e5ec1ba9f34a613d14812f1829c8aec656080812533596405434551983f6"
       },
       "function.js": {
         "type": "file",
-        "size": 33746,
-        "sha256": "df1aa3102a214986723af365da1029485680519d355a1ff88973eb36f8a6f909"
+        "size": 36629,
+        "sha256": "33ba3335fee271173fc454b25c5122e9e2b686eabdff30a54599e5cd31800710"
       },
       "menu.js": {
         "type": "file",
-        "size": 25104,
-        "sha256": "d894ef33889ecf1233e1107395456985da4e71a9f679a2c3a493c7c2fa57f8d7"
+        "size": 30671,
+        "sha256": "3b6af8ff6d53c289f94fbaa320be91c3a7a0b554ba999e0bfc26ae6227981862"
       },
       "pve": {
         "type": "directory",
@@ -2412,8 +2447,8 @@
                       },
                       "voices.js": {
                         "type": "file",
-                        "size": 609,
-                        "sha256": "020d42f5a8ab6cfe2189de4f8b27aea2f5eb8f0c92eabeccc30a69311fc684bb"
+                        "size": 615,
+                        "sha256": "0c36f009f74fff163dda7865a3c3e493a2da73c39d44c4873bc1eadd24c3a6b0"
                       }
                     }
                   },
@@ -2467,8 +2502,8 @@
                       },
                       "skill.js": {
                         "type": "file",
-                        "size": 46766,
-                        "sha256": "406b8bc5e8db6010650e7e4674c5a39f54e27374e4ae358d988f28a2b6e04629"
+                        "size": 46830,
+                        "sha256": "bb729ce909a0e2c3d11c0833741eaf6493e6e13c2689926ae444f2d55dd24bb0"
                       },
                       "sort.js": {
                         "type": "file",
@@ -2477,8 +2512,8 @@
                       },
                       "translate.js": {
                         "type": "file",
-                        "size": 6820,
-                        "sha256": "9f20e9429faab842c5a2c3e94d94595cc2480e78752fff3e7f5ac54d09161c1b"
+                        "size": 6823,
+                        "sha256": "a0dde570b580beb633432ee1d74c2051520d7e5829c584297fec0c87e62c2684"
                       },
                       "voices.js": {
                         "type": "file",
@@ -2491,8 +2526,8 @@
               },
               "shared.js": {
                 "type": "file",
-                "size": 416,
-                "sha256": "9c0c7b0757172078f920a91cc27569456c2d1e3134130391c88ec5ab86370f79"
+                "size": 425,
+                "sha256": "61bef51415590e0d37ea7d08f5b34306fd1dd3c7591cd8de77dc7ed629c49b98"
               },
               "skill.js": {
                 "type": "file",
@@ -2511,8 +2546,8 @@
               },
               "voices.js": {
                 "type": "file",
-                "size": 682,
-                "sha256": "a72b8a89b18f393665e773678630422bb8dd115abc6cb668374a7057be8659cb"
+                "size": 700,
+                "sha256": "08e50d4bc547950b939949f2d1f12bf08aefbc65e84f26cddd76b33b242f11a0"
               }
             }
           },
@@ -2679,8 +2714,8 @@
                   },
                   "simayi_boss_shuying.jpg": {
                     "type": "file",
-                    "size": 7770307,
-                    "sha256": "4752a33861a9ed55633de356e60819a73918cc99c82f3c0544a0befc29515473"
+                    "size": 195590,
+                    "sha256": "26933ced3153897bb9cc7f25f2a8098e0d376235c538946e1a22e6b91b4d1ddc"
                   },
                   "yuanshu_boss_shuying.jpg": {
                     "type": "file",
@@ -2803,8 +2838,8 @@
         "children": {
           "bondSkills.js": {
             "type": "file",
-            "size": 41588,
-            "sha256": "0b5a1ec26d8a8881057aa1fc8d95fecaf06fa6753d23c99a4978de83f8c44ec6"
+            "size": 42902,
+            "sha256": "cd0a38257095269f5cee24e246d7c5961b849026375fab6f9754468dd9df329c"
           },
           "config.js": {
             "type": "file",
@@ -2813,8 +2848,8 @@
           },
           "extension.js": {
             "type": "file",
-            "size": 76830,
-            "sha256": "ae2585a6425cbcdf7cd2dee0f1151f5112fb8cfd4e8f6e089c6827774d6dbf9b"
+            "size": 77106,
+            "sha256": "02e3cdd9b05b7912ee0454b9aff918576e128c1294b64ea722dcd3d2c446a872"
           },
           "shuYing_Skill_Xvxiang1.mp3": {
             "type": "file",
@@ -2825,18 +2860,18 @@
       },
       "update.js": {
         "type": "file",
-        "size": 60005,
-        "sha256": "f809d6e3ea5114f78a0773314c23b4120ccbd763b1f2f0f1f400753287af76f7"
+        "size": 77689,
+        "sha256": "07b1a8e332fdb996e47455b34106d09d749701bf3cd26dd843d016edc03ae266"
       },
       "update.txt": {
         "type": "file",
-        "size": 3953,
-        "sha256": "a81636c5b7c6dcf67b2e7b88b87668f3bb9626d974249c6e5413015cd1d13a21"
+        "size": 4849,
+        "sha256": "605be3429a648ecd676c85ac3e42598be129ab6a19d93b77fc34d7735e090f93"
       },
       "voices.js": {
         "type": "file",
-        "size": 1711,
-        "sha256": "975c58fe201cbbc0027af5038504064382a195df278085a75eca03b2ddace75a"
+        "size": 1756,
+        "sha256": "e25930cca7ea95af9337d01a098795c1e14dd2c9628baaeb0b7c7c140fca9c9f"
       },
       "yuanshen": {
         "type": "directory",
@@ -2975,8 +3010,8 @@
       "title": "梦三模式",
       "entry": "mengsan/register.js",
       "manifest": "dist/modules/mengsan.json",
-      "file_count": 457,
-      "size_bytes": 705652979,
+      "file_count": 763,
+      "size_bytes": 147712610,
       "legacy_manifest": "dist/modules/mengsan.legacy.json"
     }
   }

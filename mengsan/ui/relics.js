@@ -1,5 +1,6 @@
 import { ui } from "../../../../noname.js";
 import { heldRelics } from "../relics/definitions.js";
+import { createRelicIcon } from "./relic-icon.js";
 
 export function mountRelics(session, run, battleRelics) {
     let dialog = null, list = null, previousFocus = null, disposed = false;
@@ -29,12 +30,13 @@ export function mountRelics(session, run, battleRelics) {
         }
         for (const relic of relics) {
             const row = document.createElement("section");
+            const icon=createRelicIcon(relic.image);if(icon)row.appendChild(icon);
             const name = document.createElement("h3");
             name.textContent = relic.name;
             const description = document.createElement("p");
             description.textContent = relic.description;
             const status = document.createElement("small");
-            status.textContent = battleRelics.status(relic);
+            status.textContent = `${relic.pool} · ${relic.tier}${relic.ancient ? ` · ${relic.ancient}` : ""} · ${battleRelics.status(relic)}`;
             row.append(name, description, status);
             list.appendChild(row);
         }

@@ -1,0 +1,82 @@
+import { writeFile, readFile } from "node:fs/promises";
+import { relicCatalog } from "../relics/catalog.js";
+import { getRelic, relicRewardIds, relicShopRewardIds, relicRewardPools, relicAdaptations } from "../relics/definitions.js";
+
+const manifest=JSON.parse(await readFile(new URL("../assets/relics/manifest.json",import.meta.url),"utf8"));
+const assets=new Map(manifest.assets.map(asset=>[asset.wikiId,asset]));
+const counts=relicCatalog.reduce((n,r)=>{const s=getRelic(r.id).implementation;n[s]=(n[s] || 0)+1;return n;},{});
+const labels={implemented:"已接入，待实机",adapted:"梦三适配，待实机",pending:"待补充，禁入奖励"};
+const escape=value=>String(value??"—").replaceAll("|","\\|").replaceAll("\n","<br>");
+const categoryCounts=key=>Object.entries(relicCatalog.reduce((result,r)=>{const value=r[key] || "无";result[value]=(result[value] || 0)+1;return result;},{})).map(([name,count])=>`${name} ${count}`).join("；");
+const lines=[
+"# STS2 遗物接入记录（2026-10-06）","",
+`已登记全部 **298** 件 Wiki 遗物，匹配 **298** 张原图。**${counts.implemented+counts.adapted}** 件效果已接入，其中 **${counts.adapted}** 件有明确梦三适配；**${counts.pending}** 件保留资料、图片及缺口记录，获取资格拒绝这些条目。另保留原梦三束带，不计入 Wiki 298 件。`,"",
+"本次直接修改实际梦三模块，未制作修复副本；没有生成或重绘三国杀风格图片。原有三个 dist 发布清单的既存改动未触碰。本记录中的“已接入”仅表示源码有对应执行接口，**不是实机验收结论**。","",
+"## 来源与完整性","",
+"- 使用本次对话此前抓取的 **2026-10-04** 网页快照；本次没有把旧快照宣称为 10 月 6 日 Wiki 的新修订。",
+"- [遗物查找页](https://sts2.huijiwiki.com/wiki/模板:查找/遗物)；[结构化数据页](https://sts2.huijiwiki.com/wiki/Data:Relic.tabx)，快照修订号 `28579`。",
+"- `relics/catalog.js` 保存池、原始稀有度、先古归属、图鉴顺序、中文名、可读描述、原始描述/原始 Wiki 标记、风味文字、前代及来源链接。",
+"- 298 个唯一 Wiki ID；图鉴顺序完整覆盖 1—298。头环原始稀有度仍为“遗物”；先古归属与稀有度分别保存。",
+`- 遗物池：${categoryCounts("pool")}。`,
+`- 稀有度：${categoryCounts("tier")}。`,
+`- 先古归属：${categoryCounts("ancient")}。`,"",
+"## 图片资源","",
+"来源为用户提供的 `assets/sts2/Godot_Atlas_Sprites_v0.111.0/images/atlases/relic_atlas.sprites/` 拆分 PNG 目录。运行时使用 `assets/relics/<wikiId>.png`，逐字节复制，不拉伸、不重新绘图。所有图片都在 480×672、300 KiB 以内。",
+`298 张图片合计 **${manifest.assets.reduce((n,r)=>n+r.bytes,0).toLocaleString("en-US")} 字节**。每张的源文件名、尺寸、透明通道、体积、SHA-256 见 [资源清单](../assets/relics/manifest.json)。`,"",
+"特殊映射：美味饼干使用 `yummy_cookie_ironclad.png`；遗忘之魂使用 `lost_soul.png`；布质果实使用 `looming_fruit_2.png`。美味饼干的其他角色图仍在原图集，当前仅接入铁甲战士图。原梦三束带没有对应 STS2 原图，继续显示文字。",
+"战斗遗物栏、地图背包、遗物选择、商店和战利品清单已经接入图片；池/稀有度/先古归属可从遗物栏与背包查看。","",
+"## 效果与获取接线","",
+"- 拾取：最大生命、回血、金币、牌组强化、复制、移除、变化、变化并强化、加入卡牌、随机遗物、多组卡牌选择、临时移出永久牌组。",
+"- 战斗：开场与指定回合效果、额外摸牌、费用、格挡、敏捷、力量、活力、易伤/虚弱倍率、攻击/技能/能力计数、伤害增幅、荆棘、覆甲、生命损失减免、尾巴复活、消耗及洗牌触发。",
+"- 战斗生成牌和手牌/抽牌堆强化使用本场实体牌，强化不会写回永久牌组。艳丽围巾的第五张牌免费与天鹅绒项圈限制接入现有支付/禁用接口；化学物X接入 X 次数。",
+"- 笔尖、双节棍、音叉、铁棒、香纸的累计计数保存在征程状态；新获得的遗物以获得时的累计值为起点。每回合三连击计数独立重置。",
+"- 房间：餐券、活动星图、永恒羽毛、茶具、皇家枕头、捕梦网、铲子、壶铃、南瓜蜡烛添火、帐篷、烹饪与折扣。每个房间/动作有独立记录，重复进入不会重复回血。",
+"- 战后：回血、敌人额外金币、最大生命、普通战斗/精英战强化、黑星、熔岩石、佩尔之齿逐张强化返还、石之剑变化、旺购神秘券。",
+"- 金币统一经过 `grantGold`；圆顶礼帽/灵体外质/火龙果同时覆盖战斗、奖励包、事件、遗物拾取、添加牌和现有劫掠牌击杀收益。存钱罐在商店消费后失效。",
+"- 商店保留【杀】与回复生命，新增3个遗物货位、折扣与信使补货。遗物基价暂设120金币；不是 Wiki 公布的商品价格。购买后完成所有遗物选牌，再提交房间结果。",
+`- 普通/罕见/稀有遗物池登记 **${relicRewardIds.length}** 项；可售遗物池登记 **${relicShopRewardIds.length}** 项，均在实际获取时继续过滤重复与角色池。`,
+"- 原有精英固定遗物奖励、第一章宝箱和初次剧情遗物选择自动使用扩展后的可用池。Boss 极品卡牌池保留原有专属稀有卡约定。",
+"- 新建刘备征程自动持有燃烧之血，符合铁甲战士初始池；既有存档不追补、不重复发放初始遗物。其他武将暂不指定初始遗物。",
+"- 先古/事件/初始遗物已提供独立奖励池；**尚未创建对应先古会面和事件剧情**，不会把这些条目混入普通掉落。后续节点可以引用下表池名或调用已有 `grantRelic`。",
+"- 拾取操作在可序列化副本上计算，成功后替换运行状态；尚未实现的遗物/重复获取不会改金币、随机数或牌组。战后效果在现有结算候选里只计算一次，存档失败重试不重新发奖。", "",
+"| 专用奖励池 | 当前可用数 |","| --- | --- |",
+...Object.entries(relicRewardPools).map(([id,values])=>`| \`${id}\` | ${values.length} |`),"",
+"## 需要用户补充或确认","",
+"1. **烹饪数值与流程**：网页只说明能够烹饪，目前采用最大生命+5。确定原作具体数值后可替换适配值。",
+"2. **非战斗生命归零流程**：危险剪刀/芬芳蘑菇当前扣血保留至少1生命。需要明确是否允许地图中直接死亡，以及对应失败弹窗/存档规则。",
+"3. **先古会面及事件入口**：请确定梦三在哪些章节、节点或剧情中接入各先古和事件遗物。已有数据分类、效果、专用奖励池，但尚无原作的完整会面事件。",
+"4. **角色池映射**：当前只把刘备映射为铁甲战士，其他四个 STS2 角色未绑定梦三武将；不擅自指定。",
+"5. **原作机制**：辉星、充能球、集中、奥斯提、灾厄、仆从、铸造、可使用药水，以及 Wiki 指定附魔，需要对应玩法接口；完整逐件缺口见下表。现有词缀不会冒充原作附魔。",
+"6. **先古牌与击杀口径**：尘封魔典当前抽取现有先古事件牌；石之剑按精英战胜利次数计数，需要完整原作候选表及精英单位身份口径。",
+"7. **实机验收**：需要用户回来在实际梦三运行以下场景；此次不在正在进行的征程上自动操纵或替换存档。", "",
+"## 已知梦三口径与限制","",
+"- 基础开场4张牌、每回合原有摸牌数、费用3和手牌上限3保持现有梦三规则。大蘑菇先减2张，再叠加正向开场额外摸牌。",
+"- 增加最大生命本身不额外治疗当前生命，沿用既有草莓约定；李家华夫饼另外回满生命。降低最大生命会将当前生命限制到新上限。",
+"- 休息基础回复8；皇家枕头额外15。多个折扣乘算后向下取整，最低1金币。",
+"- 克制、防御、保留、能力牌、虚无等牌的现有规则优先保留；符文金字塔/三角铃鼓避免手牌上限弃牌，不阻止虚无牌消耗。",
+"- 回合伤害上限在所有参与者的回合开始重置。钨合金棍和跳动残渣在预计护甲抵扣后限制实际生命损失，纯护甲损失不触发百年积木。伤害事件统计仍遵循引擎原有口径。",
+"- 独立牌堆不足时，梦三现有规则会结束挑战；额外摸牌遗物同样遵循该规则，未擅自改成原作的不足时少抽。",
+"- 尾巴仅本次征程触发一次；数值进位/舍入遵循梦三现有攻击、虚弱、易伤与护甲规则。",
+"- 没有持有来源正确的图集之外的素材缺失；主要缺口属于玩法/入口，仍全部登记。", "",
+"## 验证与待实机场景","",
+"已运行 `node mengsan/tools/check-sts2-relics.mjs`：完整目录/图片哈希及源字节、逐件可获得遗物拾取与基本战斗、禁用遗物不变更状态、角色池/重复资格、随机遗物/选牌、永恒限制、累计计数、格挡后的减伤、复活一次、临时强化不污染牌组、商店房间记录、战后提交只写一次等隔离回归。检查数量以本次运行输出为准。",
+"已检查修改模块语法、内容注册表加载及本次改动差异。**尚未做实际游戏内的战斗、图片渲染或安装更新验收**；上述检查不能替代实机运行。", "",
+"用户回来后建议覆盖：", "",
+"- 持有锚开战并进入第一回合；比较格挡是否保留。",
+"- 护甲完全抵挡/部分抵挡攻击时，测试钨合金棍、跳动残渣、百年积木。",
+"- 同一多段攻击与第10张攻击，跨战斗测试笔尖、活力、双节棍。",
+"- 能力牌首次/再次/下个回合测试永冻冰、木乃伊之手；X=0/大于0测试化学物X。",
+"- 第5张免费、第6张后不能主动出牌；进入敌方回合后检查响应仍可用。",
+"- 濒死测试蜥蜴尾巴，确保第二次不复活；荆棘/覆甲在实际攻击事件中测试。",
+"- 休息点多选、选牌遗物、永久牌移除/变化、佩尔之齿逐场返还、商店折扣与补货。",
+"- 保存失败后重试，确认不重复金币、遗物、牌组强化和房间效果；退出未完成战斗后继续旧地图检查点。", "",
+"## 明确适配详情","",
+...Object.entries(relicAdaptations).filter(([id])=>getRelic(id)?.implementation==="adapted").map(([id,note])=>`- **${getRelic(id).name}**：${note}`),"",
+"## 逐件清单","",
+"图片路径统一为 `assets/relics/<Wiki ID>.png`。表中“执行/缺口”列给出接线属性或阻塞原因，原文效果原样保留可读表达；池、稀有度和先古归属没有合并。", "",
+"| 序号 | 遗物 / Wiki ID | 池 | 稀有度 | 先古归属 | 原文效果 | 状态 | 执行 / 缺口 | 来源图片 |",
+"| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+...relicCatalog.map(item=>{const r=getRelic(item.id),a=assets.get(item.wikiId);return `| ${item.order} | [${escape(item.name)}](${item.source})<br>\`${item.wikiId}\` | ${escape(item.pool)} | ${escape(item.tier)} | ${escape(item.ancient)} | ${escape(item.description)} | ${labels[r.implementation]} | ${escape(r.implementation==="pending" ? r.implementationNote : r.implementation==="adapted" ? r.implementationNote : Object.entries(r.rule).map(([key,value])=>`${key}=${JSON.stringify(value)}`).join("；"))} | \`${a.source}\`<br>${a.width}×${a.height}；${a.bytes} B |`;})
+];
+await writeFile(new URL("../relics/IMPLEMENTATION-20261006.md",import.meta.url),lines.join("\n")+"\n","utf8");
+console.log(JSON.stringify({wikiRelics:relicCatalog.length,states:counts,report:"relics/IMPLEMENTATION-20261006.md"}));

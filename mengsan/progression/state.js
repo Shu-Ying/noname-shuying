@@ -9,6 +9,7 @@ import { createInkletBattlePlan } from "../content/acts/act1/inklet-group.js";
 import { NIBBIT_PAIR_ENCOUNTER, createNibbitPairBattlePlan } from "../content/acts/act1/nibbit-pair.js";
 import { chooseEncounterEntry, createEncounterPlan } from "../content/encounters.js";
 import { normalBattleCount, protectEarlyBattleNodes, WEAK_BATTLE_COUNT } from "./encounter-progress.js";
+import { grantRelic } from "../relics/definitions.js";
 
 const hashText = text => {
     let value = 2166136261;
@@ -191,6 +192,9 @@ export const createRun = character => {
         storyFlags: {},
     };
     initializeInnateBonds(run);
+    // Only the currently mapped STS2 character gets its actual starting relic.
+    // Existing saves are not retroactively awarded items.
+    if(character==="mengsan_liubei_shuying")grantRelic(run,"burning_blood");
     run.map = generateActMap(run, 0);
     return run;
 };

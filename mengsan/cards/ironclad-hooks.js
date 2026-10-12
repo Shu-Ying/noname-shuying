@@ -1,5 +1,6 @@
 // 轻量桥接模块：不导入牌注册表或引擎，避免费用/牌堆/运行时循环依赖。
 import { sharedStrengthPenalty } from "./shared-hooks.js";
+import { flushRelicExhaust } from "../relics/hooks.js";
 const bindings = new WeakMap(), owners = new Map();
 export function bindIroncladHooks(player, session, hooks) {
     const entry = {player,session,hooks};
@@ -26,7 +27,7 @@ export const ironcladCost = (player,card,cost) => ironcladHooks(player)?.cost(ca
 export const ironcladCardIsFree = (player,card) => Boolean(ironcladHooks(player)?.isFree(card));
 export const ironcladStrengthPenalty = player => (ironcladHooks(player)?.strengthPenalty() || 0) + sharedStrengthPenalty(player);
 export const queueIroncladExhaust = (player,card) => ironcladHooks(player)?.queueExhaust(card);
-export const flushIroncladExhaust = async player => { await ironcladHooks(player)?.flushExhaust(); };
+export const flushIroncladExhaust = async player => { await ironcladHooks(player)?.flushExhaust(); await flushRelicExhaust(player); };
 export const afterIroncladDraw = async (player,cards) => { await ironcladHooks(player)?.afterDraw(cards); };
 export const afterIroncladVulnerable = (source,target) => ironcladHooks(source)?.queueVulnerable(target);
 export const beforeIroncladBlock = (player,num,event) => ironcladHooks(player)?.blockAmount(num,event) ?? num;

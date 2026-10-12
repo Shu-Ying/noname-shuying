@@ -1,4 +1,4 @@
-import { relicRewards, relicRewardIds } from "../../relics/definitions.js";
+import { relicRewards, relicRewardIds, relicRewardPools } from "../../relics/definitions.js";
 import { cardPackRewards, cardPackRewardIds } from "../../cards/packs/rewards.js";
 import { cardDefinitions } from "../../cards/card-definitions.js";
 
@@ -157,6 +157,7 @@ const battleCardRewardIds = [
 ];
 
 export const rewardPools = {
+    ...relicRewardPools,
     "shared.pool.battle.normal": [...battleCardRewardIds],
     "shared.pool.battle.elite": [...battleCardRewardIds],
     "shared.pool.elite.relics": [...relicRewardIds],

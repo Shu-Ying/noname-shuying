@@ -1,5 +1,6 @@
 import { canUpgradeCard } from "../cards/upgrades.js";
 import { canAcquireRelic } from "../relics/definitions.js";
+import { grantGold } from "../relics/progression.js";
 
 export function prepareRewardPackage(run, spec, randomChoices) {
     if (!Number.isSafeInteger(spec.gold) || spec.gold < 0) {
@@ -32,8 +33,7 @@ export function applyRewardPackage(run, pack, selection, applyReward) {
             throw new Error("遗物选择无效");
         }
     }
-    run.player.gold += pack.gold;
-    run.statistics.goldEarned += pack.gold;
+    grantGold(run,pack.gold);
     if (selection.cardId !== null) card.upgrade = (card.upgrade || 0) + 1;
     if (relic) applyReward(run, relic.id);
 }
