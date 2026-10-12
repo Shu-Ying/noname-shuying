@@ -114,14 +114,19 @@ const skills = {
 
 			if (difficulty == "nightmare") {
 				for (const target of enemies) {
+					const card = target.getGainableCards(player, "e").randomGet();
+					if (!card) continue;
 					player.line(target);
-					await player.gainPlayerCard({ target, position: "e", forced: true });
+					await player.gain(card, target, "give");
 				}
 			}
 			else {
 				const target = enemies.randomGet();
+				if (!target) return;
+				const card = target.getGainableCards(player, "e").randomGet();
+				if (!card) return;
 				player.line(target);
-				await player.gainPlayerCard({ target, position: "e", forced: true });
+				await player.gain(card, target, "give");
 			}
 		},
 		ai: {
@@ -157,18 +162,20 @@ const skills = {
 		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
 		trigger: { player: "damageEnd" },
 		logTarget: "source",
+		getIndex(event) {
+			return event.num;
+		},
 		filter(event, player) {
 			return (
 				event.num > 0 &&
 				event.source?.isIn() &&
-				player.getEnemies(null, false).includes(event.source) &&
-				event.source.hasGainableCards(player, "he")
+				event.source.hasGainableCards(player, event.source == player ? "e" : "he")
 			);
 		},
 		async content(event, trigger, player) {
 			await player.gainPlayerCard({
 				target: trigger.source,
-				position: "he",
+				position: trigger.source == player ? "e" : "he",
 				forced: true,
 			});
 		},
@@ -241,7 +248,6 @@ const skills = {
 			return game.hasPlayer(current => {
 				return (
 					current != player &&
-					player.getEnemies(null, false).includes(current) &&
 					event.getl?.(current)?.cards2?.length
 				);
 			});
@@ -250,20 +256,31 @@ const skills = {
 			const source = game.findPlayer(current => {
 				return (
 					current != player &&
-					player.getEnemies(null, false).includes(current) &&
 					trigger.getl?.(current)?.cards2?.length
 				);
 			});
 			if (!source) return;
 
-			player.addTempSkill("langgu_shuying_used", "roundStart");
+			player.addTempSkill("langgu_shuying_used", {
+				global: "phaseAfter",
+			});
 
-			const result = await player.judge(card => get.suit(card) == "spade" ? 2 : 0).forResult();
-			if (result.bool && source.isIn() && source.countDiscardableCards(player, "h") > 0) {
+			const isNightmare = getTianshuDifficulty() == "nightmare";
+			const result = await player.judge(card => {
+				const success = isNightmare
+					? get.color(card) == "black"
+					: get.suit(card) == "spade";
+				return success ? 2 : 0;
+			}).forResult();
+			if (result.bool) {
 				player.removeSkill("langgu_shuying_used");
+				if (!source.isIn()) return;
+				const card = source.getDiscardableCards(player, "h").randomGet();
+				if (!card) return;
 				player.line(source);
-				const card = source.getCards("h").randomGet();
-				await source.discard(card);
+				const discardEvent = source.discard(card);
+				discardEvent.discarder = player;
+				await discardEvent;
 			}
 		},
 		subSkill: {
@@ -603,31 +620,30 @@ const skills = {
 		trigger: { player: "phaseBegin" },
 		forced: true,
 		locked: true,
-		filter(event, player) {
-			return player.getDamagedHp() > 0;
-		},
 		async content(event, trigger, player) {
 			let maxNum = 3;
 			if (getTianshuDifficulty() == "hard") maxNum = 4;
 			if (getTianshuDifficulty() == "nightmare") maxNum = 5;
 
 			const num = Math.min(maxNum, player.getDamagedHp());
-			await player.draw(num);
+			if (num > 0) {
+				await player.draw(num);
 
-			const result = await player
-				.chooseTarget(`对至多${get.cnNumber(num)}名角色造成1点伤害`, [1, num], (card, player, target) => {
-					return target.isIn() && player.getEnemies(null, false).includes(target);
-				})
-				.set("ai", target => {
-					const player = get.player();
-					return get.damageEffect(target, player, player);
-				})
-				.forResult();
+				const result = await player
+					.chooseTarget(`对至多${get.cnNumber(num)}名角色造成1点伤害`, [1, num], (card, player, target) => {
+						return target.isIn();
+					})
+					.set("ai", target => {
+						const player = get.player();
+						return get.damageEffect(target, player, player);
+					})
+					.forResult();
 
-			if (result.bool) {
-				for (const target of result.targets) {
-					player.line(target);
-					await target.damage(1, player);
+				if (result.bool) {
+					for (const target of result.targets) {
+						player.line(target);
+						await target.damage(1, player);
+					}
 				}
 			}
 
@@ -645,6 +661,7 @@ const skills = {
 		locked: true,
 		filter(event, player) {
 			return (
+				event.isFirstTarget &&
 				event.card.name == "sha" &&
 				event.player?.isIn() &&
 				!player.getEnemies(null, false).includes(event.player) &&
@@ -652,8 +669,14 @@ const skills = {
 			);
 		},
 		async content(event, trigger, player) {
+			const isNightmare = getTianshuDifficulty() == "nightmare";
 			const result = await player
-				.judge(card => get.color(card) == "black" ? 2 : -1)
+				.judge(card => {
+					const success = isNightmare
+						? get.color(card) == "black"
+						: get.suit(card) == "spade";
+					return success ? 2 : -1;
+				})
 				.set("judge2", result => result.bool)
 				.forResult();
 
@@ -753,7 +776,7 @@ const skills = {
 					return sum;
 				}, 0);
 
-			if (damageNum > 1) return true;
+			if (damageNum > (getTianshuDifficulty() == "nightmare" ? 0 : 1)) return true;
 
 			return (
 				damageNum == 0 &&
@@ -784,7 +807,7 @@ const skills = {
 				if (num > 0) {
 					await target.chooseToDiscard(num, "he", true);
 				}
-			} else if (damageNum > 1 && target.isIn()) {
+			} else if (damageNum > (getTianshuDifficulty() == "nightmare" ? 0 : 1) && target.isIn()) {
 				await target.damage(1, player);
 			}
 		},
@@ -807,11 +830,14 @@ const skills = {
 		async cost(event, trigger, player) {
 			const num =
 				getTianshuDifficulty() == "nightmare" ? 2 : 1;
+			const drawText = getTianshuDifficulty() == "nightmare"
+				? `你摸${get.cnNumber(num)}张牌`
+				: `你与其各摸${get.cnNumber(num)}张牌`;
 
 			event.result = await player
 				.chooseBool(
 					get.prompt(event.skill, trigger.player),
-					`失去1点体力，将${get.translation(trigger.player)}的摸牌阶段改为你与其各摸${get.cnNumber(num)}张牌`
+					`失去1点体力，将${get.translation(trigger.player)}的摸牌阶段改为${drawText}`
 				)
 				.set("ai", () => {
 					const player = get.player();
@@ -823,10 +849,12 @@ const skills = {
 							: 1;
 
 					if (player.hp <= 1) return false;
-
 					const isEnemy = player
 						.getEnemies(null, false)
 						.includes(target);
+					if (getTianshuDifficulty() == "nightmare") {
+						return isEnemy && player.hp > 2;
+					}
 
 					// 避免额外增加敌方摸牌，或削减友方原本的摸牌数
 					if (isEnemy && trigger.num < num) return false;
@@ -846,7 +874,8 @@ const skills = {
 
 			await player.loseHp();
 
-			const targets = [player, target].filter(
+			const targets = (getTianshuDifficulty() == "nightmare"
+				? [player] : [player, target]).filter(
 				current => current.isIn()
 			);
 			if (targets.length) {
@@ -972,12 +1001,8 @@ const skills = {
 		audio: "ext:术樱包/pve/audio/skill/青青子衿:1",
 		trigger: { player: ["useCard", "respond"] },
 		filter(event, player) {
-			return (
-				event.card.name == "shan" &&
-				player
-					.getEnemies(null, false)
-					.some(target => target.isIn())
-			);
+			return event.card.name == "shan"
+				&& game.hasPlayer(target => target != player && target.isIn());
 		},
 		line: "thunder",
 		async cost(event, trigger, player) {
@@ -985,12 +1010,7 @@ const skills = {
 				.chooseTarget(
 					get.prompt2(event.skill),
 					(card, player, target) => {
-						return (
-							target != player &&
-							player
-								.getEnemies(null, false)
-								.includes(target)
-						);
+						return target != player;
 					}
 				)
 				.set("ai", target => {
@@ -1046,16 +1066,12 @@ const skills = {
 				!event.targets?.length ||
 				event.targets.includes(player) ||
 				!source.inRange(player) ||
-				player.countCards("h") == 0 ||
-				!player.getEnemies(null, false).includes(source)
+				player.countCards("h") == 0
 			) {
 				return false;
 			}
 
-			const enemies = player.getEnemies(null, false);
-			return event.targets.some(target => {
-				return target.isIn() && !enemies.includes(target);
-			});
+			return true;
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -1144,7 +1160,7 @@ const skills = {
 		filter(event, player) {
 			if (
 				getTianshuDifficulty() == "normal" ||
-				_status.currentPhase == player
+				(getTianshuDifficulty() != "nightmare" && _status.currentPhase == player)
 			) {
 				return false;
 			}

@@ -1,4 +1,6 @@
 // 天书羁绊只通过技能表达具体效果；羁绊管理器负责决定当前应持有哪一级技能。
+import { lib, game, ui, get, ai, _status } from "../../../noname.js";
+
 const skill = {
     shuYing_Tianshu_BondSha1: {
         charlotte: true,
@@ -109,8 +111,8 @@ const skill = {
         locked: true,
         popup: false,
         group: [
-            "shuYing_Tianshu_Skill_02_Count2_draw",
-            "shuYing_Tianshu_Skill_02_Count2_discard",
+            "shuYing_Tianshu_Skill_02_Skill2_draw",
+            "shuYing_Tianshu_Skill_02_Skill2_discard",
         ],
         subSkill: {
             draw: {
@@ -181,9 +183,9 @@ const skill = {
         locked: true,
         popup: false,
         group: [
-            "shuYing_Tianshu_Skill_02_Count3_draw",
-            "shuYing_Tianshu_Skill_02_Count3_discard",
-            "shuYing_Tianshu_Skill_02_Count3_gain",
+            "shuYing_Tianshu_Skill_02_Skill3_draw",
+            "shuYing_Tianshu_Skill_02_Skill3_discard",
+            "shuYing_Tianshu_Skill_02_Skill3_gain",
         ],
         subSkill: {
             draw: {
@@ -334,13 +336,7 @@ const skill = {
         async content(event, trigger, player) {
             const target = trigger.target;
             const cards = target
-                .getCards("he", card => {
-                    return lib.filter.cardDiscardable(
-                        card,
-                        target,
-                        event.name
-                    );
-                })
+                .getDiscardableCards(player, "he")
                 .randomGets(1);
 
             if (!cards.length) return;
@@ -389,13 +385,7 @@ const skill = {
             }
 
             const cards = target
-                .getCards("he", card => {
-                    return lib.filter.cardDiscardable(
-                        card,
-                        target,
-                        event.name
-                    );
-                })
+                .getDiscardableCards(player, "he")
                 .randomGets(2);
 
             if (!cards.length) return;

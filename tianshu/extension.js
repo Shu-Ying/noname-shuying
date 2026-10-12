@@ -1,5 +1,9 @@
 import tianshuConfig from "./config.js";
 import bondSkillPack from "./bondSkills.js";
+import { directDamageStorage, getDirectDamageOrigin,
+    getDirectDamageSkillCount } from "./directDamage.js";
+import { skillRecoverStorage, getSkillRecoverOrigin, getSkillRecoverCount,
+    wrapSkillRecoverEvent } from "./skillRecover.js";
 import { lib, game, ui, get, ai, _status } from "../../../noname.js";
 
 export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
@@ -22,6 +26,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         originalGameCheck: null,
         checkHookInstalled: false,
         bondHooksInstalled: false,
+        recoverHookInstalled: false,
         corpseChooseCleanup: null,
         corpseChooseEvent: null,
         initialBoss: null,
@@ -274,10 +279,15 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         }
     };
     // 新 Boss 入场并重排座位后，若当前行动者属于玩家方（含虚拟偶像）且实际下家为 Boss 或虚拟偶像，则启用旧轮次。
-    const shouldUseLegacyBossTurn = current => {
+    const shouldUseLegacyBossTurn = (current, stageDeadPlayers) => {
         if (!lib.config[tianshuConfig.settings.legacyRoundConfigKey]) return false;
         if (!current || !current.isIn?.() || !isCapturedPlayerSide(current)) return false;
-        const next = current.next || current.getNext?.();
+        let next = current.next || current.getNext?.();
+        const visited = new Set([current]);
+        while (next && stageDeadPlayers?.has(next) && !visited.has(next)) {
+            visited.add(next);
+            next = next.next || next.getNext?.();
+        }
         return Boolean(next && (isCurrentStageBoss(next) || isVirtualIdol(next)));
     };
     // 从玩家方1号位沿上家方向查找当前关 Boss，作为旧轮次的行动者。
@@ -293,9 +303,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         }
         return null;
     };
-    const getNextStageTurnPlayer = current => {
+    const getNextStageTurnPlayer = (current, stageDeadPlayers) => {
         const next = current?.next || null;
-        if (!shouldUseLegacyBossTurn(current)) return next;
+        if (!shouldUseLegacyBossTurn(current, stageDeadPlayers)) return next;
         return getLegacyBossTurnPlayer() || next;
     };
     // 开局捕获玩家方成员，避免后续 game.boss 变化导致阵营误判。
@@ -738,6 +748,14 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (!condition.type && condition.not) return !matchesBondCondition(player, condition.not);
 
         const owned = getBondConditionSkills(player);
+        if (condition.type == "directDamage") {
+            return getDirectDamageSkillCount(player, owned, lib)
+                >= Math.max(1, Number(condition.count) || 1);
+        }
+        if (condition.type == "skillRecover") {
+            return getSkillRecoverCount(player, owned, lib)
+                >= Math.max(1, Number(condition.count) || 1);
+        }
         if (condition.type == "keyword") {
             if (!condition.keyword) return false;
             const marker = `【${condition.keyword}】`;
@@ -812,6 +830,12 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         if (!condition.type && condition.not) return false;
 
         const skillName = lib.translate[skill] || "";
+        if (condition.type == "directDamage") {
+            return getDirectDamageSkillCount(player, [skill], lib) > 0;
+        }
+        if (condition.type == "skillRecover") {
+            return getSkillRecoverCount(player, [skill], lib) > 0;
+        }
         if (condition.type == "keyword") {
             if (!condition.keyword) return false;
             const info = typeof get.skillInfoTranslation == "function" ? get.skillInfoTranslation(skill, player) : lib.translate[`${skill}_info`];
@@ -1088,6 +1112,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             game.over(!state.defending);
             return;
         }
+        const stageDeadPlayers = new Set(getPlayerSidePlayers({
+            aliveOnly: false, includeVirtual: true,
+        }).filter(player => player.isDead()));
         await reviveVirtualIdolIfNeeded();
         if (lib.config[tianshuConfig.settings.revivePlayersConfigKey]) {
             const deadPlayers = getPlayerSidePlayers({ aliveOnly: false, includeVirtual: false }).filter(player => player.isDead());
@@ -1116,7 +1143,8 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         state.stageIndex++;
         await spawnStage(state.stageIndex);
         // 必须在新 Boss 召唤并完成座位重排后，再按新座位链决定控制权归属。
-        const nextTurnPlayer = getNextStageTurnPlayer(currentTurnPlayer);
+        const nextTurnPlayer = getNextStageTurnPlayer(
+            currentTurnPlayer, stageDeadPlayers);
         if (nextTurnPlayer) finishCurrentPhaseTo(nextTurnPlayer);
     };
     // 处理 Boss 死亡事件：击杀奖励、隐藏尸体、判断是否清关。
@@ -1134,6 +1162,79 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         }
         if (!stageCleared) return;
         await clearStage();
+    };
+    const settleSkillRecover = async (event, record, overflow) => {
+        const { player, skill, level } = record;
+        const rewardSkill = getTianshuRewardSkills(player)
+            .find(current => get.sourceSkillFor(current) == skill);
+        if (rewardSkill) {
+            const recorded = player.storage[skillRecoverStorage] || [];
+            if (!recorded.includes(rewardSkill)) {
+                recorded.push(rewardSkill);
+                player.storage[skillRecoverStorage] = recorded;
+                game.broadcast((current, key, value) => {
+                    current.storage[key] = value;
+                }, player, skillRecoverStorage, recorded);
+                player.syncStorage?.(skillRecoverStorage);
+                refreshTianshuBonds(player);
+                game.log(player, "登记桃园技能",
+                    `【${get.translation(rewardSkill)}】`);
+            }
+        }
+        if (overflow > 0) game.log(player, "将", overflow,
+            "点溢出回复转为", event.player, "的体力上限");
+        if (level < 2 || !player.isIn()) return;
+        const result = await player.chooseTarget(
+            "桃园：可以令一名其他角色回复或失去1点体力",
+            (card, current, target) => target != current && target.isIn())
+            .set("ai", target => Math.abs(get.attitude(player, target)))
+            .forResult();
+        if (!result.bool || !result.targets?.[0]?.isIn()) return;
+        const target = result.targets[0];
+        const choice = await player.chooseControl("回复体力", "失去体力")
+            .set("prompt", `桃园：令${get.translation(target)}执行哪项？`)
+            .set("ai", () => get.attitude(player, target) > 0 ? 0 : 1)
+            .forResult();
+        if (!target.isIn()) return;
+        player.line(target);
+        if (choice.control == "回复体力") {
+            const next = target.recover(1, player);
+            next.shuYing_tianshu_taoyuanSecondary = true;
+            await next;
+        } else if (choice.control == "失去体力") {
+            await target.loseHp(1);
+        }
+    };
+    const installSkillRecoverHook = () => {
+        if (state.recoverHookInstalled) return;
+        const prototype = lib.element.Player?.prototype || lib.element.player;
+        const original = prototype.recover.shuYing_taoyuanBase
+            || prototype.recover;
+        const recover = function () {
+            const next = original.apply(this, arguments);
+            if (!state.running || _status.over || !this.isIn()) return next;
+            const origin = getSkillRecoverOrigin(next, lib, get);
+            const player = origin?.player;
+            if (!player?.isIn() || player != next.source
+                || !isCapturedPlayerSide(player)
+                || (isVirtualIdol(player)
+                    && !canVirtualIdolReceiveRewards())) return next;
+            const level = player.storage.shuYing_tianshu_bondLevels
+                ?.taoyuan || 0;
+            const originalContent = next.content.original;
+            const nativeContent = typeof originalContent == "string"
+                ? lib.element.content[originalContent]
+                    || lib.element.contents?.[originalContent]
+                : originalContent || next.content;
+            wrapSkillRecoverEvent(next, {
+                player, skill: origin.skill, level,
+            }, settleSkillRecover, nativeContent,
+            () => player.storage.shuYing_tianshu_bondLevels?.taoyuan || 0);
+            return next;
+        };
+        recover.shuYing_taoyuanBase = original;
+        prototype.recover = recover;
+        state.recoverHookInstalled = true;
     };
     // gameStart 时启动天书乱斗流程，完成难度选择并等待 gameDrawAfter 召唤第一关。
     const startRun = async (player = game.me) => {
@@ -1159,6 +1260,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         installHiddenBossCorpseCheckHook();
         spawnVirtualIdol();
         capturePlayerSide();
+        installSkillRecoverHook();
         installTianshuBondHooks();
         installBondOverviewButton();
         state.pendingSpawn = true;
@@ -1259,6 +1361,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 game.addGlobalSkill("shuYing_Tianshu_DefendingControl");
                 game.addGlobalSkill("shuYing_Tianshu_StageRoundHistory");
                 game.addGlobalSkill("shuYing_Tianshu_BondManager");
+                game.addGlobalSkill("shuYing_Tianshu_DirectDamageCapture");
+                game.addGlobalSkill("shuYing_Tianshu_DirectDamageSettle");
+                game.addGlobalSkill("shuYing_Tianshu_SkillRecoverCapture");
             },
         },
         shuYing_Tianshu_DefendingControl: {
@@ -1295,6 +1400,113 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                     player.getStat().isRound = true;
                 }
                 game.getGlobalHistory().isRound = true;
+            },
+        },
+        shuYing_Tianshu_BondDirectDamage1: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondDirectDamage2: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondDirectDamage3: { charlotte: true, popup: false },
+        shuYing_Tianshu_DirectDamageCapture: {
+            mode: ["boss"],
+            trigger: { global: "damageBegin1" },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            firstDo: true,
+            priority: 1000,
+            filter(event) {
+                const player = event.source;
+                if (!state.running || event.shuYing_tianshu_directDamage
+                    || !player?.isIn()
+                    || !isCapturedPlayerSide(player)
+                    || (isVirtualIdol(player)
+                        && !canVirtualIdolReceiveRewards())) return false;
+                const origin = getDirectDamageOrigin(event, lib, get);
+                return Boolean(origin && origin.player == player);
+            },
+            async content(event, trigger) {
+                if (trigger.shuYing_tianshu_directDamage) return;
+                const origin = getDirectDamageOrigin(trigger, lib, get);
+                if (!origin) return;
+                const player = trigger.source;
+                const level = player.storage.shuYing_tianshu_bondLevels
+                    ?.directDamage || 0;
+                trigger.shuYing_tianshu_directDamage = {
+                    player, skill: origin.skill, level,
+                };
+                if (!level) return;
+                trigger.num++;
+                if (level < 3) return;
+                const result = await player.chooseBool(
+                    "直伤：是否令此次伤害改为无来源？",
+                    "仍会增加1点伤害，并按最终伤害值摸牌。")
+                    .set("ai", () => false).forResult();
+                if (result.bool) {
+                    delete trigger.source;
+                    game.log(player, "令此次技能伤害改为无来源");
+                }
+            },
+        },
+        shuYing_Tianshu_DirectDamageSettle: {
+            mode: ["boss"],
+            trigger: { global: "damage" },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            firstDo: true,
+            priority: 1000,
+            filter(event) {
+                return Boolean(state.running && event.num > 0
+                    && !event.unreal && event.shuYing_tianshu_directDamage
+                    && !event.shuYing_tianshu_directDamage.settled);
+            },
+            async content(event, trigger) {
+                const record = trigger.shuYing_tianshu_directDamage;
+                record.settled = true;
+                const { player, skill, level } = record;
+                const num = trigger.num;
+                const rewardSkill = getTianshuRewardSkills(player)
+                    .find(current => get.sourceSkillFor(current) == skill);
+                if (rewardSkill) {
+                    const recorded = player.storage[directDamageStorage] || [];
+                    if (!recorded.includes(rewardSkill)) {
+                        recorded.push(rewardSkill);
+                        player.storage[directDamageStorage] = recorded;
+                        game.broadcast((current, key, value) => {
+                            current.storage[key] = value;
+                        }, player, directDamageStorage, recorded);
+                        player.syncStorage?.(directDamageStorage);
+                        refreshTianshuBonds(player);
+                        game.log(player, "登记直伤技能",
+                            `【${get.translation(rewardSkill)}】`);
+                    }
+                }
+                if (level >= 2 && player.isIn()) await player.draw(num);
+            },
+        },
+        shuYing_Tianshu_BondTaoyuan1: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondTaoyuan2: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondTaoyuan3: { charlotte: true, popup: false },
+        shuYing_Tianshu_SkillRecoverCapture: {
+            mode: ["boss"],
+            trigger: { global: "recoverBegin" },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            firstDo: true,
+            priority: 1000,
+            filter(event) {
+                const record = event.shuYing_tianshu_skillRecover;
+                return Boolean(state.running && event.num > 0 && record
+                    && !record.boosted
+                    && !event.shuYing_tianshu_taoyuanSecondary);
+            },
+            async content(event, trigger) {
+                const record = trigger.shuYing_tianshu_skillRecover;
+                if (record.boosted || trigger.shuYing_tianshu_taoyuanSecondary) {
+                    return;
+                }
+                record.boosted = true;
+                if (record.level >= 1) trigger.num++;
             },
         },
         shuYing_Tianshu_BondManager: {
@@ -1397,6 +1609,24 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         shuYing_Skill_Tianshu_intro5: { nobracket: true },
     };
     tianshu.translate = {
+        shuYing_Tianshu_BondTaoyuan1: "桃园·壹",
+        shuYing_Tianshu_BondTaoyuan1_info: "你通过技能回复体力时，回复值+1。",
+        shuYing_Tianshu_BondTaoyuan2: "桃园·贰",
+        shuYing_Tianshu_BondTaoyuan2_info:
+            "你通过技能回复体力时，回复值+1，并可以令一名其他角色回复或失去1点体力。",
+        shuYing_Tianshu_BondTaoyuan3: "桃园·叁",
+        shuYing_Tianshu_BondTaoyuan3_info:
+            "你通过技能回复体力时，回复值+1，并可以令一名其他角色回复或失去1点体力；"
+            + "按原体力上限结算回复后，将溢出回复转为受回复角色的体力上限。",
+        shuYing_Tianshu_BondDirectDamage1: "直伤·壹",
+        shuYing_Tianshu_BondDirectDamage1_info: "你通过技能直接造成的伤害+1。",
+        shuYing_Tianshu_BondDirectDamage2: "直伤·贰",
+        shuYing_Tianshu_BondDirectDamage2_info:
+            "你通过技能直接造成的伤害+1，并摸等同于最终伤害值的牌。",
+        shuYing_Tianshu_BondDirectDamage3: "直伤·叁",
+        shuYing_Tianshu_BondDirectDamage3_info:
+            "你通过技能直接造成的伤害+1，并摸等同于最终伤害值的牌；"
+            + "你可以令此次伤害改为无来源，仍结算增伤和摸牌。",
         tianshu_boss_shuYing: "天书乱斗",
         shuYing_Skill_Tianshu_Go: "天书乱斗",
         shuYing_Skill_Tianshu_intro1: "&nbsp;第一关",

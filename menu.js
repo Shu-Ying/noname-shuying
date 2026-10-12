@@ -72,6 +72,12 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
             ].filter(Boolean)));
         }
         if (condition.type == "keyword") return condition.keyword ? [`含【${condition.keyword}】的技能`] : [];
+        if (condition.type == "directDamage") {
+            return ["直接造成技能伤害的过关技能"];
+        }
+        if (condition.type == "skillRecover") {
+            return ["直接回复体力的过关技能"];
+        }
         if (condition.type == "skill") return condition.skill ? [get.translation(condition.skill)] : [];
         if (condition.type == "skillName") return condition.name ? [condition.name] : [];
         if (condition.type == "skills") {
@@ -93,6 +99,15 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
             return `武将译名包含【${characters.filter(Boolean).join("】或【")}】且取得上述过关技能后触发`;
         }
         if (condition.type == "keyword") return `按描述中包含【${condition.keyword}】的不同技能译名统计`;
+        if (condition.type == "directDamage") {
+            return "奖励技能首次直接造成有效伤害后登记，子技能归到主技能；"
+                + "按当前仍持有的不同技能译名统计，新等级从后续伤害生效";
+        }
+        if (condition.type == "skillRecover") {
+            return "奖励技能首次实际回复体力后登记，子技能归到主技能；"
+                + "按当前仍持有的不同技能译名统计，新等级从后续回复生效；"
+                + "二级追加回复不会再次触发桃园，三级溢出只增加体力上限";
+        }
         if (!condition.type && [...(condition.all || []), ...(condition.any || [])].some(item => item?.type == "skillNames")) {
             return "按不同译名统计；同译名的不同技能 ID 只计 1 种过关技能";
         }

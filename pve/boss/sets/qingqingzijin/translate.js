@@ -13,7 +13,7 @@ const translates = {
     guicai_shuying: "鬼才",
     guicai_shuying_info: "当一名角色的判定牌生效前，你可以打出一张牌代替之。",
     langgu_shuying: "狼顾",
-    langgu_shuying_info: "	锁定技，每回合限一次，当你获得其他角色的牌时，进行一次判定：若结果为黑桃，随机弃置其1张手牌，且视为此技能本回合未发动过。",
+    langgu_shuying_info: "锁定技，每回合限一次，当你获得其他角色的牌时，进行一次判定：若结果为黑桃，随机弃置其1张手牌，且视为此技能本回合未发动过。",
     yuanlv_shuying: "远虑",
     yuanlv_shuying_info: "当你使用锦囊牌对敌方角色造成伤害时，你可以防止该伤害，改为摸一张牌且该敌方角色对你造成1点伤害。",
 
@@ -39,7 +39,7 @@ const translates = {
     yongsi_shuying: "庸肆",
     yongsi_shuying_info: "锁定技，摸牌阶段，你改为摸X张牌（X为存活势力数）；弃牌阶段，若你本回合：1.没有造成伤害，将手牌摸至当前体力值；2.造成伤害数超过1点，本回合手牌上限改为已损失体力值。",
     wangzun_shuying: "妄尊",
-    wangzun_shuying_info: "锁定技，其他角色其他敌方角色的结束阶段，若其本回合：1.没有对你造成伤害，则其弃置1张牌；2.对你造成伤害数超过1点，则你对其造成1点伤害。",
+    wangzun_shuying_info: "锁定技，其他敌方角色的结束阶段，若其本回合：1.没有对你造成伤害，则其弃置1张牌；2.对你造成伤害数超过1点，则你对其造成1点伤害。",
     duoxi_shuying: "夺玺",
     duoxi_shuying_info: "其他角色的摸牌阶段，你可以失去1点体力改为你与其各摸一张牌。",
 
@@ -51,7 +51,7 @@ const translates = {
     zhuzheng_shuying: "谏征",
     zhuzheng_shuying_info: "其他角色使用【杀】指定除你外的角色时，若你在其攻击范围内，你可以将一张手牌置于牌堆顶，取消所有目标，然后若此【杀】不为黑色，你成为目标。",
     yinlei_shuying: "引雷",
-    yinlei_shuying_info: "锁定技，当你失去牌时，随机横置一名角色。",
+    yinlei_shuying_info: "锁定技，当你于回合外失去牌时，随机横置一名角色。",
 };
 
 export default translates;

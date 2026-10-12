@@ -615,7 +615,7 @@ const skills = {
 			}
 
 			if (game.roundNumber < 3 && target.countGainableCards(player, "he") > 0) {
-				const cards = target.getCards("he").randomGets(Math.min(num, target.countCards("he")));
+				const cards = target.getGainableCards(player, "he").randomGets(num);
 				await player.gain(cards, target, "giveAuto");
 			}
 
@@ -712,7 +712,7 @@ const skills = {
 			const gained = [];
 
 			for (const target of targets) {
-				const cards = target.getCards("h").randomGets(Math.min(num, target.countCards("h")));
+				const cards = target.getGainableCards(player, "h").randomGets(num);
 				if (cards.length) {
 					player.line(target);
 					await player.gain(cards, target, "giveAuto");

@@ -9,6 +9,8 @@
     "diagnostics/storage.js",
     "tianshu/extension.js",
     "tianshu/config.js",
+    "tianshu/directDamage.js",
+    "tianshu/skillRecover.js",
     "pve/boss/index.js",
     "pve/boss/card.js",
     "pve/boss/character.js",

@@ -118,7 +118,11 @@ const bossDifficulty = {
         lvbu_boss_shuying: createBossConfig(bossDifficultyTemplates.qingqingzijin, addSkillFromHard("zhanjia_shuying")),
         dongzhuo_boss_shuying: createBossConfig(bossDifficultyTemplates.qingqingzijin, addSkillFromHard("qubu_shuying")),
         yuanshu_boss_shuying: createBossConfig(bossDifficultyTemplates.qingqingzijin, addSkillFromHard("duoxi_shuying")),
-        zhangjiao_boss_shuying: createBossConfig(bossDifficultyTemplates.qingqingzijin, addSkillFromHard("yinlei_shuying")),
+        zhangjiao_boss_shuying: createBossConfig({
+            normal: createDifficultyConfig(6, 4),
+            hard: createDifficultyConfig(8, 12),
+            nightmare: createDifficultyConfig(10, 20),
+        }, addSkillFromHard("yinlei_shuying")),
 
         ...createBossGroup(["shaohao_boss_shuying", "xuannv_boss_shuying", "hanba_boss_shuying"], bossDifficultyTemplates.tianshuluandou),
         shuishengonggong_boss_shuying: createBossConfig(bossDifficultyTemplates.tianshuluandou, {
@@ -210,6 +214,60 @@ const tianshuConfig = {
         banned: ["huoxin", "jueqing", "qinqing", "beige", "huashen", "drlt_zhiti", "olzhiti", "xinfu_pdgyingshi", "rebeige"],
     },
     bonds: [
+        {
+            id: "taoyuan",
+            name: "桃园",
+            condition: { type: "skillRecover" },
+            levels: [
+                {
+                    level: 1,
+                    count: 1,
+                    skills: ["shuYing_Tianshu_BondTaoyuan1"],
+                    text: "你通过技能回复体力时，回复值+1",
+                },
+                {
+                    level: 2,
+                    count: 2,
+                    skills: ["shuYing_Tianshu_BondTaoyuan2"],
+                    text: "你通过技能回复体力时，回复值+1，"
+                        + "并可以令一名其他角色回复或失去1点体力",
+                },
+                {
+                    level: 3,
+                    count: 3,
+                    skills: ["shuYing_Tianshu_BondTaoyuan3"],
+                    text: "你通过技能回复体力时，回复值+1，"
+                        + "并可以令一名其他角色回复或失去1点体力；"
+                        + "按原体力上限结算回复后，将溢出回复转为受回复角色的体力上限",
+                },
+            ],
+        },
+        {
+            id: "directDamage",
+            name: "直伤",
+            condition: { type: "directDamage" },
+            levels: [
+                {
+                    level: 1,
+                    count: 1,
+                    skills: ["shuYing_Tianshu_BondDirectDamage1"],
+                    text: "你通过技能直接造成的伤害+1",
+                },
+                {
+                    level: 2,
+                    count: 2,
+                    skills: ["shuYing_Tianshu_BondDirectDamage2"],
+                    text: "你通过技能直接造成的伤害+1，并摸等同于最终伤害值的牌",
+                },
+                {
+                    level: 3,
+                    count: 3,
+                    skills: ["shuYing_Tianshu_BondDirectDamage3"],
+                    text: "你通过技能直接造成的伤害+1，并摸等同于最终伤害值的牌；"
+                        + "你可以令此次伤害改为无来源，仍结算增伤和摸牌",
+                },
+            ],
+        },
         {
             id: "shafa",
             name: "杀伐",

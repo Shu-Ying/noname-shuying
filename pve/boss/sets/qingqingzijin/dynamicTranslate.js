@@ -17,11 +17,18 @@ const dynamicTranslates = {
     },
 
     //司马懿
+    langgu_shuying(player, skill) {
+        const condition = getTianshuDifficulty() == "nightmare"
+            ? "黑色" : "黑桃";
+
+        return "锁定技，每回合限一次，当你获得其他角色的牌时，进行一次判定："
+            + `若结果为${condition}，随机弃置其1张手牌，且视为此技能本回合未发动过。`;
+    },
     yuanlv_shuying(player, skill) {
         const difficulty = getTianshuDifficulty();
 
         if (difficulty == "nightmare") {
-            return "当你使用锦囊牌对敌方角色造成伤害时，你可以防止该伤害，改为摸一张牌且该敌方角色对你造成过1点伤害。";
+            return "当你使用锦囊牌对敌方角色造成伤害时，你可以防止该伤害，改为摸一张牌且视为受到该敌方角色造成的1点伤害。";
         }
 
         return "当你使用锦囊牌对敌方角色造成伤害时，你可以防止该伤害，改为摸一张牌且该敌方角色对你造成1点伤害。";
@@ -66,18 +73,29 @@ const dynamicTranslates = {
         return `锁定技，回合开始时，你摸X张牌并对至多X名角色造成1点伤害，然后你失去1点体力。X为你已损失体力且最大为${num}。`
     },
 
+    qubu_shuying(player, skill) {
+        const condition = getTianshuDifficulty() == "nightmare"
+            ? "黑色" : "黑桃";
+
+        return "锁定技，当友方角色使用【杀】指定目标时，进行一次判定："
+            + `若结果为${condition}，你对此【杀】的所有目标造成1点伤害。`;
+    },
+
     //袁术
     wangzun_shuying(player, skill) {
         const num =
             getTianshuDifficulty() == "nightmare" ? 2 : 1;
+        const condition = getTianshuDifficulty() == "nightmare"
+            ? "对你造成过伤害" : "对你造成的伤害数超过1点";
 
-        return `锁定技，其他敌方角色的结束阶段，若其本回合：1.没有对你造成伤害，则其弃置${num}张牌；2.对你造成的伤害数超过1点，则你对其造成1点伤害。`;
+        return `锁定技，其他敌方角色的结束阶段，若其本回合：1.没有对你造成伤害，则其弃置${num}张牌；2.${condition}，则你对其造成1点伤害。`;
     },
     duoxi_shuying(player, skill) {
-        const num =
-            getTianshuDifficulty() == "nightmare" ? 2 : 1;
+        if (getTianshuDifficulty() == "nightmare") {
+            return "其他角色的摸牌阶段，你可以失去1点体力，改为你摸2张牌。";
+        }
 
-        return `其他角色的摸牌阶段，你可以失去1点体力，改为你与其各摸${num}张牌。`;
+        return "其他角色的摸牌阶段，你可以失去1点体力，改为你与其各摸1张牌。";
     },
 
     //张角
@@ -87,6 +105,12 @@ const dynamicTranslates = {
         }
 
         return "其他角色使用【杀】指定除你外的角色时，若你在其攻击范围内，你可以将一张手牌置于牌堆顶，取消所有目标，然后若此【杀】不为黑色，你成为目标。";
+    },
+    yinlei_shuying(player, skill) {
+        const condition = getTianshuDifficulty() == "nightmare"
+            ? "失去牌" : "于回合外失去牌";
+
+        return `锁定技，当你${condition}时，随机横置一名角色。`;
     },
 };
 

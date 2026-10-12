@@ -1,3 +1,6 @@
+import { getDirectDamageSkillCount } from "./tianshu/directDamage.js";
+import { getSkillRecoverCount } from "./tianshu/skillRecover.js";
+
 export default function initFunction(lib, game, ui, get, ai, _status, shuYing = {}) {
     game.shuying_getDiscardNamesNum = function () {
         return Array.from(ui.discardPile.childNodes)
@@ -386,6 +389,14 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                 if (!condition.type && Array.isArray(condition.any)) return condition.any.some(item => matchesCondition(item, currentSkills));
                 if (!condition.type && condition.not) return !matchesCondition(condition.not, currentSkills);
                 if (condition.type == "keyword") return getKeywordCount(condition.keyword, currentSkills) >= Math.max(1, Number(condition.count) || 1);
+                if (condition.type == "directDamage") {
+                    return getDirectDamageSkillCount(player, currentSkills, lib)
+                        >= Math.max(1, Number(condition.count) || 1);
+                }
+                if (condition.type == "skillRecover") {
+                    return getSkillRecoverCount(player, currentSkills, lib)
+                        >= Math.max(1, Number(condition.count) || 1);
+                }
                 if (condition.type == "skill") return currentSkills.includes(condition.skill);
                 if (condition.type == "skillName") return currentSkills.some(skill => lib.translate[skill] == condition.name);
                 if (condition.type == "skills") {
@@ -427,6 +438,13 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                 if (!condition.type && Array.isArray(condition.any)) return condition.any.some(item => isConditionRelevant(item, currentSkills));
                 if (!condition.type && condition.not) return false;
                 if (condition.type == "keyword") return getKeywordCount(condition.keyword, currentSkills) > 0;
+                if (condition.type == "directDamage") {
+                    return getDirectDamageSkillCount(player, currentSkills, lib)
+                        > 0;
+                }
+                if (condition.type == "skillRecover") {
+                    return getSkillRecoverCount(player, currentSkills, lib) > 0;
+                }
                 if (condition.type == "skill") return currentSkills.includes(condition.skill);
                 if (condition.type == "skillName") return currentSkills.some(skill => lib.translate[skill] == condition.name);
                 if (condition.type == "skills") return [...(condition.all || []), ...(condition.any || [])].some(skill => currentSkills.includes(skill));
@@ -450,6 +468,19 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                     const count = getKeywordCount(condition.keyword, currentSkills);
                     const need = Math.max(1, Number(condition.count) || 1);
                     return `包含【${condition.keyword}】的技能 ${Math.min(count, need)}/${need}`;
+                }
+                if (condition.type == "directDamage") {
+                    const count = getDirectDamageSkillCount(
+                        player, currentSkills, lib);
+                    const need = Math.max(1, Number(condition.count) || 1);
+                    return `已实际造成直伤的奖励技能 ${Math.min(count, need)}`
+                        + `/${need}；首次有效直伤后登记`;
+                }
+                if (condition.type == "skillRecover") {
+                    const count = getSkillRecoverCount(player, currentSkills, lib);
+                    const need = Math.max(1, Number(condition.count) || 1);
+                    return `已实际回复体力的奖励技能 ${Math.min(count, need)}`
+                        + `/${need}；首次有效技能回复后登记`;
                 }
                 if (condition.type == "skill") return `${currentSkills.includes(condition.skill) ? "已" : "未"}选择【${get.translation(condition.skill)}】`;
                 if (condition.type == "skillName") return `${currentSkills.some(skill => lib.translate[skill] == condition.name) ? "已" : "未"}选择任意版本的【${condition.name}】`;

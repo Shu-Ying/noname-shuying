@@ -650,23 +650,10 @@ const skills = {
         subSkill: {
             init: {
                 charlotte: true,
-                forced: true,
-                locked: false,
                 audio: false,
-                trigger: {
-                    player: "enterGame",
-                    global: "phaseBefore",
-                },
-                filter(event, player) {
-                    if (!player.countCharge(true)) {
-                        return false;
-                    }
-                    return event.name != "phase" || game.phaseNumber == 0;
-                },
-                async content(event, trigger, player) {
+                init(player) {
                     const num = get.info("fenwei_shuying").beginMarkCount;
                     player.addCharge(num);
-                    await game.delayx();
                 },
             },
 
