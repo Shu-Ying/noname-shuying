@@ -1,10 +1,11 @@
 import { ui } from "../../../../noname.js";
 import { heldRelics } from "../relics/definitions.js";
 import { createRelicIcon } from "./relic-icon.js";
+import { mountRelicStrip } from "./relic-strip.js";
 
 export function mountRelics(session, run, battleRelics) {
     let dialog = null, list = null, previousFocus = null, disposed = false;
-    const relics = heldRelics(run);
+    let relics = heldRelics(run), selected = null, strip = null;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "mengsan-battle-piles-button-shuying " +
@@ -21,6 +22,9 @@ export function mountRelics(session, run, battleRelics) {
         if (previousFocus?.isConnected) previousFocus.focus();
     };
     const refresh = () => {
+        relics = heldRelics(run);
+        button.textContent = `遗物 ${relics.length}`;
+        strip?.refresh();
         if (!list) return;
         list.replaceChildren();
         if (!relics.length) {
@@ -28,7 +32,7 @@ export function mountRelics(session, run, battleRelics) {
             empty.textContent = "本次征程尚未获得遗物。";
             list.appendChild(empty);
         }
-        for (const relic of relics) {
+        for (const relic of selected ? relics.filter(r => r.id === selected) : relics) {
             const row = document.createElement("section");
             const icon=createRelicIcon(relic.image);if(icon)row.appendChild(icon);
             const name = document.createElement("h3");
@@ -41,18 +45,19 @@ export function mountRelics(session, run, battleRelics) {
             list.appendChild(row);
         }
     };
-    button.addEventListener("click", () => {
+    const open = relic => {
         if (disposed || !session.active || dialog) return;
+        selected = relic?.id || null;
         previousFocus = document.activeElement;
         dialog = document.createElement("dialog");
         const currentDialog = dialog;
         dialog.className = "mengsan-deck-dialog-shuying " +
             "mengsan-relic-dialog-shuying";
-        dialog.setAttribute("aria-label", "遗物（道具）");
+        dialog.setAttribute("aria-label", relic?.name || "遗物（道具）");
         const header = document.createElement("header");
         header.className = "ms-deck-header";
         const title = document.createElement("h2");
-        title.textContent = "遗物（道具）";
+        title.textContent = relic?.name || "遗物（道具）";
         const dismiss = document.createElement("button");
         dismiss.type = "button";
         dismiss.className = "ms-deck-button";
@@ -73,10 +78,13 @@ export function mountRelics(session, run, battleRelics) {
         document.body.appendChild(dialog);
         try { dialog.showModal(); dismiss.focus(); }
         catch (error) { close(); throw error; }
-    });
+    };
+    button.addEventListener("click", () => open());
+    if (ui.me) strip = mountRelicStrip(ui.me, () => heldRelics(run),
+        open, createRelicIcon, document, window);
     const dispose = () => {
         if (disposed) return;
-        disposed = true; close(); button.remove();
+        disposed = true; close(); strip?.dispose(); button.remove();
     };
     session.ownResource(button, dispose);
     return { dispose, refresh };
