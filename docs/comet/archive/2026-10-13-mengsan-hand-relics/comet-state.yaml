@@ -1,0 +1,275 @@
+schema: comet.native.v4
+name: mengsan-hand-relics
+language: en
+phase: archive
+status: done
+state_version: 8
+brief: brief.md
+document_constraints_version: 2
+shape_confirmation_hash: 27831d4a33d10b9652c80f8548467e488fc93bea537bcd845ab109bf372ecaaa
+spec_changes:
+  - capability: mengsan-hand-relics
+    operation: create
+    source: specs/mengsan-hand-relics/spec.md
+workspace:
+  isolation: current
+  change_branch: main
+  target_branch: main
+  finish: null
+loop:
+  stage: done
+  goal_cycle: 1
+  iteration: 1
+  attempt: 1
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: null
+acceptance:
+  - id: A1
+    source: brief.md
+    text: 战斗开始后，手牌区最左侧展示当前持有遗物；每件遗物仅有一个图片条目，缺图显示名称。
+    result: passed
+    reason:
+      text: mountRelics复用heldRelics和createRelicIcon，逐件图片按钮；Runtime
+        hand-relic-browser确认12条、缺图/加载失败名称替代与刷新。
+      truncated: false
+  - id: A2
+    source: brief.md
+    text: 点击区域48×48px，条目间距至少8px，与手牌间隔至少12px；窄屏和遗物较多时可滚动且不重叠手牌。
+    result: passed
+    reason:
+      text: CSS 48x48、gap8、64px条带与88px布局预留；Runtime
+        hand-relic-browser在360/640/1280px确认尺寸、间距及局部滚动。
+      truncated: false
+  - id: A3
+    source: brief.md
+    text: 长按500ms显示对应名称、描述和当前状态；提前松开、滑动或取消不误触；键盘也可打开并关闭详情。
+    result: passed
+    reason:
+      text: 500ms定时器、提前松开/移动阈值/scroll/pointercancel/blur取消经源码和组件Runtime检查；hand-relic-dialog补充名称描述状态、屏内modal、Enter/Space打开、Escape/按钮关闭和焦点回归。
+      truncated: false
+  - id: A4
+    source: brief.md
+    text: 遗物界面不触发手牌选择、拖动或出牌；既有手牌交互和遗物详情入口仍可用。
+    result: passed
+    reason:
+      text: strip阻止交互冒泡，手牌入口仅接受属于手牌zone的.card；保留全量详情按钮，Runtime集成检查验证单项/全量入口及pointerdown不向手牌root冒泡。布局仅减可用宽度，未改手牌业务。
+      truncated: false
+  - id: A5
+    source: brief.md
+    text: 战斗结束或会话销毁后移除列表、浮层、监听器和定时器，恢复被占用的布局空间；再次进入不重复挂载。
+    result: passed
+    reason:
+      text: ownResource注册dispose，session逆序释放；strip销毁取消定时器、移除全部注册监听和DOM、恢复CSS变量。Runtime组件与集成检查验证销毁中断长按、重复dispose、modal清理及重挂载唯一条带。
+      truncated: false
+builder_handoff:
+  candidate_id: 4411b609-0d11-4d73-8fa7-fa402cbb1f88
+  identity_provider: skill-coordinated
+  builder_execution_ref: skill-coordinated:builder:79d2c398-bd34-4cfa-b146-a31feb185d5c
+  iteration: 1
+  summary:
+    text: 手牌左侧遗物图片列表、500ms长按详情、滚动与生命周期清理已实现
+    truncated: false
+  addressed_acceptance_ids:
+    - A1
+    - A2
+    - A3
+    - A4
+    - A5
+  acceptance_review:
+    - id: A1
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/ui/relic-strip.js:63-89
+        - mengsan/ui/relics.js:5-91
+        - mengsan/tools/check-hand-relics.mjs
+      note: 复用持有遗物和图片，缺图名称替代
+    - id: A2
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/ui/style.css:1379-1434
+        - mengsan/ui/hand/style.css:6-19
+        - mengsan/tools/check-hand-relics.mjs
+      note: 88px预留与64px列表形成24px间距，48px触摸目标和8px行间距
+    - id: A3
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/ui/relic-strip.js:13-46
+        - mengsan/ui/relics.js:49-87
+        - mengsan/tools/check-hand-relics.mjs
+      note: 长按打开对应详情；取消、滚动和键盘支持
+    - id: A4
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/ui/relic-strip.js:48-58
+        - mengsan/ui/hand/style.css:6-19
+        - mengsan/tools/check-hand-relics.mjs
+      note: 事件阻止冒泡，手牌只调整容器可用宽度，保留全量详情入口
+    - id: A5
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/ui/relic-strip.js:92-106
+        - mengsan/ui/relics.js:88-94
+        - mengsan/tools/check-hand-relics.mjs
+      note: session资源释放调用dispose，移除监听定时器并恢复变量
+  checks:
+    - name:
+        text: focused-browser
+        truncated: false
+      result: passed
+      note:
+        text: Edge测试360/640/1280px间距、缺图、长按及取消、键盘、刷新和清理通过
+        truncated: false
+    - name:
+        text: syntax
+        truncated: false
+      result: passed
+      note:
+        text: node --check relics.js/relic-strip.js通过
+        truncated: false
+  checks_truncated: false
+  known_limits:
+    - text: 未在真实无名杀游戏或物理触摸设备上验收；浏览器为隔离组件检查。
+      truncated: false
+  known_limits_truncated: false
+  review: null
+  submitted_at: 2026-10-13T09:54:07.717Z
+blockers: []
+verification:
+  candidate_id: 4411b609-0d11-4d73-8fa7-fa402cbb1f88
+  identity_provider: skill-coordinated
+  verifier_execution_ref: skill-coordinated:verifier:77a0df51-2a3e-4976-ba8a-c55403e89206
+  iteration: 1
+  attempt: 1
+  assurance: skill-coordinated
+  verdict: pass
+  checks:
+    - id: hand-relic-browser
+      name:
+        text: hand-relic-browser
+        truncated: false
+      argv_display:
+        - text: mengsan/tools/check-hand-relics.mjs
+          truncated: false
+        - text: C:/Users/111/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright
+          truncated: false
+        - text: C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 3919
+    - id: hand-relic-dialog
+      name:
+        text: hand-relic-dialog
+        truncated: false
+      argv_display:
+        - text: -e
+          truncated: false
+        - text: "const fs=require('fs'); const assert=require('assert/strict'); const
+            {chromium}=require('C:/Users/111/.cache/codex-runtimes/codex-primar\
+            y-runtime/dependencies/node/node_modules/playwright');
+            (async()=>{const browser=await
+            chromium.launch({headless:true,executablePath:'C:/Program Files
+            (x86)/Microsoft/Edge/Application/msedge.exe'});try{const page=await
+            browser.newPage({viewport:{width:360,height:640}});await
+            page.setContent('<div id=\"root\"
+            style=\"position:relative;height:156px\"><div id=\"hand\"
+            class=\"mengsan-hand-scroll-shuying\"
+            style=\"position:absolute\"></div></div>');await
+            page.addStyleTag({content:fs.readFileSync('mengsan/ui/style.css','u\
+            tf8')+fs.readFileSync('mengsan/ui/hand/style.css','utf8')});const
+            source=fs.readFileSync('mengsan/ui/relic-strip.js','utf8')+'\\n'+fs\
+            .readFileSync('mengsan/ui/relics.js','utf8').replace(/^import
+            .*;$/gm,'');await page.evaluate(async source=>{const prelude='const
+            ui=window.ui; const heldRelics=run=>run.relics; const
+            createRelicIcon=()=>null;';window.ui={me:document.querySelector('#r\
+            oot'),window:document.body};window.run={relics:[{id:'a',name:'甲',de\
+            scription:'描述甲',pool:'常规',tier:'普通'},{id:'b',name:'乙',description:'\
+            描述乙',pool:'常规',tier:'普通'}]};window.session={active:true,ownResource\
+            :(key,dispose)=>window.cleanup=dispose};window.handEvents=0;ui.me.a\
+            ddEventListener('pointerdown',()=>window.handEvents++);const
+            module=await import(URL.createObjectURL(new
+            Blob([prelude+source],{type:'text/javascript'})));window.mount=modu\
+            le.mountRelics;window.instance=mount(session,run,{status:()=>
+            '状态示例'});},source);const
+            items=page.locator('.mengsan-hand-relics-shuying button');await
+            items.first().focus();await
+            page.keyboard.press('Enter');assert.equal(await
+            page.locator('dialog').count(),1);assert.equal(await
+            page.locator('dialog section').count(),1);assert.ok((await
+            page.locator('dialog').innerText()).includes('描述甲'));assert.ok((awa\
+            it page.locator('dialog').innerText()).includes('状态示例'));const
+            rect=await
+            page.locator('dialog').boundingBox();assert.ok(rect.x>=0&&rect.y>=0\
+            &&rect.x+rect.width<=360&&rect.y+rect.height<=640);await
+            page.keyboard.press('Escape');assert.equal(await
+            page.locator('dialog').count(),0);assert.equal(await
+            items.first().evaluate(e=>document.activeElement===e),true);await
+            page.locator('.mengsan-battle-relics-button-shuying').click();asser\
+            t.equal(await page.locator('dialog section').count(),2);await
+            page.getByRole('button',{name:'关闭',exact:true}).click();await
+            items.first().click();assert.equal(await
+            page.evaluate(()=>handEvents),0);await items.first().focus();await
+            page.keyboard.press('Space');assert.equal(await
+            page.locator('dialog').count(),1);await
+            page.evaluate(()=>cleanup());assert.equal(await
+            page.locator('dialog,.mengsan-hand-relics-shuying,.mengsan-battle-r\
+            elics-button-shuying').count(),0);await
+            page.evaluate(()=>{instance=mount(session,run,{status:()=>
+            '状态示例'});});assert.equal(await
+            page.locator('.mengsan-hand-relics-shuying').count(),1);await
+            page.evaluate(()=>cleanup());console.log('PASS: integrated relic
+            dialog selected/all contents, status, viewport bounds,
+            Enter/Space/Escape, focus return, pointer bubbling isolation,
+            session cleanup and remount');}finally{await
+            browser.close();}})().catch(e=>{console.error(e);process.exitCode=1\
+            });"
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 1298
+  summary:
+    text: 独立只读验收A1–A5通过；复用绑定当前候选hand-relic-browser并补充hand-relic-dialog成功。
+    truncated: false
+  risks:
+    - text: 验收采用隔离 Edge 浏览器组件及遗物详情集成、源码审查；没有运行完整无名杀引擎、物理触摸设备或真实缩放/手牌出牌回归，不代表实机验收通过。
+      truncated: false
+    - text: check-hand-relics.mjs被现有*.mjs忽略规则排除，当前Runtime使用本地文件；后续如提交或迁移必须确保检查文件随交付提供。
+      truncated: false
+    - text: 图索引所涉源码metadata_changed及CSS部分解析覆盖已直接读源码核实，结论以当前候选源码和Runtime证据为准。
+      truncated: false
+    - text: 旧全量check-sts2-relics.mjs因源图集burning_blood.png缺失ENOENT未通过，不能将该全量检查计为通过；此次UI定向Runtime检查不受影响。
+      truncated: false
+  risks_truncated: false
+  completed_at: 2026-10-13T09:58:45.226Z
+history:
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: 独立只读验收A1–A5通过；复用绑定当前候选hand-relic-browser并补充hand-relic-dialog成功。
+      truncated: false
+    completed_at: 2026-10-13T09:58:45.226Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pass
+verification_report: verification.md
+archived: true
+created_at: 2026-10-13T09:47:29.973Z
