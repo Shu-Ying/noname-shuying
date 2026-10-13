@@ -1,0 +1,146 @@
+# Recovery authorized by the user on 2026-10-13.
+# CLI-generated Shape state; historical version 24 evidence is backed up in
+# .planning/comet-state-recovery-20261013. All acceptance requires revalidation.
+schema: comet.native.v4
+name: shuying-skill-tianshu-review
+language: zh-CN
+phase: shape
+status: await-user
+state_version: 25
+brief: brief.md
+document_constraints_version: 2
+shape_confirmation_hash: 73614dd2595713e137f716f16fb11eed1c7d59096b3fd243d53ff1d97cedd7d3
+spec_changes:
+  - capability: shuying-skill-correctness
+    operation: create
+    source: specs/shuying-skill-correctness/spec.md
+workspace:
+  isolation: current
+  change_branch: null
+  target_branch: null
+  finish: null
+loop:
+  stage: await-user
+  goal_cycle: 1
+  iteration: 0
+  attempt: 0
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: confirm-shape
+acceptance:
+  - id: A1
+    source: brief.md
+    text: 羁绊的 filter、mod、async content 在没有开发者全局对象时，能通过模块导入获取引擎依赖。
+    result: pending
+    reason: null
+  - id: A2
+    source: brief.md
+    text: 江东基业二三级对应子技能通过正确 group 挂载并执行，低等级不重复叠加。
+    result: pending
+    reason: null
+  - id: A3
+    source: brief.md
+    text: 驭布对一张多目标杀只判定一次，成功时对各存活目标只造成一次伤害。
+    result: pending
+    reason: null
+  - id: A4
+    source: brief.md
+    text: 驭布困难难度黑桃成功、梅花失败；阴间难度黑色成功、红色失败，动态描述与难度条件一致。
+    result: pending
+    reason: null
+  - id: A5
+    source: brief.md
+    text: 狼顾失败后仅限制当前回合；黑桃成功时恢复次数，即使没有可弃手牌也不会错误占用次数。
+    result: pending
+    reason: null
+  - id: A6
+    source: brief.md
+    text: 奋威开局及中途获得时各初始化2蓄力，同次持有不因入场/开局事件重复添加，不重置共享蓄力。
+    result: pending
+    reason: null
+  - id: A7
+    source: brief.md
+    text: 舌战与狼顾仅从允许被发动者弃置的牌中随机选择。
+    result: pending
+    reason: null
+  - id: A8
+    source: brief.md
+    text: 白仪与九天仅从允许被发动者获得的牌中随机选择。
+    result: pending
+    reason: null
+  - id: A9
+    source: brief.md
+    text: 连环伤害允许再次增伤，既有牌伤增益不添加 notLink 排除。
+    result: pending
+    reason: null
+  - id: A10
+    source: brief.md
+    text: 新增定向回归验证并运行相关现有天书测试，说明真实游戏/联机实测边界，保留无关改动。
+    result: pending
+    reason: null
+  - id: A11
+    source: brief.md
+    text: 狼顾阴间梅花成功、红色失败，普通/困难仅黑桃成功；动态描述同步。
+    result: pending
+    reason: null
+  - id: A12
+    source: brief.md
+    text: 妄尊阴间累计1点伤害即反击，困难1点不反击，未受伤时弃牌数仍为困难1/阴间2。
+    result: pending
+    reason: null
+  - id: A13
+    source: brief.md
+    text: 夺玺阴间替换摸牌后仅自己摸2，困难双方各摸1；动态描述、提示同步。
+    result: pending
+    reason: null
+  - id: A14
+    source: brief.md
+    text: 引雷困难自己回合不触发、阴间自己回合触发；描述同步回合条件。
+    result: pending
+    reason: null
+  - id: A15
+    source: brief.md
+    text: 张角三难度体力和上限8/16/24，起始手牌6/8/10和追加技能保留。
+    result: pending
+    reason: null
+  - id: A16
+    source: brief.md
+    text: 疑神随机获取各目标合法装备，正常难度分支只选一名敌人，阴间所有合格敌人各一张；禁止选择受保护装备。
+    result: pending
+    reason: null
+  - id: A17
+    source: brief.md
+    text: 反馈受到多点伤害有逐点发动机会，可对友方来源发动，源牌耗尽后停止；自伤只获取自身装备。
+    result: pending
+    reason: null
+  - id: A18
+    source: brief.md
+    text: 狼顾接受其他友方来源；暴虐满血也失去1体力并允许任意角色；雷击允许其他友方，谏征允许其他角色使用的杀，不增加阵营限制。
+    result: pending
+    reason: null
+  - id: A19
+    source: brief.md
+    text: 远虑阴间保留unreal并明确描述；无双/神戟/战甲增强不回退，全部改动描述与提示一致。
+    result: pending
+    reason: null
+builder_handoff: null
+blockers: []
+verification: null
+history: []
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pending
+verification_report: null
+archived: false
+created_at: 2026-10-13T01:31:51.574Z
