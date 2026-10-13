@@ -1,0 +1,255 @@
+schema: comet.native.v4
+name: mengsan-lifecycle-fixes
+language: en
+phase: archive
+status: done
+state_version: 11
+brief: brief.md
+document_constraints_version: 2
+shape_confirmation_hash: e9c151b43d8a9b61035c6dbcf96cdc2d8e4c276b78f160cbc8bc26a67647abbf
+spec_changes:
+  - capability: mengsan-battle-lifecycle
+    operation: create
+    source: specs/mengsan-battle-lifecycle/spec.md
+workspace:
+  isolation: worktree
+  change_branch: codex/mengsan-lifecycle-fixes
+  target_branch: main
+  finish: merge
+loop:
+  stage: done
+  goal_cycle: 1
+  iteration: 1
+  attempt: 1
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: null
+acceptance:
+  - id: A1
+    source: brief.md
+    text: 装备八卦等只登记于装备/已初始化技能来源的角色整局退出后，该旧角色的 initedSkills 和对应触发登记清除；连续退出多局不累积这些登记。
+    result: passed
+    reason:
+      text: skill-teardown.js:125-130、142-150、184-216 清点 initedSkills 与装备技能，按角色使用原生
+        removeEquipTrigger/removeSkillTrigger。test_battle_lifecycle.mjs:108-140
+        使用本地1.11.5.2原生方法验证连续三局八卦旧角色登记归零、仅初始化来源和另一角色登记保留；Runtime regressions
+        第1-2行通过。
+      truncated: false
+  - id: A2
+    source: brief.md
+    text: 需要执行的装备卸载回调及其子事件在整角色销毁之前完成；回调失败可向外部传播并记录，已执行的释放回调不会因重试再次运行。
+    result: passed
+    reason:
+      text: skill-teardown.js:148-182 包装本次装备卸载产生的已编译事件及后代内容，排空后记录并抛出原始失败；93-117
+        正常退出释放根事件，131-133、223 缓存操作避免重放。battle-flow.js:52-60
+        在session.dispose前等待释放；test_battle_lifecycle.mjs:143-171、241-254
+        验证回调/子事件顺序、两种ignore_error失败传播、一次执行及栈排空，Runtime第3-5、9-10行通过。
+      truncated: false
+  - id: A3
+    source: brief.md
+    text: 既有受保护技能策略保持：纯元数据标记可以保留在退场对象上，活动技能正确释放，局内单技能保护继续有效；其他角色持有的共享全局技能登记保持有效。
+    result: passed
+    reason:
+      text: skill-teardown.js:5-15、184-197 保留纯元数据受保护标记，10-90
+        区分活动技能整角色卸载与局内保护。test_skill_teardown.mjs:40-119及121-158的9项回归通过；test_battle_lifecycle.mjs:127-140
+        以原生globalmap确认另一角色共享全局登记保留；未清空公共hook/skill或修改Player原型。
+      truncated: false
+  - id: A4
+    source: brief.md
+    text: 战斗准备抛出异常时，无论引擎 ignore_error 为 true 或
+      false，外部控制器都能收到原始异常并结束等待，进入已有战斗异常退出路径，不继续战斗或进入奖励结算。
+    result: passed
+    reason:
+      text: mode.js:900-919
+        在prepareBattle内容内保存原始错误、requestStop，root.start排空后唤醒外层；920-930
+        异常提示及模式选择分支绕过结算。与原生gameEvent.js:196-257吞错/栈弹出逻辑一致；test_battle_lifecycle.mjs:208-227
+        两种ignore_error在2秒内退出、Error身份一致、栈为空，Runtime第6-7行通过。
+      truncated: false
+  - id: A5
+    source: brief.md
+    text: 准备失败生成梦三诊断记录并保留原始错误上下文；该失败路径不提交胜负结果、不改变上次成功存档、不发放奖励；正常准备和正常结算路径继续有效。
+    result: passed
+    reason:
+      text: mode.js:900-906记录原始Error与sessionId/runId/nodeId；失败分支928返回，不进入930结算。mode-storage.js:11-16、125-126读取存档副本，准备期间不提交新结果；test_battle_lifecycle.mjs:208-239、256-280
+        验证失败存档基线不变、提交0次、实际临时诊断JSON含原栈/节点和正常提交1次。结算后清理失败不重发奖励及相关诊断/事务回归通过。
+      truncated: false
+  - id: A6
+    source: brief.md
+    text: 提供可重复执行的装备登记与原生事件异常回归，相关受保护技能/结算/诊断回归通过；独立只读验证报告明确列出未实测的 PC 和安卓整局限制。
+    result: passed
+    reason:
+      text: 完整brief和Spec的A1-A6均独立核查。Runtime state.json:5-8、25-70
+        当前候选绑定和工作区正确，regressions 46 tests/46 pass/0 fail/skip；syntax
+        exitCode=0。关键回归抽取本地1.11.5.2原生GameEvent、ArrayCompiler、Player与全局登记卸载源码；README.md:60-62提供重复入口及PC/安卓限制。复用有效检查，无重复整套运行。
+      truncated: false
+builder_handoff:
+  candidate_id: 013d3893-4bba-4fb3-81e1-46b49e47e09b
+  identity_provider: skill-coordinated
+  builder_execution_ref: skill-coordinated:builder:7a547236-6f9c-4f1e-92e9-ae185431d904
+  iteration: 1
+  summary:
+    text: 补齐退场角色装备及 initedSkills
+      登记释放，等待并捕获装备卸载子事件异常；准备内容内捕获原始错误，停止会话，根事件正常排空后唤醒外部协调者。保留已同步的受保护技能兼容修复、提交状态和奖励去重。
+    truncated: false
+  addressed_acceptance_ids:
+    - A1
+    - A2
+    - A3
+    - A4
+    - A5
+    - A6
+  acceptance_review:
+    - id: A1
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/battle/skill-teardown.js:createPlayerTeardown；tools/test_battle_lifecycle.mjs
+          连续三局原生八卦注册释放及仅 initedSkills 来源回归通过
+      note: 按角色调用原生 removeEquipTrigger/removeSkillTrigger，补齐登记来源，不清空公共表。
+    - id: A2
+      status: implemented-with-evidence
+      evidence:
+        - skill-teardown.js 装备事件局部边界和 waitNext；原生 onLose/嵌套子事件错误在 ignore_error
+          true/false 均传播、队列排空和一次执行回归通过
+      note: 事件内容已编译，仅包装当前装备卸载产生的事件及后代；复用缓存操作避免重放。
+    - id: A3
+      status: implemented-with-evidence
+      evidence:
+        - tools/test_skill_teardown.mjs 9/9 通过；test_battle_lifecycle 原生
+          addGlobalSkill/removeGlobalSkill 保留另一角色所有权回归通过
+      note: 同步并保留现有保护策略、纯元数据标记和局内单技能边界。
+    - id: A4
+      status: implemented-with-evidence
+      evidence:
+        - mengsan/mode.js:playBattle 内容内 failBattle 边界；原生
+          GameEvent.loop/ArrayCompiler 两种 ignore_error 准备抛错回归通过
+      note: 原始错误在引擎可能吞错前保存；正常根事件排空后结束外层等待，不进入结算。
+    - id: A5
+      status: implemented-with-evidence
+      evidence:
+        - test_battle_lifecycle 准备失败写出实际临时报告
+          JSON，检查原始错误栈/节点；存档基线不变、提交计数0；正常结算计数1；protected teardown 提交后失败不重发奖励回归通过
+      note: 调用现有诊断接口，不改存档事务，失败走保留存档退出路径。
+    - id: A6
+      status: implemented-with-evidence
+      evidence:
+        - 新增 tools/test_battle_lifecycle.mjs 11/11 通过，相关 skill teardown 9/9
+          通过；mengsan/README.md 记录回归入口及实机限制
+      note: 已提供可重复回归和正式检查计划，提交后按 Native 协议启动新的只读验证者；正式验收结果尚未宣称通过。
+  checks:
+    - name:
+        text: targeted lifecycle and protected teardown
+        truncated: false
+      result: passed
+      note:
+        text: 20/20；后续仅格式调整后生命周期11/11再次通过。
+        truncated: false
+    - name:
+        text: diff whitespace
+        truncated: false
+      result: passed
+      note:
+        text: git diff --check 通过；正式候选需复核最终修改。
+        truncated: false
+  checks_truncated: false
+  known_limits:
+    - text: 未执行PC或安卓客户端整局；本地引擎证据为无名1.11.5.2的原生事件/编译器和登记卸载函数，外围服务为最小依赖桩。
+      truncated: false
+    - text: 未修改其他扩展或无名引擎；不承诺所有外部扩展及所有客户端版本兼容。
+      truncated: false
+    - text: 旧审查的16个旧夹具失败未全面改造，本次仅相关有效回归。
+      truncated: false
+    - text: 实现位于独立工作目录；尚未提交合并推送发布。
+      truncated: false
+    - text: codebase-memory技能已读取，但本会话未暴露图谱工具，结构证据以源码核对为准。
+      truncated: false
+  known_limits_truncated: false
+  review: null
+  submitted_at: 2026-10-13T02:25:19.819Z
+blockers: []
+verification:
+  candidate_id: 013d3893-4bba-4fb3-81e1-46b49e47e09b
+  identity_provider: skill-coordinated
+  verifier_execution_ref: skill-coordinated:verifier:59515ca5-0d91-4ded-9343-b64a59ac88d9
+  iteration: 1
+  attempt: 1
+  assurance: skill-coordinated
+  verdict: pass
+  checks:
+    - id: regressions
+      name:
+        text: relevant-regressions
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -Command
+          truncated: false
+        - text: $env:NONAME_ROOT = 'D:\Work\noname\resources\app'; & 'C:\Program
+            Files\nodejs\node.exe' --experimental-vm-modules --test
+            tools/test_battle_lifecycle.mjs tools/test_skill_teardown.mjs
+            tools/test_diagnostics.mjs tools/test_mobile_memory.mjs
+            tools/test_intent.mjs tools/test_event_compilation.mjs; exit
+            $LASTEXITCODE
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 763
+    - id: syntax
+      name:
+        text: syntax-and-whitespace
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -Command
+          truncated: false
+        - text: "& 'C:\\Program Files\\nodejs\\node.exe' --check
+            mengsan/battle/skill-teardown.js; if ($LASTEXITCODE -ne 0) { exit
+            $LASTEXITCODE }; & 'C:\\Program Files\\nodejs\\node.exe' --check
+            mengsan/mode.js; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE };
+            git diff --check; exit $LASTEXITCODE"
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 461
+  summary:
+    text: 独立只读验收A1-A6全部通过；当前候选正式回归46/46与语法检查通过，未发现本次范围内实质失败。PC/安卓整局未实测。
+    truncated: false
+  risks:
+    - text: 未执行PC或安卓客户端完整对局；验收依据为源码核查和自动化回归，不能视为实机证明。
+      truncated: false
+    - text: 原生事件/编译器/登记卸载方法由本地无名1.11.5.2源码抽取，事件管理器、界面、外围服务和结算入口有最小依赖桩；不承诺其他客户端版本或所有外部扩展改写兼容。
+      truncated: false
+  risks_truncated: false
+  completed_at: 2026-10-13T02:32:58.872Z
+history:
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: 独立只读验收A1-A6全部通过；当前候选正式回归46/46与语法检查通过，未发现本次范围内实质失败。PC/安卓整局未实测。
+      truncated: false
+    completed_at: 2026-10-13T02:32:58.872Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pass
+verification_report: verification.md
+archived: true
+created_at: 2026-10-13T02:05:19.971Z
