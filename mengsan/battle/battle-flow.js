@@ -92,6 +92,9 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
     return Object.freeze({
         get state() { return state; },
         get error() { return error; },
+        get settlementStatus() {
+            return { committed: !!job?.committed, phase };
+        },
         async enterBattle({session, run, node, encounter, start}) {
             if (state !== "map") throw new Error("Map handoff not ready");
             const saved = settlement.readRun();

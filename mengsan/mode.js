@@ -681,6 +681,10 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     run.player.permanentSkills.forEach(skill => {
         if (lib.skill[skill] && !me.hasSkill(skill)) me.addSkill(skill);
     });
+    diagnostics.info("battle.globalSkills.snapshot", {
+        sessionId: session.id,
+        existingGlobalSkills: [...(lib.skill.global || [])],
+    });
     for (const skill of [
         "mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_ic_bridge_shuying", "mengsan_shared_bridge_shuying",
         "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_intent_refresh_shuying",
@@ -851,10 +855,18 @@ const awaitSettlement = async (flow, initial = flow.wait()) => {
         catch (error) {
             if (flow.state !== "retryable") throw error;
             diagnostics.error("settlement.prompt", error, { flowState: flow.state });
-            const action = await chooseButtons("结算未完成", [
-                {id:"retry",name:"重试保存与结算"},
+            const saved = flow.settlementStatus.committed;
+            const skillFailure = flow.settlementStatus.phase === "releaseSkills";
+            const actions = [
                 {id:"exit",name:"保留已保存进度并返回模式选择"},
-            ], "已提交的奖励不会重发。技能释放失败时请返回模式选择，避免重复调用释放回调。");
+            ];
+            if (!skillFailure) actions.unshift({id:"retry",
+                name:saved ? "重试后续结算" : "重试保存与结算"});
+            const action = await chooseButtons(saved ? "进度已保存，后续结算未完成" : "结算尚未保存",
+                actions, skillFailure
+                    ? "进度已保存；战后技能清理失败，请返回模式选择。已提交的奖励不会重发。"
+                    : saved ? "本次进度已保存，可重试后续流程。已提交的奖励不会重发。"
+                        : "本次结果尚未保存，旧存档保留，可重试保存。");
             diagnostics.info("settlement.prompt.action", { action });
             if (action === "exit") { await openModeSelection(); throw error; }
             operation = flow.retry();
@@ -885,13 +897,27 @@ const playBattle = async (run, node, encounter) => {
     session.ownResource({}, () => {
         if (_status.eventManager.rootEvent === root) _status.eventManager.rootEvent = previousRoot;
     });
-    root.setContent(async () => { await prepareBattle(run, node, encounter, session, resources); });
+    const failBattle = (error, stage) => {
+        if (current.engineFailed) return;
+        current.engineFailed = true;
+        current.engineError = error;
+        diagnostics.error("battle." + stage + ".failed", error, {
+            sessionId: session.id, runId: run.runId, nodeId: node.id,
+        });
+        session.requestStop();
+    };
+    root.setContent(async () => {
+        try { await prepareBattle(run, node, encounter, session, resources); }
+        catch (error) { failBattle(error, "prepare"); }
+    });
     observeFreshEvent(session, root);
     await flow.enterBattle({session,run,node,encounter,start() {
-        root.start().catch(error => { current.engineError = error; finished(); });
+        root.start().catch(error => { failBattle(error, "engine"); }).then(() => {
+            if (current.engineFailed) finished();
+        });
     }});
     await signal; // External controller, never an engine event content await.
-    if (current.engineError) {
+    if (current.engineFailed) {
         reportFlowError(current.engineError);
         session.requestStop();
         current.handUI?.dispose();
