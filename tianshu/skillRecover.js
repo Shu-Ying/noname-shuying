@@ -8,6 +8,9 @@ export function getSkillRecoverOrigin(event, lib, get) {
     const visited = new Set();
     while (current && !visited.has(current)) {
         visited.add(current);
+        if (["card", "precard", "postcard"].includes(current.type)) {
+            return null;
+        }
         if (["useCard", "respond", "recover", "damage"]
             .includes(current.name) || current.name?.endsWith("_cost")) {
             return null;

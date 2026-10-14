@@ -11,6 +11,7 @@
     "tianshu/config.js",
     "tianshu/directDamage.js",
     "tianshu/skillRecover.js",
+    "tianshu/skillCard.js",
     "pve/boss/index.js",
     "pve/boss/card.js",
     "pve/boss/character.js",

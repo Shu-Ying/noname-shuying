@@ -78,6 +78,9 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
         if (condition.type == "skillRecover") {
             return ["直接回复体力的过关技能"];
         }
+        if (condition.type == "skillCard") {
+            return ["视为打出牌或转化牌的过关技能"];
+        }
         if (condition.type == "skill") return condition.skill ? [get.translation(condition.skill)] : [];
         if (condition.type == "skillName") return condition.name ? [condition.name] : [];
         if (condition.type == "skills") {
@@ -107,6 +110,11 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
             return "奖励技能首次实际回复体力后登记，子技能归到主技能；"
                 + "按当前仍持有的不同技能译名统计，新等级从后续回复生效；"
                 + "二级追加回复不会再次触发桃园，三级溢出只增加体力上限";
+        }
+        if (condition.type == "skillCard") {
+            return "奖励技能首次实际使用或打出视为牌、转化牌后登记，子技能归到主技能；"
+                + "按当前仍持有的不同技能译名统计，新等级从后续用牌生效；"
+                + "响应打出只登记；目标调整至少保留1个，三级对全部指定目标再次结算";
         }
         if (!condition.type && [...(condition.all || []), ...(condition.any || [])].some(item => item?.type == "skillNames")) {
             return "按不同译名统计；同译名的不同技能 ID 只计 1 种过关技能";

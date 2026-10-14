@@ -4,6 +4,8 @@ import { directDamageStorage, getDirectDamageOrigin,
     getDirectDamageSkillCount } from "./directDamage.js";
 import { skillRecoverStorage, getSkillRecoverOrigin, getSkillRecoverCount,
     wrapSkillRecoverEvent } from "./skillRecover.js";
+import { skillCardStorage, getSkillCardOrigin, getSkillCardCount,
+    getSkillCardTargetOptions, applySkillCardEffects } from "./skillCard.js";
 import { lib, game, ui, get, ai, _status } from "../../../noname.js";
 
 export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
@@ -756,6 +758,10 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
             return getSkillRecoverCount(player, owned, lib)
                 >= Math.max(1, Number(condition.count) || 1);
         }
+        if (condition.type == "skillCard") {
+            return getSkillCardCount(player, owned, lib)
+                >= Math.max(1, Number(condition.count) || 1);
+        }
         if (condition.type == "keyword") {
             if (!condition.keyword) return false;
             const marker = `【${condition.keyword}】`;
@@ -835,6 +841,9 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         }
         if (condition.type == "skillRecover") {
             return getSkillRecoverCount(player, [skill], lib) > 0;
+        }
+        if (condition.type == "skillCard") {
+            return getSkillCardCount(player, [skill], lib) > 0;
         }
         if (condition.type == "keyword") {
             if (!condition.keyword) return false;
@@ -1364,6 +1373,7 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 game.addGlobalSkill("shuYing_Tianshu_DirectDamageCapture");
                 game.addGlobalSkill("shuYing_Tianshu_DirectDamageSettle");
                 game.addGlobalSkill("shuYing_Tianshu_SkillRecoverCapture");
+                game.addGlobalSkill("shuYing_Tianshu_SkillCardCapture");
             },
         },
         shuYing_Tianshu_DefendingControl: {
@@ -1402,9 +1412,15 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 game.getGlobalHistory().isRound = true;
             },
         },
-        shuYing_Tianshu_BondDirectDamage1: { charlotte: true, popup: false },
-        shuYing_Tianshu_BondDirectDamage2: { charlotte: true, popup: false },
-        shuYing_Tianshu_BondDirectDamage3: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondDirectDamage1: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondDirectDamage2: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondDirectDamage3: {
+            charlotte: true, popup: false, nopop: true,
+        },
         shuYing_Tianshu_DirectDamageCapture: {
             mode: ["boss"],
             trigger: { global: "damageBegin1" },
@@ -1483,9 +1499,15 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 if (level >= 2 && player.isIn()) await player.draw(num);
             },
         },
-        shuYing_Tianshu_BondTaoyuan1: { charlotte: true, popup: false },
-        shuYing_Tianshu_BondTaoyuan2: { charlotte: true, popup: false },
-        shuYing_Tianshu_BondTaoyuan3: { charlotte: true, popup: false },
+        shuYing_Tianshu_BondTaoyuan1: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondTaoyuan2: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondTaoyuan3: {
+            charlotte: true, popup: false, nopop: true,
+        },
         shuYing_Tianshu_SkillRecoverCapture: {
             mode: ["boss"],
             trigger: { global: "recoverBegin" },
@@ -1507,6 +1529,95 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
                 }
                 record.boosted = true;
                 if (record.level >= 1) trigger.num++;
+            },
+        },
+        shuYing_Tianshu_BondYinpai1: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondYinpai2: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_BondYinpai3: {
+            charlotte: true, popup: false, nopop: true,
+        },
+        shuYing_Tianshu_SkillCardCapture: {
+            mode: ["boss"],
+            trigger: { global: ["useCard2", "respond"] },
+            forced: true,
+            silent: true,
+            charlotte: true,
+            firstDo: true,
+            priority: 1000,
+            filter(event) {
+                const player = event.player;
+                if (!state.running || event.shuYing_tianshu_yinpaiHandled
+                    || !player?.isIn() || !isCapturedPlayerSide(player)
+                    || (isVirtualIdol(player)
+                        && !canVirtualIdolReceiveRewards())) return false;
+                return Boolean(getSkillCardOrigin(event, lib, get));
+            },
+            async content(event, trigger) {
+                if (trigger.shuYing_tianshu_yinpaiHandled) return;
+                const origin = getSkillCardOrigin(trigger, lib, get);
+                if (!origin) return;
+                trigger.shuYing_tianshu_yinpaiHandled = true;
+                const player = trigger.player;
+                const level = player.storage.shuYing_tianshu_bondLevels
+                    ?.yinpai || 0;
+                const rewardSkill = getTianshuRewardSkills(player)
+                    .find(current => get.sourceSkillFor(current)
+                        == origin.skill);
+                if (rewardSkill) {
+                    const recorded = player.storage[skillCardStorage] || [];
+                    if (!recorded.includes(rewardSkill)) {
+                        recorded.push(rewardSkill);
+                        player.storage[skillCardStorage] = recorded;
+                        game.broadcast((current, key, value) => {
+                            current.storage[key] = value;
+                        }, player, skillCardStorage, recorded);
+                        player.syncStorage?.(skillCardStorage);
+                        refreshTianshuBonds(player);
+                        game.log(player, "登记印牌技能",
+                            `【${get.translation(rewardSkill)}】`);
+                    }
+                }
+                if (!level || trigger.name != "useCard") return;
+                const options = getSkillCardTargetOptions(
+                    trigger, lib, game, get);
+                const candidates = options.add.concat(options.remove);
+                if (candidates.length) {
+                    const result = await player.chooseTarget(
+                        "印牌：增加或减少1个合法目标（至少保留1个）",
+                        (card, current, target) => target.isIn()
+                            && candidates.includes(target))
+                        .set("ai", target => {
+                            const effect = get.effect(target, trigger.card,
+                                player, player);
+                            return options.remove.includes(target)
+                                ? -effect : effect;
+                        }).forResult();
+                    const target = result.targets?.[0];
+                    if (result.bool && target?.isIn()) {
+                        const valid = getSkillCardTargetOptions(
+                            trigger, lib, game, get);
+                        if (options.remove.includes(target)
+                            && valid.remove.includes(target)) {
+                            trigger.targets.splice(
+                                trigger.targets.indexOf(target), 1);
+                            game.log(player, "移除", trigger.card,
+                                "的目标", target);
+                        } else if (options.add.includes(target)
+                            && valid.add.includes(target)) {
+                            trigger.targets.push(target);
+                            game.log(player, "为", trigger.card,
+                                "增加目标", target);
+                        }
+                        player.line(target);
+                    }
+                }
+                applySkillCardEffects(trigger, level, game.players);
+                if (level >= 3) game.log(trigger.card,
+                    "对全部指定目标额外结算一次");
             },
         },
         shuYing_Tianshu_BondManager: {
@@ -1609,6 +1720,17 @@ export default function initTianshu(lib, game, ui, get, ai, _status, shuYing) {
         shuYing_Skill_Tianshu_intro5: { nobracket: true },
     };
     tianshu.translate = {
+        shuYing_Tianshu_BondYinpai1: "印牌·壹",
+        shuYing_Tianshu_BondYinpai1_info:
+            "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，至少保留1个目标。",
+        shuYing_Tianshu_BondYinpai2: "印牌·贰",
+        shuYing_Tianshu_BondYinpai2_info:
+            "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，"
+            + "至少保留1个目标，且此牌无法被响应。",
+        shuYing_Tianshu_BondYinpai3: "印牌·叁",
+        shuYing_Tianshu_BondYinpai3_info:
+            "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，"
+            + "至少保留1个目标，且此牌无法被响应，并对全部指定目标额外结算一次。",
         shuYing_Tianshu_BondTaoyuan1: "桃园·壹",
         shuYing_Tianshu_BondTaoyuan1_info: "你通过技能回复体力时，回复值+1。",
         shuYing_Tianshu_BondTaoyuan2: "桃园·贰",

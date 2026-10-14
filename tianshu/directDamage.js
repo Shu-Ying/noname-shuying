@@ -7,6 +7,9 @@ export function getDirectDamageOrigin(event, lib, get) {
     const visited = new Set();
     while (current && !visited.has(current)) {
         visited.add(current);
+        if (["card", "precard", "postcard"].includes(current.type)) {
+            return null;
+        }
         if (["useCard", "respond", "damage", "_lianhuan", "_lianhuan2"]
             .includes(current.name) || current.name?.endsWith("_cost")) {
             return null;

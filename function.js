@@ -1,5 +1,6 @@
 import { getDirectDamageSkillCount } from "./tianshu/directDamage.js";
 import { getSkillRecoverCount } from "./tianshu/skillRecover.js";
+import { getSkillCardCount } from "./tianshu/skillCard.js";
 
 export default function initFunction(lib, game, ui, get, ai, _status, shuYing = {}) {
     game.shuying_getDiscardNamesNum = function () {
@@ -397,6 +398,10 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                     return getSkillRecoverCount(player, currentSkills, lib)
                         >= Math.max(1, Number(condition.count) || 1);
                 }
+                if (condition.type == "skillCard") {
+                    return getSkillCardCount(player, currentSkills, lib)
+                        >= Math.max(1, Number(condition.count) || 1);
+                }
                 if (condition.type == "skill") return currentSkills.includes(condition.skill);
                 if (condition.type == "skillName") return currentSkills.some(skill => lib.translate[skill] == condition.name);
                 if (condition.type == "skills") {
@@ -445,6 +450,9 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                 if (condition.type == "skillRecover") {
                     return getSkillRecoverCount(player, currentSkills, lib) > 0;
                 }
+                if (condition.type == "skillCard") {
+                    return getSkillCardCount(player, currentSkills, lib) > 0;
+                }
                 if (condition.type == "skill") return currentSkills.includes(condition.skill);
                 if (condition.type == "skillName") return currentSkills.some(skill => lib.translate[skill] == condition.name);
                 if (condition.type == "skills") return [...(condition.all || []), ...(condition.any || [])].some(skill => currentSkills.includes(skill));
@@ -481,6 +489,12 @@ export default function initFunction(lib, game, ui, get, ai, _status, shuYing = 
                     const need = Math.max(1, Number(condition.count) || 1);
                     return `已实际回复体力的奖励技能 ${Math.min(count, need)}`
                         + `/${need}；首次有效技能回复后登记`;
+                }
+                if (condition.type == "skillCard") {
+                    const count = getSkillCardCount(player, currentSkills, lib);
+                    const need = Math.max(1, Number(condition.count) || 1);
+                    return `已实际视为或转化牌的奖励技能 ${Math.min(count, need)}`
+                        + `/${need}；首次使用或打出后登记`;
                 }
                 if (condition.type == "skill") return `${currentSkills.includes(condition.skill) ? "已" : "未"}选择【${get.translation(condition.skill)}】`;
                 if (condition.type == "skillName") return `${currentSkills.some(skill => lib.translate[skill] == condition.name) ? "已" : "未"}选择任意版本的【${condition.name}】`;

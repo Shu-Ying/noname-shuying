@@ -215,6 +215,35 @@ const tianshuConfig = {
     },
     bonds: [
         {
+            id: "yinpai",
+            name: "印牌",
+            condition: { type: "skillCard" },
+            levels: [
+                {
+                    level: 1,
+                    count: 1,
+                    skills: ["shuYing_Tianshu_BondYinpai1"],
+                    text: "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，"
+                        + "至少保留1个目标",
+                },
+                {
+                    level: 2,
+                    count: 2,
+                    skills: ["shuYing_Tianshu_BondYinpai2"],
+                    text: "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，"
+                        + "至少保留1个目标，且此牌无法被响应",
+                },
+                {
+                    level: 3,
+                    count: 3,
+                    skills: ["shuYing_Tianshu_BondYinpai3"],
+                    text: "你使用技能视为牌或转化牌时，可以增加或减少1个合法目标，"
+                        + "至少保留1个目标，且此牌无法被响应，"
+                        + "并对全部指定目标额外结算一次，不重新选择目标",
+                },
+            ],
+        },
+        {
             id: "taoyuan",
             name: "桃园",
             condition: { type: "skillRecover" },
