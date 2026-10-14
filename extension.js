@@ -291,16 +291,6 @@ shuYing.help = () => {
 
 };
 
-//本地资源修复
-shuYing.RepairBug = () => {
-    updater.repairCoreFiles(shuYing);
-};
-
-//重新下载重要js文件
-shuYing.RepairBugGo = () => {
-    updater.repairCoreFiles(shuYing);
-};
-
 shuYing.Diuse_downText = function () {
     time = setTimeout(() => {
     }, 1000)

@@ -480,25 +480,12 @@ export default function initShuYingMenu({ lib, game, ui, shuYing, updater }) {
     };
     void shuYing.updateMengsanModuleMenu();
 
-    menu.repairBug = {
-        name: "本地资源修复",
-        clear: true,
-        onclick() {
-            if (confirm("点击确定会检测本地资源，并尝试修复。") && shuYing.m_bIsDownload) {
-                shuYing.m_bIsDownload = false;
-                shuYing.RepairBug();
-            } else if (!shuYing.m_bIsDownload) {
-                alert("有其他文件正在下载，请稍后再试吧。");
-            }
-        },
-    };
-
     menu.filling = {
-        name: "查漏补缺&nbsp;<--补齐丢失资源 建议更新后必点",
+        name: "查漏补缺",
         clear: true,
         onclick() {
             if (
-                confirm("点击确定会检测本地丢失资源，并开始修补；若是武将立绘则是静态，若需动态请手动下载（请注意流量使用情况！务必在WIFI状态下修补）") &&
+                confirm("检查当前已安装版本的核心文件、图片和配音，修复缺失或损坏的文件。立绘为静态资源，动态立绘需手动下载。请注意流量使用，建议在 WiFi 下执行。") &&
                 shuYing.m_bIsDownload
             ) {
                 shuYing.m_bIsDownload = false;

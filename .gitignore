@@ -15,11 +15,7 @@ tools/*.mjs
 /Slay the Spire 2
 
 *.mjs
-!tools/test_skill_teardown.mjs
-!tools/test_battle_lifecycle.mjs
 *.cjs
-!mengsan/tools/check-sts2-relics.mjs
-!mengsan/tools/write-sts2-relics-report.mjs
 
 /.update_tmp/
 /.planning/
