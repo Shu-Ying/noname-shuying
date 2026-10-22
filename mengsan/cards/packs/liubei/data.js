@@ -1,4 +1,4 @@
-// 2026-10-03 灰机Wiki铁甲战士详情页主表；所有值均为当前状态。
+// 2026-10-03 灰机Wiki卡牌详情页主表；本作品中归刘备专属牌组。
 // 纯数据模块可被费用、升级、注册表及运行时共同导入，不依赖引擎。
 import { ironcladAdvancedEntries } from "./advanced-data.js";
 import { liubeiCardTraits } from "./traits.js";

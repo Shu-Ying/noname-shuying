@@ -5,7 +5,7 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
   const maskedControls = new Set(), submittedControls = new Set();
   const maskClass = "mengsan-hand-controls-hidden-shuying";
   function maskControls(hidden) {
-    const wanted = hidden ? new Set([ui.control, ui.confirm, gesture?.event.endButton]) : new Set();
+    const wanted = hidden ? new Set([ui.control, ui.confirm, ui.skillControl, gesture?.event.endButton]) : new Set();
     for (const node of maskedControls) {
       if (wanted.has(node)) continue;
       node.classList.remove(maskClass); maskedControls.delete(node);

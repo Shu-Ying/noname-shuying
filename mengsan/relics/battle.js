@@ -34,6 +34,7 @@ export function createRelicBattle(run,{active,draw,log,effect,owner,node={},enco
     const drawMore=async (relic,amount)=>{ if(!usable() || !(amount>0))return; if(!turns)openingHandBonus+=amount; log(relic,`摸${amount}张牌`); await draw(amount); };
     const controller={
         has,
+        displayState(){return {dexterity,plating,nextEnergy,nextBlock};},
         retainsHand(){return has("runic_pyramid") || has("ringing_triangle") && turns===1;},
         get openingHandBonus(){return openingHandBonus;},
         get turns(){return turns;},

@@ -3,7 +3,7 @@ import { heldRelics } from "../relics/definitions.js";
 import { createRelicIcon } from "./relic-icon.js";
 import { mountRelicStrip } from "./relic-strip.js";
 
-export function mountRelics(session, run, battleRelics) {
+export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = {}) {
     let dialog = null, list = null, previousFocus = null, disposed = false;
     let relics = heldRelics(run), selected = null, strip = null;
     const button = document.createElement("button");
@@ -80,7 +80,7 @@ export function mountRelics(session, run, battleRelics) {
         catch (error) { close(); throw error; }
     };
     button.addEventListener("click", () => open());
-    if (ui.me) strip = mountRelicStrip(ui.me, () => heldRelics(run),
+    if (stripRoot) strip = mountRelicStrip(stripRoot, () => heldRelics(run),
         open, createRelicIcon, document, window);
     const dispose = () => {
         if (disposed) return;

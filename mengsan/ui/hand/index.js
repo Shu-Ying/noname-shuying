@@ -17,7 +17,7 @@ export async function mountHandUI(player, session, env) {
   const style = document.createElement("link");
   style.rel = "stylesheet";
   style.href = styleURL;
-  let disposed = false;
+  let disposed = false, frozen = false;
   let observer, resizeObserver, pointer = null, nativeInput = false;
   let finishStyleLoad = null, refreshTimer = null;
   let refreshFrame = null;
@@ -58,7 +58,7 @@ export async function mountHandUI(player, session, env) {
     if (!enabled) nativeLayout();
   }
   function refresh() {
-    if (disposed) return;
+    if (disposed || frozen) return;
     if (!session.active || !adapter.zones.some(zone => zone.isConnected)) {
       dispose();
       return;
@@ -74,7 +74,7 @@ export async function mountHandUI(player, session, env) {
     overlays.sync(adapter.cards());
   }
   function scheduleRefresh() {
-    if (disposed || document.hidden || refreshFrame !== null) return;
+    if (disposed || frozen || document.hidden || refreshFrame !== null) return;
     const draw = () => {
       refreshFrame = null;
       if (!document.hidden) refresh();
@@ -98,6 +98,7 @@ export async function mountHandUI(player, session, env) {
       env.canPayCard?.(player, card) === false);
   }
   function beginInput(event) {
+    if(frozen)return;
     if (input?.owns()) return;
     const card = event.target.closest?.(".card");
     if (event.button !== 0 || pointer ||
@@ -164,6 +165,18 @@ export async function mountHandUI(player, session, env) {
     }
     container.classList.add("scrollh");
   }
+  function freeze() {
+    if(disposed || frozen)return;
+    frozen=true;window.clearTimeout(refreshTimer);
+    if(refreshFrame!==null){
+      if(typeof window.requestAnimationFrame==='function')window.cancelAnimationFrame(refreshFrame);
+      else window.clearTimeout(refreshFrame);
+      refreshFrame=null;
+    }
+    observer?.disconnect();resizeObserver?.disconnect();restoreTouchScroll();
+    input?.dispose();pointer=null;nativeInput=false;
+    fan.sync(layoutEnabled);
+  }
   function dispose() {
     if (disposed) return;
     disposed = true;
@@ -204,7 +217,7 @@ export async function mountHandUI(player, session, env) {
       style.onerror = () => finish(new Error("梦三手牌样式加载失败"));
       document.head.appendChild(style);
     });
-    if (!session.active || disposed) { dispose(); return { refresh, dispose }; }
+    if (!session.active || disposed) { dispose(); return { refresh, freeze, dispose }; }
     ownClass(adapter.root, "mengsan-hand-root-shuying");
     ownClass(document.body, "mengsan-hand-ui-shuying");
     for (const zone of adapter.zones) {
@@ -244,7 +257,7 @@ export async function mountHandUI(player, session, env) {
     listen(document, "visibilitychange", scheduleRefresh);
     refresh();
     diagnose(`已挂载手牌 UI，独立排列=${layoutEnabled}`);
-    return { refresh, dispose };
+    return { refresh, freeze, dispose };
   } catch (error) {
     log("必需模块挂载失败，停止进入战斗", error);
     dispose();

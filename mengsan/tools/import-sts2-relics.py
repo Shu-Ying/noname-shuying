@@ -17,6 +17,11 @@ IMAGE_ALIASES = {
     "forgotten_soul": "lost_soul.png",
     "looming_fruit": "looming_fruit_2.png",
 }
+# Stable Wiki IDs keep the project's character name when importing raw snapshots.
+LIUBEI_RELICS = frozenset({
+    "burning_blood", "black_blood", "red_skull", "paper_phrog",
+    "self_forming_clay", "charons_ashes", "demon_tongue", "ruined_helmet", "brimstone",
+})
 
 
 def main():
@@ -43,7 +48,8 @@ def main():
         entries.append({
             "id": ALIASES.get(wiki_id, f"mengsan_{wiki_id}_shuying"),
             "wikiId": wiki_id, "name": row["name"],
-            "description": row["rendered_description"], "pool": row["pool"],
+            "description": row["rendered_description"],
+            "pool": "刘备" if wiki_id in LIUBEI_RELICS else row["pool"],
             "tier": row["tier"], "ancient": row["ancient"] or None,
             "order": int(row["compendium_order"]),
             "image": f"extension/术樱包/mengsan/assets/relics/{wiki_id}.png",
@@ -63,7 +69,7 @@ def main():
         "snapshot_date": "2026-10-04", "atlas_version": "v0.111.0",
         "data_source": source["data_source_url"], "data_revision": source["source_revision"],
         "assets": assets,
-        "notes": ["美味饼干使用铁甲战士版本；四个其他角色版本仍保留在来源图集中。",
+        "notes": ["美味饼干使用刘备版本；四个其他角色版本仍保留在来源图集中。",
                   "遗忘之魂映射 lost_soul.png；布质果实映射 looming_fruit_2.png。",
                   "图标是用户提供的原游戏拆包图片，逐字节复制，未重绘。"]
     }, ensure_ascii=False, indent=2), encoding="utf-8")

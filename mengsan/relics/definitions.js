@@ -7,7 +7,7 @@ export const relicAdaptations = Object.freeze({
     miniature_tent:"每个休息选项可各选择一次，直至选择离开；不允许无限重复同一选项。",
     meat_cleaver:"网页没有烹饪细则；暂定每次烹饪最大生命+5，待用户确认。",
     big_mushroom:"沿用梦三初始手牌4张，扣减2张；未改成STS2的基础手牌数量。",
-    ring_of_the_drake:"刘备仅映射铁甲战士池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。",
+    ring_of_the_drake:"刘备默认使用专属遗物池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。",
     runic_pyramid:"梦三原本按手牌上限弃牌；这里让全部手牌不计入弃牌上限。虚无牌照常消耗。",
     precarious_shears:"选牌后扣除16点生命；当前地图流程保留至少1点生命，待补充非战斗死亡结算。",
     fragrant_mushroom:"随机强化2张并扣除15点生命；当前地图流程保留至少1点生命，待补充非战斗死亡结算。",
@@ -34,7 +34,7 @@ export const relicDefinitions = Object.freeze(Object.fromEntries(entries.map(ent
 const aliases = Object.freeze(Object.fromEntries(entries.flatMap(entry => [[entry.id, entry.id], [entry.wikiId, entry.id], [`mengsan_${entry.wikiId}_shuying`, entry.id]])));
 export const getRelic = id => Object.hasOwn(aliases, id) ? relicDefinitions[aliases[id]] : null;
 export const heldRelics = run => [...new Set((run?.player?.items || []).map(id => getRelic(id)?.id).filter(Boolean))].map(getRelic);
-export const relicPoolFor = run => run?.player?.relicPool || (run?.player?.character === "mengsan_liubei_shuying" ? "铁甲战士" : null);
+export const relicPoolFor = run => run?.player?.relicPool || (run?.player?.character === "mengsan_liubei_shuying" ? "刘备" : null);
 export function canAcquireRelic(run, id, { allowPending = false } = {}) {
     const relic = getRelic(id);
     if (!run?.player || !relic || !allowPending && relic.implementation === "pending") return false;

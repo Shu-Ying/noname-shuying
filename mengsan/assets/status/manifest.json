@@ -1,0 +1,427 @@
+{
+  "sourceVersion": "v0.111.0",
+  "source": "images/atlases/power_atlas.sprites",
+  "entries": [
+    {
+      "name": "strength_power.png",
+      "bytes": 3435,
+      "width": 64,
+      "height": 64,
+      "sha256": "6584c67190bfd47255c0f333bfb7f2ab52720209d94ce9324a30b0a8e638d7ff"
+    },
+    {
+      "name": "ringing_power.png",
+      "bytes": 5038,
+      "width": 64,
+      "height": 64,
+      "sha256": "c4a3d09f976788bca91d3a5011fc0f05c3f981eaa3482a33c31a0a661705f60c"
+    },
+    {
+      "name": "slow_power.png",
+      "bytes": 5762,
+      "width": 64,
+      "height": 63,
+      "sha256": "b39d7af28b0fdcd773a44577a6635c8b23dc03bff6280de841dc831fe6c601b0"
+    },
+    {
+      "name": "the_bomb_power.png",
+      "bytes": 4421,
+      "width": 64,
+      "height": 64,
+      "sha256": "862f05ed56d4d0ebd60afd777162d23fb4744991f6cace9e43640bee29f5db58"
+    },
+    {
+      "name": "vigor_power.png",
+      "bytes": 5912,
+      "width": 64,
+      "height": 64,
+      "sha256": "551b7b93d139f30cf190887ea3eef197aa693a7a78e67aef48ef2b582b1532b3"
+    },
+    {
+      "name": "draw_cards_next_turn_power.png",
+      "bytes": 3178,
+      "width": 58,
+      "height": 64,
+      "sha256": "c0a8c2781aff2e5c6bf73a2dd2938ef820a5fde651757954f5219113cf88ea22"
+    },
+    {
+      "name": "energy_next_turn_power.png",
+      "bytes": 2896,
+      "width": 43,
+      "height": 64,
+      "sha256": "511314b05d5c223613b6d654816f7feb5607e7c40b0487207c5b1a75f5002f67"
+    },
+    {
+      "name": "block_next_turn_power.png",
+      "bytes": 4275,
+      "width": 64,
+      "height": 64,
+      "sha256": "fd5c75f11f5719f9ffb52ceda3640cbc684ec178e783a3ceb2774548df1615f8"
+    },
+    {
+      "name": "vulnerable_power.png",
+      "bytes": 3725,
+      "width": 64,
+      "height": 64,
+      "sha256": "1b9a9336dd7828cb1fb61b119ab765d3c713ce4e0e98bdbee7211724fe5c78b6"
+    },
+    {
+      "name": "weak_power.png",
+      "bytes": 4738,
+      "width": 64,
+      "height": 64,
+      "sha256": "f8f4277c9fd848600a503b8d377bf9e83b4eaa06fa27f8f82ebefcfbd9714763"
+    },
+    {
+      "name": "frail_power.png",
+      "bytes": 3945,
+      "width": 63,
+      "height": 64,
+      "sha256": "d772bf035190a650a9be735282c77ee9ab2276a775a9e7079710c8b09c4a4619"
+    },
+    {
+      "name": "artifact_power.png",
+      "bytes": 5717,
+      "width": 64,
+      "height": 64,
+      "sha256": "2346d2425fd40cc5f8532df0f97afa9bbb782fa649a09bcb014fe6932e845f90"
+    },
+    {
+      "name": "constrict_power.png",
+      "bytes": 4543,
+      "width": 64,
+      "height": 64,
+      "sha256": "5f29c6b3f8955e275d98f9ed47a893c1214a7bfb820ce1c696c9f16fddcbd8b4"
+    },
+    {
+      "name": "tangled_power.png",
+      "bytes": 5754,
+      "width": 64,
+      "height": 64,
+      "sha256": "3d4d4686876ed0265f26696ab2d0ebde8366b0537994bf223bc388a0f104ec5e"
+    },
+    {
+      "name": "shrink_power.png",
+      "bytes": 4258,
+      "width": 64,
+      "height": 64,
+      "sha256": "b19a0d045135bcc6cfa00f2fb11be78dba68f16ecc12f2ca8474caa9327c05dd"
+    },
+    {
+      "name": "plow_power.png",
+      "bytes": 5865,
+      "width": 64,
+      "height": 64,
+      "sha256": "dc300ee907b06d300bcd01f2c2784cc06c761796206a090e1a94f0cecfa95a31"
+    },
+    {
+      "name": "slippery_power.png",
+      "bytes": 4722,
+      "width": 64,
+      "height": 64,
+      "sha256": "06b4ac80cbf1f70c625be827047be79302f72c018cf8368bfb313a27744e568b"
+    },
+    {
+      "name": "territorial_power.png",
+      "bytes": 3829,
+      "width": 64,
+      "height": 64,
+      "sha256": "cf1b1d401a6fd45dbb1f3eda64049edf8cdf7e91a55f3aaf7a10f138d54699dd"
+    },
+    {
+      "name": "infested_power.png",
+      "bytes": 3554,
+      "width": 64,
+      "height": 50,
+      "sha256": "d6cd52278e0444a8f65fdc7d3c19b7ff9dc7067e2c1d21509f891238bae234f7"
+    },
+    {
+      "name": "demon_form_power.png",
+      "bytes": 4728,
+      "width": 64,
+      "height": 64,
+      "sha256": "2e183f449fc07c30356d181a1b1a5814aad2ef077598642a35899f4d8cdc3bc3"
+    },
+    {
+      "name": "demesne_power.png",
+      "bytes": 5817,
+      "width": 64,
+      "height": 63,
+      "sha256": "554fff2e62aaeaee7b1c9cc1c8283257139ce901a5191c39d143b757cd865e96"
+    },
+    {
+      "name": "crimson_mantle_power.png",
+      "bytes": 4706,
+      "width": 64,
+      "height": 61,
+      "sha256": "7fdeb8f49fb6bfb3ef5f4ff52ec8bcad18bf8fd1e0357d9378ac657124cb8e23"
+    },
+    {
+      "name": "inferno_power.png",
+      "bytes": 5996,
+      "width": 64,
+      "height": 64,
+      "sha256": "3775622f4ad2419ed897bb90e56d793fb383c1810bae514d3e9c17eaff53fe69"
+    },
+    {
+      "name": "rupture_power.png",
+      "bytes": 3897,
+      "width": 64,
+      "height": 64,
+      "sha256": "101e3b473ec6d6b565aa94ed5946840f6c013f28e62f3f0961106c2c8cd54d95"
+    },
+    {
+      "name": "vicious_power.png",
+      "bytes": 3247,
+      "width": 64,
+      "height": 62,
+      "sha256": "4b90144a9254bb155b1cce8180d91d919af99566b8841e2135eb86880ff0765a"
+    },
+    {
+      "name": "rage_power.png",
+      "bytes": 4937,
+      "width": 64,
+      "height": 64,
+      "sha256": "a53721daa6996403e61e871aca8152ae50372c3255e509f1a6d4d99bbfd01d02"
+    },
+    {
+      "name": "flame_barrier_power.png",
+      "bytes": 4786,
+      "width": 64,
+      "height": 64,
+      "sha256": "48a7543a8f87c8b360a3a23a67df23b51b4a54eb6f7747cc27c9f4a230610cdf"
+    },
+    {
+      "name": "colossus_power.png",
+      "bytes": 3875,
+      "width": 64,
+      "height": 64,
+      "sha256": "cfe2be38931e40856d5388b6e3b8c86a7ee2de6688ab69294f348d383e1dfb7d"
+    },
+    {
+      "name": "free_attack_power.png",
+      "bytes": 4223,
+      "width": 61,
+      "height": 64,
+      "sha256": "5bc861f0693c0b73e95be4a2faebd8d81441e1011004f7a0ff71ced6f913573b"
+    },
+    {
+      "name": "no_draw_power.png",
+      "bytes": 4335,
+      "width": 58,
+      "height": 64,
+      "sha256": "7f8ac6cae6cc5611d7e8217619de9cc87dcef245e19bc70107bc299da790bed0"
+    },
+    {
+      "name": "no_energy_gain_power.png",
+      "bytes": 6746,
+      "width": 64,
+      "height": 64,
+      "sha256": "c31490f89b758bd63564581218ede73d89438d833ece8d8da5a8f12f773a345d"
+    },
+    {
+      "name": "one_two_punch_power.png",
+      "bytes": 3986,
+      "width": 64,
+      "height": 64,
+      "sha256": "458f05559a4efcd79bcbe0fb7e1d9aa4ae47d3a0c533f11e1a72ed3e67aec78b"
+    },
+    {
+      "name": "plating_power.png",
+      "bytes": 5036,
+      "width": 64,
+      "height": 64,
+      "sha256": "10a27dd11231338120274c8b132ec82187b2cc00f81d0f7fa94e3637f4506b67"
+    },
+    {
+      "name": "feel_no_pain_power.png",
+      "bytes": 4244,
+      "width": 64,
+      "height": 64,
+      "sha256": "92359b3a53e10600e864a502291be3b50cf00c1792dbf5203e8eaac09fab126e"
+    },
+    {
+      "name": "dark_embrace_power.png",
+      "bytes": 5545,
+      "width": 64,
+      "height": 64,
+      "sha256": "f60e5524cf10b4da15f1b788a58e65e2765aa928988100d6fcb6012829520d99"
+    },
+    {
+      "name": "juggling_power.png",
+      "bytes": 4512,
+      "width": 64,
+      "height": 64,
+      "sha256": "583f560f68a3b9df4ef60376b919ff51d85d862076f0ce09848644f3171d51af"
+    },
+    {
+      "name": "stampede_power.png",
+      "bytes": 3357,
+      "width": 64,
+      "height": 64,
+      "sha256": "1aea977a121c451ef134581789f629dc61caba87b771e7bd684345baae573d03"
+    },
+    {
+      "name": "aggression_power.png",
+      "bytes": 4524,
+      "width": 64,
+      "height": 64,
+      "sha256": "9ec47f0a5eb259c1cc131b82e6bb9e22343df7f64c7375db7580eb326b6a97f3"
+    },
+    {
+      "name": "tank_power.png",
+      "bytes": 3191,
+      "width": 64,
+      "height": 64,
+      "sha256": "f8cfbc1bbf8832f4e83ffdf4172bfc37564c85d36a4a5c14d18c1ab60bd1b76e"
+    },
+    {
+      "name": "hellraiser_power.png",
+      "bytes": 4296,
+      "width": 64,
+      "height": 64,
+      "sha256": "38ca8fc4c727fb936d057a78bfb9461a39b0266dd794d062e9d278505821efc6"
+    },
+    {
+      "name": "unmovable_power.png",
+      "bytes": 4784,
+      "width": 64,
+      "height": 64,
+      "sha256": "f99e4f21fcfd6e57089d47e4bc4ed1cf1a813a759f76487c38852d66dc472a19"
+    },
+    {
+      "name": "juggernaut_power.png",
+      "bytes": 5096,
+      "width": 57,
+      "height": 64,
+      "sha256": "c0c9382989b31f246678d1d33ecb3f17f3b75a97aa9a752dd1f6551733d76112"
+    },
+    {
+      "name": "barricade_power.png",
+      "bytes": 2828,
+      "width": 64,
+      "height": 60,
+      "sha256": "1467ded14bfef8cdc15152e62a100ef7d3be85173ac5eea2f6960d4815d5c64c"
+    },
+    {
+      "name": "corruption_power.png",
+      "bytes": 4822,
+      "width": 64,
+      "height": 64,
+      "sha256": "8228d730978170f60d9c429136a395b3de59b5c98726912812f708ec803836eb"
+    },
+    {
+      "name": "dexterity_power.png",
+      "bytes": 3073,
+      "width": 63,
+      "height": 64,
+      "sha256": "6609f4d04f4613ba0001b6254a793ddd2c25a60e66a320ff31ef6724ef15f20e"
+    },
+    {
+      "name": "no_block_power.png",
+      "bytes": 4592,
+      "width": 63,
+      "height": 64,
+      "sha256": "469f70ce5a86ea24751ef75461d20ec127014e16495ee23a86ca0255b4246d4b"
+    },
+    {
+      "name": "intangible_power.png",
+      "bytes": 4398,
+      "width": 64,
+      "height": 64,
+      "sha256": "0368e806c412ca290796c58e1e1a96e6d84bd5dda67f39249433e688006eaf1f"
+    },
+    {
+      "name": "the_gambit_power.png",
+      "bytes": 3051,
+      "width": 49,
+      "height": 64,
+      "sha256": "204284c28d48c60a8c73f7356bb3d5aa0fc8e4b44491cb1aec19717bb4f04784"
+    },
+    {
+      "name": "retain_hand_power.png",
+      "bytes": 4225,
+      "width": 64,
+      "height": 64,
+      "sha256": "a8ee3da12b0774ffc9bba33d6da7695afdfc9b7904d31b3229df077489541784"
+    },
+    {
+      "name": "panache_power.png",
+      "bytes": 3489,
+      "width": 55,
+      "height": 64,
+      "sha256": "61dd7bda14317085c4f6cb4ccecebc759b5468c5494d16fb1a2d78c5f3fd59e0"
+    },
+    {
+      "name": "fasten_power.png",
+      "bytes": 4680,
+      "width": 64,
+      "height": 64,
+      "sha256": "13518361d51775876bf4cde87e88cc4a9e63a5a1d14ba49388eb12d57404bbe7"
+    },
+    {
+      "name": "prep_time_power.png",
+      "bytes": 6445,
+      "width": 64,
+      "height": 63,
+      "sha256": "ce1698909dcb2e91bd67714c11f7c467ae083326b7f9f239751a4c202d50bf69"
+    },
+    {
+      "name": "automation_power.png",
+      "bytes": 4452,
+      "width": 64,
+      "height": 64,
+      "sha256": "c7b5b35579dc1b2ff209e4be54a1982381b1096c640a3c21bb5c9e6aeb86a08f"
+    },
+    {
+      "name": "curious_power.png",
+      "bytes": 4106,
+      "width": 57,
+      "height": 64,
+      "sha256": "77cb0e309fc148e2b2bb723fa5a227d4dc3c2503e22421b9d0e457fb3a85c7d7"
+    },
+    {
+      "name": "rolling_boulder_power.png",
+      "bytes": 4422,
+      "width": 64,
+      "height": 64,
+      "sha256": "53c820c23f09cd07d2b0e3bd00493bdaef81fbd09d05bf2d15485c3c1ef7e4a0"
+    },
+    {
+      "name": "nostalgia_power.png",
+      "bytes": 3856,
+      "width": 64,
+      "height": 64,
+      "sha256": "836674ba8a9e8d0ea2263e90944acdf7078dc1f6c835771650bfcf84825d84a4"
+    },
+    {
+      "name": "entropy_power.png",
+      "bytes": 4849,
+      "width": 64,
+      "height": 64,
+      "sha256": "5042bd71bd07fd605cba2c39677dd21df704439ed5d0ad9610f1102d8ed782ad"
+    },
+    {
+      "name": "beacon_of_hope_power.png",
+      "bytes": 5248,
+      "width": 64,
+      "height": 64,
+      "sha256": "0d33f9098425c3d740e699926809c0c7c9121cdd05e52508284a1e34d7b7bd8d"
+    },
+    {
+      "name": "mayhem_power.png",
+      "bytes": 5287,
+      "width": 64,
+      "height": 64,
+      "sha256": "354b3fe4b63c064cc96302d46b27829f6d51fd37e703aec15d53ed53a14e2d51"
+    },
+    {
+      "name": "calamity_power.png",
+      "bytes": 5331,
+      "width": 64,
+      "height": 64,
+      "sha256": "8d510b86daa72a8066729bc5d0a3943acf5c77903be69525f325b65607c7cdd7"
+    }
+  ],
+  "missing": []
+}

@@ -36,6 +36,8 @@ const originalOf = event => {
     return use?.mengsanIcRepeatOriginal_shuying || use?.cards?.find(c=>c.name===use.card?.name) || event.card;
 };
 
+import { bindCombatStatusSource } from "../../../battle/status-sources.js";
+
 export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEnergy,random}) {
     const states=new WeakMap(), uses=new WeakMap(), hits=new WeakMap(), growth=new WeakMap();
     const seenUses=new WeakSet(), seenBlocks=new WeakSet(), seenDraws=new WeakSet();
@@ -78,6 +80,7 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
         s={player,token,powers:Object.create(null),turn:Object.create(null),queue:[],flushing:false,
             autoQueue:[],autoBusy:false,freeCards:new WeakSet(),negativeStrength:0,autoCount:0};
         states.set(player,s); player.addSkill(MARK);
+        bindCombatStatusSource(player,token.session,"ironclad-advanced",()=>stateOf(player));
         token.session.ownResource(s,()=>{if(states.get(player)===s){states.delete(player);player.removeSkill(MARK);s.queue.length=0;s.autoQueue.length=0;}});
         bindIroncladHooks(player,token.session,{
             valid:()=>valid(player,token),
@@ -444,7 +447,7 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
         if(r.attackDiscount)parts.push("本回合每打出一张攻击牌，费用减少1。");
         if(r.draw)parts.push(`抽${r.draw}张牌。`);
         if(r.stopDraw)parts.push("本回合不能再抽牌。");
-        if(r.generateAttack)parts.push("随机生成一张铁甲战士攻击牌至手牌，本回合费用为0。");
+        if(r.generateAttack)parts.push("随机生成一张刘备攻击牌至手牌，本回合费用为0。");
         if(r.exhaustEnergy)parts.push(`被消耗时获得${r.exhaustEnergy}费用。`);
         if(r.energyPerAttack)parts.push("每张攻击手牌获得1费用。");
         if(r.stopEnergy)parts.push("本回合不能再获得费用。");
@@ -461,7 +464,7 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
         if(r.topPlays)parts.push(`免费打出抽牌堆顶的X${r.xBonus?"+1":""}张牌。`);
         if(r.transformAttacks)parts.push(`所有攻击手牌变为巨石${r.boulderUpgrade?"+":""}，仅本场战斗。`);
         if(r.doubleTap)parts.push(`本回合接下来的${r.doubleTap}张攻击牌额外打出一次。`);
-        if(r.stoke)parts.push(`消耗所有手牌，每张随机生成一张${r.generatedUpgrade?"已强化":""}铁甲战士或无色牌至手牌。`);
+        if(r.stoke)parts.push(`消耗所有手牌，每张随机生成一张${r.generatedUpgrade?"已强化":""}刘备或无色牌至手牌。`);
         if(r.retrieveAttack)parts.push("自身回合开始，从弃牌堆随机获得一张攻击牌并强化。");
         if(r.bodyguard)parts.push("你承受敌人双倍伤害，敌人对其他友方的伤害减半。");
         if(r.autoStrike)parts.push("抽到【杀】或名称含“打击”的攻击牌时，免费向随机敌人打出。");

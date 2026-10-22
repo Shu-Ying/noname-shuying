@@ -13,6 +13,7 @@ import { applyMengsanDebuff, consumeArtifact } from "../../../monsters/artifact-
 import { isStunned } from "../../../battle/stun-intent.js";
 import { canPayCard, isActiveCardUse, authorizeFreeCardUse, takeXCardUse, cardCost } from "../../../battle/combat-rules.js";
 import { grantGold } from "../../../relics/progression.js";
+import { bindCombatStatusSource } from "../../../battle/status-sources.js";
 
 const BRIDGE="mengsan_shared_bridge_shuying", RULES="mengsan_shared_rules_shuying", END="mengsan_shared_end_shuying", LIMIT="mengsan_shared_limit_shuying", AFTER="mengsan_shared_after_shuying";
 const safe=n=>Number.isSafeInteger(n) && n>=0;
@@ -51,6 +52,7 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
         s={player,token,powers:Object.create(null),turn:Object.create(null),freeTurn:new WeakSet(),freeBattle:new WeakSet(),
             nextTurn:[],bombs:[],negativeStrength:0,autoCount:0,drawCount:0,returns:[],maulBonus:0,vigor:0,queuedAllyEnergy:0};
         states.set(player,s);player.addSkill(RULES);
+        bindCombatStatusSource(player,token.session,"shared",()=>stateOf(player));
         token.session.ownResource(s,()=>{if(states.get(player)===s){states.delete(player);player.removeSkill(RULES);s.nextTurn.length=0;s.returns.length=0;}});
         return s;
     }

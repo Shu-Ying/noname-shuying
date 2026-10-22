@@ -4,6 +4,7 @@ import { canPayCard, cardCost, isActiveCardUse } from "../../../battle/combat-ru
 import { isAttackCard } from "../../../monsters/vine-tangled.js";
 import { applyMengsanDebuff } from "../../../monsters/artifact-status.js";
 import { createAdvancedIronclad } from "./advanced.js";
+import { bindCombatStatusSource } from "../../../battle/status-sources.js";
 
 const POWER_SKILL = "mengsan_ic_powers_shuying";
 const belongsTo = (event, root) => {
@@ -42,12 +43,13 @@ export function createIroncladRuntime({ game, get, lib, status, getBattle, handE
             player.removeSkill(POWER_SKILL);
         });
         states.set(player, s);
+        bindCombatStatusSource(player, token.session, "ironclad", () => stateOf(player));
         player.addSkill(POWER_SKILL);
         return s;
     };
     const add = (object, key, n) => {
         const next = (object[key] || 0) + n;
-        if (!Number.isFinite(next) || next < 0 || next > Number.MAX_SAFE_INTEGER) throw new RangeError("铁甲战士效果数值越界");
+        if (!Number.isFinite(next) || next < 0 || next > Number.MAX_SAFE_INTEGER) throw new RangeError("刘备效果数值越界");
         object[key] = next;
     };
     const strength = (player, n, token) => {
@@ -77,7 +79,7 @@ export function createIroncladRuntime({ game, get, lib, status, getBattle, handE
     };
     const exhaustHands = async (player, event, token, filter = () => true, afterEach = null) => {
         const pile = pileOf(player, token);
-        if (typeof pile?.exhaustFromHand !== "function") throw new Error("铁甲战士缺少个人消耗接口");
+        if (typeof pile?.exhaustFromHand !== "function") throw new Error("刘备缺少个人消耗接口");
         const playing = new Set(event.cards || []);
         const cards = player.getCards("h").filter(c => !playing.has(c) && filter(c));
         let count = 0;
@@ -191,7 +193,7 @@ export function createIroncladRuntime({ game, get, lib, status, getBattle, handE
                 if (r.hitsPerExhaust) hits = await exhaustHands(player, event, token);
                 else if (r.vulnerableHits && target.storage?.mengsanVulnerable_shuying > 0) hits = r.vulnerableHits;
                 const amount = (r.damage || 0) + (r.perExhaust ? r.perExhaust * exhaustCount(player, token) : 0);
-                if (!positive(amount) || !positive(hits)) throw new RangeError("铁甲战士攻击数值越界");
+                if (!positive(amount) || !positive(hits)) throw new RangeError("刘备攻击数值越界");
                 if (amount > 0) for (let i = 0; i < hits && valid(player, token); i++) {
                     const targets = r.all ? [...token.battle.players].filter(p => p !== player && p.isAlive() && player.isEnemyOf(p)) : [target];
                     for (const t of targets) {
@@ -260,7 +262,7 @@ export function createIroncladRuntime({ game, get, lib, status, getBattle, handE
             mark: true, marktext: "战",
             intro: { content(storage, player) {
                 const s = stateOf(player);
-                if (!s) return "本场战斗的铁甲战士效果";
+                if (!s) return "本场战斗的刘备效果";
                 const names = { turnStrength: "每回合力量", turnEnergy: "每回合费用", turnBlock: "每回合格挡", turnLoseHp: "披风每回合失血", infernoLoseHp: "狱火每回合失血", lossDamage: "失血全体伤害", lossStrength: "失血获得力量", vulnerableBonus: "易伤倍率加成", attackBlock: "攻击获得格挡", retaliation: "反击伤害", colossus: "巨像减伤" };
                 return Object.entries({ ...s.powers, ...s.turn, ...s.defense }).map(([k, v]) => `${names[k] || k}：${v === true ? "50%" : k === "vulnerableBonus" ? `${v * 100}%` : v}`).join("<br>");
             } },

@@ -10,7 +10,7 @@
 - [遗物查找页](https://sts2.huijiwiki.com/wiki/模板:查找/遗物)；[结构化数据页](https://sts2.huijiwiki.com/wiki/Data:Relic.tabx)，快照修订号 `28579`。
 - `relics/catalog.js` 保存池、原始稀有度、先古归属、图鉴顺序、中文名、可读描述、原始描述/原始 Wiki 标记、风味文字、前代及来源链接。
 - 298 个唯一 Wiki ID；图鉴顺序完整覆盖 1—298。头环原始稀有度仍为“遗物”；先古归属与稀有度分别保存。
-- 遗物池：铁甲战士 9；静默猎手 9；储君 9；亡灵契约师 9；故障机器人 9；通用 253。
+- 遗物池：刘备 9；静默猎手 9；储君 9；亡灵契约师 9；故障机器人 9；通用 253。
 - 稀有度：初始 10；普通 30；罕见 40；稀有 50；商店 30；先古之民 102；事件 35；遗物 1。
 - 先古归属：无 196；涅奥 30；欧洛巴斯 10；佩尔 10；特兹卡塔拉 10；诺奴佩普 10；坦克斯 10；瓦库 10；达弗 12。
 
@@ -19,7 +19,7 @@
 来源为用户提供的 `assets/sts2/Godot_Atlas_Sprites_v0.111.0/images/atlases/relic_atlas.sprites/` 拆分 PNG 目录。运行时使用 `assets/relics/<wikiId>.png`，逐字节复制，不拉伸、不重新绘图。所有图片都在 480×672、300 KiB 以内。
 298 张图片合计 **2,173,564 字节**。每张的源文件名、尺寸、透明通道、体积、SHA-256 见 [资源清单](../assets/relics/manifest.json)。
 
-特殊映射：美味饼干使用 `yummy_cookie_ironclad.png`；遗忘之魂使用 `lost_soul.png`；布质果实使用 `looming_fruit_2.png`。美味饼干的其他角色图仍在原图集，当前仅接入铁甲战士图。原梦三束带没有对应 STS2 原图，继续显示文字。
+特殊映射：美味饼干使用 `yummy_cookie_ironclad.png`；遗忘之魂使用 `lost_soul.png`；布质果实使用 `looming_fruit_2.png`。美味饼干的其他角色图仍在原图集，当前仅接入刘备图。原梦三束带没有对应 STS2 原图，继续显示文字。
 战斗遗物栏、地图背包、遗物选择、商店和战利品清单已经接入图片；池/稀有度/先古归属可从遗物栏与背包查看。
 
 ## 效果与获取接线
@@ -34,7 +34,7 @@
 - 商店保留【杀】与回复生命，新增3个遗物货位、折扣与信使补货。遗物基价暂设120金币；不是 Wiki 公布的商品价格。购买后完成所有遗物选牌，再提交房间结果。
 - 普通/罕见/稀有遗物池登记 **81** 项；可售遗物池登记 **91** 项，均在实际获取时继续过滤重复与角色池。
 - 原有精英固定遗物奖励、第一章宝箱和初次剧情遗物选择自动使用扩展后的可用池。Boss 极品卡牌池保留原有专属稀有卡约定。
-- 新建刘备征程自动持有燃烧之血，符合铁甲战士初始池；既有存档不追补、不重复发放初始遗物。其他武将暂不指定初始遗物。
+- 新建刘备征程自动持有燃烧之血，符合刘备初始池；既有存档不追补、不重复发放初始遗物。其他武将暂不指定初始遗物。
 - 先古/事件/初始遗物已提供独立奖励池；**尚未创建对应先古会面和事件剧情**，不会把这些条目混入普通掉落。后续节点可以引用下表池名或调用已有 `grantRelic`。
 - 拾取操作在可序列化副本上计算，成功后替换运行状态；尚未实现的遗物/重复获取不会改金币、随机数或牌组。战后效果在现有结算候选里只计算一次，存档失败重试不重新发奖。
 
@@ -57,7 +57,7 @@
 1. **烹饪数值与流程**：网页只说明能够烹饪，目前采用最大生命+5。确定原作具体数值后可替换适配值。
 2. **非战斗生命归零流程**：危险剪刀/芬芳蘑菇当前扣血保留至少1生命。需要明确是否允许地图中直接死亡，以及对应失败弹窗/存档规则。
 3. **先古会面及事件入口**：请确定梦三在哪些章节、节点或剧情中接入各先古和事件遗物。已有数据分类、效果、专用奖励池，但尚无原作的完整会面事件。
-4. **角色池映射**：当前只把刘备映射为铁甲战士，其他四个 STS2 角色未绑定梦三武将；不擅自指定。
+4. **角色池映射**：当前仅接入刘备专属角色池，其他四个 STS2 角色未绑定梦三武将；不擅自指定。
 5. **原作机制**：辉星、充能球、集中、奥斯提、灾厄、仆从、铸造、可使用药水，以及 Wiki 指定附魔，需要对应玩法接口；完整逐件缺口见下表。现有词缀不会冒充原作附魔。
 6. **先古牌与击杀口径**：尘封魔典当前抽取现有先古事件牌；石之剑按精英战胜利次数计数，需要完整原作候选表及精英单位身份口径。
 7. **实机验收**：需要用户回来在实际梦三运行以下场景；此次不在正在进行的征程上自动操纵或替换存档。
@@ -95,7 +95,7 @@
 - **微型帐篷**：每个休息选项可各选择一次，直至选择离开；不允许无限重复同一选项。
 - **切肉刀**：网页没有烹饪细则；暂定每次烹饪最大生命+5，待用户确认。
 - **大蘑菇**：沿用梦三初始手牌4张，扣减2张；未改成STS2的基础手牌数量。
-- **长蛇戒指**：刘备仅映射铁甲战士池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。
+- **长蛇戒指**：刘备默认使用专属遗物池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。
 - **符文金字塔**：梦三原本按手牌上限弃牌；这里让全部手牌不计入弃牌上限。虚无牌照常消耗。
 - **松动羊毛剪**：选牌后扣除16点生命；当前地图流程保留至少1点生命，待补充非战斗死亡结算。
 - **芳香蘑菇**：随机强化2张并扣除15点生命；当前地图流程保留至少1点生命，待补充非战斗死亡结算。
@@ -111,13 +111,13 @@
 
 | 序号 | 遗物 / Wiki ID | 池 | 稀有度 | 先古归属 | 原文效果 | 状态 | 执行 / 缺口 | 来源图片 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | [燃烧之血](https://sts2.huijiwiki.com/wiki/%E7%87%83%E7%83%A7%E4%B9%8B%E8%A1%80)<br>`burning_blood` | 铁甲战士 | 初始 | — | 在战斗结束时，回复6点生命。 | 已接入，待实机 | battleHeal=6 | `burning_blood.png`<br>71×81；6202 B |
+| 1 | [燃烧之血](https://sts2.huijiwiki.com/wiki/%E7%87%83%E7%83%A7%E4%B9%8B%E8%A1%80)<br>`burning_blood` | 刘备 | 初始 | — | 在战斗结束时，回复6点生命。 | 已接入，待实机 | battleHeal=6 | `burning_blood.png`<br>71×81；6202 B |
 | 2 | [蛇之戒指](https://sts2.huijiwiki.com/wiki/%E8%9B%87%E4%B9%8B%E6%88%92%E6%8C%87)<br>`ring_of_the_snake` | 静默猎手 | 初始 | — | 在每场战斗开始时，额外抽2张牌。 | 已接入，待实机 | openingDraw=2 | `ring_of_the_snake.png`<br>81×81；9868 B |
 | 3 | [天赋君权](https://sts2.huijiwiki.com/wiki/%E5%A4%A9%E8%B5%8B%E5%90%9B%E6%9D%83)<br>`divine_right` | 储君 | 初始 | — | 在每场战斗开始时，获得[辉星][辉星][辉星]。 | 待补充，禁入奖励 | 辉星系统 | `divine_right.png`<br>71×81；8739 B |
 | 4 | [缚魂命匣](https://sts2.huijiwiki.com/wiki/%E7%BC%9A%E9%AD%82%E5%91%BD%E5%8C%A3)<br>`bound_phylactery` | 亡灵契约师 | 初始 | — | 在你的回合开始时，召唤1 | 待补充，禁入奖励 | 奥斯提召唤系统 | `bound_phylactery.png`<br>77×82；8874 B |
 | 5 | [破损核心](https://sts2.huijiwiki.com/wiki/%E7%A0%B4%E6%8D%9F%E6%A0%B8%E5%BF%83)<br>`cracked_core` | 故障机器人 | 初始 | — | 在每场战斗开始时，生成1个闪电充能球。 | 待补充，禁入奖励 | 充能球系统 | `cracked_core.png`<br>79×78；8536 B |
-| 6 | [黑暗之血](https://sts2.huijiwiki.com/wiki/%E9%BB%91%E6%9A%97%E4%B9%8B%E8%A1%80)<br>`black_blood` | 铁甲战士 | 初始 | — | 在战斗结束时，回复12点生命。 | 已接入，待实机 | battleHeal=12；replaces="burning_blood" | `black_blood.png`<br>66×79；6334 B |
-| 7 | [长蛇戒指](https://sts2.huijiwiki.com/wiki/%E9%95%BF%E8%9B%87%E6%88%92%E6%8C%87)<br>`ring_of_the_drake` | 静默猎手 | 初始 | — | 在战斗开始时的前3个回合，你额外抽2张牌。 | 梦三适配，待实机 | 刘备仅映射铁甲战士池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。 | `ring_of_the_drake.png`<br>78×80；7525 B |
+| 6 | [黑暗之血](https://sts2.huijiwiki.com/wiki/%E9%BB%91%E6%9A%97%E4%B9%8B%E8%A1%80)<br>`black_blood` | 刘备 | 初始 | — | 在战斗结束时，回复12点生命。 | 已接入，待实机 | battleHeal=12；replaces="burning_blood" | `black_blood.png`<br>66×79；6334 B |
+| 7 | [长蛇戒指](https://sts2.huijiwiki.com/wiki/%E9%95%BF%E8%9B%87%E6%88%92%E6%8C%87)<br>`ring_of_the_drake` | 静默猎手 | 初始 | — | 在战斗开始时的前3个回合，你额外抽2张牌。 | 梦三适配，待实机 | 刘备默认使用专属遗物池；其他角色池需配置player.relicPool才可获取。效果按前三个自身回合各摸2张接入。 | `ring_of_the_drake.png`<br>78×80；7525 B |
 | 8 | [天命所归](https://sts2.huijiwiki.com/wiki/%E5%A4%A9%E5%91%BD%E6%89%80%E5%BD%92)<br>`divine_destiny` | 储君 | 初始 | — | 在每场战斗开始时，获得[辉星][辉星][辉星][辉星][辉星][辉星]。 | 待补充，禁入奖励 | 辉星系统 | `divine_destiny.png`<br>71×81；8401 B |
 | 9 | [无界命匣](https://sts2.huijiwiki.com/wiki/%E6%97%A0%E7%95%8C%E5%91%BD%E5%8C%A3)<br>`phylactery_unbound` | 亡灵契约师 | 初始 | — | 在每场战斗开始时，召唤5。在你的回合开始时，召唤2。 | 待补充，禁入奖励 | 奥斯提召唤系统 | `phylactery_unbound.png`<br>76×80；9269 B |
 | 10 | [注能核心](https://sts2.huijiwiki.com/wiki/%E6%B3%A8%E8%83%BD%E6%A0%B8%E5%BF%83)<br>`infused_core` | 故障机器人 | 初始 | — | 在每场战斗开始时，生成3个闪电充能球。闪电充能球额外造成1点伤害。 | 待补充，禁入奖励 | 充能球系统 | `infused_core.png`<br>80×78；10310 B |
@@ -146,7 +146,7 @@
 | 33 | [战纹涂料](https://sts2.huijiwiki.com/wiki/%E6%88%98%E7%BA%B9%E6%B6%82%E6%96%99)<br>`war_paint` | 通用 | 普通 | — | 拾起时，随机升级2张技能牌。 | 已接入，待实机 | gainUpgrade=2；upgradeType="skill" | `war_paint.png`<br>80×53；7563 B |
 | 34 | [准备背包](https://sts2.huijiwiki.com/wiki/%E5%87%86%E5%A4%87%E8%83%8C%E5%8C%85)<br>`bag_of_preparation` | 通用 | 普通 | — | 在每场战斗开始时，额外抽2张牌。 | 已接入，待实机 | openingDraw=2 | `bag_of_preparation.png`<br>81×74；8988 B |
 | 35 | [紫水晶茄子](https://sts2.huijiwiki.com/wiki/%E7%B4%AB%E6%B0%B4%E6%99%B6%E8%8C%84%E5%AD%90)<br>`amethyst_aubergine` | 通用 | 普通 | — | 敌人额外掉落15金币。 | 已接入，待实机 | battleGold=15 | `amethyst_aubergine.png`<br>81×77；7960 B |
-| 36 | [红头骨](https://sts2.huijiwiki.com/wiki/%E7%BA%A2%E5%A4%B4%E9%AA%A8)<br>`red_skull` | 铁甲战士 | 普通 | — | 当你的生命值低于或等于50%时，你额外获得3点力量 | 已接入，待实机 | lowHpStrength=3 | `red_skull.png`<br>76×81；8046 B |
+| 36 | [红头骨](https://sts2.huijiwiki.com/wiki/%E7%BA%A2%E5%A4%B4%E9%AA%A8)<br>`red_skull` | 刘备 | 普通 | — | 当你的生命值低于或等于50%时，你额外获得3点力量 | 已接入，待实机 | lowHpStrength=3 | `red_skull.png`<br>76×81；8046 B |
 | 37 | [异蛇头骨](https://sts2.huijiwiki.com/wiki/%E5%BC%82%E8%9B%87%E5%A4%B4%E9%AA%A8)<br>`snecko_skull` | 静默猎手 | 普通 | — | 每当你给予敌人中毒时，所给予的中毒层数增加1层。 | 待补充，禁入奖励 | 玩家中毒牌与中毒系统 | `snecko_skull.png`<br>80×73；6524 B |
 | 38 | [击剑指南](https://sts2.huijiwiki.com/wiki/%E5%87%BB%E5%89%91%E6%8C%87%E5%8D%97)<br>`fencing_manual` | 储君 | 普通 | — | 在每场战斗开始时，铸造10。 | 待补充，禁入奖励 | 铸造系统 | `fencing_manual.png`<br>59×80；6554 B |
 | 39 | [骨笛](https://sts2.huijiwiki.com/wiki/%E9%AA%A8%E7%AC%9B)<br>`bone_flute` | 亡灵契约师 | 普通 | — | 每当奥斯提攻击时，获得2点格挡。 | 待补充，禁入奖励 | 奥斯提攻击系统 | `bone_flute.png`<br>81×78；5418 B |
@@ -181,8 +181,8 @@
 | 68 | [招财异鱼](https://sts2.huijiwiki.com/wiki/%E6%8B%9B%E8%B4%A2%E5%BC%82%E9%B1%BC)<br>`lucky_fysh` | 通用 | 罕见 | — | 每当你将一张卡牌加入你的牌组时，获得15金币。 | 已接入，待实机 | deckAddGold=15 | `lucky_fysh.png`<br>81×83；9458 B |
 | 69 | [招架盾](https://sts2.huijiwiki.com/wiki/%E6%8B%9B%E6%9E%B6%E7%9B%BE)<br>`parrying_shield` | 通用 | 罕见 | — | 如果你在回合结束时拥有至少10点格挡，则对随机敌人造成6点伤害。 | 已接入，待实机 | endBlockThreshold=10；endBlockDamage=6 | `parrying_shield.png`<br>81×81；8633 B |
 | 70 | [烛台](https://sts2.huijiwiki.com/wiki/%E7%83%9B%E5%8F%B0)<br>`candelabra` | 通用 | 罕见 | — | 在你的第2回合开始时，获得[能量][能量]。 | 已接入，待实机 | nthTurn=2；nthTurnEnergy=2 | `candelabra.png`<br>81×81；5701 B |
-| 71 | [纸蛙](https://sts2.huijiwiki.com/wiki/%E7%BA%B8%E8%9B%99)<br>`paper_phrog` | 铁甲战士 | 罕见 | — | 有易伤状态的敌人受到的伤害增加75%而非50%。 | 梦三适配，待实机 | 依梦三易伤口径向上取整；作用于玩家发起的攻击，保留既有卡牌的额外易伤增幅。 | `paper_phrog.png`<br>81×69；5557 B |
-| 72 | [自成型黏土](https://sts2.huijiwiki.com/wiki/%E8%87%AA%E6%88%90%E5%9E%8B%E9%BB%8F%E5%9C%9F)<br>`self_forming_clay` | 铁甲战士 | 罕见 | — | 每当你在战斗中失去生命，就在下回合获得3点格挡。 | 已接入，待实机 | hpLossNextBlock=3 | `self_forming_clay.png`<br>81×80；7786 B |
+| 71 | [纸蛙](https://sts2.huijiwiki.com/wiki/%E7%BA%B8%E8%9B%99)<br>`paper_phrog` | 刘备 | 罕见 | — | 有易伤状态的敌人受到的伤害增加75%而非50%。 | 梦三适配，待实机 | 依梦三易伤口径向上取整；作用于玩家发起的攻击，保留既有卡牌的额外易伤增幅。 | `paper_phrog.png`<br>81×69；5557 B |
+| 72 | [自成型黏土](https://sts2.huijiwiki.com/wiki/%E8%87%AA%E6%88%90%E5%9E%8B%E9%BB%8F%E5%9C%9F)<br>`self_forming_clay` | 刘备 | 罕见 | — | 每当你在战斗中失去生命，就在下回合获得3点格挡。 | 已接入，待实机 | hpLossNextBlock=3 | `self_forming_clay.png`<br>81×80；7786 B |
 | 73 | [铜钹](https://sts2.huijiwiki.com/wiki/%E9%93%9C%E9%92%B9)<br>`tingsha` | 静默猎手 | 罕见 | — | 你每在你的回合丢弃一张牌，就对一名随机敌人造成3点伤害。 | 待补充，禁入奖励 | 尚缺效果接口：discardDamage | `tingsha.png`<br>77×72；6163 B |
 | 74 | [扭曲漏斗](https://sts2.huijiwiki.com/wiki/%E6%89%AD%E6%9B%B2%E6%BC%8F%E6%96%97)<br>`twisted_funnel` | 静默猎手 | 罕见 | — | 在每场战斗开始时，给予所有敌人4层中毒。 | 待补充，禁入奖励 | 中毒系统 | `twisted_funnel.png`<br>80×71；6585 B |
 | 75 | [星系尘埃](https://sts2.huijiwiki.com/wiki/%E6%98%9F%E7%B3%BB%E5%B0%98%E5%9F%83)<br>`galactic_dust` | 储君 | 罕见 | — | 每消耗10点[辉星]，就获得10格挡。 | 待补充，禁入奖励 | 辉星消费系统 | `galactic_dust.png`<br>80×82；7036 B |
@@ -226,9 +226,9 @@
 | 113 | [钨合金棍](https://sts2.huijiwiki.com/wiki/%E9%92%A8%E5%90%88%E9%87%91%E6%A3%8D)<br>`tungsten_rod` | 通用 | 稀有 | — | 你每次失去生命时，减少失去的生命值1点。 | 已接入，待实机 | reduceHpLoss=1 | `tungsten_rod.png`<br>80×75；5669 B |
 | 114 | [蜥蜴尾巴](https://sts2.huijiwiki.com/wiki/%E8%9C%A5%E8%9C%B4%E5%B0%BE%E5%B7%B4)<br>`lizard_tail` | 通用 | 稀有 | — | 当你的生命值将要降低至0或以下时，回复到最大生命值的50%（仅能起效一次）。 | 已接入，待实机 | deathHealFraction=0.5 | `lizard_tail.png`<br>82×81；7566 B |
 | 115 | [转经轮](https://sts2.huijiwiki.com/wiki/%E8%BD%AC%E7%BB%8F%E8%BD%AE)<br>`prayer_wheel` | 通用 | 稀有 | — | 普通敌人额外掉落一次卡牌奖励。 | 待补充，禁入奖励 | 独立的额外卡牌奖励组 | `prayer_wheel.png`<br>57×81；6409 B |
-| 116 | [卡戎之灰](https://sts2.huijiwiki.com/wiki/%E5%8D%A1%E6%88%8E%E4%B9%8B%E7%81%B0)<br>`charons_ashes` | 铁甲战士 | 稀有 | — | 每当你消耗一张牌，对所有敌人造成3点伤害。 | 已接入，待实机 | exhaustDamage=3 | `charons_ashes.png`<br>80×79；7056 B |
-| 117 | [恶魔之舌](https://sts2.huijiwiki.com/wiki/%E6%81%B6%E9%AD%94%E4%B9%8B%E8%88%8C)<br>`demon_tongue` | 铁甲战士 | 稀有 | — | 每回合第一次在回合内失去生命值时，回复等量的生命值。 | 待补充，禁入奖励 | 尚缺效果接口：firstTurnLossHeal | `demon_tongue.png`<br>79×79；5413 B |
-| 118 | [损毁头盔](https://sts2.huijiwiki.com/wiki/%E6%8D%9F%E6%AF%81%E5%A4%B4%E7%9B%94)<br>`ruined_helmet` | 铁甲战士 | 稀有 | — | 你在每场战斗中第一次获得的力量值翻倍。 | 待补充，禁入奖励 | 尚缺效果接口：firstStrengthDouble | `ruined_helmet.png`<br>67×78；6839 B |
+| 116 | [卡戎之灰](https://sts2.huijiwiki.com/wiki/%E5%8D%A1%E6%88%8E%E4%B9%8B%E7%81%B0)<br>`charons_ashes` | 刘备 | 稀有 | — | 每当你消耗一张牌，对所有敌人造成3点伤害。 | 已接入，待实机 | exhaustDamage=3 | `charons_ashes.png`<br>80×79；7056 B |
+| 117 | [恶魔之舌](https://sts2.huijiwiki.com/wiki/%E6%81%B6%E9%AD%94%E4%B9%8B%E8%88%8C)<br>`demon_tongue` | 刘备 | 稀有 | — | 每回合第一次在回合内失去生命值时，回复等量的生命值。 | 待补充，禁入奖励 | 尚缺效果接口：firstTurnLossHeal | `demon_tongue.png`<br>79×79；5413 B |
+| 118 | [损毁头盔](https://sts2.huijiwiki.com/wiki/%E6%8D%9F%E6%AF%81%E5%A4%B4%E7%9B%94)<br>`ruined_helmet` | 刘备 | 稀有 | — | 你在每场战斗中第一次获得的力量值翻倍。 | 待补充，禁入奖励 | 尚缺效果接口：firstStrengthDouble | `ruined_helmet.png`<br>67×78；6839 B |
 | 119 | [螺线飞镖](https://sts2.huijiwiki.com/wiki/%E8%9E%BA%E7%BA%BF%E9%A3%9E%E9%95%96)<br>`helical_dart` | 静默猎手 | 稀有 | — | 你每打出一张小刀，就在本回合获得1点敏捷。 | 待补充，禁入奖励 | 小刀牌与静默猎手牌组 | `helical_dart.png`<br>79×80；6241 B |
 | 120 | [纸鹤](https://sts2.huijiwiki.com/wiki/%E7%BA%B8%E9%B9%A4)<br>`paper_krane` | 静默猎手 | 稀有 | — | 有虚弱状态的敌人造成的伤害降低40%而非25%。 | 梦三适配，待实机 | 依梦三虚弱口径向下取整，敌人攻击倍率0.6。 | `paper_krane.png`<br>76×78；5861 B |
 | 121 | [结实绷带](https://sts2.huijiwiki.com/wiki/%E7%BB%93%E5%AE%9E%E7%BB%B7%E5%B8%A6)<br>`tough_bandages` | 静默猎手 | 稀有 | — | 你每在你的回合丢弃一张牌，就获得3点格挡。 | 待补充，禁入奖励 | 尚缺效果接口：discardBlock | `tough_bandages.png`<br>80×78；7351 B |
@@ -266,7 +266,7 @@
 | 153 | [勇气投石索](https://sts2.huijiwiki.com/wiki/%E5%8B%87%E6%B0%94%E6%8A%95%E7%9F%B3%E7%B4%A2)<br>`sling_of_courage` | 通用 | 商店 | — | 在与精英敌人战斗时，获得2点力量。 | 已接入，待实机 | eliteOpeningStrength=2 | `sling_of_courage.png`<br>81×77；6202 B |
 | 154 | [幽灵种子](https://sts2.huijiwiki.com/wiki/%E5%B9%BD%E7%81%B5%E7%A7%8D%E5%AD%90)<br>`ghost_seed` | 通用 | 商店 | — | 打击和防御获得虚无。 | 待补充，禁入奖励 | 尚缺效果接口：starterVoid | `ghost_seed.png`<br>71×78；7167 B |
 | 155 | [羽翼护符](https://sts2.huijiwiki.com/wiki/%E7%BE%BD%E7%BF%BC%E6%8A%A4%E7%AC%A6)<br>`wing_charm` | 通用 | 商店 | — | 每次卡牌奖励中，都会有随机一张牌被附魔：迅捷1。 | 待补充，禁入奖励 | 迅捷附魔 | `wing_charm.png`<br>76×76；7790 B |
-| 156 | [硫磺](https://sts2.huijiwiki.com/wiki/%E7%A1%AB%E7%A3%BA)<br>`brimstone` | 铁甲战士 | 商店 | — | 在你的每个回合开始时，你获得2点力量，所有敌人获得1点力量。 | 待补充，禁入奖励 | 尚缺效果接口：turnStrength、enemyTurnStrength | `brimstone.png`<br>79×72；7533 B |
+| 156 | [硫磺](https://sts2.huijiwiki.com/wiki/%E7%A1%AB%E7%A3%BA)<br>`brimstone` | 刘备 | 商店 | — | 在你的每个回合开始时，你获得2点力量，所有敌人获得1点力量。 | 待补充，禁入奖励 | 尚缺效果接口：turnStrength、enemyTurnStrength | `brimstone.png`<br>79×72；7533 B |
 | 157 | [忍术卷轴](https://sts2.huijiwiki.com/wiki/%E5%BF%8D%E6%9C%AF%E5%8D%B7%E8%BD%B4)<br>`ninja_scroll` | 静默猎手 | 商店 | — | 每场战斗开始时，将3张小刀加入你的手牌。 | 待补充，禁入奖励 | 小刀牌与静默猎手牌组 | `ninja_scroll.png`<br>78×79；8733 B |
 | 158 | [维特鲁威仆从](https://sts2.huijiwiki.com/wiki/%E7%BB%B4%E7%89%B9%E9%B2%81%E5%A8%81%E4%BB%86%E4%BB%8E)<br>`vitruvian_minion` | 储君 | 商店 | — | 名字中有“仆从”的卡牌造成双倍的伤害与格挡。 | 待补充，禁入奖励 | 仆从牌与储君牌组 | `vitruvian_minion.png`<br>81×81；9816 B |
 | 159 | [不死符文](https://sts2.huijiwiki.com/wiki/%E4%B8%8D%E6%AD%BB%E7%AC%A6%E6%96%87)<br>`undying_sigil` | 亡灵契约师 | 商店 | — | 当敌人的灾厄层数大于等于其生命值时，它造成的伤害降低50%。 | 待补充，禁入奖励 | 灾厄系统 | `undying_sigil.png`<br>78×75；9913 B |

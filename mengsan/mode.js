@@ -73,6 +73,7 @@ import { isFogmog, isToothedEye, isFogmogActor, isEncounterEnemy,
     recordFogmogAction } from "./monsters/fogmog-intent.js";
 import { mountEnergy } from "./ui/energy-display.js";
 import { mountHandUI } from "./ui/hand/index.js";
+import { mountBattleHUD } from "./ui/hud/index.js";
 import {
     finishDeathBlow,
     hasPendingDeathBlow,
@@ -715,7 +716,12 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         }
     }
     activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying);
-    currentBattle.relicUI = mountRelics(session, run, currentBattle.relics);
+    currentBattle.owner = me;
+    currentBattle.hud = mountBattleHUD(me, currentBattle, {
+        game, ui, get, lib, _status, document, window, assetBase: STYLE_PATH,
+        log: message => game.log(message),
+    });
+    currentBattle.relicUI = mountRelics(session, run, currentBattle.relics, { stripRoot: ui.arena });
     activeBattle.gmUI = mountGMManager(session, me, activeBattle.personalPiles, _status.mengsanBattle_shuying, resources, game);
     for (let index = 0; index < plan.units.length; index++) await equipBattleUnit(participants[index], plan.units[index], resources);
     game.syncState();
@@ -841,7 +847,8 @@ const requestBattleFinish = outcome => {
         current.pilesUI?.dispose();
         current.gmUI?.dispose();
         current.relicUI?.dispose();
-        current.handUI?.dispose();
+        current.handUI?.freeze();
+        current.hud?.freeze();
         stopBattleTurn(current.session, _status.eventManager);
         if (_status.mengsanBattle_shuying) _status.mengsanBattle_shuying.resolving = true;
         current.finished();
@@ -920,6 +927,7 @@ const playBattle = async (run, node, encounter) => {
     if (current.engineFailed) {
         reportFlowError(current.engineError);
         session.requestStop();
+        current.hud?.dispose();
         current.handUI?.dispose();
         document.body.classList.remove("mengsan-battle-ui-shuying");
         const reason = current.engineError?.message || String(current.engineError);

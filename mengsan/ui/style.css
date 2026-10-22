@@ -1031,15 +1031,15 @@ dialog.mengsan-victory-dialog-shuying::backdrop, dialog.mengsan-card-choice-dial
 .mengsan-victory-intro-shuying p { max-width: 17em; margin: 0; color: var(--reward-muted); font-size: 15px; line-height: 1.8; }
 .mengsan-victory-options-shuying {
     position: relative !important; grid-column: 2; grid-row: 1; display: flex !important; flex-direction: column !important;
-    gap: 12px; max-height: min(66dvh,560px); padding: 24px; overflow-y: auto;
+    gap: 8px; max-height: min(66dvh,560px); padding: 16px; overflow-y: auto;
     border: 1px solid rgba(199,164,119,.65); border-radius: 7px;
     background: linear-gradient(145deg,#1e3435,#111f24 68%);
     box-shadow: inset 0 0 0 5px rgba(9,19,22,.8),0 22px 50px #0008;
 }
 .mengsan-victory-eyebrow-shuying { color: var(--reward-bronze); font: 700 13px/1.4 "Microsoft YaHei",sans-serif; letter-spacing: .16em; margin: 0 0 5px; }
 button.mengsan-victory-option-shuying {
-    position: relative !important; display: flex !important; align-items: center; gap: 18px;
-    width: 100%; min-height: 94px; padding: 17px 18px; border: 1px solid #60857a;
+    position: relative !important; display: flex !important; align-items: center; gap: 12px; flex-shrink: 0;
+    width: 100%; min-height: 64px; padding: 9px 12px; border: 1px solid #60857a;
     border-left: 4px solid var(--reward-bronze); border-radius: 3px; color: var(--reward-paper);
     background: linear-gradient(110deg,#254b49,#1a3238); text-align: left; cursor: pointer;
     transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
@@ -1053,11 +1053,11 @@ button.mengsan-card-choice-tile-shuying:focus-visible, button.mengsan-card-choic
     outline: 3px solid #d9e9bb; outline-offset: 4px;
 }
 button.mengsan-victory-option-shuying:disabled { opacity: .6; cursor: wait; }
-.mengsan-victory-option-index-shuying { flex: 0 0 44px; color: var(--reward-bronze); font: 700 24px/1 "KaiTi",serif; }
-.mengsan-victory-option-copy-shuying { display: flex !important; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
-.mengsan-victory-option-copy-shuying strong { color: #fff1d5; font: 700 23px/1.2 "KaiTi",serif; }
-.mengsan-victory-option-copy-shuying small { color: #d3e0d4; font: 14px/1.5 "Microsoft YaHei",sans-serif; }
-.mengsan-victory-option-arrow-shuying { flex: 0 0 28px; color: var(--reward-bronze); font: 34px/1 "KaiTi",serif; text-align: center; }
+.mengsan-victory-option-index-shuying { flex: 0 0 32px; color: var(--reward-bronze); font: 700 20px/1 "KaiTi",serif; }
+.mengsan-victory-option-copy-shuying { display: flex !important; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.mengsan-victory-option-copy-shuying strong { color: #fff1d5; font: 700 20px/1.2 "KaiTi",serif; }
+.mengsan-victory-option-copy-shuying small { color: #d3e0d4; font: 13px/1.4 "Microsoft YaHei",sans-serif; }
+.mengsan-victory-option-arrow-shuying { flex: 0 0 22px; color: var(--reward-bronze); font: 28px/1 "KaiTi",serif; text-align: center; }
 button.mengsan-victory-skip-shuying {
     grid-column: 2; grid-row: 2; justify-self: end; min-height: 48px; margin-top: 16px; padding: 8px 4px;
     border: 0; border-bottom: 1px solid var(--reward-muted); color: var(--reward-muted);
@@ -1121,7 +1121,7 @@ button.mengsan-card-choice-skip-shuying:hover { color: #fff1d5; border-color: #d
     .mengsan-victory-seal-shuying { display: none !important; }
     .mengsan-victory-intro-shuying::after { display: none; }
     .mengsan-victory-intro-shuying h2 { margin-top: 8px; }
-    .mengsan-victory-options-shuying { grid-column: 1; grid-row: 2; max-height: none; padding: 18px; }
+    .mengsan-victory-options-shuying { grid-column: 1; grid-row: 2; max-height: none; padding: 12px; }
     button.mengsan-victory-skip-shuying { grid-column: 1; grid-row: 3; }
     .mengsan-card-choice-stage-shuying { justify-content: flex-start; }
     .mengsan-card-choice-grid-shuying { grid-template-columns: repeat(3,minmax(0,1fr)); width: min(620px,100%); }
@@ -1131,7 +1131,7 @@ button.mengsan-card-choice-skip-shuying:hover { color: #fff1d5; border-color: #d
     button.mengsan-card-choice-tile-shuying { min-height: 292px; }
     .mengsan-card-choice-art-shuying { height: 105px; }
     .mengsan-victory-option-index-shuying { flex-basis: 30px; font-size: 20px; }
-    button.mengsan-victory-option-shuying { gap: 10px; padding: 13px; }
+    button.mengsan-victory-option-shuying { gap: 8px; padding: 8px 10px; }
 }
 @media (max-width: 350px) { .mengsan-card-choice-grid-shuying { grid-template-columns: minmax(0,210px); } }
 @media (prefers-reduced-motion: reduce) {

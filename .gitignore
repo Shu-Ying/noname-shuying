@@ -16,6 +16,9 @@ tools/*.mjs
 
 *.mjs
 *.cjs
+!/mengsan/tools/test-hud-status.cjs
+!/mengsan/tools/test-battle-hud.cjs
+!/mengsan/tools/import-status-icons.cjs
 
 /.update_tmp/
 /.planning/
