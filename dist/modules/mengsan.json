@@ -1,11 +1,11 @@
 {
-  "version": "2.0.2.3-rc.3",
-  "generated_at": "2026-10-08T15:53:16.836871+00:00",
+  "version": "2.0.2.3-rc.6",
+  "generated_at": "2026-10-29T04:08:40.950013+00:00",
   "algorithm": "sha256",
   "update_channels": true,
-  "file_count": 763,
-  "size_bytes": 147712610,
-  "folder_sha256": "87eb69f97dde3ac7a02979505d5ca5bd98fbc67e721681c953e5eb5a35f1c22e",
+  "file_count": 830,
+  "size_bytes": 148043940,
+  "folder_sha256": "f7d08826710e8bb0260488701afba4f73f4a9b28ce463735eaff398886b40392",
   "core": [
     "mengsan/register.js"
   ],
@@ -601,6 +601,67 @@
     "mengsan/assets/relics/wongo_customer_appreciation_badge.png",
     "mengsan/assets/relics/wongos_mystery_ticket.png",
     "mengsan/assets/relics/yummy_cookie.png",
+    "mengsan/assets/status/aggression_power.png",
+    "mengsan/assets/status/artifact_power.png",
+    "mengsan/assets/status/automation_power.png",
+    "mengsan/assets/status/barricade_power.png",
+    "mengsan/assets/status/beacon_of_hope_power.png",
+    "mengsan/assets/status/block_next_turn_power.png",
+    "mengsan/assets/status/calamity_power.png",
+    "mengsan/assets/status/colossus_power.png",
+    "mengsan/assets/status/constrict_power.png",
+    "mengsan/assets/status/corruption_power.png",
+    "mengsan/assets/status/crimson_mantle_power.png",
+    "mengsan/assets/status/curious_power.png",
+    "mengsan/assets/status/dark_embrace_power.png",
+    "mengsan/assets/status/demesne_power.png",
+    "mengsan/assets/status/demon_form_power.png",
+    "mengsan/assets/status/dexterity_power.png",
+    "mengsan/assets/status/draw_cards_next_turn_power.png",
+    "mengsan/assets/status/energy_next_turn_power.png",
+    "mengsan/assets/status/entropy_power.png",
+    "mengsan/assets/status/fasten_power.png",
+    "mengsan/assets/status/feel_no_pain_power.png",
+    "mengsan/assets/status/flame_barrier_power.png",
+    "mengsan/assets/status/frail_power.png",
+    "mengsan/assets/status/free_attack_power.png",
+    "mengsan/assets/status/hellraiser_power.png",
+    "mengsan/assets/status/inferno_power.png",
+    "mengsan/assets/status/infested_power.png",
+    "mengsan/assets/status/intangible_power.png",
+    "mengsan/assets/status/juggernaut_power.png",
+    "mengsan/assets/status/juggling_power.png",
+    "mengsan/assets/status/manifest.json",
+    "mengsan/assets/status/mayhem_power.png",
+    "mengsan/assets/status/no_block_power.png",
+    "mengsan/assets/status/no_draw_power.png",
+    "mengsan/assets/status/no_energy_gain_power.png",
+    "mengsan/assets/status/nostalgia_power.png",
+    "mengsan/assets/status/one_two_punch_power.png",
+    "mengsan/assets/status/panache_power.png",
+    "mengsan/assets/status/plating_power.png",
+    "mengsan/assets/status/plow_power.png",
+    "mengsan/assets/status/prep_time_power.png",
+    "mengsan/assets/status/rage_power.png",
+    "mengsan/assets/status/retain_hand_power.png",
+    "mengsan/assets/status/ringing_power.png",
+    "mengsan/assets/status/rolling_boulder_power.png",
+    "mengsan/assets/status/rupture_power.png",
+    "mengsan/assets/status/shrink_power.png",
+    "mengsan/assets/status/slippery_power.png",
+    "mengsan/assets/status/slow_power.png",
+    "mengsan/assets/status/stampede_power.png",
+    "mengsan/assets/status/strength_power.png",
+    "mengsan/assets/status/tangled_power.png",
+    "mengsan/assets/status/tank_power.png",
+    "mengsan/assets/status/territorial_power.png",
+    "mengsan/assets/status/the_bomb_power.png",
+    "mengsan/assets/status/the_gambit_power.png",
+    "mengsan/assets/status/unmovable_power.png",
+    "mengsan/assets/status/vicious_power.png",
+    "mengsan/assets/status/vigor_power.png",
+    "mengsan/assets/status/vulnerable_power.png",
+    "mengsan/assets/status/weak_power.png",
     "mengsan/battle/battle-director.js",
     "mengsan/battle/battle-flow.js",
     "mengsan/battle/battle-loop.js",
@@ -614,6 +675,7 @@
     "mengsan/battle/intent-damage.js",
     "mengsan/battle/intent-effects.js",
     "mengsan/battle/skill-teardown.js",
+    "mengsan/battle/status-sources.js",
     "mengsan/battle/stun-intent.js",
     "mengsan/bonds/battle.js",
     "mengsan/bonds/definitions.js",
@@ -762,11 +824,16 @@
     "mengsan/ui/hand/input.js",
     "mengsan/ui/hand/overlays.js",
     "mengsan/ui/hand/style.css",
+    "mengsan/ui/hud/index.js",
+    "mengsan/ui/hud/overlays.js",
+    "mengsan/ui/hud/status-model.js",
+    "mengsan/ui/hud/style.css",
     "mengsan/ui/intent-display.js",
     "mengsan/ui/map/index.js",
     "mengsan/ui/map/renderer.js",
     "mengsan/ui/navigation.js",
     "mengsan/ui/relic-icon.js",
+    "mengsan/ui/relic-strip.js",
     "mengsan/ui/relics.js",
     "mengsan/ui/reward-package.js",
     "mengsan/ui/reward-ui.js",
@@ -2525,8 +2592,8 @@
       "sha256": "1bd7c0298cbbc160d6f17a838b99880548559fb7db66d83f10634f8fbfe04774"
     },
     "mengsan/assets/relics/manifest.json": {
-      "size": 97396,
-      "sha256": "0c1643d0a0b937e670c0f09158cdcb4a9a70213fbd287e876923679fda5182ae"
+      "size": 94100,
+      "sha256": "57904adde9b33501301d3b6b37fcc1729e19cd7c2d2a8407b3f2714fb42ca8e7"
     },
     "mengsan/assets/relics/massive_scroll.png": {
       "size": 7672,
@@ -3140,698 +3207,966 @@
       "size": 8499,
       "sha256": "0802618198a3f3f6d6c71cd52290996706d5e5a2c6119dc5c3207529fd4b9cb0"
     },
+    "mengsan/assets/status/aggression_power.png": {
+      "size": 4524,
+      "sha256": "9ec47f0a5eb259c1cc131b82e6bb9e22343df7f64c7375db7580eb326b6a97f3"
+    },
+    "mengsan/assets/status/artifact_power.png": {
+      "size": 5717,
+      "sha256": "2346d2425fd40cc5f8532df0f97afa9bbb782fa649a09bcb014fe6932e845f90"
+    },
+    "mengsan/assets/status/automation_power.png": {
+      "size": 4452,
+      "sha256": "c7b5b35579dc1b2ff209e4be54a1982381b1096c640a3c21bb5c9e6aeb86a08f"
+    },
+    "mengsan/assets/status/barricade_power.png": {
+      "size": 2828,
+      "sha256": "1467ded14bfef8cdc15152e62a100ef7d3be85173ac5eea2f6960d4815d5c64c"
+    },
+    "mengsan/assets/status/beacon_of_hope_power.png": {
+      "size": 5248,
+      "sha256": "0d33f9098425c3d740e699926809c0c7c9121cdd05e52508284a1e34d7b7bd8d"
+    },
+    "mengsan/assets/status/block_next_turn_power.png": {
+      "size": 4275,
+      "sha256": "fd5c75f11f5719f9ffb52ceda3640cbc684ec178e783a3ceb2774548df1615f8"
+    },
+    "mengsan/assets/status/calamity_power.png": {
+      "size": 5331,
+      "sha256": "8d510b86daa72a8066729bc5d0a3943acf5c77903be69525f325b65607c7cdd7"
+    },
+    "mengsan/assets/status/colossus_power.png": {
+      "size": 3875,
+      "sha256": "cfe2be38931e40856d5388b6e3b8c86a7ee2de6688ab69294f348d383e1dfb7d"
+    },
+    "mengsan/assets/status/constrict_power.png": {
+      "size": 4543,
+      "sha256": "5f29c6b3f8955e275d98f9ed47a893c1214a7bfb820ce1c696c9f16fddcbd8b4"
+    },
+    "mengsan/assets/status/corruption_power.png": {
+      "size": 4822,
+      "sha256": "8228d730978170f60d9c429136a395b3de59b5c98726912812f708ec803836eb"
+    },
+    "mengsan/assets/status/crimson_mantle_power.png": {
+      "size": 4706,
+      "sha256": "7fdeb8f49fb6bfb3ef5f4ff52ec8bcad18bf8fd1e0357d9378ac657124cb8e23"
+    },
+    "mengsan/assets/status/curious_power.png": {
+      "size": 4106,
+      "sha256": "77cb0e309fc148e2b2bb723fa5a227d4dc3c2503e22421b9d0e457fb3a85c7d7"
+    },
+    "mengsan/assets/status/dark_embrace_power.png": {
+      "size": 5545,
+      "sha256": "f60e5524cf10b4da15f1b788a58e65e2765aa928988100d6fcb6012829520d99"
+    },
+    "mengsan/assets/status/demesne_power.png": {
+      "size": 5817,
+      "sha256": "554fff2e62aaeaee7b1c9cc1c8283257139ce901a5191c39d143b757cd865e96"
+    },
+    "mengsan/assets/status/demon_form_power.png": {
+      "size": 4728,
+      "sha256": "2e183f449fc07c30356d181a1b1a5814aad2ef077598642a35899f4d8cdc3bc3"
+    },
+    "mengsan/assets/status/dexterity_power.png": {
+      "size": 3073,
+      "sha256": "6609f4d04f4613ba0001b6254a793ddd2c25a60e66a320ff31ef6724ef15f20e"
+    },
+    "mengsan/assets/status/draw_cards_next_turn_power.png": {
+      "size": 3178,
+      "sha256": "c0a8c2781aff2e5c6bf73a2dd2938ef820a5fde651757954f5219113cf88ea22"
+    },
+    "mengsan/assets/status/energy_next_turn_power.png": {
+      "size": 2896,
+      "sha256": "511314b05d5c223613b6d654816f7feb5607e7c40b0487207c5b1a75f5002f67"
+    },
+    "mengsan/assets/status/entropy_power.png": {
+      "size": 4849,
+      "sha256": "5042bd71bd07fd605cba2c39677dd21df704439ed5d0ad9610f1102d8ed782ad"
+    },
+    "mengsan/assets/status/fasten_power.png": {
+      "size": 4680,
+      "sha256": "13518361d51775876bf4cde87e88cc4a9e63a5a1d14ba49388eb12d57404bbe7"
+    },
+    "mengsan/assets/status/feel_no_pain_power.png": {
+      "size": 4244,
+      "sha256": "92359b3a53e10600e864a502291be3b50cf00c1792dbf5203e8eaac09fab126e"
+    },
+    "mengsan/assets/status/flame_barrier_power.png": {
+      "size": 4786,
+      "sha256": "48a7543a8f87c8b360a3a23a67df23b51b4a54eb6f7747cc27c9f4a230610cdf"
+    },
+    "mengsan/assets/status/frail_power.png": {
+      "size": 3945,
+      "sha256": "d772bf035190a650a9be735282c77ee9ab2276a775a9e7079710c8b09c4a4619"
+    },
+    "mengsan/assets/status/free_attack_power.png": {
+      "size": 4223,
+      "sha256": "5bc861f0693c0b73e95be4a2faebd8d81441e1011004f7a0ff71ced6f913573b"
+    },
+    "mengsan/assets/status/hellraiser_power.png": {
+      "size": 4296,
+      "sha256": "38ca8fc4c727fb936d057a78bfb9461a39b0266dd794d062e9d278505821efc6"
+    },
+    "mengsan/assets/status/inferno_power.png": {
+      "size": 5996,
+      "sha256": "3775622f4ad2419ed897bb90e56d793fb383c1810bae514d3e9c17eaff53fe69"
+    },
+    "mengsan/assets/status/infested_power.png": {
+      "size": 3554,
+      "sha256": "d6cd52278e0444a8f65fdc7d3c19b7ff9dc7067e2c1d21509f891238bae234f7"
+    },
+    "mengsan/assets/status/intangible_power.png": {
+      "size": 4398,
+      "sha256": "0368e806c412ca290796c58e1e1a96e6d84bd5dda67f39249433e688006eaf1f"
+    },
+    "mengsan/assets/status/juggernaut_power.png": {
+      "size": 5096,
+      "sha256": "c0c9382989b31f246678d1d33ecb3f17f3b75a97aa9a752dd1f6551733d76112"
+    },
+    "mengsan/assets/status/juggling_power.png": {
+      "size": 4512,
+      "sha256": "583f560f68a3b9df4ef60376b919ff51d85d862076f0ce09848644f3171d51af"
+    },
+    "mengsan/assets/status/manifest.json": {
+      "size": 11700,
+      "sha256": "0329c6da77b7d2fd90f83cc3362af66eee25ab94cf2f069ef72df1fa2ca36b48"
+    },
+    "mengsan/assets/status/mayhem_power.png": {
+      "size": 5287,
+      "sha256": "354b3fe4b63c064cc96302d46b27829f6d51fd37e703aec15d53ed53a14e2d51"
+    },
+    "mengsan/assets/status/no_block_power.png": {
+      "size": 4592,
+      "sha256": "469f70ce5a86ea24751ef75461d20ec127014e16495ee23a86ca0255b4246d4b"
+    },
+    "mengsan/assets/status/no_draw_power.png": {
+      "size": 4335,
+      "sha256": "7f8ac6cae6cc5611d7e8217619de9cc87dcef245e19bc70107bc299da790bed0"
+    },
+    "mengsan/assets/status/no_energy_gain_power.png": {
+      "size": 6746,
+      "sha256": "c31490f89b758bd63564581218ede73d89438d833ece8d8da5a8f12f773a345d"
+    },
+    "mengsan/assets/status/nostalgia_power.png": {
+      "size": 3856,
+      "sha256": "836674ba8a9e8d0ea2263e90944acdf7078dc1f6c835771650bfcf84825d84a4"
+    },
+    "mengsan/assets/status/one_two_punch_power.png": {
+      "size": 3986,
+      "sha256": "458f05559a4efcd79bcbe0fb7e1d9aa4ae47d3a0c533f11e1a72ed3e67aec78b"
+    },
+    "mengsan/assets/status/panache_power.png": {
+      "size": 3489,
+      "sha256": "61dd7bda14317085c4f6cb4ccecebc759b5468c5494d16fb1a2d78c5f3fd59e0"
+    },
+    "mengsan/assets/status/plating_power.png": {
+      "size": 5036,
+      "sha256": "10a27dd11231338120274c8b132ec82187b2cc00f81d0f7fa94e3637f4506b67"
+    },
+    "mengsan/assets/status/plow_power.png": {
+      "size": 5865,
+      "sha256": "dc300ee907b06d300bcd01f2c2784cc06c761796206a090e1a94f0cecfa95a31"
+    },
+    "mengsan/assets/status/prep_time_power.png": {
+      "size": 6445,
+      "sha256": "ce1698909dcb2e91bd67714c11f7c467ae083326b7f9f239751a4c202d50bf69"
+    },
+    "mengsan/assets/status/rage_power.png": {
+      "size": 4937,
+      "sha256": "a53721daa6996403e61e871aca8152ae50372c3255e509f1a6d4d99bbfd01d02"
+    },
+    "mengsan/assets/status/retain_hand_power.png": {
+      "size": 4225,
+      "sha256": "a8ee3da12b0774ffc9bba33d6da7695afdfc9b7904d31b3229df077489541784"
+    },
+    "mengsan/assets/status/ringing_power.png": {
+      "size": 5038,
+      "sha256": "c4a3d09f976788bca91d3a5011fc0f05c3f981eaa3482a33c31a0a661705f60c"
+    },
+    "mengsan/assets/status/rolling_boulder_power.png": {
+      "size": 4422,
+      "sha256": "53c820c23f09cd07d2b0e3bd00493bdaef81fbd09d05bf2d15485c3c1ef7e4a0"
+    },
+    "mengsan/assets/status/rupture_power.png": {
+      "size": 3897,
+      "sha256": "101e3b473ec6d6b565aa94ed5946840f6c013f28e62f3f0961106c2c8cd54d95"
+    },
+    "mengsan/assets/status/shrink_power.png": {
+      "size": 4258,
+      "sha256": "b19a0d045135bcc6cfa00f2fb11be78dba68f16ecc12f2ca8474caa9327c05dd"
+    },
+    "mengsan/assets/status/slippery_power.png": {
+      "size": 4722,
+      "sha256": "06b4ac80cbf1f70c625be827047be79302f72c018cf8368bfb313a27744e568b"
+    },
+    "mengsan/assets/status/slow_power.png": {
+      "size": 5762,
+      "sha256": "b39d7af28b0fdcd773a44577a6635c8b23dc03bff6280de841dc831fe6c601b0"
+    },
+    "mengsan/assets/status/stampede_power.png": {
+      "size": 3357,
+      "sha256": "1aea977a121c451ef134581789f629dc61caba87b771e7bd684345baae573d03"
+    },
+    "mengsan/assets/status/strength_power.png": {
+      "size": 3435,
+      "sha256": "6584c67190bfd47255c0f333bfb7f2ab52720209d94ce9324a30b0a8e638d7ff"
+    },
+    "mengsan/assets/status/tangled_power.png": {
+      "size": 5754,
+      "sha256": "3d4d4686876ed0265f26696ab2d0ebde8366b0537994bf223bc388a0f104ec5e"
+    },
+    "mengsan/assets/status/tank_power.png": {
+      "size": 3191,
+      "sha256": "f8cfbc1bbf8832f4e83ffdf4172bfc37564c85d36a4a5c14d18c1ab60bd1b76e"
+    },
+    "mengsan/assets/status/territorial_power.png": {
+      "size": 3829,
+      "sha256": "cf1b1d401a6fd45dbb1f3eda64049edf8cdf7e91a55f3aaf7a10f138d54699dd"
+    },
+    "mengsan/assets/status/the_bomb_power.png": {
+      "size": 4421,
+      "sha256": "862f05ed56d4d0ebd60afd777162d23fb4744991f6cace9e43640bee29f5db58"
+    },
+    "mengsan/assets/status/the_gambit_power.png": {
+      "size": 3051,
+      "sha256": "204284c28d48c60a8c73f7356bb3d5aa0fc8e4b44491cb1aec19717bb4f04784"
+    },
+    "mengsan/assets/status/unmovable_power.png": {
+      "size": 4784,
+      "sha256": "f99e4f21fcfd6e57089d47e4bc4ed1cf1a813a759f76487c38852d66dc472a19"
+    },
+    "mengsan/assets/status/vicious_power.png": {
+      "size": 3247,
+      "sha256": "4b90144a9254bb155b1cce8180d91d919af99566b8841e2135eb86880ff0765a"
+    },
+    "mengsan/assets/status/vigor_power.png": {
+      "size": 5912,
+      "sha256": "551b7b93d139f30cf190887ea3eef197aa693a7a78e67aef48ef2b582b1532b3"
+    },
+    "mengsan/assets/status/vulnerable_power.png": {
+      "size": 3725,
+      "sha256": "1b9a9336dd7828cb1fb61b119ab765d3c713ce4e0e98bdbee7211724fe5c78b6"
+    },
+    "mengsan/assets/status/weak_power.png": {
+      "size": 4738,
+      "sha256": "f8f4277c9fd848600a503b8d377bf9e83b4eaa06fa27f8f82ebefcfbd9714763"
+    },
     "mengsan/battle/battle-director.js": {
-      "size": 13125,
-      "sha256": "a82a031a5d92f4e734625a40793db883ef96bd4c9b56bfef5bc56f2b982e4aea"
+      "size": 12944,
+      "sha256": "ba3adfa4793a1ef3e2da9959a39fad62789fcd6f41b84e9e342c81ff88edbbff"
     },
     "mengsan/battle/battle-flow.js": {
-      "size": 7910,
-      "sha256": "4cf8bf588e9a1d30c481fefd1e609b084a19dc658371af9ee9b516ff3c8b62bf"
+      "size": 7874,
+      "sha256": "f55073fbf63f6a1cd5b8d1edf52686ee7686bea1c21771526ee75a04853ef6e8"
     },
     "mengsan/battle/battle-loop.js": {
-      "size": 3652,
-      "sha256": "8ff23c71320c91cee2955cabfd8384190a07b80cbddd44bba50fcf9fef4daeb0"
+      "size": 3565,
+      "sha256": "0af53c3d317fe9816594c2786bf5a1bfa960babf0c135b9b4d524794730efbcf"
     },
     "mengsan/battle/battle-resources.js": {
-      "size": 3236,
-      "sha256": "a4584c4560ffd12fca2f2a540e94d7e211d7a68d1d0b498177a730f32cc2e764"
+      "size": 3178,
+      "sha256": "07281284f270454586369b21c3de080084d6701c43b2998682b00fdfb20d8d88"
     },
     "mengsan/battle/battle-session.js": {
-      "size": 6334,
-      "sha256": "e96d40a1c5fd4f4afe8046a412e78712e9df10fe00bbc6d858575e5a9b6a1102"
+      "size": 6214,
+      "sha256": "00c128d1ccf6c2492c5a83dea2e24ff75233e706374803525e35700ed8162bff"
     },
     "mengsan/battle/battle-settlement.js": {
-      "size": 14376,
-      "sha256": "99f0a69aba0489f7a91954b95cd00d5856282779bb7e2ae91182bdbb89a8c63a"
+      "size": 14143,
+      "sha256": "af648e41b8936ae5197acd58599fec56368813324470e38ea44777239ea8eea8"
     },
     "mengsan/battle/camps.js": {
-      "size": 2440,
-      "sha256": "0907129c78d843f02762b3ec4aa3b25542f605aaf73e61fcb417e46bd731c021"
+      "size": 2386,
+      "sha256": "51ee6d2aa78261bd60b2ffa2662b7a37e62b516c379b8cedd46ecf0466630278"
     },
     "mengsan/battle/combat-rules.js": {
-      "size": 6298,
-      "sha256": "807cdb1629c19890b67dcea112da9e2495b47926f5de7e37a182840cce179374"
+      "size": 6185,
+      "sha256": "d51a65cc023428eb5c1cd67881f093e18d96f86d0e9de6a76bf7bf85049bd2bd"
     },
     "mengsan/battle/death-blow.js": {
-      "size": 1151,
-      "sha256": "aa3ba0da315ae81ae8430c50a57203889838adac8d533aa5400a4bb9976becf5"
+      "size": 1113,
+      "sha256": "d0222776b90acacd2fc672559bf59d8c0376cfae68294d5a9603551ed182a0c1"
     },
     "mengsan/battle/engine-session.js": {
-      "size": 3763,
-      "sha256": "1addfa8f6a6e1e56d2dd32b6d1249ef84aa0aaa1ca049a7e0ccb688be51261bb"
+      "size": 3680,
+      "sha256": "6aaad4dd6641caea0c0e02028239e355a7b83c3d53b64f704989b56376855750"
     },
     "mengsan/battle/intent-damage.js": {
-      "size": 1298,
-      "sha256": "616a18728b31677b70cc14b88af027c4cc912ae90f11de41355b900ed2c29ea1"
+      "size": 1266,
+      "sha256": "c0efe2d26f5ee76f090c5ef04b8607def99ad1a3315dedd5c2b8e42aff218a7d"
     },
     "mengsan/battle/intent-effects.js": {
-      "size": 2359,
-      "sha256": "0b38b5b5eef925910200749c325c34a1cd4b4aa7cbacd44b63a2c31551f2a21d"
+      "size": 2311,
+      "sha256": "5fc1c57b88c996b9ba1ff27d220749001acecea028950479c5fc4bf26b854fe9"
     },
     "mengsan/battle/skill-teardown.js": {
-      "size": 6849,
-      "sha256": "5f92d02d245aa3021ea47b245b221c58987b1e5770fe4329eef6ae733b0810ff"
+      "size": 10822,
+      "sha256": "3be7098c7bdfa416c6237bb0e85d5b8d6022da44833de070c8a2b6f8b65400dc"
+    },
+    "mengsan/battle/status-sources.js": {
+      "size": 955,
+      "sha256": "62dc6ab89e7bf677f3b870877f97e2d8a0eeb9099b92f7b097b3148ec52e4d44"
     },
     "mengsan/battle/stun-intent.js": {
-      "size": 1340,
-      "sha256": "898f9e64b80c5a963229eed340455f810eec2c1777bb98ba599d56101ba11bf7"
+      "size": 1295,
+      "sha256": "3a73747311bbae29cd03a3327f0ff398aa085f2d2e480d4013f2f8f15d09f810"
     },
     "mengsan/bonds/battle.js": {
-      "size": 1771,
-      "sha256": "bdb4d429b14b98d7d5434afb2d11039938b7eaea37cf5f87a3fba86fc958b254"
+      "size": 1729,
+      "sha256": "702bf42803374567630ebfc87515d14e6e7a8c3e33b49f16bdc98ac5e1954451"
     },
     "mengsan/bonds/definitions.js": {
-      "size": 2527,
-      "sha256": "a736afb0c27d30d68290b952d41e304241e2ea6401fa19c6399e49309e958ac0"
+      "size": 2464,
+      "sha256": "2ff3db8f5db20416f218b184ad980b9adc93d82197a6f296726e0c76a49e2abe"
     },
     "mengsan/bonds/intents.js": {
-      "size": 2952,
-      "sha256": "935f5f1ec90ba7e0cd0539db9c51ad5ba11e9063bbbd060a56f4ef6c34bfe00d"
+      "size": 2888,
+      "sha256": "514212bec0e6b523a0eea5857212d3369da4eef84cf812866baf5e9a4f3407fc"
     },
     "mengsan/bonds/state.js": {
-      "size": 4484,
-      "sha256": "45c7c4c09865c335bb2e181c5bd5fcffc20a55a5d5e57e8e36b88977d7329da2"
+      "size": 4372,
+      "sha256": "8117b0a9c4b9c56ffa7ce8b367ffc89dd69ddacc19f93114c8fedb894cb8f33c"
     },
     "mengsan/cards/affixes.js": {
-      "size": 1124,
-      "sha256": "f65993cabf6fe9b01e9a41de4ff0d47aba56eb67cd9e00d4a67cd87d9ed9bce8"
+      "size": 1114,
+      "sha256": "6f5a0975192aa3b159c3c6886a0214fd101869fccd866d2de831afc56f3fcb72"
     },
     "mengsan/cards/battle-card-copy.js": {
-      "size": 1766,
-      "sha256": "1cd2344a1d56da56b07a7968989fc3216346a89370b832ed1f869d0494f7148b"
+      "size": 1737,
+      "sha256": "acffc9c0ecc7d22985f894522376e13d39067e71cf1532f2a2cd8d9466671fdf"
     },
     "mengsan/cards/battle-card-reclaim.js": {
-      "size": 1551,
-      "sha256": "397a0c05591122d91bed20499cdd0b55f3fddcdaa6a2d6cf8d7f4434c1306feb"
+      "size": 1522,
+      "sha256": "c38d2f86719d682027be75e8a30639cabeb1cf4d7db87aef2304327181161fe8"
     },
     "mengsan/cards/battle-energy.js": {
-      "size": 1502,
-      "sha256": "cee19be46c41d274bf706c2add12f64834980ddb32526862e78de37bda28caef"
+      "size": 1469,
+      "sha256": "dc1e4e9c215a5c3c3a93c6637c72dfd54e622688a243618a4cfafdbf77130af9"
     },
     "mengsan/cards/block-draw.js": {
-      "size": 1197,
-      "sha256": "4770aa0a753b80d103e3c087bbe2046609e99a05dcbc5c388526ba87c554b7ce"
+      "size": 1178,
+      "sha256": "fb93243cd983e35e4aaf95fd4f4ea9012cdb62c62ca0d080703918f5364dc5fa"
     },
     "mengsan/cards/card-data.js": {
-      "size": 3552,
-      "sha256": "09dedace9b70c432f2b189a7d8fed149afde0d15d515c02c417343260c19b3ea"
+      "size": 3495,
+      "sha256": "2dc949fcefee7cde2a49afe0942770bb7c673bcf0ec97638f23dbde9de06bf5f"
     },
     "mengsan/cards/card-definitions.js": {
-      "size": 3053,
-      "sha256": "35c22815c71c0a5612537923b336637fd9e2e8a2aa506e1dae739eefbd0d0cc7"
+      "size": 3006,
+      "sha256": "b824439eb6808642fa55a81779f5b990e52382c85c9f256a6346f3e21331b9d0"
     },
     "mengsan/cards/card-pools.js": {
-      "size": 637,
-      "sha256": "c84c2c89de978d7f03dc2281da48c15728a977e64287ebe5d288ed6f39c217f7"
+      "size": 628,
+      "sha256": "1830028ecefe5dedf09f27358d9235a91d6282dbdea46d410a48315afbc3b118"
     },
     "mengsan/cards/classification-types.js": {
-      "size": 524,
-      "sha256": "75084272278f6d8596139657a8f9af9e7398e3b4ebdcf0ba753ecf9e00a6ae48"
+      "size": 515,
+      "sha256": "10813deaaf218c68512e44da8eac9a83717b8b942a48df498cfae570c9f939f4"
     },
     "mengsan/cards/description.js": {
-      "size": 532,
-      "sha256": "d938cc736a95a6bddf14df52165a9bda775bd845b958687bced06ba0254464a6"
+      "size": 524,
+      "sha256": "a37daf0e29fb05f8248ff3b9c9777e68e2dab6e7cf86a3c53510e099a1e10d1d"
     },
     "mengsan/cards/hand-exhaust.js": {
-      "size": 2673,
-      "sha256": "904bd21885750bcb5cabee5478d74a9f5e61651d2b9aeaff1f7b41559f1665e6"
+      "size": 2627,
+      "sha256": "36c64653a3646921f511d2721df69f7c75e6a38a11abaa5e2b09280aa0d38b98"
     },
     "mengsan/cards/hand-upgrade.js": {
-      "size": 4446,
-      "sha256": "206e2a5d5ec96a8bc012a0ddc87e6388d7c0a7d93dfb9f8ebe3574156b6433a1"
+      "size": 4359,
+      "sha256": "599859fc9a5283655778816847d2edff52c787b47b41f1e5e6fc6ac2160caed7"
     },
     "mengsan/cards/havoc-play.js": {
-      "size": 1921,
-      "sha256": "dad0d45cbbd0a8f13a9aa0c238d14b3c6e7553eb3795e3291e2c53d5b69bd7d0"
+      "size": 1885,
+      "sha256": "60292a9bf9fef09c4fbb3cbc5ac4e87267f1b0a01650f4ddd2a23d4f65e33bb0"
     },
     "mengsan/cards/infection-card.js": {
-      "size": 3112,
-      "sha256": "831ae4c7c9e8497fd1255062894bb1b65169c0e6f7fb85a8b500a86115806fbc"
+      "size": 3056,
+      "sha256": "f39708a57dffe6ec86e176e4d3572fed9bad60350a83fadaf21d75e8d7f817f1"
     },
     "mengsan/cards/intrinsic-affixes.js": {
-      "size": 831,
-      "sha256": "4743f5ab95c32faf0eea70074b30f841bfe67f760a3f29d602aeb81cc1b21bbf"
+      "size": 819,
+      "sha256": "67630d860ce74ceb9ba9fb40e8f7a4b13dcf55c83277653392d23b5f0ea9c0e1"
     },
     "mengsan/cards/ironclad-advanced-data.js": {
-      "size": 128,
-      "sha256": "3aa955dc4be0e89f14a434570775e09a738d51965dd5c3eb0fd38f7ebde01cab"
+      "size": 126,
+      "sha256": "e18fd3b159e910a02d26d4d0a9ea3d630b51fd71f734fb183b5542f6f777713b"
     },
     "mengsan/cards/ironclad-data.js": {
-      "size": 119,
-      "sha256": "c8271851ec177ea62ce9f1076764540e988e733502a139cccc4a0ec85e7f5228"
+      "size": 117,
+      "sha256": "8a90e36e9375661d1e9273da6fbfea3c6ef1be8e0772c2d5899b518d1d127390"
     },
     "mengsan/cards/ironclad-hooks.js": {
-      "size": 2362,
-      "sha256": "4e30d3cf8c57dc506020ecf7ff494000b090946aaf8a4886a77fbfbb77eba9fd"
+      "size": 2329,
+      "sha256": "92354b83e943b56a7c9653be1b902840ae97cd28ee6a54aa21bfd43dfd948a8e"
     },
     "mengsan/cards/ironclad.js": {
-      "size": 122,
-      "sha256": "f49c6652f9a7eecb9343ad6c3425f68c27a64a90f7f18fb779f3f140704c2a7a"
+      "size": 120,
+      "sha256": "5317a2bf599d8a7fabcf19dfa4f76284cbe6b7f43ec5a3f8c607ab9e69d9f61d"
     },
     "mengsan/cards/life-loss-block.js": {
-      "size": 1201,
-      "sha256": "a7d7fe06674a80fee348d543a4da7f1d9354edfe4869d7f43e40ed1d2f8ae5d9"
+      "size": 1177,
+      "sha256": "718254e938a08be9e4fa036698fe5c33ac98c842722e1edebf7bb9906922f64b"
     },
     "mengsan/cards/mode-cards.js": {
-      "size": 7899,
-      "sha256": "181a6b95d5f8080cd9ab10898713b27776c613fee965c9ec013594a9436eeaf6"
+      "size": 7770,
+      "sha256": "4a8f9d61ba438ea3ba2e857f0b81bd85bee2ffc1c9bd0bcbd18dbdeac36aec8f"
     },
     "mengsan/cards/packs/colorless/data.js": {
-      "size": 32174,
-      "sha256": "4ba74b97668b97b99099efd19fdba2e81da02e2ab3764b332fc71cbd135b87cd"
+      "size": 30960,
+      "sha256": "6d4b62e53fcbd2a509d335670a07a75b5dce1268bc146f27a10113c68b86e0a5"
     },
     "mengsan/cards/packs/colorless/index.js": {
-      "size": 390,
-      "sha256": "b30d7ee8786f9f8cedade070c77f34fd2e4d2a3948d92ee211787cccc29ca247"
+      "size": 382,
+      "sha256": "b106052a24fc47b10472b907c69036e341a90a5945d32e140d67dc2c030a5f92"
     },
     "mengsan/cards/packs/colorless/rewards.js": {
-      "size": 621,
-      "sha256": "9b7e679b4f6ea3e6fe70671986cef7328d2dcf033f7620a5e2e06a47a9d9f5ac"
+      "size": 613,
+      "sha256": "af212d7c4cd8f63c5837e8f29519cd341b775135fa332f8a0f4f82eae4ac349d"
     },
     "mengsan/cards/packs/curse/data.js": {
-      "size": 6704,
-      "sha256": "35d43aa2ada598257fe0d0c18f5ea746d67429c0d9a3d73b145dedb363fe50df"
+      "size": 6436,
+      "sha256": "a85d48996fe637e1bb8b976d370e4fb49d1a2bb1e1dd6e9befc1ff6fa1827d9d"
     },
     "mengsan/cards/packs/data.js": {
-      "size": 912,
-      "sha256": "11f10ede8a027567855b31d72e562f9851b2b7ffe96f57525268fdabac3e4145"
+      "size": 902,
+      "sha256": "4f04d425ba55670fe5707ef189dd3b74fa9934117fc5929c0f1b9b67c874863b"
     },
     "mengsan/cards/packs/event/data.js": {
-      "size": 14820,
-      "sha256": "0badede4d570d625e371f3e06750d708c381f2eff3f14e54f1a803690f28c1c9"
+      "size": 14249,
+      "sha256": "b195639153c1cb6a3ac48d5af364c9a915a34e96d844ec4e4848d914e5896017"
     },
     "mengsan/cards/packs/index.js": {
-      "size": 1128,
-      "sha256": "3a19244866f80379cfb9314dd599a67fed4adc305ed23c5393c6f09366075147"
+      "size": 1109,
+      "sha256": "0711819c90af702cc98fc189c710bd278a9aa66022f04a3566ab18509b92af53"
     },
     "mengsan/cards/packs/liubei/advanced-data.js": {
-      "size": 2877,
-      "sha256": "7f9b1b67d987d15030a522d4899e29d39bbd2166866b29e1794119ef9fc2d1d6"
+      "size": 2842,
+      "sha256": "af05e8f5ffe996f11f1383023557f00d60eaccadc534a8fa8df3f9b57fc6b036"
     },
     "mengsan/cards/packs/liubei/advanced.js": {
-      "size": 31697,
-      "sha256": "6230a44ecc67c3f04a62a00d921b690e9fab7651da52f747706ae2d884bce21d"
+      "size": 31375,
+      "sha256": "9752877ed54e3e8aad0a0049a2a1a08732c047b84498bf9279e19e9d7490fbde"
     },
     "mengsan/cards/packs/liubei/data.js": {
-      "size": 4516,
-      "sha256": "7103bf64a2c338137a5b470127a7220664a802a39de40d562c24cb2660f0c048"
+      "size": 4464,
+      "sha256": "05c96c5c741dd18df46803fa29c692b1efb4ff98044e8f09ddafbea717831579"
     },
     "mengsan/cards/packs/liubei/index.js": {
-      "size": 625,
-      "sha256": "18d0eaf53ca7117560f3987d5ca6911f2486bd27a9b40fbd2a345a9eebccef50"
+      "size": 610,
+      "sha256": "49cd27d3341c93774bcaa05f1233d358962cdc3482c6dcfccb6d480cc5240dbb"
     },
     "mengsan/cards/packs/liubei/legacy.js": {
-      "size": 56085,
-      "sha256": "8fd3885129b5221e93f3634c0c1094b01f8525124b1c0b6c2ff32c585aa3985c"
+      "size": 55175,
+      "sha256": "32776f897128bfa7ab2e6dad1cbab4c09901fd0c093da599da7161fe5dca16ff"
     },
     "mengsan/cards/packs/liubei/metadata.js": {
-      "size": 5758,
-      "sha256": "5217360a7b5c6cb90974b7d05714c6cafb33273536978818dbbbb000d1ecf671"
+      "size": 5618,
+      "sha256": "9b5dbdd73c6f901f1f005baecd1f70cf81997ca9cf0897e7309f5c5a73eb77cc"
     },
     "mengsan/cards/packs/liubei/names.js": {
-      "size": 828,
-      "sha256": "8fc0b29eca5a85a679275130be644c972b1efc4c3b47401d7c341669ffee9758"
+      "size": 816,
+      "sha256": "d40ce599c1a9c21903ff6889ffb3f9d682d48eb269797ee960db9084d93905f9"
     },
     "mengsan/cards/packs/liubei/rewards.js": {
-      "size": 12516,
-      "sha256": "82d030a3dc79b684bedd6716b7497971c8d12809abe1de2c0d548656ca3ff2f7"
+      "size": 12445,
+      "sha256": "5deddf3784b4e7ae8a757d4ff06481d0f32f1f31fed86b939cc1f9184e462396"
     },
     "mengsan/cards/packs/liubei/runtime.js": {
-      "size": 21712,
-      "sha256": "a1526d9fccbc0f8b42512ae464669c2d93e207cd9beab284f416582e0b5d3107"
+      "size": 21534,
+      "sha256": "984028fbc613b89b3f6fb99801c57bb1ecc0e70896edf5d716677c42a06b2345"
     },
     "mengsan/cards/packs/liubei/traits.js": {
-      "size": 8277,
-      "sha256": "38e1b081a3789f3760c4a0889b34803667006b326dce1f8e2aa2c862d997a549"
+      "size": 8178,
+      "sha256": "bd813bd37feec90300edd14d3d23fcca301d75ff32fca096555e3bbc35bd162d"
     },
     "mengsan/cards/packs/rewards.js": {
-      "size": 331,
-      "sha256": "34c6df282cb63a47d5f933543e567d4232e3326d1b662440bc7a7417452149e7"
+      "size": 327,
+      "sha256": "e7f15d41aa526c6b6ba93b137dd2e31f63fbace91d1bf8c3f8dbdd0fa6ac3176"
     },
     "mengsan/cards/packs/shared/data.js": {
-      "size": 405,
-      "sha256": "93244ab064a100fa9a93f0cb19acc1d22b6ce17036b2f5cc71fd4f1db42f8497"
+      "size": 399,
+      "sha256": "ec004403090107d462d6948751154b03ad6f88a16ac6a844d1898f79e6184386"
     },
     "mengsan/cards/packs/shared/runtime.js": {
-      "size": 42402,
-      "sha256": "b8b8eb4a0a921c4480ba25d42cdbb8766780e87ea7b468b8dd5209ca63c8a644"
+      "size": 41965,
+      "sha256": "241d9ba35d538e1dae5f963b10c150c8cbe7dd40309fbedddd3bf09846297d84"
     },
     "mengsan/cards/packs/status/data.js": {
-      "size": 4513,
-      "sha256": "16de512e265f4062ed9fa077d655a416147308b72d0893348c0ad8c27f5b89b3"
+      "size": 4334,
+      "sha256": "7ca46d39b6f3cf99189d86811a4d618dc759117c66e796a3e00ec70621765dc2"
     },
     "mengsan/cards/personal-piles.js": {
-      "size": 24412,
-      "sha256": "ef9201fdb55dadbcb3a2c518a283f0d9af881aca47500414c710b4ce431f2e74"
+      "size": 23997,
+      "sha256": "0e55d1ef62f58e2f48a5e0e35e490cb1ba2c0449b17f8751d26be7be1efb0e89"
     },
     "mengsan/cards/rampage.js": {
-      "size": 5369,
-      "sha256": "dcb64aebece3213651ed6f100e0b9928f5ee9d5ad08386295cc1b623f8b7c7a9"
+      "size": 5265,
+      "sha256": "7563d2316cece8ab1d9b04de28b47e4562b82ad8a6dd493e1c7f64e726a6a94c"
     },
     "mengsan/cards/random-hand-exhaust.js": {
-      "size": 1293,
-      "sha256": "486758ef934e381bd825a46b07e140f5f28e08eceadba25dd9f107ffefe80372"
+      "size": 1274,
+      "sha256": "7729cee9b27b696012e6ebf5287fa828e7fa6faf5a68a963a5529e2e9ee2fae6"
     },
     "mengsan/cards/rarity-data.js": {
-      "size": 447,
-      "sha256": "331af3a3a79affd7725e12391df4ef16d5e6a97f7235a9aec62d7085c4fd67e5"
+      "size": 440,
+      "sha256": "ab3858d78537599e2b108e321e9e92dff7b414d8fb94ae472f55a7b0a54d3ec7"
     },
     "mengsan/cards/rarity.js": {
-      "size": 3062,
-      "sha256": "8490cff30bf06d32cf045f7f478ab64baafe6bfc414159d534d2431e4483f1db"
+      "size": 3011,
+      "sha256": "2e2df62319ba5a95d76abc2a1864febe162809f07478103da26925d593c55224"
     },
     "mengsan/cards/retired-cards.js": {
-      "size": 1606,
-      "sha256": "7ab267d2c50f20c86c4b4e43088a37fa5a081b331725bade23030385765c317e"
+      "size": 1575,
+      "sha256": "ce2f18876f10dbc685a712c990a289731fcff3f2e02256363f9476c68b7bfb2d"
     },
     "mengsan/cards/shared-battle-end.js": {
-      "size": 962,
-      "sha256": "42413c067c71f2b891555d6d3e2f6e3ca7f267491db199dded8ff4807ffefe53"
+      "size": 946,
+      "sha256": "424b1e24bd19ebaee6a890521bdc4e30ecb26e7145581311208b1d9375b972f9"
     },
     "mengsan/cards/shared-hooks.js": {
-      "size": 836,
-      "sha256": "58aff21c1ebeabf58ec4ccbf40df423a035c1f9749c91c73cb7c79173b5fc430"
+      "size": 823,
+      "sha256": "bcd757ce6c1ea9c4f56ccfcfcec7adc7b8184c9e4567f0f4b4519a8a867cd7a0"
     },
     "mengsan/cards/slimed-card.js": {
-      "size": 1056,
-      "sha256": "50b5ed27eb89c36256fcb3cabe05bdee18bfce644c46e77c917f72a8c1f21ad9"
+      "size": 1037,
+      "sha256": "e3cb9102bc28bbbd561f546dfe9cd6832a69e2336e9d989b1ad8d3636bf5e64e"
     },
     "mengsan/cards/spite.js": {
-      "size": 1866,
-      "sha256": "64e7a8c41c707b821233889b180dde8ca213997db8bb757d3909a844ab4b784b"
+      "size": 1832,
+      "sha256": "6cef9cd617cfce569238dbc90db242140724a4da3e4963581649cd1848e15d90"
     },
     "mengsan/cards/starting-deck.js": {
-      "size": 1671,
-      "sha256": "ef196c61a7466e2c3b0e8a634ab9cb3351301c810b96004be4aa9aa3e4e888f0"
+      "size": 1638,
+      "sha256": "44b221d309a96884a51f9ed402b4625200e61ab3c2af79db450102ad0813a37b"
     },
     "mengsan/cards/status-cards.js": {
-      "size": 760,
-      "sha256": "cf515ff35b0668c9b8bff7aafa406fbd41c4ee31313a1393595b2b2ec866a83f"
+      "size": 746,
+      "sha256": "a2c623938bd4d9264c605899bb94cb6599bfcd962ebb5c06a59cb084236ab325"
     },
     "mengsan/cards/strike-counter.js": {
-      "size": 1534,
-      "sha256": "a3de2b465d19a2f14de20ad51e915b4e3459def64fb355627ed2791865a83af6"
+      "size": 1503,
+      "sha256": "a1058fe9ec2f8d3bf21eae61326cc74435bce25a49a67ba024f0c516065a4e89"
     },
     "mengsan/cards/temporary-strength.js": {
-      "size": 3764,
-      "sha256": "5b843d1f9367108e190a4170644c644f83e113d728ada4fb7d2a997f12ea2fc7"
+      "size": 3689,
+      "sha256": "f9720c6896583b3a7d682949945414ef6b6c1d17a906cfa6c8968c3bf5e455fa"
     },
     "mengsan/cards/upgrades.js": {
-      "size": 1940,
-      "sha256": "6517a6ce69f1723aa67a20950880d59c9f57e46f471f88919a867ffde3e213fb"
+      "size": 1892,
+      "sha256": "78f37bd5da682b3a1a3b679df25c026f256adeb5ccc48f6caa0be5d58bdb7529"
     },
     "mengsan/cards/whirlwind.js": {
-      "size": 1609,
-      "sha256": "1c155c4c3e351235bcbb6b3aafbeeef8d5ab4672b8bd2ccbe61bba580ebccfa0"
+      "size": 1581,
+      "sha256": "a62955b5d5291bc887e7c36b808cecbd189d1eb1506cd67873e7298f9369bf9d"
     },
     "mengsan/cards/wither-card.js": {
-      "size": 884,
-      "sha256": "24831da555d8d0dcfdb5f61337b378628edd8d872b59a482f3670af956d232b5"
+      "size": 869,
+      "sha256": "8e4cac00e3196c1a4315c36c63e6a0ce36621e7fc2f73e44fa811a424254d17c"
     },
     "mengsan/cards/wound-card.js": {
-      "size": 1928,
-      "sha256": "289c0f38f197a3f9e570ffdc908b69da6a57eba7e1097b509ce6203287cf2e7b"
+      "size": 1891,
+      "sha256": "2ac15f4252546c183b3de546bd6134a75f8b42ea67632f0d57b8fbd35a8796ea"
     },
     "mengsan/config.js": {
-      "size": 877,
-      "sha256": "56d31b1dadbcf7b20f4ff1f065334601fc1fd35ebd8fa2ca92a1334bc8416c67"
+      "size": 847,
+      "sha256": "738e1aa69e580ea2540827248cfb551a99da7d8096184e089705a90242662031"
     },
     "mengsan/content/acts/act1/encounters.js": {
-      "size": 3866,
-      "sha256": "f610f8780c83e606dff8ab2195e2cf48942f52f242887f2b9d06d8dc05aa9a6b"
+      "size": 3800,
+      "sha256": "62d9a8fd585cfbcc7cc5ad2916d1e5b30d42834e1f89167b7f670b36dcde54db"
     },
     "mengsan/content/acts/act1/index.js": {
-      "size": 480,
-      "sha256": "b64978cde557ae78a31da5472d39a70cba0527042542bae091568ca1fe1c1caf"
+      "size": 464,
+      "sha256": "b9d3989f85ad8893c755d7364a35488a4c170dba9c09aac2e7e3c7c70553d580"
     },
     "mengsan/content/acts/act1/inklet-group.js": {
-      "size": 528,
-      "sha256": "d51ab57e50cb1c1eca528fb62fc7177645bcc204ad2919c98187362c58e70a1d"
+      "size": 516,
+      "sha256": "bbc6ef9d321b8d04431acd03b2648fc71bb3cb4d892e695b6ac41d667d2ae22a"
     },
     "mengsan/content/acts/act1/kin-group.js": {
-      "size": 786,
-      "sha256": "d03bd12b44062e49aac3585ac07230c586870718193d03a2778ed71fe504f03b"
+      "size": 776,
+      "sha256": "82e43fbd9e9ad997cf07cf5c633ae63f1fe7564156e0ab9429e6c2c713689e23"
     },
     "mengsan/content/acts/act1/map.js": {
-      "size": 1804,
-      "sha256": "d809e8559b3d8ecb419424c39dc54858ba9ca8c94d9c90e2367a6700696bbadd"
+      "size": 1761,
+      "sha256": "cdc3ef153ccde6acac639c1ebc16383fe16e8ffd52935f915b80f27c95ecbb2d"
     },
     "mengsan/content/acts/act1/nibbit-pair.js": {
-      "size": 483,
-      "sha256": "a380cad41acfb235c276406ae9827858e68e459e422da9c7211c1fb71ea9de40"
+      "size": 475,
+      "sha256": "e339e7d91ea24a86b409b89d05a9d6c6846023de343f951f840f68c3baab4a30"
     },
     "mengsan/content/acts/act1/raider-trio.js": {
-      "size": 1627,
-      "sha256": "7b5d6686573886b3d620d5c5f9866745aba6320c63e7c91e478b81c4bc540a72"
+      "size": 1595,
+      "sha256": "a18f6bc3b1074bdfda23a8ea7887e4fd581a88698045f49e2ea94a6b989ea412"
     },
     "mengsan/content/acts/act1/rewards.js": {
-      "size": 797,
-      "sha256": "dc9c450a77abe5cd35c4ab46dc8833e49287a9d63fa773bb0da1fd64525eb77a"
+      "size": 772,
+      "sha256": "8a6f09e56748957693bfcf7a428670a3fbcfde90c746278e8fa372a51a32d3cf"
     },
     "mengsan/content/acts/act1/stories/forest-ambush.js": {
-      "size": 5339,
-      "sha256": "ddc43ce1f857082fe1c90db65a1625ff585d8f2cfc23f78b375c18bbec6f3fc2"
+      "size": 5225,
+      "sha256": "de94b30bafc2e4251a6a70ecaf4b1ceaf300cc2750f71d30014971e1c389b240"
     },
     "mengsan/content/acts/act1/stories/liubei-opening.js": {
-      "size": 5731,
-      "sha256": "1d61fbea5194a1960d9e6bc95d0f5b733687afae7d769a1ac9e0846be97341b4"
+      "size": 5658,
+      "sha256": "23195b5af712b591d388c9d874a27a2cb19e70bd7a966fb88228bc349353eb99"
     },
     "mengsan/content/acts/act2/index.js": {
-      "size": 137,
-      "sha256": "f4815459fb3244502c85144904a2daa9ffc3451842a9139dbe501b16d09718b7"
+      "size": 129,
+      "sha256": "d91675bca78c4064b2876c6e9601395aa776f679fe40e63d2385b484d1767c37"
     },
     "mengsan/content/acts/act2/map.js": {
-      "size": 415,
-      "sha256": "b27dbefa0578c06e5c444f693f4305c833f7aff3b535900af5e9e814908c60bc"
+      "size": 402,
+      "sha256": "9a8a4a282402a8c25759408a57afba8d73a638d1f64d24407638b1f9156ce6a5"
     },
     "mengsan/content/acts/act3/index.js": {
-      "size": 137,
-      "sha256": "f4815459fb3244502c85144904a2daa9ffc3451842a9139dbe501b16d09718b7"
+      "size": 129,
+      "sha256": "d91675bca78c4064b2876c6e9601395aa776f679fe40e63d2385b484d1767c37"
     },
     "mengsan/content/acts/act3/map.js": {
-      "size": 424,
-      "sha256": "b634af95b44141bfe4dd6149e8d39369c122f9ca5c219b09b20ffdcdf9983fce"
+      "size": 411,
+      "sha256": "274a4263af5db5e4d57e71702293c3a53fcc3ae9117e9c0ed5e86b6fa33ba6d1"
     },
     "mengsan/content/encounters.js": {
-      "size": 888,
-      "sha256": "580aae8b771084c5932acd0066cb6c8c45b5f4c78d811ada8e286454fe2b8439"
+      "size": 870,
+      "sha256": "5f1cf6053693df8992cdece2a818ea56cbd6ddf023a60e42e2d0e54e27426fd2"
     },
     "mengsan/content/registry.js": {
-      "size": 7885,
-      "sha256": "facc90bab28be94062d189bb94716a2fb5aa3387fb65c966ab3bac3d3ab0964b"
+      "size": 7754,
+      "sha256": "2d5825217efb830f4d351cc1d52035ad2d9e86b896cdb19232c8bfa612cfe678"
     },
     "mengsan/content/scenario-characters.js": {
-      "size": 9847,
-      "sha256": "85a4f81946bde6e262f61712c55820f0cfde9d02866035275ec781978a22c64d"
+      "size": 9732,
+      "sha256": "c2678ddedd3349829eb9b3daca1862842ea6da2e928f8edda41c62d4d72e884d"
     },
     "mengsan/content/shared/index.js": {
-      "size": 133,
-      "sha256": "5e92067de64aa26292f2fda6f3b270e06564e846a6f19b19c8ba27a04a25e95e"
+      "size": 126,
+      "sha256": "25625b636c2b82e58c0792c40b7f32562abca99e0fd7861b73a74cdf40c708af"
     },
     "mengsan/content/shared/rewards.js": {
-      "size": 9102,
-      "sha256": "e19f5d026318401a7a24f88a23ee900b2c9259872846f89b627899d2a32b693a"
+      "size": 8936,
+      "sha256": "580282573457b4fcc27fe976e81aea415148310f0ce543b18dbc18e719dff909"
     },
     "mengsan/mode.js": {
-      "size": 120958,
-      "sha256": "070f4f5e47df7c75dcc349b6513d5427867e121ac7b3e872a81e5d5d5b84b876"
+      "size": 120610,
+      "sha256": "1ce71ff03871abe904e6d2a5c6a62d70aa1a4856e88ef7e76a88813966bc6e7a"
     },
     "mengsan/monsters/actions.js": {
-      "size": 34417,
-      "sha256": "97461914dd3a40e0bba6cb5e1ff41fe34208ab996dafcc64ed5a33d0d3cdebc5"
+      "size": 33807,
+      "sha256": "4d07d53c1aa85278190217194cf68180ef428411dd89dafb5cdae7568a11500b"
     },
     "mengsan/monsters/artifact-status.js": {
-      "size": 2427,
-      "sha256": "96ff8c497cb3a59d79e3b2044a3eab9e043d56d514d2e62c868d7a8a37a22024"
+      "size": 2385,
+      "sha256": "b85161c9acc1d92715f4cb7be7603bfea8b5e6d42f4caa9d30835f38575ca03a"
     },
     "mengsan/monsters/beast-intent.js": {
-      "size": 6899,
-      "sha256": "b089382116ca2b4dfc6d12205318df39b6acb7ca7dee026de73a852e5cb5608b"
+      "size": 6805,
+      "sha256": "3962c0ab114907f692ee2d484311119d0c621dd460f00087875f6a9140886964"
     },
     "mengsan/monsters/byrdonis-intent.js": {
-      "size": 3119,
-      "sha256": "9d029cbd3062c7114c0f3767f9cdfa99c936a2277d864a26980b69f3e1942fb1"
+      "size": 3062,
+      "sha256": "59847f053122a0600d6b4c8b0a5573427da14717177fb1461640b8def9141443"
     },
     "mengsan/monsters/crawler-intent.js": {
-      "size": 1619,
-      "sha256": "5392844734e61a61ee65b746ed6a558b9133671743f795e9d59c4dfa848cf2bc"
+      "size": 1587,
+      "sha256": "994561eea23a9983931d545ef76281e70dba575563a97059b8b5fc4501a4d40b"
     },
     "mengsan/monsters/cubex-intent.js": {
-      "size": 2194,
-      "sha256": "9111e0162c4c6eb16301f7956ba0e9b2f29dbe68159d0f49156c2ff3efcf46ac"
+      "size": 2151,
+      "sha256": "bf4af01cbeb8a45ba47dd7f200fa96d808e18322b2908ed4254465644ed87903"
     },
     "mengsan/monsters/effigy-intent.js": {
-      "size": 1491,
-      "sha256": "2b4249d128cfb47009698c0292bc897d3f85b6e092d58af4e294e271ed100ba7"
+      "size": 1462,
+      "sha256": "e244757471a7142e3b796be5f24f5a4765564d49fd6b7ddb1484883a46838a43"
     },
     "mengsan/monsters/effigy-slow.js": {
-      "size": 3429,
-      "sha256": "4ee5b67badf5b126dc3b4bcf59cc3a6e12781328e6a8d8e30e860d2edcc9c250"
+      "size": 3367,
+      "sha256": "d2c2cf715e24090df2be4e68ff15d55dfdebf862ad87fdfa592bbf7bf20f2f94"
     },
     "mengsan/monsters/flyconid-intent.js": {
-      "size": 1743,
-      "sha256": "6ff2be31555c591a872cc0ffcc7aea99a7bc9b6bd5156993f8847156eef8637b"
+      "size": 1705,
+      "sha256": "cd65c7e8004c4810eb5bafda7b20563900ec4f264cfd352e2607f9d6050ab631"
     },
     "mengsan/monsters/fogmog-battle.js": {
-      "size": 3931,
-      "sha256": "4695d2ef46b7c84d69c35d1aea1b35d303fe033bc9d73f3d64a9be5c869ff42f"
+      "size": 3856,
+      "sha256": "c5cba9d10c25f7ece2290110f787e4fc3dfa50f266a9faac4bfdb0ac957868e4"
     },
     "mengsan/monsters/fogmog-intent.js": {
-      "size": 2196,
-      "sha256": "5d86b308905c65c9147995887ab1dd6f519ade0506ae13db8f99bc2e5bad7b15"
+      "size": 2160,
+      "sha256": "367bf74fef71ff55d398902fd14512af5bfecc82e756237f73102fe116381c4e"
     },
     "mengsan/monsters/inklet-intent.js": {
-      "size": 2978,
-      "sha256": "c2812d2dc16d3d69859e6ec70c283d714aba0ae5a4254d28e30f9afe0408b54a"
+      "size": 2925,
+      "sha256": "db404520db50e2d052beb236578973ae4b61e61c6a57a366c8b63452b01e19a3"
     },
     "mengsan/monsters/jaxfruit-intent.js": {
-      "size": 1282,
-      "sha256": "c295f73ea1daac933310eff41d23f68bf9c59bf9d3aa34f12b54c16a08ab7bc6"
+      "size": 1256,
+      "sha256": "46abbda7bf21af236f5e7a4c08a5739649bcf46ea70c59dcb18b5226b2568bb8"
     },
     "mengsan/monsters/kin-intent.js": {
-      "size": 4469,
-      "sha256": "04ad104fa8a99f82ab4811775512e4ecaa9c6d0b8b9732a0e6044f0ef838d93d"
+      "size": 4393,
+      "sha256": "3321a96df24d651c2bfea7a7ccfd920be20ae75fa2cb8543abb5985cf7501835"
     },
     "mengsan/monsters/leafmedium-intent.js": {
-      "size": 1462,
-      "sha256": "ae373c29e39891992b857afaf11befac1354f163026a797e8bf13ad8d81b71ad"
+      "size": 1436,
+      "sha256": "ef04089133b4ec6157e48788eaa62c506a424c7e4ef479219529689f4b6bfc81"
     },
     "mengsan/monsters/leafslime-goop.js": {
-      "size": 1653,
-      "sha256": "133da2f627601e79aa51b6eb87acff777a3ca60c74d142b0d205c40ccbfef3f0"
+      "size": 1627,
+      "sha256": "a65b6a00bf246951abed47fb66a6d476849d7cb427169524a1d2ce722ab4758b"
     },
     "mengsan/monsters/leafslime-intent.js": {
-      "size": 1430,
-      "sha256": "4a6f333cefd4c5c4f915f2d2c53b9abfb4d985fd5efc839f974eb862849baed2"
+      "size": 1403,
+      "sha256": "3c8f841fb8a02683134a18d1197320b1bb03101f8765e069684654f9ff9ee3c8"
     },
     "mengsan/monsters/mawler-intent.js": {
-      "size": 1937,
-      "sha256": "2933d7f6b768a797b3bdbceb6f3f93760b68961bf53af3f72262cefa6af75f0d"
+      "size": 1899,
+      "sha256": "23bfd30298779d9a41c28a3100fb026e17ecd2d1e066f0bb842c57a9ee56b833"
     },
     "mengsan/monsters/monster.js": {
-      "size": 11658,
-      "sha256": "1464b42fce32b9266724c8f0eaa06923c1171cff539c337c96af1cc32bd7bc8a"
+      "size": 11416,
+      "sha256": "d6b6bbbece20f50da448adbba8f775acf5f155084008e8f44a61a30d2d1b2aef"
     },
     "mengsan/monsters/nibbit-intent.js": {
-      "size": 2336,
-      "sha256": "9665a4e9ea519c9cf035f38fca0b65b4b3e83c31ef6a3b6f3951d57ef3f31120"
+      "size": 2292,
+      "sha256": "b3e34455e8cd88528069345aec2f7f55938b52e05fef4af9b8cd803bbe1579b3"
     },
     "mengsan/monsters/phrog-battle.js": {
-      "size": 2235,
-      "sha256": "a9111bfefbbfd5c2641a0a660df5d9b83977bb7c675d77c57f5b5a23b3be3b2f"
+      "size": 2197,
+      "sha256": "0c4621e858cc4a4b0e6d1fa86f7d5e06784dfc4ed4e9aba1342c65f6b80f9d02"
     },
     "mengsan/monsters/phrog-intent.js": {
-      "size": 4135,
-      "sha256": "9b529fcd6217d87f0682f99c77017565d326b372811b215c20aa8b0e169ac7f2"
+      "size": 4060,
+      "sha256": "e058edf8b6febadcd685dc7c16c05d90e8ba56c1d9b26c132e4ef2fc0e95d9df"
     },
     "mengsan/monsters/raider-intent.js": {
-      "size": 2060,
-      "sha256": "b15b89d53914c472c3ef4f2e54e3551bb6a80cd783c21d340676189c2e22c948"
+      "size": 2021,
+      "sha256": "70580ade399e910e817e3929a41dc2da52bfadf36fb3b494a17a86effab27ee1"
     },
     "mengsan/monsters/shrinker-intent.js": {
-      "size": 1518,
-      "sha256": "fa3c3fee332dd7f709bbf70ab7a510c02a8bed0182c48faa02e1c9e5ae7c7dbd"
+      "size": 1491,
+      "sha256": "758ea3ef47d0cf529f09b9733c9fda02c029f7eb30f7ca12b1ccd506267ef90b"
     },
     "mengsan/monsters/shrinker-status.js": {
-      "size": 2401,
-      "sha256": "5d4d1482b1bcacd3c02e3b5acc7003edcd2e82452600ecdaabb1934b89249010"
+      "size": 2356,
+      "sha256": "08a44974fb5064ea0f83b3b2d3d6d6030508ef8bef5ed4d8a91f274a8e6b95bf"
     },
     "mengsan/monsters/strangler-constrict.js": {
-      "size": 3116,
-      "sha256": "0480aab377f1303ce2d71786b54b25172df6b44cc11a87e80f0f0e87c4b9d174"
+      "size": 3054,
+      "sha256": "87b012405f7840e5a064e994e9413e8671e4aebe954ee9fd03c9798ed78efe61"
     },
     "mengsan/monsters/strangler-intent.js": {
-      "size": 1609,
-      "sha256": "d2272f4d3a349742195d5c80d8cc30d18de9c884240d23351b965a2a32d902b4"
+      "size": 1578,
+      "sha256": "b5ea12fd74db365592ace7c55671bad8b18aa34da9a829852fc1a0e3cf1f229a"
     },
     "mengsan/monsters/twigmedium-intent.js": {
-      "size": 2623,
-      "sha256": "5e7039b76647b8b85d549c5ea7deb826ea3299a9d27af659a344a43cbc205ccf"
+      "size": 2576,
+      "sha256": "c27f58e02f08b87ed62865fc11bb3ae43b5d2098ac199c5714946d24e0afaa87"
     },
     "mengsan/monsters/twigslime-intent.js": {
-      "size": 1299,
-      "sha256": "dd772c38e732ebcdda6e5b0ecd4725f73b36cb880ff156f3aaa64470a53633bc"
+      "size": 1273,
+      "sha256": "26a3437ffc95bec9638911537e5b572f4b12d8a94a06d6df358d73237a181830"
     },
     "mengsan/monsters/vantom-intent.js": {
-      "size": 2309,
-      "sha256": "609880e2c33e1d9cadbe9b0a7f3e5e6087d82df94dc14c45e81cd8999f4c10d7"
+      "size": 2266,
+      "sha256": "29c0f36f5b060866e5c28c842883d951d55ceb4f0df7a7e204905fd6d803045b"
     },
     "mengsan/monsters/vine-intent.js": {
-      "size": 1249,
-      "sha256": "fa0de60bef2d798685d771182aaf7e6fdea35cb35b732a50fcd5a353bd15ae2b"
+      "size": 1229,
+      "sha256": "e2bc8348d9ef5d8ff38b3d65a0b05b741fef31cf12ca6b6abe7b81ce58515b00"
     },
     "mengsan/monsters/vine-tangled.js": {
-      "size": 2255,
-      "sha256": "6913f1a6c55f33cf8f69efaa7ac15c3b384d7419305d2f968b07cf5edf81b586"
+      "size": 2214,
+      "sha256": "e8eb1e501af16d5da2157ff357bef3193233b4fbcd62cd823a4a6114124abd7e"
     },
     "mengsan/progression/dialogue-choice.js": {
-      "size": 837,
-      "sha256": "e00707810480b281bf3e8c25923cf09997d06cf2dc3b7eea35c5a1a47c5cd3dd"
+      "size": 820,
+      "sha256": "b85e45995226cb30a488d5742c09a407ad9557d95e29136dd72fbaf695a4005f"
     },
     "mengsan/progression/encounter-progress.js": {
-      "size": 1586,
-      "sha256": "9d79bd7a98b6aede1e05e970ba5fc2ebce431d56016375111e2e191d0c6a3036"
+      "size": 1555,
+      "sha256": "e674c332baef9b3baffbfed3c86c41cd38a5c95bdd4fb3b1009a9819e90a06ba"
     },
     "mengsan/progression/map-checkpoint.js": {
-      "size": 322,
-      "sha256": "48b96ee1c6d3445d87b78d7fea42d8bbefa35ff9db4682e4012e36f53681bbf8"
+      "size": 314,
+      "sha256": "c0b5fa06fda99cf4d06570cb7e95fafc141b355055d20b0bd8f7ff91f1c1afa7"
     },
     "mengsan/progression/mode-storage.js": {
-      "size": 5601,
-      "sha256": "9436f89b6885a6e6127ecdb436d7d3fb5ffb8002d693cd21a628fddf6d489b15"
+      "size": 5463,
+      "sha256": "202bcf2de55a4115c3a3fcecb6171b57dc3a3cb053f452b0f9e99db0e7fe899e"
     },
     "mengsan/progression/reward-package.js": {
-      "size": 1572,
-      "sha256": "9922ab586d2c851a5975985460a64672d973d3a2466e17b9114dfdfcfa53bba8"
+      "size": 1533,
+      "sha256": "3f348ee9060ab86fe45e7f6add2c92b9aca3a2a1c6ab9dc435759387369e78db"
     },
     "mengsan/progression/reward.js": {
-      "size": 3368,
-      "sha256": "96884ebd8aa1c8c5ab825907294bfde2855ebb1d927a8d5ab2a20068351a88f3"
+      "size": 3308,
+      "sha256": "31cb0895cfa98696cefd7301b967ba3652aee2c4401f7770e64d6a2cf68b53f0"
     },
     "mengsan/progression/state.js": {
-      "size": 15168,
-      "sha256": "27dcdb747b5c049b53a62643b6362d3a7d94ec5da6311ddc5a19cd54fdca0339"
+      "size": 14849,
+      "sha256": "0e8235238d78892dab783375047591c023af66cb31c4fd27db4ff9ed8f5fc40e"
     },
     "mengsan/progression/story.js": {
-      "size": 737,
-      "sha256": "4db3cf98d5a102cf5bf6d3022b0bdb4c7d70430537e2c4a6a9e541822951f016"
+      "size": 718,
+      "sha256": "0719c33cf849fd2b647e4e4ff987560c5f9ea2a015b4acecc57269fb6b562059"
     },
     "mengsan/register.js": {
-      "size": 814,
-      "sha256": "1434e175ebebf75f1f1531eb8a13fe89108f7713b81b41b56074b52f4b12b24a"
+      "size": 791,
+      "sha256": "95290f693f1d5bbc592e35a3cd063201f46d5deffbd0e281682f371b02ae342e"
     },
     "mengsan/relics/battle.js": {
-      "size": 20603,
-      "sha256": "65d0b389bfab7b95d69e554a32447c65f70f704607ea44fb1e0f4bdd3462de87"
+      "size": 20427,
+      "sha256": "06db0cecc0eb2296e54a7bed8ee8c3e7eb453ecd82e66abe4dafa345e07f9d64"
     },
     "mengsan/relics/catalog.js": {
-      "size": 240568,
-      "sha256": "a8b77b73e47d937b882da5d2f6ebcc84e3f7be017ba1bc1688b124b170ad8cad"
+      "size": 235445,
+      "sha256": "386a89f871288b7909eb940a0a3d19f3cd042a1fd5311453e49be07e54193349"
     },
     "mengsan/relics/combat.js": {
-      "size": 6117,
-      "sha256": "71e464d185b9a1c4460bf357588032d71e78d8d2a2ae177f0938971fd61eb279"
+      "size": 6010,
+      "sha256": "d8d3eb1c814b89448e5b254723be1f0329a63055867f5f3e17ea3ad1b6388050"
     },
     "mengsan/relics/definitions.js": {
-      "size": 6689,
-      "sha256": "b7f6001cfd3691e07e4b5f01428246c7489e2f5208937a6d3097829f794c29e6"
+      "size": 6613,
+      "sha256": "806bd170588e0226ec030a7660969640f84975d01206e00e4a8e3bc4dfbbb395"
     },
     "mengsan/relics/hooks.js": {
-      "size": 1503,
-      "sha256": "99e0a84966dace354ebe7e1ec9c55cc6fcfbfbb4eba976dfbee7000d618237e2"
+      "size": 1477,
+      "sha256": "0bc129ba6064943b136e70f8a3bf676044ea118c129196a145763a2dec796915"
     },
     "mengsan/relics/progression.js": {
-      "size": 10846,
-      "sha256": "a9935b851c066068a1a81c7078336f5fefcca0e75b6731cee067dd618c048e83"
+      "size": 10710,
+      "sha256": "372f241b297e8a940c335e073dabc716fd01c69d9048b3f2fdafa9df09bf23d3"
     },
     "mengsan/relics/random.js": {
-      "size": 574,
-      "sha256": "2b85c064e70257a73fbe2347b93ff80d1147e9b59367e36cb10abb73ae424a05"
+      "size": 564,
+      "sha256": "00597d08e703de307d3ce2633452e0f072283c72f3b3d8a9263ea7fa12e06c0e"
     },
     "mengsan/relics/rooms.js": {
-      "size": 3897,
-      "sha256": "e1f0f03762fbb7e8212c22f199810171971cf9f4a12a054add9c571bc3502ccc"
+      "size": 3841,
+      "sha256": "81eebad4671bf8e20399a29726eb41f660f547dca0d02cc465674bb86cd4d9b7"
     },
     "mengsan/relics/rules.js": {
-      "size": 18489,
-      "sha256": "6b4bfd2aa00dcc12248bf4b92d8329160b6433bd94eaabeed6ad09b383b15737"
+      "size": 18234,
+      "sha256": "2ff34299a6e334027850837a93221726512bf987fc495b1474f4b91c94280356"
     },
     "mengsan/ui/bonds.js": {
-      "size": 4737,
-      "sha256": "0df5099a728808116cdc01cc1e0adbbc86c4719e0e575fa44ac0006ad0750e09"
+      "size": 4641,
+      "sha256": "5ae360d8209181554dac328bdde84d93f6f051654052ab6cf39ddf94f60f1f81"
     },
     "mengsan/ui/card-library.js": {
-      "size": 21608,
-      "sha256": "237cc3ad94f337865b6bb26a802b0f93f12194def90b72373f1c23c07a51b80e"
+      "size": 22236,
+      "sha256": "a8803f31a40855f5d14ec5e8129a4b0711857f781ebe84996de46832530cf643"
     },
     "mengsan/ui/dialogue.js": {
-      "size": 7842,
-      "sha256": "e61b22cf27f810a45404e0d05969b03e0a6603d581f8cf7a052a3c30348325f7"
+      "size": 7649,
+      "sha256": "a405f315270c24cdb2c53ba4e211a3fd5bf9bb582335d5dbf910adb5622deac6"
     },
     "mengsan/ui/energy-display.js": {
-      "size": 511,
-      "sha256": "37bc74971d52429c7e1c3d9d0c2dcccb29a61e968ac1bf4eb0a2330801d8fd69"
+      "size": 498,
+      "sha256": "b12157ac3008c0e63fb384fe5fefe54964b86436652c73670f6a4c4faa4ad1da"
     },
     "mengsan/ui/flow-ui.js": {
-      "size": 3285,
-      "sha256": "42130f7634885f32d4ec5e4c1d165d1b0497668bd4da5557eda27f3109f8bf30"
+      "size": 3220,
+      "sha256": "db7b79b425cff1f460f83b6fa38ccff431849acc89b89d34b01017562eeea920"
     },
     "mengsan/ui/gm-manager.js": {
-      "size": 4727,
-      "sha256": "1ffcf493ffcc4d9b16911e81ff62b15693213355c3226270e5224b03042e8868"
+      "size": 9361,
+      "sha256": "6083304040dd8f5f3b46497b250944e5edf94208fca8e94b42f921dd82cf733c"
     },
     "mengsan/ui/hand/adapter.js": {
-      "size": 955,
-      "sha256": "dbec5a22b19ba7790c2118328701331b9065cdd7877ad237fa6ba635aad0ab6b"
+      "size": 935,
+      "sha256": "91adc86b2810e27bd09d07297ac427cbbc151936f4dd8736ab1413b4eab78a0c"
     },
     "mengsan/ui/hand/diagnostics.js": {
-      "size": 1103,
-      "sha256": "e15ed8e5993f5185f496f15b4497a27964b3b3cdecd9ac4e5648abdf36517a75"
+      "size": 1077,
+      "sha256": "1d46f60103de7721cda2b533d18345531d052b38e39b0f7ec678c8ea92c7345f"
     },
     "mengsan/ui/hand/fan.js": {
-      "size": 4444,
-      "sha256": "c1c762219643592036196f03e2d09f14ac0b4487d8bf61b6b91ce3c73018c30a"
+      "size": 4355,
+      "sha256": "55e1e01dda7b4231c8e1a2fadf6ccbee39b5e98c543bc55500c6493cf6cd51b1"
     },
     "mengsan/ui/hand/index.js": {
-      "size": 10125,
-      "sha256": "4dee83b19ef24572bb0787cd0ffd388f051304fbbc5dc94e2e9cc0b0a51ee7e7"
+      "size": 10424,
+      "sha256": "4b804c1d42c6c1171d42a37136fcb903bfb3128beae6a357b52ef9cede54908f"
     },
     "mengsan/ui/hand/input.js": {
-      "size": 12533,
-      "sha256": "d3616cc25652f0c8cf3c2432f2df0786d46e8e4fe7a2ce00f4cd19bd1b7ea07b"
+      "size": 12295,
+      "sha256": "afd6bca628fe478dcc7dec217f8e4e0cdbccd8f29f55b77266793f61c7ee7087"
     },
     "mengsan/ui/hand/overlays.js": {
-      "size": 4067,
-      "sha256": "caf261473d3ee17afc46ffa25f76f8d4064317dc387fe0fb151eb9bc282f61ba"
+      "size": 3970,
+      "sha256": "9e489fc939f97a21266764f1beccdda1cc3ac9df22f72c633647d7481fa4e662"
     },
     "mengsan/ui/hand/style.css": {
-      "size": 15882,
-      "sha256": "c81ee0ad9128cdc0ba2c441fd5cbd980e0394c513462951b5c850896420f09b8"
+      "size": 15562,
+      "sha256": "d673f460b44db76148dea6b213f7e0fa5c310ae2d7bcf6b4e86fa9ce3e6f0e05"
+    },
+    "mengsan/ui/hud/index.js": {
+      "size": 19710,
+      "sha256": "671e9c691f172a70cc5ff7e4e721c8a966f6d53d5f760e2fd46e9ccc10871e43"
+    },
+    "mengsan/ui/hud/overlays.js": {
+      "size": 7007,
+      "sha256": "769fe1227c6b54ba5852a02cdb75aa07b1edd674c2078a02d596178ddd4dff10"
+    },
+    "mengsan/ui/hud/status-model.js": {
+      "size": 11300,
+      "sha256": "b18ae987f451453f77a397093cd57d8a8bd1fc03dbe845e3fc5a943da0a8ff04"
+    },
+    "mengsan/ui/hud/style.css": {
+      "size": 19765,
+      "sha256": "7e2c39086ee8768e3eb9adc6fe244c6f19150ff0c60f73216a9d9b4743a3c007"
     },
     "mengsan/ui/intent-display.js": {
-      "size": 13543,
-      "sha256": "1db512b050a73e1dfa2cedcc1a4dc67adbf98dec3c3e297b284eb8363115f0e9"
+      "size": 13291,
+      "sha256": "cd0fb73b7c42e3fa72474ab73870a13270abc2f390bfb7f0c96032041eff5ac2"
     },
     "mengsan/ui/map/index.js": {
-      "size": 62,
-      "sha256": "6fb7e6e2547eec9d421727b9d6794e3c96d8e3a77984d7688544a67a00c4999d"
+      "size": 61,
+      "sha256": "6fc56c6c084508a39d801521a103f8c39eea90eb895f47a78924997241d9f932"
     },
     "mengsan/ui/map/renderer.js": {
-      "size": 26945,
-      "sha256": "aff712e8b2257ed54bde843686ea9b76ceae5fb8375981c8adbe5a55e5338198"
+      "size": 26433,
+      "sha256": "9c6b1e387a204d370ccd8667ad34d703e4419f2d318ce3c59d155be6797dda8a"
     },
     "mengsan/ui/navigation.js": {
-      "size": 8819,
-      "sha256": "3fc55ee51350f21d423d22375af029cf8278108603225a454d27c29caaf5ca32"
+      "size": 8631,
+      "sha256": "83ea39ff385347ea0f769a7bc0ed829ac25caf6167a4d4b669ee72b682e9b990"
     },
     "mengsan/ui/relic-icon.js": {
-      "size": 642,
-      "sha256": "ba1e2fcfcb3983d25734cca9ba33136a6f12dbc176439b8974fa7ff79a4e0c9e"
+      "size": 631,
+      "sha256": "f9d5af85381d23525d8f985635709fd14df234123cd2d04851f0015952e47ab1"
+    },
+    "mengsan/ui/relic-strip.js": {
+      "size": 4035,
+      "sha256": "75993cde0dd7ad76cf064684de87f35f5b174e6105b1ee89c441dd038a3730d9"
     },
     "mengsan/ui/relics.js": {
-      "size": 3673,
-      "sha256": "76f0042edbb5af4aeb32e597eb21bbb3757ee2327092b29eebc530df26f088a7"
+      "size": 4113,
+      "sha256": "653172b8bde8e96ac79b910de76e03815ae9815ed08ab09445edc3b8f73ce750"
     },
     "mengsan/ui/reward-package.js": {
-      "size": 4347,
-      "sha256": "67d2e757fe6ced0f57d16a1d11aaba8caa4d90bcfe99d878aa5400e5e05003b7"
+      "size": 4256,
+      "sha256": "0ca1458434ebe616fd29eebbbb9314c03249673fc9a9e2cbae6ee09be4cdc16e"
     },
     "mengsan/ui/reward-ui.js": {
-      "size": 15837,
-      "sha256": "d403221c69abe676d080e6a8c3c2146242ccc2defb1de4887e62f4ed3611ee5b"
+      "size": 15548,
+      "sha256": "c39778c5c256ebb0ea3af19fab34b325d21ab875522162868b4ab2ada34cd12e"
     },
     "mengsan/ui/style.css": {
-      "size": 80055,
-      "sha256": "fcdab9e5cfdd98bcb6849db8e2bfa7da387cf1dd0e75c1fa7013cb3d355b53ac"
+      "size": 79928,
+      "sha256": "cd291794da3e60569902ff6f09d5a7336f0f4c1edde43ed5ac2d22a1efb762b0"
     },
     "mengsan/ui/virtual-card-grid.js": {
-      "size": 4916,
-      "sha256": "4365dbc5a943dccb01386e22a2ca16cd80596e613c4c862b432b304540c151e0"
+      "size": 4820,
+      "sha256": "0933ec3eea0169b34a6e7b4c20e9f75b0645fa787ea70b7ec7d4469213f94ae2"
     }
   },
   "tree": {
     "type": "directory",
-    "name": "source",
+    "name": "source-for-manifest",
     "children": {
       "mengsan": {
         "type": "directory",
@@ -6049,8 +6384,8 @@
                   },
                   "manifest.json": {
                     "type": "file",
-                    "size": 97396,
-                    "sha256": "0c1643d0a0b937e670c0f09158cdcb4a9a70213fbd287e876923679fda5182ae"
+                    "size": 94100,
+                    "sha256": "57904adde9b33501301d3b6b37fcc1729e19cd7c2d2a8407b3f2714fb42ca8e7"
                   },
                   "massive_scroll.png": {
                     "type": "file",
@@ -6818,6 +7153,316 @@
                     "sha256": "0802618198a3f3f6d6c71cd52290996706d5e5a2c6119dc5c3207529fd4b9cb0"
                   }
                 }
+              },
+              "status": {
+                "type": "directory",
+                "children": {
+                  "aggression_power.png": {
+                    "type": "file",
+                    "size": 4524,
+                    "sha256": "9ec47f0a5eb259c1cc131b82e6bb9e22343df7f64c7375db7580eb326b6a97f3"
+                  },
+                  "artifact_power.png": {
+                    "type": "file",
+                    "size": 5717,
+                    "sha256": "2346d2425fd40cc5f8532df0f97afa9bbb782fa649a09bcb014fe6932e845f90"
+                  },
+                  "automation_power.png": {
+                    "type": "file",
+                    "size": 4452,
+                    "sha256": "c7b5b35579dc1b2ff209e4be54a1982381b1096c640a3c21bb5c9e6aeb86a08f"
+                  },
+                  "barricade_power.png": {
+                    "type": "file",
+                    "size": 2828,
+                    "sha256": "1467ded14bfef8cdc15152e62a100ef7d3be85173ac5eea2f6960d4815d5c64c"
+                  },
+                  "beacon_of_hope_power.png": {
+                    "type": "file",
+                    "size": 5248,
+                    "sha256": "0d33f9098425c3d740e699926809c0c7c9121cdd05e52508284a1e34d7b7bd8d"
+                  },
+                  "block_next_turn_power.png": {
+                    "type": "file",
+                    "size": 4275,
+                    "sha256": "fd5c75f11f5719f9ffb52ceda3640cbc684ec178e783a3ceb2774548df1615f8"
+                  },
+                  "calamity_power.png": {
+                    "type": "file",
+                    "size": 5331,
+                    "sha256": "8d510b86daa72a8066729bc5d0a3943acf5c77903be69525f325b65607c7cdd7"
+                  },
+                  "colossus_power.png": {
+                    "type": "file",
+                    "size": 3875,
+                    "sha256": "cfe2be38931e40856d5388b6e3b8c86a7ee2de6688ab69294f348d383e1dfb7d"
+                  },
+                  "constrict_power.png": {
+                    "type": "file",
+                    "size": 4543,
+                    "sha256": "5f29c6b3f8955e275d98f9ed47a893c1214a7bfb820ce1c696c9f16fddcbd8b4"
+                  },
+                  "corruption_power.png": {
+                    "type": "file",
+                    "size": 4822,
+                    "sha256": "8228d730978170f60d9c429136a395b3de59b5c98726912812f708ec803836eb"
+                  },
+                  "crimson_mantle_power.png": {
+                    "type": "file",
+                    "size": 4706,
+                    "sha256": "7fdeb8f49fb6bfb3ef5f4ff52ec8bcad18bf8fd1e0357d9378ac657124cb8e23"
+                  },
+                  "curious_power.png": {
+                    "type": "file",
+                    "size": 4106,
+                    "sha256": "77cb0e309fc148e2b2bb723fa5a227d4dc3c2503e22421b9d0e457fb3a85c7d7"
+                  },
+                  "dark_embrace_power.png": {
+                    "type": "file",
+                    "size": 5545,
+                    "sha256": "f60e5524cf10b4da15f1b788a58e65e2765aa928988100d6fcb6012829520d99"
+                  },
+                  "demesne_power.png": {
+                    "type": "file",
+                    "size": 5817,
+                    "sha256": "554fff2e62aaeaee7b1c9cc1c8283257139ce901a5191c39d143b757cd865e96"
+                  },
+                  "demon_form_power.png": {
+                    "type": "file",
+                    "size": 4728,
+                    "sha256": "2e183f449fc07c30356d181a1b1a5814aad2ef077598642a35899f4d8cdc3bc3"
+                  },
+                  "dexterity_power.png": {
+                    "type": "file",
+                    "size": 3073,
+                    "sha256": "6609f4d04f4613ba0001b6254a793ddd2c25a60e66a320ff31ef6724ef15f20e"
+                  },
+                  "draw_cards_next_turn_power.png": {
+                    "type": "file",
+                    "size": 3178,
+                    "sha256": "c0a8c2781aff2e5c6bf73a2dd2938ef820a5fde651757954f5219113cf88ea22"
+                  },
+                  "energy_next_turn_power.png": {
+                    "type": "file",
+                    "size": 2896,
+                    "sha256": "511314b05d5c223613b6d654816f7feb5607e7c40b0487207c5b1a75f5002f67"
+                  },
+                  "entropy_power.png": {
+                    "type": "file",
+                    "size": 4849,
+                    "sha256": "5042bd71bd07fd605cba2c39677dd21df704439ed5d0ad9610f1102d8ed782ad"
+                  },
+                  "fasten_power.png": {
+                    "type": "file",
+                    "size": 4680,
+                    "sha256": "13518361d51775876bf4cde87e88cc4a9e63a5a1d14ba49388eb12d57404bbe7"
+                  },
+                  "feel_no_pain_power.png": {
+                    "type": "file",
+                    "size": 4244,
+                    "sha256": "92359b3a53e10600e864a502291be3b50cf00c1792dbf5203e8eaac09fab126e"
+                  },
+                  "flame_barrier_power.png": {
+                    "type": "file",
+                    "size": 4786,
+                    "sha256": "48a7543a8f87c8b360a3a23a67df23b51b4a54eb6f7747cc27c9f4a230610cdf"
+                  },
+                  "frail_power.png": {
+                    "type": "file",
+                    "size": 3945,
+                    "sha256": "d772bf035190a650a9be735282c77ee9ab2276a775a9e7079710c8b09c4a4619"
+                  },
+                  "free_attack_power.png": {
+                    "type": "file",
+                    "size": 4223,
+                    "sha256": "5bc861f0693c0b73e95be4a2faebd8d81441e1011004f7a0ff71ced6f913573b"
+                  },
+                  "hellraiser_power.png": {
+                    "type": "file",
+                    "size": 4296,
+                    "sha256": "38ca8fc4c727fb936d057a78bfb9461a39b0266dd794d062e9d278505821efc6"
+                  },
+                  "inferno_power.png": {
+                    "type": "file",
+                    "size": 5996,
+                    "sha256": "3775622f4ad2419ed897bb90e56d793fb383c1810bae514d3e9c17eaff53fe69"
+                  },
+                  "infested_power.png": {
+                    "type": "file",
+                    "size": 3554,
+                    "sha256": "d6cd52278e0444a8f65fdc7d3c19b7ff9dc7067e2c1d21509f891238bae234f7"
+                  },
+                  "intangible_power.png": {
+                    "type": "file",
+                    "size": 4398,
+                    "sha256": "0368e806c412ca290796c58e1e1a96e6d84bd5dda67f39249433e688006eaf1f"
+                  },
+                  "juggernaut_power.png": {
+                    "type": "file",
+                    "size": 5096,
+                    "sha256": "c0c9382989b31f246678d1d33ecb3f17f3b75a97aa9a752dd1f6551733d76112"
+                  },
+                  "juggling_power.png": {
+                    "type": "file",
+                    "size": 4512,
+                    "sha256": "583f560f68a3b9df4ef60376b919ff51d85d862076f0ce09848644f3171d51af"
+                  },
+                  "manifest.json": {
+                    "type": "file",
+                    "size": 11700,
+                    "sha256": "0329c6da77b7d2fd90f83cc3362af66eee25ab94cf2f069ef72df1fa2ca36b48"
+                  },
+                  "mayhem_power.png": {
+                    "type": "file",
+                    "size": 5287,
+                    "sha256": "354b3fe4b63c064cc96302d46b27829f6d51fd37e703aec15d53ed53a14e2d51"
+                  },
+                  "no_block_power.png": {
+                    "type": "file",
+                    "size": 4592,
+                    "sha256": "469f70ce5a86ea24751ef75461d20ec127014e16495ee23a86ca0255b4246d4b"
+                  },
+                  "no_draw_power.png": {
+                    "type": "file",
+                    "size": 4335,
+                    "sha256": "7f8ac6cae6cc5611d7e8217619de9cc87dcef245e19bc70107bc299da790bed0"
+                  },
+                  "no_energy_gain_power.png": {
+                    "type": "file",
+                    "size": 6746,
+                    "sha256": "c31490f89b758bd63564581218ede73d89438d833ece8d8da5a8f12f773a345d"
+                  },
+                  "nostalgia_power.png": {
+                    "type": "file",
+                    "size": 3856,
+                    "sha256": "836674ba8a9e8d0ea2263e90944acdf7078dc1f6c835771650bfcf84825d84a4"
+                  },
+                  "one_two_punch_power.png": {
+                    "type": "file",
+                    "size": 3986,
+                    "sha256": "458f05559a4efcd79bcbe0fb7e1d9aa4ae47d3a0c533f11e1a72ed3e67aec78b"
+                  },
+                  "panache_power.png": {
+                    "type": "file",
+                    "size": 3489,
+                    "sha256": "61dd7bda14317085c4f6cb4ccecebc759b5468c5494d16fb1a2d78c5f3fd59e0"
+                  },
+                  "plating_power.png": {
+                    "type": "file",
+                    "size": 5036,
+                    "sha256": "10a27dd11231338120274c8b132ec82187b2cc00f81d0f7fa94e3637f4506b67"
+                  },
+                  "plow_power.png": {
+                    "type": "file",
+                    "size": 5865,
+                    "sha256": "dc300ee907b06d300bcd01f2c2784cc06c761796206a090e1a94f0cecfa95a31"
+                  },
+                  "prep_time_power.png": {
+                    "type": "file",
+                    "size": 6445,
+                    "sha256": "ce1698909dcb2e91bd67714c11f7c467ae083326b7f9f239751a4c202d50bf69"
+                  },
+                  "rage_power.png": {
+                    "type": "file",
+                    "size": 4937,
+                    "sha256": "a53721daa6996403e61e871aca8152ae50372c3255e509f1a6d4d99bbfd01d02"
+                  },
+                  "retain_hand_power.png": {
+                    "type": "file",
+                    "size": 4225,
+                    "sha256": "a8ee3da12b0774ffc9bba33d6da7695afdfc9b7904d31b3229df077489541784"
+                  },
+                  "ringing_power.png": {
+                    "type": "file",
+                    "size": 5038,
+                    "sha256": "c4a3d09f976788bca91d3a5011fc0f05c3f981eaa3482a33c31a0a661705f60c"
+                  },
+                  "rolling_boulder_power.png": {
+                    "type": "file",
+                    "size": 4422,
+                    "sha256": "53c820c23f09cd07d2b0e3bd00493bdaef81fbd09d05bf2d15485c3c1ef7e4a0"
+                  },
+                  "rupture_power.png": {
+                    "type": "file",
+                    "size": 3897,
+                    "sha256": "101e3b473ec6d6b565aa94ed5946840f6c013f28e62f3f0961106c2c8cd54d95"
+                  },
+                  "shrink_power.png": {
+                    "type": "file",
+                    "size": 4258,
+                    "sha256": "b19a0d045135bcc6cfa00f2fb11be78dba68f16ecc12f2ca8474caa9327c05dd"
+                  },
+                  "slippery_power.png": {
+                    "type": "file",
+                    "size": 4722,
+                    "sha256": "06b4ac80cbf1f70c625be827047be79302f72c018cf8368bfb313a27744e568b"
+                  },
+                  "slow_power.png": {
+                    "type": "file",
+                    "size": 5762,
+                    "sha256": "b39d7af28b0fdcd773a44577a6635c8b23dc03bff6280de841dc831fe6c601b0"
+                  },
+                  "stampede_power.png": {
+                    "type": "file",
+                    "size": 3357,
+                    "sha256": "1aea977a121c451ef134581789f629dc61caba87b771e7bd684345baae573d03"
+                  },
+                  "strength_power.png": {
+                    "type": "file",
+                    "size": 3435,
+                    "sha256": "6584c67190bfd47255c0f333bfb7f2ab52720209d94ce9324a30b0a8e638d7ff"
+                  },
+                  "tangled_power.png": {
+                    "type": "file",
+                    "size": 5754,
+                    "sha256": "3d4d4686876ed0265f26696ab2d0ebde8366b0537994bf223bc388a0f104ec5e"
+                  },
+                  "tank_power.png": {
+                    "type": "file",
+                    "size": 3191,
+                    "sha256": "f8cfbc1bbf8832f4e83ffdf4172bfc37564c85d36a4a5c14d18c1ab60bd1b76e"
+                  },
+                  "territorial_power.png": {
+                    "type": "file",
+                    "size": 3829,
+                    "sha256": "cf1b1d401a6fd45dbb1f3eda64049edf8cdf7e91a55f3aaf7a10f138d54699dd"
+                  },
+                  "the_bomb_power.png": {
+                    "type": "file",
+                    "size": 4421,
+                    "sha256": "862f05ed56d4d0ebd60afd777162d23fb4744991f6cace9e43640bee29f5db58"
+                  },
+                  "the_gambit_power.png": {
+                    "type": "file",
+                    "size": 3051,
+                    "sha256": "204284c28d48c60a8c73f7356bb3d5aa0fc8e4b44491cb1aec19717bb4f04784"
+                  },
+                  "unmovable_power.png": {
+                    "type": "file",
+                    "size": 4784,
+                    "sha256": "f99e4f21fcfd6e57089d47e4bc4ed1cf1a813a759f76487c38852d66dc472a19"
+                  },
+                  "vicious_power.png": {
+                    "type": "file",
+                    "size": 3247,
+                    "sha256": "4b90144a9254bb155b1cce8180d91d919af99566b8841e2135eb86880ff0765a"
+                  },
+                  "vigor_power.png": {
+                    "type": "file",
+                    "size": 5912,
+                    "sha256": "551b7b93d139f30cf190887ea3eef197aa693a7a78e67aef48ef2b582b1532b3"
+                  },
+                  "vulnerable_power.png": {
+                    "type": "file",
+                    "size": 3725,
+                    "sha256": "1b9a9336dd7828cb1fb61b119ab765d3c713ce4e0e98bdbee7211724fe5c78b6"
+                  },
+                  "weak_power.png": {
+                    "type": "file",
+                    "size": 4738,
+                    "sha256": "f8f4277c9fd848600a503b8d377bf9e83b4eaa06fa27f8f82ebefcfbd9714763"
+                  }
+                }
               }
             }
           },
@@ -6826,73 +7471,78 @@
             "children": {
               "battle-director.js": {
                 "type": "file",
-                "size": 13125,
-                "sha256": "a82a031a5d92f4e734625a40793db883ef96bd4c9b56bfef5bc56f2b982e4aea"
+                "size": 12944,
+                "sha256": "ba3adfa4793a1ef3e2da9959a39fad62789fcd6f41b84e9e342c81ff88edbbff"
               },
               "battle-flow.js": {
                 "type": "file",
-                "size": 7910,
-                "sha256": "4cf8bf588e9a1d30c481fefd1e609b084a19dc658371af9ee9b516ff3c8b62bf"
+                "size": 7874,
+                "sha256": "f55073fbf63f6a1cd5b8d1edf52686ee7686bea1c21771526ee75a04853ef6e8"
               },
               "battle-loop.js": {
                 "type": "file",
-                "size": 3652,
-                "sha256": "8ff23c71320c91cee2955cabfd8384190a07b80cbddd44bba50fcf9fef4daeb0"
+                "size": 3565,
+                "sha256": "0af53c3d317fe9816594c2786bf5a1bfa960babf0c135b9b4d524794730efbcf"
               },
               "battle-resources.js": {
                 "type": "file",
-                "size": 3236,
-                "sha256": "a4584c4560ffd12fca2f2a540e94d7e211d7a68d1d0b498177a730f32cc2e764"
+                "size": 3178,
+                "sha256": "07281284f270454586369b21c3de080084d6701c43b2998682b00fdfb20d8d88"
               },
               "battle-session.js": {
                 "type": "file",
-                "size": 6334,
-                "sha256": "e96d40a1c5fd4f4afe8046a412e78712e9df10fe00bbc6d858575e5a9b6a1102"
+                "size": 6214,
+                "sha256": "00c128d1ccf6c2492c5a83dea2e24ff75233e706374803525e35700ed8162bff"
               },
               "battle-settlement.js": {
                 "type": "file",
-                "size": 14376,
-                "sha256": "99f0a69aba0489f7a91954b95cd00d5856282779bb7e2ae91182bdbb89a8c63a"
+                "size": 14143,
+                "sha256": "af648e41b8936ae5197acd58599fec56368813324470e38ea44777239ea8eea8"
               },
               "camps.js": {
                 "type": "file",
-                "size": 2440,
-                "sha256": "0907129c78d843f02762b3ec4aa3b25542f605aaf73e61fcb417e46bd731c021"
+                "size": 2386,
+                "sha256": "51ee6d2aa78261bd60b2ffa2662b7a37e62b516c379b8cedd46ecf0466630278"
               },
               "combat-rules.js": {
                 "type": "file",
-                "size": 6298,
-                "sha256": "807cdb1629c19890b67dcea112da9e2495b47926f5de7e37a182840cce179374"
+                "size": 6185,
+                "sha256": "d51a65cc023428eb5c1cd67881f093e18d96f86d0e9de6a76bf7bf85049bd2bd"
               },
               "death-blow.js": {
                 "type": "file",
-                "size": 1151,
-                "sha256": "aa3ba0da315ae81ae8430c50a57203889838adac8d533aa5400a4bb9976becf5"
+                "size": 1113,
+                "sha256": "d0222776b90acacd2fc672559bf59d8c0376cfae68294d5a9603551ed182a0c1"
               },
               "engine-session.js": {
                 "type": "file",
-                "size": 3763,
-                "sha256": "1addfa8f6a6e1e56d2dd32b6d1249ef84aa0aaa1ca049a7e0ccb688be51261bb"
+                "size": 3680,
+                "sha256": "6aaad4dd6641caea0c0e02028239e355a7b83c3d53b64f704989b56376855750"
               },
               "intent-damage.js": {
                 "type": "file",
-                "size": 1298,
-                "sha256": "616a18728b31677b70cc14b88af027c4cc912ae90f11de41355b900ed2c29ea1"
+                "size": 1266,
+                "sha256": "c0efe2d26f5ee76f090c5ef04b8607def99ad1a3315dedd5c2b8e42aff218a7d"
               },
               "intent-effects.js": {
                 "type": "file",
-                "size": 2359,
-                "sha256": "0b38b5b5eef925910200749c325c34a1cd4b4aa7cbacd44b63a2c31551f2a21d"
+                "size": 2311,
+                "sha256": "5fc1c57b88c996b9ba1ff27d220749001acecea028950479c5fc4bf26b854fe9"
               },
               "skill-teardown.js": {
                 "type": "file",
-                "size": 6849,
-                "sha256": "5f92d02d245aa3021ea47b245b221c58987b1e5770fe4329eef6ae733b0810ff"
+                "size": 10822,
+                "sha256": "3be7098c7bdfa416c6237bb0e85d5b8d6022da44833de070c8a2b6f8b65400dc"
+              },
+              "status-sources.js": {
+                "type": "file",
+                "size": 955,
+                "sha256": "62dc6ab89e7bf677f3b870877f97e2d8a0eeb9099b92f7b097b3148ec52e4d44"
               },
               "stun-intent.js": {
                 "type": "file",
-                "size": 1340,
-                "sha256": "898f9e64b80c5a963229eed340455f810eec2c1777bb98ba599d56101ba11bf7"
+                "size": 1295,
+                "sha256": "3a73747311bbae29cd03a3327f0ff398aa085f2d2e480d4013f2f8f15d09f810"
               }
             }
           },
@@ -6901,23 +7551,23 @@
             "children": {
               "battle.js": {
                 "type": "file",
-                "size": 1771,
-                "sha256": "bdb4d429b14b98d7d5434afb2d11039938b7eaea37cf5f87a3fba86fc958b254"
+                "size": 1729,
+                "sha256": "702bf42803374567630ebfc87515d14e6e7a8c3e33b49f16bdc98ac5e1954451"
               },
               "definitions.js": {
                 "type": "file",
-                "size": 2527,
-                "sha256": "a736afb0c27d30d68290b952d41e304241e2ea6401fa19c6399e49309e958ac0"
+                "size": 2464,
+                "sha256": "2ff3db8f5db20416f218b184ad980b9adc93d82197a6f296726e0c76a49e2abe"
               },
               "intents.js": {
                 "type": "file",
-                "size": 2952,
-                "sha256": "935f5f1ec90ba7e0cd0539db9c51ad5ba11e9063bbbd060a56f4ef6c34bfe00d"
+                "size": 2888,
+                "sha256": "514212bec0e6b523a0eea5857212d3369da4eef84cf812866baf5e9a4f3407fc"
               },
               "state.js": {
                 "type": "file",
-                "size": 4484,
-                "sha256": "45c7c4c09865c335bb2e181c5bd5fcffc20a55a5d5e57e8e36b88977d7329da2"
+                "size": 4372,
+                "sha256": "8117b0a9c4b9c56ffa7ce8b367ffc89dd69ddacc19f93114c8fedb894cb8f33c"
               }
             }
           },
@@ -6926,108 +7576,108 @@
             "children": {
               "affixes.js": {
                 "type": "file",
-                "size": 1124,
-                "sha256": "f65993cabf6fe9b01e9a41de4ff0d47aba56eb67cd9e00d4a67cd87d9ed9bce8"
+                "size": 1114,
+                "sha256": "6f5a0975192aa3b159c3c6886a0214fd101869fccd866d2de831afc56f3fcb72"
               },
               "battle-card-copy.js": {
                 "type": "file",
-                "size": 1766,
-                "sha256": "1cd2344a1d56da56b07a7968989fc3216346a89370b832ed1f869d0494f7148b"
+                "size": 1737,
+                "sha256": "acffc9c0ecc7d22985f894522376e13d39067e71cf1532f2a2cd8d9466671fdf"
               },
               "battle-card-reclaim.js": {
                 "type": "file",
-                "size": 1551,
-                "sha256": "397a0c05591122d91bed20499cdd0b55f3fddcdaa6a2d6cf8d7f4434c1306feb"
+                "size": 1522,
+                "sha256": "c38d2f86719d682027be75e8a30639cabeb1cf4d7db87aef2304327181161fe8"
               },
               "battle-energy.js": {
                 "type": "file",
-                "size": 1502,
-                "sha256": "cee19be46c41d274bf706c2add12f64834980ddb32526862e78de37bda28caef"
+                "size": 1469,
+                "sha256": "dc1e4e9c215a5c3c3a93c6637c72dfd54e622688a243618a4cfafdbf77130af9"
               },
               "block-draw.js": {
                 "type": "file",
-                "size": 1197,
-                "sha256": "4770aa0a753b80d103e3c087bbe2046609e99a05dcbc5c388526ba87c554b7ce"
+                "size": 1178,
+                "sha256": "fb93243cd983e35e4aaf95fd4f4ea9012cdb62c62ca0d080703918f5364dc5fa"
               },
               "card-data.js": {
                 "type": "file",
-                "size": 3552,
-                "sha256": "09dedace9b70c432f2b189a7d8fed149afde0d15d515c02c417343260c19b3ea"
+                "size": 3495,
+                "sha256": "2dc949fcefee7cde2a49afe0942770bb7c673bcf0ec97638f23dbde9de06bf5f"
               },
               "card-definitions.js": {
                 "type": "file",
-                "size": 3053,
-                "sha256": "35c22815c71c0a5612537923b336637fd9e2e8a2aa506e1dae739eefbd0d0cc7"
+                "size": 3006,
+                "sha256": "b824439eb6808642fa55a81779f5b990e52382c85c9f256a6346f3e21331b9d0"
               },
               "card-pools.js": {
                 "type": "file",
-                "size": 637,
-                "sha256": "c84c2c89de978d7f03dc2281da48c15728a977e64287ebe5d288ed6f39c217f7"
+                "size": 628,
+                "sha256": "1830028ecefe5dedf09f27358d9235a91d6282dbdea46d410a48315afbc3b118"
               },
               "classification-types.js": {
                 "type": "file",
-                "size": 524,
-                "sha256": "75084272278f6d8596139657a8f9af9e7398e3b4ebdcf0ba753ecf9e00a6ae48"
+                "size": 515,
+                "sha256": "10813deaaf218c68512e44da8eac9a83717b8b942a48df498cfae570c9f939f4"
               },
               "description.js": {
                 "type": "file",
-                "size": 532,
-                "sha256": "d938cc736a95a6bddf14df52165a9bda775bd845b958687bced06ba0254464a6"
+                "size": 524,
+                "sha256": "a37daf0e29fb05f8248ff3b9c9777e68e2dab6e7cf86a3c53510e099a1e10d1d"
               },
               "hand-exhaust.js": {
                 "type": "file",
-                "size": 2673,
-                "sha256": "904bd21885750bcb5cabee5478d74a9f5e61651d2b9aeaff1f7b41559f1665e6"
+                "size": 2627,
+                "sha256": "36c64653a3646921f511d2721df69f7c75e6a38a11abaa5e2b09280aa0d38b98"
               },
               "hand-upgrade.js": {
                 "type": "file",
-                "size": 4446,
-                "sha256": "206e2a5d5ec96a8bc012a0ddc87e6388d7c0a7d93dfb9f8ebe3574156b6433a1"
+                "size": 4359,
+                "sha256": "599859fc9a5283655778816847d2edff52c787b47b41f1e5e6fc6ac2160caed7"
               },
               "havoc-play.js": {
                 "type": "file",
-                "size": 1921,
-                "sha256": "dad0d45cbbd0a8f13a9aa0c238d14b3c6e7553eb3795e3291e2c53d5b69bd7d0"
+                "size": 1885,
+                "sha256": "60292a9bf9fef09c4fbb3cbc5ac4e87267f1b0a01650f4ddd2a23d4f65e33bb0"
               },
               "infection-card.js": {
                 "type": "file",
-                "size": 3112,
-                "sha256": "831ae4c7c9e8497fd1255062894bb1b65169c0e6f7fb85a8b500a86115806fbc"
+                "size": 3056,
+                "sha256": "f39708a57dffe6ec86e176e4d3572fed9bad60350a83fadaf21d75e8d7f817f1"
               },
               "intrinsic-affixes.js": {
                 "type": "file",
-                "size": 831,
-                "sha256": "4743f5ab95c32faf0eea70074b30f841bfe67f760a3f29d602aeb81cc1b21bbf"
+                "size": 819,
+                "sha256": "67630d860ce74ceb9ba9fb40e8f7a4b13dcf55c83277653392d23b5f0ea9c0e1"
               },
               "ironclad-advanced-data.js": {
                 "type": "file",
-                "size": 128,
-                "sha256": "3aa955dc4be0e89f14a434570775e09a738d51965dd5c3eb0fd38f7ebde01cab"
+                "size": 126,
+                "sha256": "e18fd3b159e910a02d26d4d0a9ea3d630b51fd71f734fb183b5542f6f777713b"
               },
               "ironclad-data.js": {
                 "type": "file",
-                "size": 119,
-                "sha256": "c8271851ec177ea62ce9f1076764540e988e733502a139cccc4a0ec85e7f5228"
+                "size": 117,
+                "sha256": "8a90e36e9375661d1e9273da6fbfea3c6ef1be8e0772c2d5899b518d1d127390"
               },
               "ironclad-hooks.js": {
                 "type": "file",
-                "size": 2362,
-                "sha256": "4e30d3cf8c57dc506020ecf7ff494000b090946aaf8a4886a77fbfbb77eba9fd"
+                "size": 2329,
+                "sha256": "92354b83e943b56a7c9653be1b902840ae97cd28ee6a54aa21bfd43dfd948a8e"
               },
               "ironclad.js": {
                 "type": "file",
-                "size": 122,
-                "sha256": "f49c6652f9a7eecb9343ad6c3425f68c27a64a90f7f18fb779f3f140704c2a7a"
+                "size": 120,
+                "sha256": "5317a2bf599d8a7fabcf19dfa4f76284cbe6b7f43ec5a3f8c607ab9e69d9f61d"
               },
               "life-loss-block.js": {
                 "type": "file",
-                "size": 1201,
-                "sha256": "a7d7fe06674a80fee348d543a4da7f1d9354edfe4869d7f43e40ed1d2f8ae5d9"
+                "size": 1177,
+                "sha256": "718254e938a08be9e4fa036698fe5c33ac98c842722e1edebf7bb9906922f64b"
               },
               "mode-cards.js": {
                 "type": "file",
-                "size": 7899,
-                "sha256": "181a6b95d5f8080cd9ab10898713b27776c613fee965c9ec013594a9436eeaf6"
+                "size": 7770,
+                "sha256": "4a8f9d61ba438ea3ba2e857f0b81bd85bee2ffc1c9bd0bcbd18dbdeac36aec8f"
               },
               "packs": {
                 "type": "directory",
@@ -7037,18 +7687,18 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 32174,
-                        "sha256": "4ba74b97668b97b99099efd19fdba2e81da02e2ab3764b332fc71cbd135b87cd"
+                        "size": 30960,
+                        "sha256": "6d4b62e53fcbd2a509d335670a07a75b5dce1268bc146f27a10113c68b86e0a5"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 390,
-                        "sha256": "b30d7ee8786f9f8cedade070c77f34fd2e4d2a3948d92ee211787cccc29ca247"
+                        "size": 382,
+                        "sha256": "b106052a24fc47b10472b907c69036e341a90a5945d32e140d67dc2c030a5f92"
                       },
                       "rewards.js": {
                         "type": "file",
-                        "size": 621,
-                        "sha256": "9b7e679b4f6ea3e6fe70671986cef7328d2dcf033f7620a5e2e06a47a9d9f5ac"
+                        "size": 613,
+                        "sha256": "af212d7c4cd8f63c5837e8f29519cd341b775135fa332f8a0f4f82eae4ac349d"
                       }
                     }
                   },
@@ -7057,103 +7707,103 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 6704,
-                        "sha256": "35d43aa2ada598257fe0d0c18f5ea746d67429c0d9a3d73b145dedb363fe50df"
+                        "size": 6436,
+                        "sha256": "a85d48996fe637e1bb8b976d370e4fb49d1a2bb1e1dd6e9befc1ff6fa1827d9d"
                       }
                     }
                   },
                   "data.js": {
                     "type": "file",
-                    "size": 912,
-                    "sha256": "11f10ede8a027567855b31d72e562f9851b2b7ffe96f57525268fdabac3e4145"
+                    "size": 902,
+                    "sha256": "4f04d425ba55670fe5707ef189dd3b74fa9934117fc5929c0f1b9b67c874863b"
                   },
                   "event": {
                     "type": "directory",
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 14820,
-                        "sha256": "0badede4d570d625e371f3e06750d708c381f2eff3f14e54f1a803690f28c1c9"
+                        "size": 14249,
+                        "sha256": "b195639153c1cb6a3ac48d5af364c9a915a34e96d844ec4e4848d914e5896017"
                       }
                     }
                   },
                   "index.js": {
                     "type": "file",
-                    "size": 1128,
-                    "sha256": "3a19244866f80379cfb9314dd599a67fed4adc305ed23c5393c6f09366075147"
+                    "size": 1109,
+                    "sha256": "0711819c90af702cc98fc189c710bd278a9aa66022f04a3566ab18509b92af53"
                   },
                   "liubei": {
                     "type": "directory",
                     "children": {
                       "advanced-data.js": {
                         "type": "file",
-                        "size": 2877,
-                        "sha256": "7f9b1b67d987d15030a522d4899e29d39bbd2166866b29e1794119ef9fc2d1d6"
+                        "size": 2842,
+                        "sha256": "af05e8f5ffe996f11f1383023557f00d60eaccadc534a8fa8df3f9b57fc6b036"
                       },
                       "advanced.js": {
                         "type": "file",
-                        "size": 31697,
-                        "sha256": "6230a44ecc67c3f04a62a00d921b690e9fab7651da52f747706ae2d884bce21d"
+                        "size": 31375,
+                        "sha256": "9752877ed54e3e8aad0a0049a2a1a08732c047b84498bf9279e19e9d7490fbde"
                       },
                       "data.js": {
                         "type": "file",
-                        "size": 4516,
-                        "sha256": "7103bf64a2c338137a5b470127a7220664a802a39de40d562c24cb2660f0c048"
+                        "size": 4464,
+                        "sha256": "05c96c5c741dd18df46803fa29c692b1efb4ff98044e8f09ddafbea717831579"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 625,
-                        "sha256": "18d0eaf53ca7117560f3987d5ca6911f2486bd27a9b40fbd2a345a9eebccef50"
+                        "size": 610,
+                        "sha256": "49cd27d3341c93774bcaa05f1233d358962cdc3482c6dcfccb6d480cc5240dbb"
                       },
                       "legacy.js": {
                         "type": "file",
-                        "size": 56085,
-                        "sha256": "8fd3885129b5221e93f3634c0c1094b01f8525124b1c0b6c2ff32c585aa3985c"
+                        "size": 55175,
+                        "sha256": "32776f897128bfa7ab2e6dad1cbab4c09901fd0c093da599da7161fe5dca16ff"
                       },
                       "metadata.js": {
                         "type": "file",
-                        "size": 5758,
-                        "sha256": "5217360a7b5c6cb90974b7d05714c6cafb33273536978818dbbbb000d1ecf671"
+                        "size": 5618,
+                        "sha256": "9b5dbdd73c6f901f1f005baecd1f70cf81997ca9cf0897e7309f5c5a73eb77cc"
                       },
                       "names.js": {
                         "type": "file",
-                        "size": 828,
-                        "sha256": "8fc0b29eca5a85a679275130be644c972b1efc4c3b47401d7c341669ffee9758"
+                        "size": 816,
+                        "sha256": "d40ce599c1a9c21903ff6889ffb3f9d682d48eb269797ee960db9084d93905f9"
                       },
                       "rewards.js": {
                         "type": "file",
-                        "size": 12516,
-                        "sha256": "82d030a3dc79b684bedd6716b7497971c8d12809abe1de2c0d548656ca3ff2f7"
+                        "size": 12445,
+                        "sha256": "5deddf3784b4e7ae8a757d4ff06481d0f32f1f31fed86b939cc1f9184e462396"
                       },
                       "runtime.js": {
                         "type": "file",
-                        "size": 21712,
-                        "sha256": "a1526d9fccbc0f8b42512ae464669c2d93e207cd9beab284f416582e0b5d3107"
+                        "size": 21534,
+                        "sha256": "984028fbc613b89b3f6fb99801c57bb1ecc0e70896edf5d716677c42a06b2345"
                       },
                       "traits.js": {
                         "type": "file",
-                        "size": 8277,
-                        "sha256": "38e1b081a3789f3760c4a0889b34803667006b326dce1f8e2aa2c862d997a549"
+                        "size": 8178,
+                        "sha256": "bd813bd37feec90300edd14d3d23fcca301d75ff32fca096555e3bbc35bd162d"
                       }
                     }
                   },
                   "rewards.js": {
                     "type": "file",
-                    "size": 331,
-                    "sha256": "34c6df282cb63a47d5f933543e567d4232e3326d1b662440bc7a7417452149e7"
+                    "size": 327,
+                    "sha256": "e7f15d41aa526c6b6ba93b137dd2e31f63fbace91d1bf8c3f8dbdd0fa6ac3176"
                   },
                   "shared": {
                     "type": "directory",
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 405,
-                        "sha256": "93244ab064a100fa9a93f0cb19acc1d22b6ce17036b2f5cc71fd4f1db42f8497"
+                        "size": 399,
+                        "sha256": "ec004403090107d462d6948751154b03ad6f88a16ac6a844d1898f79e6184386"
                       },
                       "runtime.js": {
                         "type": "file",
-                        "size": 42402,
-                        "sha256": "b8b8eb4a0a921c4480ba25d42cdbb8766780e87ea7b468b8dd5209ca63c8a644"
+                        "size": 41965,
+                        "sha256": "241d9ba35d538e1dae5f963b10c150c8cbe7dd40309fbedddd3bf09846297d84"
                       }
                     }
                   },
@@ -7162,8 +7812,8 @@
                     "children": {
                       "data.js": {
                         "type": "file",
-                        "size": 4513,
-                        "sha256": "16de512e265f4062ed9fa077d655a416147308b72d0893348c0ad8c27f5b89b3"
+                        "size": 4334,
+                        "sha256": "7ca46d39b6f3cf99189d86811a4d618dc759117c66e796a3e00ec70621765dc2"
                       }
                     }
                   }
@@ -7171,100 +7821,100 @@
               },
               "personal-piles.js": {
                 "type": "file",
-                "size": 24412,
-                "sha256": "ef9201fdb55dadbcb3a2c518a283f0d9af881aca47500414c710b4ce431f2e74"
+                "size": 23997,
+                "sha256": "0e55d1ef62f58e2f48a5e0e35e490cb1ba2c0449b17f8751d26be7be1efb0e89"
               },
               "rampage.js": {
                 "type": "file",
-                "size": 5369,
-                "sha256": "dcb64aebece3213651ed6f100e0b9928f5ee9d5ad08386295cc1b623f8b7c7a9"
+                "size": 5265,
+                "sha256": "7563d2316cece8ab1d9b04de28b47e4562b82ad8a6dd493e1c7f64e726a6a94c"
               },
               "random-hand-exhaust.js": {
                 "type": "file",
-                "size": 1293,
-                "sha256": "486758ef934e381bd825a46b07e140f5f28e08eceadba25dd9f107ffefe80372"
+                "size": 1274,
+                "sha256": "7729cee9b27b696012e6ebf5287fa828e7fa6faf5a68a963a5529e2e9ee2fae6"
               },
               "rarity-data.js": {
                 "type": "file",
-                "size": 447,
-                "sha256": "331af3a3a79affd7725e12391df4ef16d5e6a97f7235a9aec62d7085c4fd67e5"
+                "size": 440,
+                "sha256": "ab3858d78537599e2b108e321e9e92dff7b414d8fb94ae472f55a7b0a54d3ec7"
               },
               "rarity.js": {
                 "type": "file",
-                "size": 3062,
-                "sha256": "8490cff30bf06d32cf045f7f478ab64baafe6bfc414159d534d2431e4483f1db"
+                "size": 3011,
+                "sha256": "2e2df62319ba5a95d76abc2a1864febe162809f07478103da26925d593c55224"
               },
               "retired-cards.js": {
                 "type": "file",
-                "size": 1606,
-                "sha256": "7ab267d2c50f20c86c4b4e43088a37fa5a081b331725bade23030385765c317e"
+                "size": 1575,
+                "sha256": "ce2f18876f10dbc685a712c990a289731fcff3f2e02256363f9476c68b7bfb2d"
               },
               "shared-battle-end.js": {
                 "type": "file",
-                "size": 962,
-                "sha256": "42413c067c71f2b891555d6d3e2f6e3ca7f267491db199dded8ff4807ffefe53"
+                "size": 946,
+                "sha256": "424b1e24bd19ebaee6a890521bdc4e30ecb26e7145581311208b1d9375b972f9"
               },
               "shared-hooks.js": {
                 "type": "file",
-                "size": 836,
-                "sha256": "58aff21c1ebeabf58ec4ccbf40df423a035c1f9749c91c73cb7c79173b5fc430"
+                "size": 823,
+                "sha256": "bcd757ce6c1ea9c4f56ccfcfcec7adc7b8184c9e4567f0f4b4519a8a867cd7a0"
               },
               "slimed-card.js": {
                 "type": "file",
-                "size": 1056,
-                "sha256": "50b5ed27eb89c36256fcb3cabe05bdee18bfce644c46e77c917f72a8c1f21ad9"
+                "size": 1037,
+                "sha256": "e3cb9102bc28bbbd561f546dfe9cd6832a69e2336e9d989b1ad8d3636bf5e64e"
               },
               "spite.js": {
                 "type": "file",
-                "size": 1866,
-                "sha256": "64e7a8c41c707b821233889b180dde8ca213997db8bb757d3909a844ab4b784b"
+                "size": 1832,
+                "sha256": "6cef9cd617cfce569238dbc90db242140724a4da3e4963581649cd1848e15d90"
               },
               "starting-deck.js": {
                 "type": "file",
-                "size": 1671,
-                "sha256": "ef196c61a7466e2c3b0e8a634ab9cb3351301c810b96004be4aa9aa3e4e888f0"
+                "size": 1638,
+                "sha256": "44b221d309a96884a51f9ed402b4625200e61ab3c2af79db450102ad0813a37b"
               },
               "status-cards.js": {
                 "type": "file",
-                "size": 760,
-                "sha256": "cf515ff35b0668c9b8bff7aafa406fbd41c4ee31313a1393595b2b2ec866a83f"
+                "size": 746,
+                "sha256": "a2c623938bd4d9264c605899bb94cb6599bfcd962ebb5c06a59cb084236ab325"
               },
               "strike-counter.js": {
                 "type": "file",
-                "size": 1534,
-                "sha256": "a3de2b465d19a2f14de20ad51e915b4e3459def64fb355627ed2791865a83af6"
+                "size": 1503,
+                "sha256": "a1058fe9ec2f8d3bf21eae61326cc74435bce25a49a67ba024f0c516065a4e89"
               },
               "temporary-strength.js": {
                 "type": "file",
-                "size": 3764,
-                "sha256": "5b843d1f9367108e190a4170644c644f83e113d728ada4fb7d2a997f12ea2fc7"
+                "size": 3689,
+                "sha256": "f9720c6896583b3a7d682949945414ef6b6c1d17a906cfa6c8968c3bf5e455fa"
               },
               "upgrades.js": {
                 "type": "file",
-                "size": 1940,
-                "sha256": "6517a6ce69f1723aa67a20950880d59c9f57e46f471f88919a867ffde3e213fb"
+                "size": 1892,
+                "sha256": "78f37bd5da682b3a1a3b679df25c026f256adeb5ccc48f6caa0be5d58bdb7529"
               },
               "whirlwind.js": {
                 "type": "file",
-                "size": 1609,
-                "sha256": "1c155c4c3e351235bcbb6b3aafbeeef8d5ab4672b8bd2ccbe61bba580ebccfa0"
+                "size": 1581,
+                "sha256": "a62955b5d5291bc887e7c36b808cecbd189d1eb1506cd67873e7298f9369bf9d"
               },
               "wither-card.js": {
                 "type": "file",
-                "size": 884,
-                "sha256": "24831da555d8d0dcfdb5f61337b378628edd8d872b59a482f3670af956d232b5"
+                "size": 869,
+                "sha256": "8e4cac00e3196c1a4315c36c63e6a0ce36621e7fc2f73e44fa811a424254d17c"
               },
               "wound-card.js": {
                 "type": "file",
-                "size": 1928,
-                "sha256": "289c0f38f197a3f9e570ffdc908b69da6a57eba7e1097b509ce6203287cf2e7b"
+                "size": 1891,
+                "sha256": "2ac15f4252546c183b3de546bd6134a75f8b42ea67632f0d57b8fbd35a8796ea"
               }
             }
           },
           "config.js": {
             "type": "file",
-            "size": 877,
-            "sha256": "56d31b1dadbcf7b20f4ff1f065334601fc1fd35ebd8fa2ca92a1334bc8416c67"
+            "size": 847,
+            "sha256": "738e1aa69e580ea2540827248cfb551a99da7d8096184e089705a90242662031"
           },
           "content": {
             "type": "directory",
@@ -7277,56 +7927,56 @@
                     "children": {
                       "encounters.js": {
                         "type": "file",
-                        "size": 3866,
-                        "sha256": "f610f8780c83e606dff8ab2195e2cf48942f52f242887f2b9d06d8dc05aa9a6b"
+                        "size": 3800,
+                        "sha256": "62d9a8fd585cfbcc7cc5ad2916d1e5b30d42834e1f89167b7f670b36dcde54db"
                       },
                       "index.js": {
                         "type": "file",
-                        "size": 480,
-                        "sha256": "b64978cde557ae78a31da5472d39a70cba0527042542bae091568ca1fe1c1caf"
+                        "size": 464,
+                        "sha256": "b9d3989f85ad8893c755d7364a35488a4c170dba9c09aac2e7e3c7c70553d580"
                       },
                       "inklet-group.js": {
                         "type": "file",
-                        "size": 528,
-                        "sha256": "d51ab57e50cb1c1eca528fb62fc7177645bcc204ad2919c98187362c58e70a1d"
+                        "size": 516,
+                        "sha256": "bbc6ef9d321b8d04431acd03b2648fc71bb3cb4d892e695b6ac41d667d2ae22a"
                       },
                       "kin-group.js": {
                         "type": "file",
-                        "size": 786,
-                        "sha256": "d03bd12b44062e49aac3585ac07230c586870718193d03a2778ed71fe504f03b"
+                        "size": 776,
+                        "sha256": "82e43fbd9e9ad997cf07cf5c633ae63f1fe7564156e0ab9429e6c2c713689e23"
                       },
                       "map.js": {
                         "type": "file",
-                        "size": 1804,
-                        "sha256": "d809e8559b3d8ecb419424c39dc54858ba9ca8c94d9c90e2367a6700696bbadd"
+                        "size": 1761,
+                        "sha256": "cdc3ef153ccde6acac639c1ebc16383fe16e8ffd52935f915b80f27c95ecbb2d"
                       },
                       "nibbit-pair.js": {
                         "type": "file",
-                        "size": 483,
-                        "sha256": "a380cad41acfb235c276406ae9827858e68e459e422da9c7211c1fb71ea9de40"
+                        "size": 475,
+                        "sha256": "e339e7d91ea24a86b409b89d05a9d6c6846023de343f951f840f68c3baab4a30"
                       },
                       "raider-trio.js": {
                         "type": "file",
-                        "size": 1627,
-                        "sha256": "7b5d6686573886b3d620d5c5f9866745aba6320c63e7c91e478b81c4bc540a72"
+                        "size": 1595,
+                        "sha256": "a18f6bc3b1074bdfda23a8ea7887e4fd581a88698045f49e2ea94a6b989ea412"
                       },
                       "rewards.js": {
                         "type": "file",
-                        "size": 797,
-                        "sha256": "dc9c450a77abe5cd35c4ab46dc8833e49287a9d63fa773bb0da1fd64525eb77a"
+                        "size": 772,
+                        "sha256": "8a6f09e56748957693bfcf7a428670a3fbcfde90c746278e8fa372a51a32d3cf"
                       },
                       "stories": {
                         "type": "directory",
                         "children": {
                           "forest-ambush.js": {
                             "type": "file",
-                            "size": 5339,
-                            "sha256": "ddc43ce1f857082fe1c90db65a1625ff585d8f2cfc23f78b375c18bbec6f3fc2"
+                            "size": 5225,
+                            "sha256": "de94b30bafc2e4251a6a70ecaf4b1ceaf300cc2750f71d30014971e1c389b240"
                           },
                           "liubei-opening.js": {
                             "type": "file",
-                            "size": 5731,
-                            "sha256": "1d61fbea5194a1960d9e6bc95d0f5b733687afae7d769a1ac9e0846be97341b4"
+                            "size": 5658,
+                            "sha256": "23195b5af712b591d388c9d874a27a2cb19e70bd7a966fb88228bc349353eb99"
                           }
                         }
                       }
@@ -7337,13 +7987,13 @@
                     "children": {
                       "index.js": {
                         "type": "file",
-                        "size": 137,
-                        "sha256": "f4815459fb3244502c85144904a2daa9ffc3451842a9139dbe501b16d09718b7"
+                        "size": 129,
+                        "sha256": "d91675bca78c4064b2876c6e9601395aa776f679fe40e63d2385b484d1767c37"
                       },
                       "map.js": {
                         "type": "file",
-                        "size": 415,
-                        "sha256": "b27dbefa0578c06e5c444f693f4305c833f7aff3b535900af5e9e814908c60bc"
+                        "size": 402,
+                        "sha256": "9a8a4a282402a8c25759408a57afba8d73a638d1f64d24407638b1f9156ce6a5"
                       }
                     }
                   },
@@ -7352,13 +8002,13 @@
                     "children": {
                       "index.js": {
                         "type": "file",
-                        "size": 137,
-                        "sha256": "f4815459fb3244502c85144904a2daa9ffc3451842a9139dbe501b16d09718b7"
+                        "size": 129,
+                        "sha256": "d91675bca78c4064b2876c6e9601395aa776f679fe40e63d2385b484d1767c37"
                       },
                       "map.js": {
                         "type": "file",
-                        "size": 424,
-                        "sha256": "b634af95b44141bfe4dd6149e8d39369c122f9ca5c219b09b20ffdcdf9983fce"
+                        "size": 411,
+                        "sha256": "274a4263af5db5e4d57e71702293c3a53fcc3ae9117e9c0ed5e86b6fa33ba6d1"
                       }
                     }
                   }
@@ -7366,31 +8016,31 @@
               },
               "encounters.js": {
                 "type": "file",
-                "size": 888,
-                "sha256": "580aae8b771084c5932acd0066cb6c8c45b5f4c78d811ada8e286454fe2b8439"
+                "size": 870,
+                "sha256": "5f1cf6053693df8992cdece2a818ea56cbd6ddf023a60e42e2d0e54e27426fd2"
               },
               "registry.js": {
                 "type": "file",
-                "size": 7885,
-                "sha256": "facc90bab28be94062d189bb94716a2fb5aa3387fb65c966ab3bac3d3ab0964b"
+                "size": 7754,
+                "sha256": "2d5825217efb830f4d351cc1d52035ad2d9e86b896cdb19232c8bfa612cfe678"
               },
               "scenario-characters.js": {
                 "type": "file",
-                "size": 9847,
-                "sha256": "85a4f81946bde6e262f61712c55820f0cfde9d02866035275ec781978a22c64d"
+                "size": 9732,
+                "sha256": "c2678ddedd3349829eb9b3daca1862842ea6da2e928f8edda41c62d4d72e884d"
               },
               "shared": {
                 "type": "directory",
                 "children": {
                   "index.js": {
                     "type": "file",
-                    "size": 133,
-                    "sha256": "5e92067de64aa26292f2fda6f3b270e06564e846a6f19b19c8ba27a04a25e95e"
+                    "size": 126,
+                    "sha256": "25625b636c2b82e58c0792c40b7f32562abca99e0fd7861b73a74cdf40c708af"
                   },
                   "rewards.js": {
                     "type": "file",
-                    "size": 9102,
-                    "sha256": "e19f5d026318401a7a24f88a23ee900b2c9259872846f89b627899d2a32b693a"
+                    "size": 8936,
+                    "sha256": "580282573457b4fcc27fe976e81aea415148310f0ce543b18dbc18e719dff909"
                   }
                 }
               }
@@ -7398,171 +8048,171 @@
           },
           "mode.js": {
             "type": "file",
-            "size": 120958,
-            "sha256": "070f4f5e47df7c75dcc349b6513d5427867e121ac7b3e872a81e5d5d5b84b876"
+            "size": 120610,
+            "sha256": "1ce71ff03871abe904e6d2a5c6a62d70aa1a4856e88ef7e76a88813966bc6e7a"
           },
           "monsters": {
             "type": "directory",
             "children": {
               "actions.js": {
                 "type": "file",
-                "size": 34417,
-                "sha256": "97461914dd3a40e0bba6cb5e1ff41fe34208ab996dafcc64ed5a33d0d3cdebc5"
+                "size": 33807,
+                "sha256": "4d07d53c1aa85278190217194cf68180ef428411dd89dafb5cdae7568a11500b"
               },
               "artifact-status.js": {
                 "type": "file",
-                "size": 2427,
-                "sha256": "96ff8c497cb3a59d79e3b2044a3eab9e043d56d514d2e62c868d7a8a37a22024"
+                "size": 2385,
+                "sha256": "b85161c9acc1d92715f4cb7be7603bfea8b5e6d42f4caa9d30835f38575ca03a"
               },
               "beast-intent.js": {
                 "type": "file",
-                "size": 6899,
-                "sha256": "b089382116ca2b4dfc6d12205318df39b6acb7ca7dee026de73a852e5cb5608b"
+                "size": 6805,
+                "sha256": "3962c0ab114907f692ee2d484311119d0c621dd460f00087875f6a9140886964"
               },
               "byrdonis-intent.js": {
                 "type": "file",
-                "size": 3119,
-                "sha256": "9d029cbd3062c7114c0f3767f9cdfa99c936a2277d864a26980b69f3e1942fb1"
+                "size": 3062,
+                "sha256": "59847f053122a0600d6b4c8b0a5573427da14717177fb1461640b8def9141443"
               },
               "crawler-intent.js": {
                 "type": "file",
-                "size": 1619,
-                "sha256": "5392844734e61a61ee65b746ed6a558b9133671743f795e9d59c4dfa848cf2bc"
+                "size": 1587,
+                "sha256": "994561eea23a9983931d545ef76281e70dba575563a97059b8b5fc4501a4d40b"
               },
               "cubex-intent.js": {
                 "type": "file",
-                "size": 2194,
-                "sha256": "9111e0162c4c6eb16301f7956ba0e9b2f29dbe68159d0f49156c2ff3efcf46ac"
+                "size": 2151,
+                "sha256": "bf4af01cbeb8a45ba47dd7f200fa96d808e18322b2908ed4254465644ed87903"
               },
               "effigy-intent.js": {
                 "type": "file",
-                "size": 1491,
-                "sha256": "2b4249d128cfb47009698c0292bc897d3f85b6e092d58af4e294e271ed100ba7"
+                "size": 1462,
+                "sha256": "e244757471a7142e3b796be5f24f5a4765564d49fd6b7ddb1484883a46838a43"
               },
               "effigy-slow.js": {
                 "type": "file",
-                "size": 3429,
-                "sha256": "4ee5b67badf5b126dc3b4bcf59cc3a6e12781328e6a8d8e30e860d2edcc9c250"
+                "size": 3367,
+                "sha256": "d2c2cf715e24090df2be4e68ff15d55dfdebf862ad87fdfa592bbf7bf20f2f94"
               },
               "flyconid-intent.js": {
                 "type": "file",
-                "size": 1743,
-                "sha256": "6ff2be31555c591a872cc0ffcc7aea99a7bc9b6bd5156993f8847156eef8637b"
+                "size": 1705,
+                "sha256": "cd65c7e8004c4810eb5bafda7b20563900ec4f264cfd352e2607f9d6050ab631"
               },
               "fogmog-battle.js": {
                 "type": "file",
-                "size": 3931,
-                "sha256": "4695d2ef46b7c84d69c35d1aea1b35d303fe033bc9d73f3d64a9be5c869ff42f"
+                "size": 3856,
+                "sha256": "c5cba9d10c25f7ece2290110f787e4fc3dfa50f266a9faac4bfdb0ac957868e4"
               },
               "fogmog-intent.js": {
                 "type": "file",
-                "size": 2196,
-                "sha256": "5d86b308905c65c9147995887ab1dd6f519ade0506ae13db8f99bc2e5bad7b15"
+                "size": 2160,
+                "sha256": "367bf74fef71ff55d398902fd14512af5bfecc82e756237f73102fe116381c4e"
               },
               "inklet-intent.js": {
                 "type": "file",
-                "size": 2978,
-                "sha256": "c2812d2dc16d3d69859e6ec70c283d714aba0ae5a4254d28e30f9afe0408b54a"
+                "size": 2925,
+                "sha256": "db404520db50e2d052beb236578973ae4b61e61c6a57a366c8b63452b01e19a3"
               },
               "jaxfruit-intent.js": {
                 "type": "file",
-                "size": 1282,
-                "sha256": "c295f73ea1daac933310eff41d23f68bf9c59bf9d3aa34f12b54c16a08ab7bc6"
+                "size": 1256,
+                "sha256": "46abbda7bf21af236f5e7a4c08a5739649bcf46ea70c59dcb18b5226b2568bb8"
               },
               "kin-intent.js": {
                 "type": "file",
-                "size": 4469,
-                "sha256": "04ad104fa8a99f82ab4811775512e4ecaa9c6d0b8b9732a0e6044f0ef838d93d"
+                "size": 4393,
+                "sha256": "3321a96df24d651c2bfea7a7ccfd920be20ae75fa2cb8543abb5985cf7501835"
               },
               "leafmedium-intent.js": {
                 "type": "file",
-                "size": 1462,
-                "sha256": "ae373c29e39891992b857afaf11befac1354f163026a797e8bf13ad8d81b71ad"
+                "size": 1436,
+                "sha256": "ef04089133b4ec6157e48788eaa62c506a424c7e4ef479219529689f4b6bfc81"
               },
               "leafslime-goop.js": {
                 "type": "file",
-                "size": 1653,
-                "sha256": "133da2f627601e79aa51b6eb87acff777a3ca60c74d142b0d205c40ccbfef3f0"
+                "size": 1627,
+                "sha256": "a65b6a00bf246951abed47fb66a6d476849d7cb427169524a1d2ce722ab4758b"
               },
               "leafslime-intent.js": {
                 "type": "file",
-                "size": 1430,
-                "sha256": "4a6f333cefd4c5c4f915f2d2c53b9abfb4d985fd5efc839f974eb862849baed2"
+                "size": 1403,
+                "sha256": "3c8f841fb8a02683134a18d1197320b1bb03101f8765e069684654f9ff9ee3c8"
               },
               "mawler-intent.js": {
                 "type": "file",
-                "size": 1937,
-                "sha256": "2933d7f6b768a797b3bdbceb6f3f93760b68961bf53af3f72262cefa6af75f0d"
+                "size": 1899,
+                "sha256": "23bfd30298779d9a41c28a3100fb026e17ecd2d1e066f0bb842c57a9ee56b833"
               },
               "monster.js": {
                 "type": "file",
-                "size": 11658,
-                "sha256": "1464b42fce32b9266724c8f0eaa06923c1171cff539c337c96af1cc32bd7bc8a"
+                "size": 11416,
+                "sha256": "d6b6bbbece20f50da448adbba8f775acf5f155084008e8f44a61a30d2d1b2aef"
               },
               "nibbit-intent.js": {
                 "type": "file",
-                "size": 2336,
-                "sha256": "9665a4e9ea519c9cf035f38fca0b65b4b3e83c31ef6a3b6f3951d57ef3f31120"
+                "size": 2292,
+                "sha256": "b3e34455e8cd88528069345aec2f7f55938b52e05fef4af9b8cd803bbe1579b3"
               },
               "phrog-battle.js": {
                 "type": "file",
-                "size": 2235,
-                "sha256": "a9111bfefbbfd5c2641a0a660df5d9b83977bb7c675d77c57f5b5a23b3be3b2f"
+                "size": 2197,
+                "sha256": "0c4621e858cc4a4b0e6d1fa86f7d5e06784dfc4ed4e9aba1342c65f6b80f9d02"
               },
               "phrog-intent.js": {
                 "type": "file",
-                "size": 4135,
-                "sha256": "9b529fcd6217d87f0682f99c77017565d326b372811b215c20aa8b0e169ac7f2"
+                "size": 4060,
+                "sha256": "e058edf8b6febadcd685dc7c16c05d90e8ba56c1d9b26c132e4ef2fc0e95d9df"
               },
               "raider-intent.js": {
                 "type": "file",
-                "size": 2060,
-                "sha256": "b15b89d53914c472c3ef4f2e54e3551bb6a80cd783c21d340676189c2e22c948"
+                "size": 2021,
+                "sha256": "70580ade399e910e817e3929a41dc2da52bfadf36fb3b494a17a86effab27ee1"
               },
               "shrinker-intent.js": {
                 "type": "file",
-                "size": 1518,
-                "sha256": "fa3c3fee332dd7f709bbf70ab7a510c02a8bed0182c48faa02e1c9e5ae7c7dbd"
+                "size": 1491,
+                "sha256": "758ea3ef47d0cf529f09b9733c9fda02c029f7eb30f7ca12b1ccd506267ef90b"
               },
               "shrinker-status.js": {
                 "type": "file",
-                "size": 2401,
-                "sha256": "5d4d1482b1bcacd3c02e3b5acc7003edcd2e82452600ecdaabb1934b89249010"
+                "size": 2356,
+                "sha256": "08a44974fb5064ea0f83b3b2d3d6d6030508ef8bef5ed4d8a91f274a8e6b95bf"
               },
               "strangler-constrict.js": {
                 "type": "file",
-                "size": 3116,
-                "sha256": "0480aab377f1303ce2d71786b54b25172df6b44cc11a87e80f0f0e87c4b9d174"
+                "size": 3054,
+                "sha256": "87b012405f7840e5a064e994e9413e8671e4aebe954ee9fd03c9798ed78efe61"
               },
               "strangler-intent.js": {
                 "type": "file",
-                "size": 1609,
-                "sha256": "d2272f4d3a349742195d5c80d8cc30d18de9c884240d23351b965a2a32d902b4"
+                "size": 1578,
+                "sha256": "b5ea12fd74db365592ace7c55671bad8b18aa34da9a829852fc1a0e3cf1f229a"
               },
               "twigmedium-intent.js": {
                 "type": "file",
-                "size": 2623,
-                "sha256": "5e7039b76647b8b85d549c5ea7deb826ea3299a9d27af659a344a43cbc205ccf"
+                "size": 2576,
+                "sha256": "c27f58e02f08b87ed62865fc11bb3ae43b5d2098ac199c5714946d24e0afaa87"
               },
               "twigslime-intent.js": {
                 "type": "file",
-                "size": 1299,
-                "sha256": "dd772c38e732ebcdda6e5b0ecd4725f73b36cb880ff156f3aaa64470a53633bc"
+                "size": 1273,
+                "sha256": "26a3437ffc95bec9638911537e5b572f4b12d8a94a06d6df358d73237a181830"
               },
               "vantom-intent.js": {
                 "type": "file",
-                "size": 2309,
-                "sha256": "609880e2c33e1d9cadbe9b0a7f3e5e6087d82df94dc14c45e81cd8999f4c10d7"
+                "size": 2266,
+                "sha256": "29c0f36f5b060866e5c28c842883d951d55ceb4f0df7a7e204905fd6d803045b"
               },
               "vine-intent.js": {
                 "type": "file",
-                "size": 1249,
-                "sha256": "fa0de60bef2d798685d771182aaf7e6fdea35cb35b732a50fcd5a353bd15ae2b"
+                "size": 1229,
+                "sha256": "e2bc8348d9ef5d8ff38b3d65a0b05b741fef31cf12ca6b6abe7b81ce58515b00"
               },
               "vine-tangled.js": {
                 "type": "file",
-                "size": 2255,
-                "sha256": "6913f1a6c55f33cf8f69efaa7ac15c3b384d7419305d2f968b07cf5edf81b586"
+                "size": 2214,
+                "sha256": "e8eb1e501af16d5da2157ff357bef3193233b4fbcd62cd823a4a6114124abd7e"
               }
             }
           },
@@ -7571,98 +8221,98 @@
             "children": {
               "dialogue-choice.js": {
                 "type": "file",
-                "size": 837,
-                "sha256": "e00707810480b281bf3e8c25923cf09997d06cf2dc3b7eea35c5a1a47c5cd3dd"
+                "size": 820,
+                "sha256": "b85e45995226cb30a488d5742c09a407ad9557d95e29136dd72fbaf695a4005f"
               },
               "encounter-progress.js": {
                 "type": "file",
-                "size": 1586,
-                "sha256": "9d79bd7a98b6aede1e05e970ba5fc2ebce431d56016375111e2e191d0c6a3036"
+                "size": 1555,
+                "sha256": "e674c332baef9b3baffbfed3c86c41cd38a5c95bdd4fb3b1009a9819e90a06ba"
               },
               "map-checkpoint.js": {
                 "type": "file",
-                "size": 322,
-                "sha256": "48b96ee1c6d3445d87b78d7fea42d8bbefa35ff9db4682e4012e36f53681bbf8"
+                "size": 314,
+                "sha256": "c0b5fa06fda99cf4d06570cb7e95fafc141b355055d20b0bd8f7ff91f1c1afa7"
               },
               "mode-storage.js": {
                 "type": "file",
-                "size": 5601,
-                "sha256": "9436f89b6885a6e6127ecdb436d7d3fb5ffb8002d693cd21a628fddf6d489b15"
+                "size": 5463,
+                "sha256": "202bcf2de55a4115c3a3fcecb6171b57dc3a3cb053f452b0f9e99db0e7fe899e"
               },
               "reward-package.js": {
                 "type": "file",
-                "size": 1572,
-                "sha256": "9922ab586d2c851a5975985460a64672d973d3a2466e17b9114dfdfcfa53bba8"
+                "size": 1533,
+                "sha256": "3f348ee9060ab86fe45e7f6add2c92b9aca3a2a1c6ab9dc435759387369e78db"
               },
               "reward.js": {
                 "type": "file",
-                "size": 3368,
-                "sha256": "96884ebd8aa1c8c5ab825907294bfde2855ebb1d927a8d5ab2a20068351a88f3"
+                "size": 3308,
+                "sha256": "31cb0895cfa98696cefd7301b967ba3652aee2c4401f7770e64d6a2cf68b53f0"
               },
               "state.js": {
                 "type": "file",
-                "size": 15168,
-                "sha256": "27dcdb747b5c049b53a62643b6362d3a7d94ec5da6311ddc5a19cd54fdca0339"
+                "size": 14849,
+                "sha256": "0e8235238d78892dab783375047591c023af66cb31c4fd27db4ff9ed8f5fc40e"
               },
               "story.js": {
                 "type": "file",
-                "size": 737,
-                "sha256": "4db3cf98d5a102cf5bf6d3022b0bdb4c7d70430537e2c4a6a9e541822951f016"
+                "size": 718,
+                "sha256": "0719c33cf849fd2b647e4e4ff987560c5f9ea2a015b4acecc57269fb6b562059"
               }
             }
           },
           "register.js": {
             "type": "file",
-            "size": 814,
-            "sha256": "1434e175ebebf75f1f1531eb8a13fe89108f7713b81b41b56074b52f4b12b24a"
+            "size": 791,
+            "sha256": "95290f693f1d5bbc592e35a3cd063201f46d5deffbd0e281682f371b02ae342e"
           },
           "relics": {
             "type": "directory",
             "children": {
               "battle.js": {
                 "type": "file",
-                "size": 20603,
-                "sha256": "65d0b389bfab7b95d69e554a32447c65f70f704607ea44fb1e0f4bdd3462de87"
+                "size": 20427,
+                "sha256": "06db0cecc0eb2296e54a7bed8ee8c3e7eb453ecd82e66abe4dafa345e07f9d64"
               },
               "catalog.js": {
                 "type": "file",
-                "size": 240568,
-                "sha256": "a8b77b73e47d937b882da5d2f6ebcc84e3f7be017ba1bc1688b124b170ad8cad"
+                "size": 235445,
+                "sha256": "386a89f871288b7909eb940a0a3d19f3cd042a1fd5311453e49be07e54193349"
               },
               "combat.js": {
                 "type": "file",
-                "size": 6117,
-                "sha256": "71e464d185b9a1c4460bf357588032d71e78d8d2a2ae177f0938971fd61eb279"
+                "size": 6010,
+                "sha256": "d8d3eb1c814b89448e5b254723be1f0329a63055867f5f3e17ea3ad1b6388050"
               },
               "definitions.js": {
                 "type": "file",
-                "size": 6689,
-                "sha256": "b7f6001cfd3691e07e4b5f01428246c7489e2f5208937a6d3097829f794c29e6"
+                "size": 6613,
+                "sha256": "806bd170588e0226ec030a7660969640f84975d01206e00e4a8e3bc4dfbbb395"
               },
               "hooks.js": {
                 "type": "file",
-                "size": 1503,
-                "sha256": "99e0a84966dace354ebe7e1ec9c55cc6fcfbfbb4eba976dfbee7000d618237e2"
+                "size": 1477,
+                "sha256": "0bc129ba6064943b136e70f8a3bf676044ea118c129196a145763a2dec796915"
               },
               "progression.js": {
                 "type": "file",
-                "size": 10846,
-                "sha256": "a9935b851c066068a1a81c7078336f5fefcca0e75b6731cee067dd618c048e83"
+                "size": 10710,
+                "sha256": "372f241b297e8a940c335e073dabc716fd01c69d9048b3f2fdafa9df09bf23d3"
               },
               "random.js": {
                 "type": "file",
-                "size": 574,
-                "sha256": "2b85c064e70257a73fbe2347b93ff80d1147e9b59367e36cb10abb73ae424a05"
+                "size": 564,
+                "sha256": "00597d08e703de307d3ce2633452e0f072283c72f3b3d8a9263ea7fa12e06c0e"
               },
               "rooms.js": {
                 "type": "file",
-                "size": 3897,
-                "sha256": "e1f0f03762fbb7e8212c22f199810171971cf9f4a12a054add9c571bc3502ccc"
+                "size": 3841,
+                "sha256": "81eebad4671bf8e20399a29726eb41f660f547dca0d02cc465674bb86cd4d9b7"
               },
               "rules.js": {
                 "type": "file",
-                "size": 18489,
-                "sha256": "6b4bfd2aa00dcc12248bf4b92d8329160b6433bd94eaabeed6ad09b383b15737"
+                "size": 18234,
+                "sha256": "2ff34299a6e334027850837a93221726512bf987fc495b1474f4b91c94280356"
               }
             }
           },
@@ -7671,128 +8321,158 @@
             "children": {
               "bonds.js": {
                 "type": "file",
-                "size": 4737,
-                "sha256": "0df5099a728808116cdc01cc1e0adbbc86c4719e0e575fa44ac0006ad0750e09"
+                "size": 4641,
+                "sha256": "5ae360d8209181554dac328bdde84d93f6f051654052ab6cf39ddf94f60f1f81"
               },
               "card-library.js": {
                 "type": "file",
-                "size": 21608,
-                "sha256": "237cc3ad94f337865b6bb26a802b0f93f12194def90b72373f1c23c07a51b80e"
+                "size": 22236,
+                "sha256": "a8803f31a40855f5d14ec5e8129a4b0711857f781ebe84996de46832530cf643"
               },
               "dialogue.js": {
                 "type": "file",
-                "size": 7842,
-                "sha256": "e61b22cf27f810a45404e0d05969b03e0a6603d581f8cf7a052a3c30348325f7"
+                "size": 7649,
+                "sha256": "a405f315270c24cdb2c53ba4e211a3fd5bf9bb582335d5dbf910adb5622deac6"
               },
               "energy-display.js": {
                 "type": "file",
-                "size": 511,
-                "sha256": "37bc74971d52429c7e1c3d9d0c2dcccb29a61e968ac1bf4eb0a2330801d8fd69"
+                "size": 498,
+                "sha256": "b12157ac3008c0e63fb384fe5fefe54964b86436652c73670f6a4c4faa4ad1da"
               },
               "flow-ui.js": {
                 "type": "file",
-                "size": 3285,
-                "sha256": "42130f7634885f32d4ec5e4c1d165d1b0497668bd4da5557eda27f3109f8bf30"
+                "size": 3220,
+                "sha256": "db7b79b425cff1f460f83b6fa38ccff431849acc89b89d34b01017562eeea920"
               },
               "gm-manager.js": {
                 "type": "file",
-                "size": 4727,
-                "sha256": "1ffcf493ffcc4d9b16911e81ff62b15693213355c3226270e5224b03042e8868"
+                "size": 9361,
+                "sha256": "6083304040dd8f5f3b46497b250944e5edf94208fca8e94b42f921dd82cf733c"
               },
               "hand": {
                 "type": "directory",
                 "children": {
                   "adapter.js": {
                     "type": "file",
-                    "size": 955,
-                    "sha256": "dbec5a22b19ba7790c2118328701331b9065cdd7877ad237fa6ba635aad0ab6b"
+                    "size": 935,
+                    "sha256": "91adc86b2810e27bd09d07297ac427cbbc151936f4dd8736ab1413b4eab78a0c"
                   },
                   "diagnostics.js": {
                     "type": "file",
-                    "size": 1103,
-                    "sha256": "e15ed8e5993f5185f496f15b4497a27964b3b3cdecd9ac4e5648abdf36517a75"
+                    "size": 1077,
+                    "sha256": "1d46f60103de7721cda2b533d18345531d052b38e39b0f7ec678c8ea92c7345f"
                   },
                   "fan.js": {
                     "type": "file",
-                    "size": 4444,
-                    "sha256": "c1c762219643592036196f03e2d09f14ac0b4487d8bf61b6b91ce3c73018c30a"
+                    "size": 4355,
+                    "sha256": "55e1e01dda7b4231c8e1a2fadf6ccbee39b5e98c543bc55500c6493cf6cd51b1"
                   },
                   "index.js": {
                     "type": "file",
-                    "size": 10125,
-                    "sha256": "4dee83b19ef24572bb0787cd0ffd388f051304fbbc5dc94e2e9cc0b0a51ee7e7"
+                    "size": 10424,
+                    "sha256": "4b804c1d42c6c1171d42a37136fcb903bfb3128beae6a357b52ef9cede54908f"
                   },
                   "input.js": {
                     "type": "file",
-                    "size": 12533,
-                    "sha256": "d3616cc25652f0c8cf3c2432f2df0786d46e8e4fe7a2ce00f4cd19bd1b7ea07b"
+                    "size": 12295,
+                    "sha256": "afd6bca628fe478dcc7dec217f8e4e0cdbccd8f29f55b77266793f61c7ee7087"
                   },
                   "overlays.js": {
                     "type": "file",
-                    "size": 4067,
-                    "sha256": "caf261473d3ee17afc46ffa25f76f8d4064317dc387fe0fb151eb9bc282f61ba"
+                    "size": 3970,
+                    "sha256": "9e489fc939f97a21266764f1beccdda1cc3ac9df22f72c633647d7481fa4e662"
                   },
                   "style.css": {
                     "type": "file",
-                    "size": 15882,
-                    "sha256": "c81ee0ad9128cdc0ba2c441fd5cbd980e0394c513462951b5c850896420f09b8"
+                    "size": 15562,
+                    "sha256": "d673f460b44db76148dea6b213f7e0fa5c310ae2d7bcf6b4e86fa9ce3e6f0e05"
+                  }
+                }
+              },
+              "hud": {
+                "type": "directory",
+                "children": {
+                  "index.js": {
+                    "type": "file",
+                    "size": 19710,
+                    "sha256": "671e9c691f172a70cc5ff7e4e721c8a966f6d53d5f760e2fd46e9ccc10871e43"
+                  },
+                  "overlays.js": {
+                    "type": "file",
+                    "size": 7007,
+                    "sha256": "769fe1227c6b54ba5852a02cdb75aa07b1edd674c2078a02d596178ddd4dff10"
+                  },
+                  "status-model.js": {
+                    "type": "file",
+                    "size": 11300,
+                    "sha256": "b18ae987f451453f77a397093cd57d8a8bd1fc03dbe845e3fc5a943da0a8ff04"
+                  },
+                  "style.css": {
+                    "type": "file",
+                    "size": 19765,
+                    "sha256": "7e2c39086ee8768e3eb9adc6fe244c6f19150ff0c60f73216a9d9b4743a3c007"
                   }
                 }
               },
               "intent-display.js": {
                 "type": "file",
-                "size": 13543,
-                "sha256": "1db512b050a73e1dfa2cedcc1a4dc67adbf98dec3c3e297b284eb8363115f0e9"
+                "size": 13291,
+                "sha256": "cd0fb73b7c42e3fa72474ab73870a13270abc2f390bfb7f0c96032041eff5ac2"
               },
               "map": {
                 "type": "directory",
                 "children": {
                   "index.js": {
                     "type": "file",
-                    "size": 62,
-                    "sha256": "6fb7e6e2547eec9d421727b9d6794e3c96d8e3a77984d7688544a67a00c4999d"
+                    "size": 61,
+                    "sha256": "6fc56c6c084508a39d801521a103f8c39eea90eb895f47a78924997241d9f932"
                   },
                   "renderer.js": {
                     "type": "file",
-                    "size": 26945,
-                    "sha256": "aff712e8b2257ed54bde843686ea9b76ceae5fb8375981c8adbe5a55e5338198"
+                    "size": 26433,
+                    "sha256": "9c6b1e387a204d370ccd8667ad34d703e4419f2d318ce3c59d155be6797dda8a"
                   }
                 }
               },
               "navigation.js": {
                 "type": "file",
-                "size": 8819,
-                "sha256": "3fc55ee51350f21d423d22375af029cf8278108603225a454d27c29caaf5ca32"
+                "size": 8631,
+                "sha256": "83ea39ff385347ea0f769a7bc0ed829ac25caf6167a4d4b669ee72b682e9b990"
               },
               "relic-icon.js": {
                 "type": "file",
-                "size": 642,
-                "sha256": "ba1e2fcfcb3983d25734cca9ba33136a6f12dbc176439b8974fa7ff79a4e0c9e"
+                "size": 631,
+                "sha256": "f9d5af85381d23525d8f985635709fd14df234123cd2d04851f0015952e47ab1"
+              },
+              "relic-strip.js": {
+                "type": "file",
+                "size": 4035,
+                "sha256": "75993cde0dd7ad76cf064684de87f35f5b174e6105b1ee89c441dd038a3730d9"
               },
               "relics.js": {
                 "type": "file",
-                "size": 3673,
-                "sha256": "76f0042edbb5af4aeb32e597eb21bbb3757ee2327092b29eebc530df26f088a7"
+                "size": 4113,
+                "sha256": "653172b8bde8e96ac79b910de76e03815ae9815ed08ab09445edc3b8f73ce750"
               },
               "reward-package.js": {
                 "type": "file",
-                "size": 4347,
-                "sha256": "67d2e757fe6ced0f57d16a1d11aaba8caa4d90bcfe99d878aa5400e5e05003b7"
+                "size": 4256,
+                "sha256": "0ca1458434ebe616fd29eebbbb9314c03249673fc9a9e2cbae6ee09be4cdc16e"
               },
               "reward-ui.js": {
                 "type": "file",
-                "size": 15837,
-                "sha256": "d403221c69abe676d080e6a8c3c2146242ccc2defb1de4887e62f4ed3611ee5b"
+                "size": 15548,
+                "sha256": "c39778c5c256ebb0ea3af19fab34b325d21ab875522162868b4ab2ada34cd12e"
               },
               "style.css": {
                 "type": "file",
-                "size": 80055,
-                "sha256": "fcdab9e5cfdd98bcb6849db8e2bfa7da387cf1dd0e75c1fa7013cb3d355b53ac"
+                "size": 79928,
+                "sha256": "cd291794da3e60569902ff6f09d5a7336f0f4c1edde43ed5ac2d22a1efb762b0"
               },
               "virtual-card-grid.js": {
                 "type": "file",
-                "size": 4916,
-                "sha256": "4365dbc5a943dccb01386e22a2ca16cd80596e613c4c862b432b304540c151e0"
+                "size": 4820,
+                "sha256": "0933ec3eea0169b34a6e7b4c20e9f75b0645fa787ea70b7ec7d4469213f94ae2"
               }
             }
           }
