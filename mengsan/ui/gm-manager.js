@@ -8,6 +8,7 @@ import { SLIMED_NAME, createSlimedData } from "../cards/slimed-card.js";
 import { WOUND_NAME, createWoundData } from "../cards/wound-card.js";
 import { INFECTION_NAME, createInfectionData } from "../cards/infection-card.js";
 import { getDiagnostics } from "../../diagnostics/index.js";
+import { _status } from "../../../../noname.js";
 
 const statusFactories = {
     [DAZED_NAME]: createDazedData,
@@ -132,7 +133,17 @@ export function mountGMManager(session, owner, piles, battle, resources, game) {
                     diagnostics.info("temporaryCard.added", {
                         cardName: data.name, cardId: id,
                     });
-                    try { game.check(); }
+                    try {
+                        // check() reuses the choices from before directgain.
+                        // Invalidate them without clearing the user's selection.
+                        const event = _status.event;
+                        if (event?.player === owner) {
+                            delete event._cardChoice;
+                            delete event._targetChoice;
+                            delete event._skillChoice;
+                        }
+                        game.check();
+                    }
                     catch (error) {
                         game.log("GM 临时牌已入手，选择状态刷新失败",
                             error.message);

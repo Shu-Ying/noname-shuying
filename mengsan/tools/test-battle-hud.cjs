@@ -322,12 +322,21 @@ const server = http.createServer((req, res) => {
       hud.refresh();
     },prefix);
     await holdStatus(page,page.getByRole('button',{
-      name:'长按查看全部状态',exact:true}));
+      name:'点击查看全部状态',exact:true}));
     assert.ok(await page.getByRole('dialog').isVisible(),'overflow states remain available in the details');checks++;
     await page.getByRole('button',{name:'关闭',exact:true}).click();
     assert.equal(await page.evaluate(()=>{const s=document.querySelector('.mengsan-hud-center-shuying').getBoundingClientRect(),p=game.me.getBoundingClientRect();return s.bottom<=p.top&&p.top-s.bottom<=13;}),true,'status chips automatically appear just above the portrait');checks++;
     await page.locator('.mengsan-hud-statuses-shuying button').first().tap();
-    assert.equal(await page.locator('dialog.mengsan-hud-dialog-shuying').count(),0,'short tap does not open status details');checks++;
+    assert.equal(await page.locator('dialog.mengsan-hud-dialog-shuying').count(),1,'short tap opens the status list');checks++;
+    const statusList = await page.locator('.mengsan-hud-detail-body-shuying').evaluate(body => ({
+      rows:body.querySelectorAll('details').length,
+      position:getComputedStyle(body).position,
+      minHeight:Math.min(...[...body.querySelectorAll('summary')].map(row=>row.getBoundingClientRect().height)),
+      height:body.getBoundingClientRect().height,
+      scrollable:body.scrollHeight>body.clientHeight,
+    }));
+    assert.ok(statusList.rows>20&&statusList.position!=='absolute'&&statusList.minHeight>=48&&statusList.height>0&&statusList.scrollable,'status list keeps all entries in normal flow with large tap targets: '+JSON.stringify(statusList));checks++;
+    await page.getByRole('button',{name:'关闭',exact:true}).click();
     await holdStatus(page,page.locator('.mengsan-hud-statuses-shuying button').first());
     assert.ok(await page.locator('dialog.mengsan-hud-dialog-shuying').isVisible());checks++;
     await page.getByRole('button',{name:'关闭',exact:true}).click();

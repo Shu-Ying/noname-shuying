@@ -67,29 +67,40 @@ export function mountBattleHUD(player, battle, env) {
     };
     const refreshDetails = () => {
         if (!dialog || !detailBody) return;
-        const entries = collectCombatStatuses(detailTarget, battle)
-            .filter(entry => detailId === null || entry.id === detailId);
+        const entries = collectCombatStatuses(detailTarget, battle);
         const signature = JSON.stringify(entries);
         if (signature === detailSignature) return;
+        const expanded = detailSignature === null ? new Set(detailId ? [detailId] : []) :
+            new Set([...detailBody.querySelectorAll('details[open]')].map(row => row.dataset.statusId));
         detailSignature = signature; detailBody.replaceChildren();
+        if (detailId && !entries.some(entry => entry.id === detailId)) {
+            create('p', '', detailBody, '该状态已失效。');
+        }
         for (const entry of entries) {
-            const row = create('section', 'mengsan-hud-detail-row-shuying',
+            const row = create('details', 'mengsan-info-row-shuying',
                 detailBody);
-            create('strong', '', row, `${entry.name}${entry.value == null ? '' : ` ${entry.value}${entry.unit ? ` ${entry.unit}` : ''}`}`);
+            row.dataset.statusId = entry.id;
+            row.open = expanded.has(entry.id);
+            const summary = create('summary', '', row);
+            if (entry.icon) {
+                const icon = create('img', 'mengsan-relic-icon-shuying', summary);
+                icon.src = `${assetBase}/assets/status/${entry.icon}`; icon.alt = '';
+            }
+            create('strong', '', summary, `${entry.name}${entry.value == null ? '' : ` ${entry.value}${entry.unit ? ` ${entry.unit}` : ''}`}`);
             create('p', '', row, entry.detail);
         }
-        if (!entries.length) create('p', '', detailBody,
-            detailId === null ? '暂无已登记状态。' : '该状态已失效。');
+        if (!entries.length && !detailId) create('p', '', detailBody, '暂无已登记状态。');
     };
     const openDetails = (target, id = null) => {
         if (disposed || frozen || !battle.session.active) return;
         closeDialog(); previousFocus = document.activeElement;
-        dialog = create('dialog', 'mengsan-hud-dialog-shuying', document.body);
+        dialog = create('dialog', 'mengsan-hud-dialog-shuying mengsan-deck-dialog-shuying mengsan-relic-dialog-shuying', document.body);
         const current = dialog;
-        create('h2', '', dialog, `${nameOf(target)} · 当前状态`);
-        const close = create('button', 'mengsan-hud-dialog-close-shuying', dialog, '关闭'); close.addEventListener('click', closeDialog);
+        const header = create('header', 'ms-deck-header', dialog);
+        create('h2', '', header, `${nameOf(target)} · 当前状态`);
+        const close = create('button', 'ms-deck-button', header, '关闭'); close.addEventListener('click', closeDialog);
         detailTarget = target; detailId = id;
-        detailBody = create('div', 'mengsan-hud-detail-body-shuying', dialog);
+        detailBody = create('div', 'mengsan-hud-detail-body-shuying mengsan-relic-list-shuying', dialog);
         refreshDetails();
         // Unknown/native marks retain their engine intro and are never hidden by the HUD.
         dialog.addEventListener('cancel', event => { event.preventDefault(); closeDialog(); });
@@ -149,8 +160,8 @@ export function mountBattleHUD(player, battle, env) {
     statuses.addEventListener('click', event => {
         event.preventDefault();
         const button = statusButton(event);
-        // Pointer clicks require a hold; keyboard activation stays accessible.
-        if (button && event.detail === 0) {
+        // Every entry opens the whole list; precise long presses are optional.
+        if (button && !dialog) {
             openDetails(player, button.dataset.statusId || null);
         }
     });
@@ -173,7 +184,7 @@ export function mountBattleHUD(player, battle, env) {
                 const button = existing.get(entry.id) ||
                     create('button', 'mengsan-hud-status-shuying', null);
                 button.dataset.statusId = entry.id;
-                button.setAttribute('aria-label', `${entry.name} ${entry.value ?? ''} ${entry.unit}，长按查看状态详情`);
+                button.setAttribute('aria-label', `${entry.name} ${entry.value ?? ''} ${entry.unit}，点击查看状态列表`);
                 button.setAttribute('aria-haspopup', 'dialog');
                 if (button.dataset.icon !== (entry.icon || '')) {
                     button.dataset.icon = entry.icon || '';
@@ -195,7 +206,7 @@ export function mountBattleHUD(player, battle, env) {
                 const more = existing.get(null) || create('button',
                     'mengsan-hud-status-shuying mengsan-hud-status-more-shuying',
                     null);
-                more.setAttribute('aria-label', '长按查看全部状态');
+                more.setAttribute('aria-label', '点击查看全部状态');
                 more.setAttribute('aria-haspopup', 'dialog');
                 wantedButtons.push(more);
             }

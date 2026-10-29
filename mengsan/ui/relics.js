@@ -26,22 +26,29 @@ export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = 
         button.textContent = `遗物 ${relics.length}`;
         strip?.refresh();
         if (!list) return;
+        const expanded = new Set([...list.querySelectorAll('details[open]')].map(row => row.dataset.relicId));
+        if (!list.children.length && selected) expanded.add(selected);
         list.replaceChildren();
         if (!relics.length) {
             const empty = document.createElement("p");
             empty.textContent = "本次征程尚未获得遗物。";
             list.appendChild(empty);
         }
-        for (const relic of selected ? relics.filter(r => r.id === selected) : relics) {
-            const row = document.createElement("section");
-            const icon=createRelicIcon(relic.image);if(icon)row.appendChild(icon);
-            const name = document.createElement("h3");
+        for (const relic of relics) {
+            const row = document.createElement("details");
+            row.className = "mengsan-info-row-shuying";
+            row.dataset.relicId = relic.id;
+            row.open = expanded.has(relic.id);
+            const summary = document.createElement("summary");
+            const icon=createRelicIcon(relic.image);if(icon)summary.appendChild(icon);
+            const name = document.createElement("strong");
             name.textContent = relic.name;
+            summary.appendChild(name);
             const description = document.createElement("p");
             description.textContent = relic.description;
             const status = document.createElement("small");
             status.textContent = `${relic.pool} · ${relic.tier}${relic.ancient ? ` · ${relic.ancient}` : ""} · ${battleRelics.status(relic)}`;
-            row.append(name, description, status);
+            row.append(summary, description, status);
             list.appendChild(row);
         }
     };
@@ -53,11 +60,11 @@ export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = 
         const currentDialog = dialog;
         dialog.className = "mengsan-deck-dialog-shuying " +
             "mengsan-relic-dialog-shuying";
-        dialog.setAttribute("aria-label", relic?.name || "遗物（道具）");
+        dialog.setAttribute("aria-label", "遗物（道具）");
         const header = document.createElement("header");
         header.className = "ms-deck-header";
         const title = document.createElement("h2");
-        title.textContent = relic?.name || "遗物（道具）";
+        title.textContent = "遗物（道具）";
         const dismiss = document.createElement("button");
         dismiss.type = "button";
         dismiss.className = "ms-deck-button";

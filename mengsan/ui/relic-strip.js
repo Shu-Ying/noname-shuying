@@ -2,7 +2,7 @@ export function mountRelicStrip(root, getRelics, open, createIcon,
     document, window) {
   const strip = document.createElement("div");
   strip.className = "mengsan-hand-relics-shuying";
-  strip.setAttribute("aria-label", "持有遗物，长按查看描述");
+  strip.setAttribute("aria-label", "持有遗物，点击查看列表");
   const before = root.style.getPropertyValue("--mengsan-relic-space");
   const priority = root.style.getPropertyPriority("--mengsan-relic-space");
   let pending = null, timer = null, signature = null, disposed = false;
@@ -38,7 +38,6 @@ export function mountRelicStrip(root, getRelics, open, createIcon,
   const click = event => {
     stop(event);
     event.preventDefault();
-    if (event.detail !== 0) return;
     const button = event.target.closest?.("button");
     const relic = getRelics().find(item => item.id === button?.dataset.relicId);
     if (relic) open(relic);
@@ -71,7 +70,7 @@ export function mountRelicStrip(root, getRelics, open, createIcon,
       const button = document.createElement("button");
       button.type = "button";
       button.dataset.relicId = relic.id;
-      button.setAttribute("aria-label", `${relic.name}，长按查看描述`);
+      button.setAttribute("aria-label", `${relic.name}，点击查看遗物列表`);
       button.setAttribute("aria-haspopup", "dialog");
       const fallback = document.createElement("span");
       fallback.textContent = relic.name;

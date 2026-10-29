@@ -77,10 +77,10 @@
   transform-origin: 50% 50% !important;
 }
 .mengsan-hand-aim-shuying {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   z-index: 1000;
   pointer-events: none;
   overflow: visible;

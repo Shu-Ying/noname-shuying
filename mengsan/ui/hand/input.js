@@ -69,7 +69,8 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
       event.name !== "chooseToUse" || event.player !== player || !event.isMine?.() ||
       event.skill || event.complexSelect || event.custom?.replace?.card || event.custom?.replace?.target || event.custom?.replace?.confirm ||
       !env.isActiveCardUse(event, player) || !env.canPayCard?.(player, card) ||
-      ui.selected.cards.length || ui.selected.targets.length || ui.selected.buttons.length ||
+      (ui.selected.cards.length && (ui.selected.cards.length !== 1 || ui.selected.cards[0] !== card)) ||
+      ui.selected.targets.length || ui.selected.buttons.length ||
       !card.classList.contains("selectable") || card.classList.contains("noclick") ||
       status.mousedragging || status.dragged || status.paused2) return false;
     const cards = get.select(event.selectCard);
@@ -83,19 +84,22 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
       aim.setAttribute("aria-hidden", "true");
       aim.setAttribute("preserveAspectRatio", "none");
       const path = document.createElementNS(aim.namespaceURI, "path");
-      aim.appendChild(path); document.body.appendChild(aim);
+      // Keep the SVG in the same zoom/transform space as the real hand.
+      // Android WebView can paint a body-fixed SVG in a different viewport.
+      aim.appendChild(path); ui.arena.appendChild(aim);
     }
     const rect = card.getBoundingClientRect();
     const x = rect.left + rect.width / 2, y = rect.top + 12;
-    aim.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+    const width = ui.arena.clientWidth, height = ui.arena.clientHeight;
+    aim.setAttribute("viewBox", `0 0 ${width} ${height}`);
     // Use painted bounds instead of relying on WebView CTM handling of zoom.
     // With preserveAspectRatio=none, viewport-to-viewBox scaling is linear.
     const bounds = aim.getBoundingClientRect();
     if (!(bounds.width > 0 && bounds.height > 0)) {
       removeAim(); return;
     }
-    const scaleX = window.innerWidth / bounds.width;
-    const scaleY = window.innerHeight / bounds.height;
+    const scaleX = width / bounds.width;
+    const scaleY = height / bounds.height;
     const start = { x: (x - bounds.left) * scaleX,
       y: (y - bounds.top) * scaleY };
     const end = { x: (point.x - bounds.left) * scaleX,
@@ -163,7 +167,7 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
     if (!state.moved && Math.hypot(point.x - state.x, point.y - state.y) < 9) return;
     if (!state.moved) {
       state.moved = true;
-      engineCall(() => ui.click.card.call(state.card));
+      if (!ui.selected.cards.includes(state.card)) engineCall(() => ui.click.card.call(state.card));
       state.selected = ui.selected.cards.includes(state.card);
       const targets = range(state.event);
       if (!state.selected || !live(state) || !targets) { cleanup(true); return; }
@@ -235,6 +239,28 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
     for (const type of ["mousedown", "mousemove", "mouseup", "click", "touchstart", "touchmove", "touchend"]) {
       listen(window, type, compatibility, { capture: true, passive: false });
     }
+  } else if (adapter.root && status && get) {
+    // Older Android WebViews expose TouchEvent but no PointerEvent.
+    // Route them through the same selection and drawing code.
+    const touchEvent = (event, touch, type) => ({
+      button: 0, isPrimary: true, pointerId: touch.identifier,
+      target: event.target, clientX: touch.clientX, clientY: touch.clientY,
+      type, preventDefault: () => event.preventDefault(),
+      stopImmediatePropagation: () => event.stopImmediatePropagation(),
+    });
+    const options = { capture: true, passive: false };
+    listen(window, "touchstart", event => {
+      if (event.touches.length !== 1) { cancel(); return; }
+      start(touchEvent(event, event.touches[0], "pointerdown"));
+    }, options);
+    for (const [type, handler] of [["touchmove", move], ["touchend", end], ["touchcancel", end]]) {
+      listen(window, type, event => {
+        const touch = Array.from(event.changedTouches).find(item => item.identifier === gesture?.id);
+        if (touch) handler(touchEvent(event, touch, type === "touchcancel" ? "pointercancel" : type));
+      }, options);
+    }
+    listen(window, "click", compatibility, options);
+    listen(window, "blur", cancel);
   }
   listen(adapter.root, "pointerover", hover);
   listen(adapter.root, "pointerleave", () => { if (!gesture) fan.setHover(null); });
