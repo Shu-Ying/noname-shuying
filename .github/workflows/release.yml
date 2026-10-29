@@ -1,12 +1,12 @@
 name: Release extension
 
 on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "extension.js"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "版本号，例如 2.0.1.2 或 2.0.1.2-rc.1"
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -17,23 +17,33 @@ concurrency:
 
 jobs:
   release:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: windows-latest
     defaults:
       run:
         shell: pwsh
     env:
-      RELEASE_VERSION: ${{ inputs.version }}
       DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      BEFORE_SHA: ${{ github.event.before }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
+      - name: Read current version and detect change
+        id: version
+        run: |
+          ./tools/resolve_release_version.ps1 `
+            -Root $env:GITHUB_WORKSPACE `
+            -EventName $env:GITHUB_EVENT_NAME `
+            -PreviousRef $env:BEFORE_SHA
+
       - name: Generate manifest and create tag
+        if: steps.version.outputs.should_release == 'true'
         run: |
           $ErrorActionPreference = 'Stop'
           $version = $env:RELEASE_VERSION
@@ -118,6 +128,7 @@ jobs:
           Write-Host "已创建包含清单的标签：$tag"
 
       - name: Build ZIP from tag
+        if: steps.version.outputs.should_release == 'true'
         run: |
           $ErrorActionPreference = 'Stop'
           $version = $env:RELEASE_VERSION
@@ -179,6 +190,7 @@ jobs:
           Write-Host "安装包：$package"
 
       - name: Publish GitHub Release
+        if: steps.version.outputs.should_release == 'true'
         run: |
           $ErrorActionPreference = 'Stop'
           if (!$env:GITHUB_TOKEN) {
