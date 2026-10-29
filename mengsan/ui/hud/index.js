@@ -8,11 +8,24 @@ export function mountBattleHUD(player, battle, env) {
     if (!arena || !ui.me || !ui.control || !battle.session.active) throw new Error('梦三 HUD 缺少原生界面容器');
     const handRoot = ui.me, controlRoot = ui.control;
     const overlays = createOverlayLayout(arena, handRoot, ui, player);
-    const restores = [], styled = new WeakMap(), hiddenMarks = new Set();
+    const restores = [], nodeRestores = new Map(), styled = new WeakMap(), hiddenMarks = new Set();
     let disposed = false, frozen = false, frame = null, dialog = null, previousFocus = null, resize, observer;
+    const retain = (node, restore) => {
+        let releases = nodeRestores.get(node);
+        if (!releases) nodeRestores.set(node, releases = []);
+        releases.push(restore);
+    };
+    const releaseNodes = (detachedOnly = false) => {
+        for (const [node, releases] of nodeRestores) {
+            if (detachedOnly && node.isConnected) continue;
+            for (const restore of releases.reverse()) restore();
+            nodeRestores.delete(node);
+            styled.delete(node);
+        }
+    };
     const ownClass = (node, name) => {
         if (!node || node.classList.contains(name)) return;
-        node.classList.add(name); restores.push(() => node.classList.remove(name));
+        node.classList.add(name); retain(node, () => node.classList.remove(name));
     };
     const style = (node, key, value) => {
         let values = styled.get(node);
@@ -20,7 +33,7 @@ export function mountBattleHUD(player, battle, env) {
         if (!values.has(key)) {
             const old = node.style.getPropertyValue(key), priority = node.style.getPropertyPriority(key);
             const record = { last: null }; values.set(key, record);
-            restores.push(() => {
+            retain(node, () => {
                 if (node.style.getPropertyValue(key) !== record.last) return;
                 if (old) node.style.setProperty(key, old, priority); else node.style.removeProperty(key);
             });
@@ -348,6 +361,9 @@ export function mountBattleHUD(player, battle, env) {
     function refresh() {
         if (disposed || frozen) return;
         if (!battle.session.active || !arena.isConnected || !handRoot.isConnected || ui.me !== handRoot || ui.control !== controlRoot) { dispose(); return; }
+        // Closed native controls and expired popups must not stay retained for the whole battle.
+        // Restore them before forgetting their snapshots so reused nodes get a fresh baseline.
+        releaseNodes(true);
         text(name, nameOf(player)); text(hp, `生命 ${player.hp} / ${player.maxHp}`); text(block, `格挡 ${player.hujia || 0}`);
         healthFill.style.width = `${Math.max(0, Math.min(100, player.maxHp > 0 ? player.hp / player.maxHp * 100 : 0))}%`;
         text(energy, `费用 ${player.storage.mengsanEnergy_shuying ?? 0} / ${player.storage.mengsanMaxEnergy_shuying ?? 0}`);
@@ -366,6 +382,7 @@ export function mountBattleHUD(player, battle, env) {
         frozen=true;window.clearInterval(timer);
         if(frame!==null){window.cancelAnimationFrame(frame);frame=null;}
         observer?.disconnect();resize?.disconnect();closeDialog();overlays.dispose();
+        releaseNodes(true);
         ownClass(arena,'mengsan-hud-frozen-shuying');
     }
     function dispose() {
@@ -378,6 +395,7 @@ export function mountBattleHUD(player, battle, env) {
         closeDialog();
         for (const mark of hiddenMarks) mark.classList.remove('mengsan-hud-represented-mark-shuying'); hiddenMarks.clear();
         for (const restore of restores.reverse()) restore();
+        releaseNodes();
         root.remove(); link.remove();
     }
     ownClass(document.body, 'mengsan-hud-active-shuying'); ownClass(arena, 'mengsan-hud-arena-shuying');

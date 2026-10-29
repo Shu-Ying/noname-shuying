@@ -49,3 +49,5 @@ Desktop.ini
 /.comet/*
 !/.comet/config.yaml
 # <<< Comet managed project state <<<
+# Added by code-review-graph
+.code-review-graph/

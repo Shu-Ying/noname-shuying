@@ -152,6 +152,36 @@ const server = http.createServer((req, res) => {
     assert.equal(initial.module,true,initial.error||'HUD mount module must exist');checks++;
     assert.equal(initial.parentKept,true);checks++;
     await page.waitForTimeout(70);
+    const releasedControls = await page.evaluate(() => {
+      const control = document.createElement('div');
+      control.className = 'control';
+      control.style.setProperty('left', '7px', 'important');
+      ui.control.appendChild(control);
+      hud.refresh();
+      const managed = control.style.left === 'auto';
+      control.remove();
+      hud.refresh();
+      const released = control.style.left === '7px' && control.style.getPropertyPriority('left') === 'important';
+      control.style.left = '13px';
+      ui.control.appendChild(control);
+      hud.refresh();
+      const reacquired = control.style.left === 'auto';
+      control.remove();
+      hud.refresh();
+      const restoredAgain = control.style.left === '13px';
+      const popup = document.createElement('div');
+      popup.className = 'damage skill-popup';
+      popup.style.left = game.me.offsetLeft + 'px';
+      popup.style.top = game.me.offsetTop + 80 + 'px';
+      ui.arena.appendChild(popup);
+      hud.refresh();
+      const popupManaged = popup.classList.contains('mengsan-hud-notification-shuying');
+      popup.remove();
+      hud.refresh();
+      return { managed, released, reacquired, restoredAgain, popupManaged,
+        popupReleased: !popup.classList.contains('mengsan-hud-notification-shuying') };
+    });
+    assert.ok(Object.values(releasedControls).every(Boolean), 'detached controls and notifications release HUD ownership and can be acquired again: ' + JSON.stringify(releasedControls));checks++;
     await page.evaluate(()=>testFan.sync(true));
     const corners=await page.evaluate(()=>({portrait:parseFloat(getComputedStyle(game.me.node.avatar).borderTopLeftRadius)}));
     assert.ok(corners.portrait>=12,'portrait retains rounded edges: '+JSON.stringify(corners));checks++;
