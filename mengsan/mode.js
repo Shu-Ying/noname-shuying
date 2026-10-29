@@ -842,6 +842,8 @@ const requestBattleFinish = outcome => {
         recordBondDeath(player, _status.mengsanRun_shuying,
             message => game.log(message));
     }
+    // Capture the final HUD state while its battle session is still active.
+    current.hud?.refresh();
     const accepted = current.flow.requestFinish({session:current.session, hp:game.me?.hp || 0, outcome, defeatedEnemies:current.director?.defeatedEnemies ?? 1});
     if (accepted) {
         current.pilesUI?.dispose();

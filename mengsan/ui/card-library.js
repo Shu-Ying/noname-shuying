@@ -116,6 +116,7 @@ export function openCardLibrary(run, options = {}) {
     const existing = document.querySelector("dialog.mengsan-deck-dialog-shuying[open]");
     if (existing) { existing.focus(); return () => {}; }
     const previousFocus = document.activeElement;
+    const selection = options.selection;
     const dialog = element("dialog", "mengsan-deck-dialog-shuying", null);
     dialog.setAttribute("aria-label", options.title || "卡牌库");
     const header = element("header", "ms-deck-header", null, dialog);
@@ -143,12 +144,13 @@ export function openCardLibrary(run, options = {}) {
         onClose?.(close);
     };
     button("关闭", header, close);
-    let view = !options.sections && options.view === "catalog" ? "catalog" : "deck";
+    let view = selection || (!options.sections && options.view === "catalog")
+        ? "catalog" : "deck";
     const navigation = element("nav", "ms-deck-tabs", null, dialog);
     navigation.setAttribute("aria-label", "卡牌列表视图");
     const deckTab = button("持有牌", navigation, () => { view = "deck"; render(); });
     const catalogTab = button("图鉴", navigation, () => { view = "catalog"; render(); });
-    deckTab.hidden = catalogTab.hidden = Boolean(options.sections);
+    deckTab.hidden = catalogTab.hidden = Boolean(options.sections || selection);
     let sectionIndex = 0;
     const sectionTabs = options.sections ? options.sections().map((section, index) =>
         button(section.title, navigation, () => { sectionIndex = index; render(); })) : [];
@@ -222,6 +224,24 @@ export function openCardLibrary(run, options = {}) {
         element("p", "ms-deck-rules", details.description, copy);
         if (!details.available) element("p", "ms-deck-warning", "该卡牌定义未加载；保留存档记录，不删除此牌。", copy);
         for (const affix of details.affixes) element("p", "ms-deck-rules", affix, copy);
+        if (catalog && selection) {
+            const reason = !details.available ? "该卡牌定义未加载。" :
+                selection.unavailableReason?.(card) || "";
+            const feedback = element("p", "ms-deck-rules", reason, copy);
+            feedback.setAttribute("role", "status");
+            const confirm = button(selection.label, copy, () => {
+                if (closed || confirm.disabled) return;
+                confirm.disabled = true;
+                try {
+                    selection.onSelect(card);
+                    close();
+                } catch (error) {
+                    feedback.textContent = error.message || "添加失败，请重试。";
+                    confirm.disabled = false;
+                }
+            });
+            confirm.disabled = Boolean(reason);
+        }
         body.scrollTop = 0; backButton.focus();
     }
     function fitCards() {
@@ -296,7 +316,8 @@ export function openCardLibrary(run, options = {}) {
             summary.textContent = options.sections ? "剩余牌堆按从左到右、从上到下的顺序摸取；第 1 张为下一张。" :
                 `本次征程实际携带 · 共 ${current.length} 张 · 同名不同花色、点数分别展示`;
         }
-        footer.textContent = catalog ? "图鉴仅供查阅，不会获得卡牌或改变征程牌组 · 点击卡牌查看完整介绍" :
+        if (catalog && selection) footer.textContent = selection.description;
+        else footer.textContent = catalog ? "图鉴仅供查阅，不会获得卡牌或改变征程牌组 · 点击卡牌查看完整介绍" :
             "点击卡牌查看完整介绍 · 仅供查看，不改变牌组或抽牌顺序";
         virtualGrid.setRecords(catalog || options.sections ? records : current.map(card => ({ card })));
         if (!(catalog || options.sections ? records : current).length) {
