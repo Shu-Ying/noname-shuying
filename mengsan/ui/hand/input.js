@@ -81,19 +81,25 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
       aim = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       aim.classList.add("mengsan-hand-aim-shuying");
       aim.setAttribute("aria-hidden", "true");
+      aim.setAttribute("preserveAspectRatio", "none");
       const path = document.createElementNS(aim.namespaceURI, "path");
       aim.appendChild(path); document.body.appendChild(aim);
     }
     const rect = card.getBoundingClientRect();
     const x = rect.left + rect.width / 2, y = rect.top + 12;
     aim.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
-    // clientX/Y 与卡牌矩形都是视口坐标，SVG 本身却可能受到 body zoom/transform 影响。
-    // 用 SVG 实际屏幕矩阵反变换，不能重复除 documentZoom 或假定 SVG 没有偏移。
-    const matrix = aim.getScreenCTM();
-    if (!matrix) { removeAim(); return; }
-    const inverse = matrix.inverse();
-    const start = new window.DOMPoint(x, y).matrixTransform(inverse);
-    const end = new window.DOMPoint(point.x, point.y).matrixTransform(inverse);
+    // Use painted bounds instead of relying on WebView CTM handling of zoom.
+    // With preserveAspectRatio=none, viewport-to-viewBox scaling is linear.
+    const bounds = aim.getBoundingClientRect();
+    if (!(bounds.width > 0 && bounds.height > 0)) {
+      removeAim(); return;
+    }
+    const scaleX = window.innerWidth / bounds.width;
+    const scaleY = window.innerHeight / bounds.height;
+    const start = { x: (x - bounds.left) * scaleX,
+      y: (y - bounds.top) * scaleY };
+    const end = { x: (point.x - bounds.left) * scaleX,
+      y: (point.y - bounds.top) * scaleY };
     if (![start.x, start.y, end.x, end.y].every(Number.isFinite)) { removeAim(); return; }
     // 十周年金色细线（本地 CONFIG.LINE_COLOR/LINE_WIDTH），不采用尖塔箭头/骨节造型。
     aim.firstElementChild.setAttribute("d", `M ${start.x} ${start.y} L ${end.x} ${end.y}`);

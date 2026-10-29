@@ -19,11 +19,16 @@
 .mengsan-hud-health-track-shuying>span { height:100%;background:#9bb78d; }
 .mengsan-hud-energy-shuying { color:#eacb87;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap; }
 .mengsan-hud-center-shuying { left:40px;right:auto;top:auto;bottom:var(--mengsan-side-dock-bottom);width:var(--mengsan-profile-width);height:var(--mengsan-status-height); }
-.mengsan-hud-shuying .mengsan-hud-statuses-shuying { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:32px;align-content:end;gap:6px;overflow:hidden;white-space:nowrap;height:100%; }
-.mengsan-hud-shuying .mengsan-hud-status-shuying { display:flex;align-items:center;gap:4px;max-width:100%;min-width:0;min-height:32px;padding:3px 6px;background:transparent;border-radius:10px; }
-.mengsan-hud-status-shuying span { overflow:hidden;text-overflow:ellipsis;font-size:12px; }
-.mengsan-hud-status-shuying b { font-variant-numeric:tabular-nums;font-size:13px; }
-.mengsan-hud-status-shuying img { width:22px;height:22px;object-fit:contain; }
+.mengsan-hud-shuying .mengsan-hud-statuses-shuying { display:grid;grid-template-columns:repeat(auto-fill,32px);grid-auto-rows:32px;align-content:end;gap:6px;overflow:hidden;white-space:nowrap;height:100%; }
+.mengsan-hud-shuying .mengsan-hud-status-shuying { display:flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:0;min-height:32px;padding:2px;background:transparent;border-radius:6px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y; }
+.mengsan-hud-status-shuying img { width:26px;height:26px;object-fit:contain;pointer-events:none; }
+.mengsan-hud-status-shuying.is-pressed { border-color:#dcc18e;background:#ffffff12; }
+.mengsan-hud-status-more-shuying::after { content:'\2022\2022\2022';letter-spacing:1px; }
+.mengsan-hud-status-fallback-shuying::after { content:'';width:12px;height:12px;border:2px solid #dcc18e;transform:rotate(45deg); }
+/* Equipment Spine effects live on this body canvas (native z-index 7).
+   Keep them above the portrait (25) and below action controls (30).
+   Inline elevations used by awakening animations still take precedence. */
+body.mengsan-hud-active-shuying>#decadeUI-canvas { z-index:28; }
 .mengsan-hud-hand-shuying { position:absolute!important;left:var(--mengsan-hud-left)!important;right:var(--mengsan-hud-right)!important;bottom:68px!important;top:auto!important;width:calc(100% - var(--mengsan-hud-left) - var(--mengsan-hud-right))!important;height:calc(var(--mengsan-hud-height,274px) - 126px)!important;z-index:24!important;background:none!important;border:0!important;transform:none!important;pointer-events:none; }
 .mengsan-hud-hand-shuying .handcards>.card { pointer-events:auto; }
 .mengsan-hud-mebg-shuying,.mengsan-hud-hand-shuying>.fakeme.avatar { display:none!important; }
@@ -114,7 +119,6 @@ body.mengsan-hud-active-shuying #arena>.mengsan-hud-controls-shuying>.mengsan-hu
 body.mengsan-hud-active-shuying #arena .mengsan-hud-native-skills-shuying>div { width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:8px 10px!important;min-height:40px!important;font:14px/20px "Microsoft YaHei",sans-serif!important;white-space:normal!important; }
 [data-mengsan-hud-layout="narrow"] .mengsan-hud-center-shuying { left:22px; }
 [data-mengsan-hud-layout="short"] .mengsan-hud-shuying .mengsan-hud-statuses-shuying { height:100%; }
-[data-mengsan-hud-layout="narrow"] .mengsan-hud-shuying .mengsan-hud-statuses-shuying { grid-template-columns:1fr; }
 .mengsan-hud-prompt-shuying { box-sizing:border-box!important;height:auto!important;min-height:0!important;overflow:auto!important;padding:2px 6px!important;background:none!important;border:0!important;box-shadow:none!important;text-align:center!important;z-index:32!important;color:#f6edcb!important;text-shadow:0 1px 3px #000,0 0 6px #000!important; }
 body.mengsan-hud-active-shuying .mengsan-hud-card-intro-shuying { box-sizing:border-box!important;z-index:90!important;height:auto!important;min-height:0!important;overflow:auto!important;border-radius:14px!important;background:#202020f5!important;box-shadow:0 8px 24px #0007!important;color:#f4f4f4!important;transition:none!important; }
 body.mengsan-hud-active-shuying #window>.mengsan-hud-card-intro-shuying { z-index:90!important; }

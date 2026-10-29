@@ -55,56 +55,160 @@ export function mountBattleHUD(player, battle, env) {
     const statuses = create('div', 'mengsan-hud-statuses-shuying', center);
     statuses.setAttribute('aria-label', '玩家当前状态');
     const link = create('link', '', null); link.rel = 'stylesheet'; link.href = `${assetBase}/ui/hud/style.css`;
+    let detailTarget = null, detailId = null, detailBody = null;
+    let detailSignature = null;
     const closeDialog = () => {
         if (!dialog) return;
         const current = dialog; dialog = null;
+        detailTarget = null; detailId = null; detailBody = null;
+        detailSignature = null;
         if (current.open) current.close(); current.remove();
         if (previousFocus?.isConnected) previousFocus.focus();
     };
-    const openDetails = target => {
-        if (disposed || !battle.session.active) return;
+    const refreshDetails = () => {
+        if (!dialog || !detailBody) return;
+        const entries = collectCombatStatuses(detailTarget, battle)
+            .filter(entry => detailId === null || entry.id === detailId);
+        const signature = JSON.stringify(entries);
+        if (signature === detailSignature) return;
+        detailSignature = signature; detailBody.replaceChildren();
+        for (const entry of entries) {
+            const row = create('section', 'mengsan-hud-detail-row-shuying',
+                detailBody);
+            create('strong', '', row, `${entry.name}${entry.value == null ? '' : ` ${entry.value}${entry.unit ? ` ${entry.unit}` : ''}`}`);
+            create('p', '', row, entry.detail);
+        }
+        if (!entries.length) create('p', '', detailBody,
+            detailId === null ? '暂无已登记状态。' : '该状态已失效。');
+    };
+    const openDetails = (target, id = null) => {
+        if (disposed || frozen || !battle.session.active) return;
         closeDialog(); previousFocus = document.activeElement;
         dialog = create('dialog', 'mengsan-hud-dialog-shuying', document.body);
         const current = dialog;
         create('h2', '', dialog, `${nameOf(target)} · 当前状态`);
         const close = create('button', 'mengsan-hud-dialog-close-shuying', dialog, '关闭'); close.addEventListener('click', closeDialog);
-        const entries = collectCombatStatuses(target, battle);
-        for (const entry of entries) {
-            const row = create('section', 'mengsan-hud-detail-row-shuying', dialog);
-            create('strong', '', row, `${entry.name}${entry.value == null ? '' : ` ${entry.value}${entry.unit ? ` ${entry.unit}` : ''}`}`);
-            create('p', '', row, entry.detail);
-        }
-        if (!entries.length) create('p', '', dialog, '暂无已登记状态。');
+        detailTarget = target; detailId = id;
+        detailBody = create('div', 'mengsan-hud-detail-body-shuying', dialog);
+        refreshDetails();
         // Unknown/native marks retain their engine intro and are never hidden by the HUD.
         dialog.addEventListener('cancel', event => { event.preventDefault(); closeDialog(); });
         dialog.addEventListener('close', () => { if (dialog === current) closeDialog(); });
         for (const type of ['pointerdown', 'pointerup', 'click', 'touchstart', 'touchend', 'keydown']) dialog.addEventListener(type, event => event.stopPropagation());
         dialog.showModal(); close.focus();
     };
+    let statusHold = null, statusTimer = null;
+    const cancelStatusHold = () => {
+        if (statusTimer !== null) window.clearTimeout(statusTimer);
+        statusHold?.button.classList.remove('is-pressed');
+        statusHold = null; statusTimer = null;
+    };
+    const statusButton = event => {
+        const button = event.target.closest?.('.mengsan-hud-status-shuying');
+        return button && statuses.contains(button) ? button : null;
+    };
+    const statusDown = event => {
+        cancelStatusHold();
+        const button = statusButton(event);
+        if (!button || event.button !== 0 || disposed || frozen) return;
+        statusHold = { button, id: event.pointerId,
+            x: event.clientX, y: event.clientY };
+        button.classList.add('is-pressed');
+        statusTimer = window.setTimeout(() => {
+            cancelStatusHold();
+            if (button.isConnected) {
+                openDetails(player, button.dataset.statusId || null);
+            }
+        }, 500);
+    };
+    const statusMove = event => {
+        if (event.pointerId !== statusHold?.id) return;
+        if (Math.hypot(event.clientX - statusHold.x,
+            event.clientY - statusHold.y) > 8) cancelStatusHold();
+    };
+    const statusUp = event => {
+        if (event.pointerId === statusHold?.id) cancelStatusHold();
+    };
+    const statusListeners = [
+        [statuses, 'pointerdown', statusDown],
+        [statuses, 'scroll', cancelStatusHold],
+        [window, 'pointermove', statusMove, true],
+        [window, 'pointerup', statusUp, true],
+        [window, 'pointercancel', statusUp, true],
+        [window, 'blur', cancelStatusHold],
+    ];
+    for (const args of statusListeners) {
+        args[0].addEventListener(...args.slice(1));
+    }
+    const stopStatusInput = () => {
+        cancelStatusHold();
+        for (const args of statusListeners) {
+            args[0].removeEventListener(...args.slice(1));
+        }
+    };
+    statuses.addEventListener('click', event => {
+        event.preventDefault();
+        const button = statusButton(event);
+        // Pointer clicks require a hold; keyboard activation stays accessible.
+        if (button && event.detail === 0) {
+            openDetails(player, button.dataset.statusId || null);
+        }
+    });
+    statuses.addEventListener('contextmenu', event => event.preventDefault());
     let statusSignature = null;
     function renderStatuses() {
         const entries = collectCombatStatuses(player, battle);
-        const columns = layout === 'narrow' ? 1 : 2;
+        const columns = Math.max(1,
+            Math.floor(((center.clientWidth || 76) + 6) / 38));
         const rows = Math.max(1, Math.floor((statuses.clientHeight || 80) / 38));
         const maximum = Math.max(0, columns * rows - (entries.length > columns * rows ? 1 : 0));
         const signature = JSON.stringify([maximum, entries]);
         if (signature !== statusSignature) {
-            statusSignature = signature; statuses.replaceChildren();
+            statusSignature = signature;
             center.hidden = entries.length === 0;
+            const existing = new Map([...statuses.children].map(button =>
+                [button.dataset.statusId || null, button]));
+            const wantedButtons = [];
             for (const entry of entries.slice(0, maximum)) {
-                const button = create('button', 'mengsan-hud-status-shuying', statuses);
-                button.setAttribute('aria-label', `${entry.name} ${entry.value ?? ''} ${entry.unit}，查看状态详情`);
-                if (entry.icon) {
-                    const image = create('img', '', button); image.src = `${assetBase}/assets/status/${entry.icon}`; image.alt = '';
-                    image.addEventListener('error', () => image.remove(), { once: true });
+                const button = existing.get(entry.id) ||
+                    create('button', 'mengsan-hud-status-shuying', null);
+                button.dataset.statusId = entry.id;
+                button.setAttribute('aria-label', `${entry.name} ${entry.value ?? ''} ${entry.unit}，长按查看状态详情`);
+                button.setAttribute('aria-haspopup', 'dialog');
+                if (button.dataset.icon !== (entry.icon || '')) {
+                    button.dataset.icon = entry.icon || '';
+                    button.replaceChildren();
+                    button.classList.remove('mengsan-hud-status-fallback-shuying');
+                    if (entry.icon) {
+                        const image = create('img', '', button);
+                        image.src = `${assetBase}/assets/status/${entry.icon}`;
+                        image.alt = '';
+                        image.addEventListener('error', () => {
+                            image.remove();
+                            button.classList.add('mengsan-hud-status-fallback-shuying');
+                        }, { once: true });
+                    }
                 }
-                create('span', '', button, entry.name);
-                if (entry.value != null) create('b', '', button, entry.value);
-                button.addEventListener('click', () => openDetails(player));
+                wantedButtons.push(button);
             }
             if (entries.length > maximum) {
-                const more = create('button', 'mengsan-hud-status-shuying', statuses, `+${entries.length - maximum}`);
-                more.setAttribute('aria-label', '查看全部状态'); more.addEventListener('click', () => openDetails(player));
+                const more = existing.get(null) || create('button',
+                    'mengsan-hud-status-shuying mengsan-hud-status-more-shuying',
+                    null);
+                more.setAttribute('aria-label', '长按查看全部状态');
+                more.setAttribute('aria-haspopup', 'dialog');
+                wantedButtons.push(more);
+            }
+            if (statusHold && !wantedButtons.includes(statusHold.button)) {
+                cancelStatusHold();
+            }
+            for (const button of [...statuses.children]) {
+                if (!wantedButtons.includes(button)) button.remove();
+            }
+            for (const [index, button] of wantedButtons.entries()) {
+                if (statuses.children[index] !== button) {
+                    statuses.insertBefore(button, statuses.children[index] || null);
+                }
             }
         }
         const wanted = new Set();
@@ -236,7 +340,8 @@ export function mountBattleHUD(player, battle, env) {
         text(name, nameOf(player)); text(hp, `生命 ${player.hp} / ${player.maxHp}`); text(block, `格挡 ${player.hujia || 0}`);
         healthFill.style.width = `${Math.max(0, Math.min(100, player.maxHp > 0 ? player.hp / player.maxHp * 100 : 0))}%`;
         text(energy, `费用 ${player.storage.mengsanEnergy_shuying ?? 0} / ${player.storage.mengsanMaxEnergy_shuying ?? 0}`);
-        syncActors(); syncExternalEquipment(); renderStatuses(); syncControls(); syncNotifications();
+        syncActors(); syncExternalEquipment(); renderStatuses();
+        refreshDetails(); syncControls(); syncNotifications();
         overlays.refresh({ footerHeight:hudHeightFor(), status:_status });
     }
     function schedule() {
@@ -246,6 +351,7 @@ export function mountBattleHUD(player, battle, env) {
     const timer = window.setInterval(schedule, 200);
     function freeze() {
         if(disposed || frozen)return;
+        stopStatusInput();
         frozen=true;window.clearInterval(timer);
         if(frame!==null){window.cancelAnimationFrame(frame);frame=null;}
         observer?.disconnect();resize?.disconnect();closeDialog();overlays.dispose();
@@ -253,6 +359,7 @@ export function mountBattleHUD(player, battle, env) {
     }
     function dispose() {
         if (disposed) return; disposed = true;
+        stopStatusInput();
         window.clearInterval(timer); if (frame !== null) window.cancelAnimationFrame(frame);
         observer?.disconnect(); resize?.disconnect(); window.removeEventListener('resize', schedule);
         document.removeEventListener('visibilitychange', schedule);

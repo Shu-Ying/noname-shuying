@@ -7,6 +7,20 @@ const app = path.resolve(__dirname, '../../../..');
 const packages = process.env.CODEX_NODE_MODULES || 'C:/Users/Diuse/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';
 const { chromium } = require(path.join(packages, 'playwright'));
 const prefix = '/extension/' + encodeURIComponent('术樱包') + '/mengsan';
+const holdStatus = async (page, locator, pointerType = 'mouse') => {
+  const box = await locator.boundingBox();
+  const point = {x:box.x + box.width / 2,y:box.y + box.height / 2};
+  if (pointerType === 'touch') {
+    await locator.dispatchEvent('pointerdown', {button:0,pointerId:44,
+      pointerType,clientX:point.x,clientY:point.y});
+    await page.waitForTimeout(550);
+    await page.evaluate(() => window.dispatchEvent(
+      new PointerEvent('pointerup', {pointerId:44,pointerType:'touch'})));
+  } else {
+    await page.mouse.move(point.x,point.y); await page.mouse.down();
+    await page.waitForTimeout(550); await page.mouse.up();
+  }
+};
 // Native themes use different button sizes. Drag onto an exposed point on the
 // original player, rather than assuming its center is clear in the dense fixture.
 const exposedTarget = (page,index) => page.evaluate(index => {
@@ -265,17 +279,59 @@ const server = http.createServer((req, res) => {
     await page.evaluate(()=>{game.players[7].hp=0;hud.refresh();});
     assert.equal(await page.evaluate(()=>game.players[7].style.cssText===originalEnemyPresentation[6].style&&!game.players[7].classList.contains('mengsan-hud-defeated-shuying')),true,'death keeps the original battlefield presentation');checks++;
     await page.evaluate(()=>{game.players[7].hp=40;game.me.storage.mengsanVulnerable_shuying=3;hud.refresh();});
-    assert.match(await page.locator('.mengsan-hud-statuses-shuying').innerText(),/3/);checks++;
+    assert.equal(await page.locator('.mengsan-hud-statuses-shuying').innerText(),'','status chips contain icons only');checks++;
+    const heldStatus = page.locator('.mengsan-hud-statuses-shuying button').first();
+    await heldStatus.dispatchEvent('pointerdown', {button:0,pointerId:45,
+      pointerType:'touch',clientX:10,clientY:10});
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      game.me.storage.mengsanWeak_shuying=1; hud.refresh();
+    });
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator('dialog.mengsan-hud-dialog-shuying').count(),1,'unrelated status update preserves an active hold');checks++;
+    await page.evaluate(() => window.dispatchEvent(
+      new PointerEvent('pointerup', {pointerId:45,pointerType:'touch'})));
+    await page.evaluate(() => {
+      game.me.storage.mengsanVulnerable_shuying=5; hud.refresh();
+    });
+    assert.match(await page.locator('dialog.mengsan-hud-dialog-shuying').innerText(),/易伤 5/,'open details show the current value');checks++;
+    await page.evaluate(() => {
+      delete game.me.storage.mengsanVulnerable_shuying; hud.refresh();
+    });
+    assert.match(await page.locator('dialog.mengsan-hud-dialog-shuying').innerText(),/已失效/,'removed state is explicitly expired');checks++;
+    await page.getByRole('button',{name:'关闭',exact:true}).click();
+    await page.evaluate(() => {
+      delete game.me.storage.mengsanWeak_shuying;
+      game.me.storage.mengsanVulnerable_shuying=3; hud.refresh();
+    });
     await page.evaluate(()=>{for(const key of ['Weak','Frail','Artifact','Constrict','Tangled','Shrink','Plow','Slippery'])game.me.storage['mengsan'+key+'_shuying']=2;hud.refresh();});
     assert.equal(await page.evaluate(()=>{const row=document.querySelector('.mengsan-hud-statuses-shuying').getBoundingClientRect();return [...document.querySelectorAll('.mengsan-hud-statuses-shuying button')].every(n=>{const r=n.getBoundingClientRect();return r.bottom<=row.bottom+1&&r.right<=row.right+1;});}),true,'matrix overflow keeps the visible statuses and more button inside the grid');checks++;
-    await page.getByRole('button',{name:'查看全部状态',exact:true}).click();
+    // Compact icon chips fit more states; register enough real display fields
+    // to exercise overflow on wide screens as well as phones.
+    await page.evaluate(async prefix => {
+      const {bindCombatStatusSource} = await import(prefix+'/battle/status-sources.js');
+      const keys=['turnStrength','turnEnergy','turnBlock','turnLoseHp',
+        'infernoLoseHp','lossDamage','lossStrength','vulnerableBonus',
+        'attackBlock','retaliation','colossus','freeAttack','noDraw',
+        'noEnergy','doubleTap','plating','exhaustBlock','exhaustDraw',
+        'vulnerableDraw','juggle','endAttack','retrieveAttack','bodyguard',
+        'autoStrike','firstBlock','blockDamage','barricade','corruption'];
+      bindCombatStatusSource(game.me,session,'overflow-test',() => ({
+        powers:Object.fromEntries(keys.map(key => [key,1])),
+      }));
+      hud.refresh();
+    },prefix);
+    await holdStatus(page,page.getByRole('button',{
+      name:'长按查看全部状态',exact:true}));
     assert.ok(await page.getByRole('dialog').isVisible(),'overflow states remain available in the details');checks++;
     await page.getByRole('button',{name:'关闭',exact:true}).click();
     assert.equal(await page.evaluate(()=>{const s=document.querySelector('.mengsan-hud-center-shuying').getBoundingClientRect(),p=game.me.getBoundingClientRect();return s.bottom<=p.top&&p.top-s.bottom<=13;}),true,'status chips automatically appear just above the portrait');checks++;
-    await page.locator('.mengsan-hud-statuses-shuying button').first().click();
+    await page.locator('.mengsan-hud-statuses-shuying button').first().tap();
+    assert.equal(await page.locator('dialog.mengsan-hud-dialog-shuying').count(),0,'short tap does not open status details');checks++;
+    await holdStatus(page,page.locator('.mengsan-hud-statuses-shuying button').first());
     assert.ok(await page.locator('dialog.mengsan-hud-dialog-shuying').isVisible());checks++;
     await page.getByRole('button',{name:'关闭',exact:true}).click();
-    await page.locator('.mengsan-hud-statuses-shuying button').first().tap();
+    await holdStatus(page,page.locator('.mengsan-hud-statuses-shuying button').first(),'touch');
     assert.ok(await page.locator('dialog.mengsan-hud-dialog-shuying').isVisible(),'touch opens the player status details');checks++;
     await page.getByRole('button',{name:'关闭',exact:true}).click();
     await page.evaluate(()=>game.uncheck());

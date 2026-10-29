@@ -12,6 +12,7 @@ let sessionVerified = new Set();
 let verificationContext = null;
 let verificationDirty = false;
 let fullVerification = false;
+const progressLayers = new WeakMap();
 
 function cacheContext() {
     if (lib.node?.fs && typeof window.__dirname == "string") return `node:${window.__dirname}`;
@@ -265,12 +266,69 @@ function setBusy(shuYing, busy) {
 }
 
 function ensureProgressNode(shuYing) {
-    if (!shuYing.text.parentNode) {
-        document.body.appendChild(shuYing.text);
+    const node = shuYing.text;
+    Object.assign(node.style, {
+        position: "fixed", inset: "14px auto auto 50%", margin: "0",
+        maxWidth: "calc(100vw - 28px)", zIndex: "2147483647",
+    });
+    // Native modal dialogs outrank every z-index. A manual popover is non-modal
+    // and joins their top layer without intercepting game input or focus.
+    if (typeof node.showPopover == "function") {
+        if (node.parentNode !== document.body) document.body.appendChild(node);
+        node.setAttribute("popover", "manual");
+        if (node.matches(":popover-open")) node.hidePopover();
+        node.showPopover();
+    } else {
+        // Old WebViews can display progress inside the active modal's top
+        // layer without opening another modal or making the game inert.
+        let layer = progressLayers.get(node);
+        if (!layer) {
+            layer = { dialogs: [], observer: null };
+            layer.sync = (records = []) => {
+                const initial = layer.dialogs.length === 0;
+                const dialogs = [...document.querySelectorAll('dialog[open]')]
+                    .filter(dialog => {
+                        try { return dialog.matches(':modal'); }
+                        catch { return true; }
+                    });
+                layer.dialogs = layer.dialogs.filter(dialog =>
+                    dialogs.includes(dialog));
+                for (const dialog of dialogs) {
+                    if (!layer.dialogs.includes(dialog)) layer.dialogs.push(dialog);
+                }
+                if (initial) {
+                    const focused = document.activeElement?.closest('dialog');
+                    if (dialogs.includes(focused)) {
+                        layer.dialogs = layer.dialogs.filter(dialog =>
+                            dialog !== focused);
+                        layer.dialogs.push(focused);
+                    }
+                }
+                for (const record of records) {
+                    if (record.type !== 'attributes' ||
+                        !dialogs.includes(record.target)) continue;
+                    layer.dialogs = layer.dialogs.filter(dialog =>
+                        dialog !== record.target);
+                    layer.dialogs.push(record.target);
+                }
+                const host = layer.dialogs[layer.dialogs.length - 1] ||
+                    document.body;
+                if (node.parentNode !== host) host.appendChild(node);
+            };
+            layer.observer = new MutationObserver(layer.sync);
+            layer.observer.observe(document.body, {
+                childList: true, subtree: true,
+                attributes: true, attributeFilter: ['open'],
+            });
+            progressLayers.set(node, layer);
+        }
+        layer.sync();
     }
 }
 
 function removeProgressNode(shuYing) {
+    progressLayers.get(shuYing.text)?.observer.disconnect();
+    progressLayers.delete(shuYing.text);
     if (shuYing.text.parentNode) {
         shuYing.text.parentNode.removeChild(shuYing.text);
     }
@@ -356,6 +414,8 @@ function setProgress(shuYing, options = {}) {
     const now = Date.now();
     if (!options.force && now - (shuYing._progressRendered || 0) < 120) return;
     shuYing._progressRendered = now;
+    // Re-promote after any Mengsan modal opened since the previous update.
+    ensureProgressNode(shuYing);
 
     const current = Math.max(0, Number(options.current) || 0);
     const total = Math.max(0, Number(options.total) || 0);
