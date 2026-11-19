@@ -6,13 +6,19 @@ export const restRecovery = run => 8+heldRelics(run).reduce((n,r)=>n+(r.rule.res
 export const relicShopPrice = (run,base) => Math.max(1,Math.floor(heldRelics(run).reduce((n,r)=>n*(r.rule.shopDiscount || 1),base)));
 export function recordRelicShopPurchase(run){relicState(run).mawBankBroken=true;}
 export function relicRestChoices(run) {
-    const state=relicState(run),choices=[];
-    for(const relic of heldRelics(run)){
-        const action=relic.rule.restAction;
-        if(action==="dig")choices.push({id:"dig",name:"挖掘",description:"获得一件可实现的随机普通、罕见或稀有遗物"});
-        if(action==="lift")choices.push({id:"lift",name:"举重",description:`以后每场战斗获得额外力量（${state.giryaLevels || 0}/3）`,disabled:(state.giryaLevels || 0)>=3});
-        if(action==="rekindle")choices.push({id:"rekindle",name:"添火",description:"让南瓜蜡烛再次燃烧5场战斗",disabled:(state.candleRemaining || 0)>=5});
-        if(action==="cook")choices.push({id:"cook",name:"烹饪",description:"最大生命+5；梦三适配值"});
+    const state = relicState(run), choices = [];
+    for (const relic of heldRelics(run)) {
+        const id = relic.rule.restAction;
+        const image = relic.image;
+        if (id === "dig") choices.push({ id, image, name: "挖掘", description: "随机获得一件普通、罕见或稀有遗物" });
+        if (id === "lift") {
+            const levels = state.giryaLevels || 0;
+            choices.push({ id, image, name: "举重", description: `以后每场战斗获得额外力量（${levels}/3）`,
+                disabled: levels >= 3, disabledReason: "已达举重上限" });
+        }
+        if (id === "rekindle") choices.push({ id, image, name: "添火", description: "让南瓜蜡烛再燃烧 5 场战斗",
+            disabled: (state.candleRemaining || 0) >= 5, disabledReason: "南瓜蜡烛的燃烧场次已满" });
+        if (id === "cook") choices.push({ id, image, name: "烹饪", description: "最大生命 +5" });
     }
     return choices;
 }

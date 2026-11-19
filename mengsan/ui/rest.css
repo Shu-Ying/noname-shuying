@@ -1,0 +1,264 @@
+.mengsan-flow-overlay-shuying.mengsan-rest-overlay-shuying {
+    --rest-paper: #fff1df;
+    --rest-muted: #dfcbb9;
+    --rest-accent: #ffbf79;
+    --rest-edge: #826951;
+    --rest-panel: #2d2a28;
+    --rest-hover: #493629;
+    --rest-ground: #12181b;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow: auto;
+    padding: 0;
+    color: var(--rest-paper);
+    color-scheme: dark;
+    background:
+        linear-gradient(180deg, #0d131ade 0%, #11161d26 23%, #151a1c12 38%, #12181bed 94%, var(--rest-ground)),
+        url("../assets/scenes/pinefire-camp.webp") center 86% / cover no-repeat,
+        var(--rest-ground);
+}
+
+.mengsan-rest-overlay-shuying div { position: static; }
+.mengsan-rest-overlay-shuying :is(h1, h2, p) { margin: 0; }
+
+.ms-rest-header,
+.ms-rest-body {
+    width: min(100%, 1440px);
+    margin-inline: auto;
+    padding-left: max(clamp(16px, 4vw, 52px), env(safe-area-inset-left));
+    padding-right: max(clamp(16px, 4vw, 52px), env(safe-area-inset-right));
+}
+
+.ms-rest-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: max(14px, env(safe-area-inset-top));
+    padding-bottom: 12px;
+}
+
+.ms-rest-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 14px;
+}
+
+.ms-rest-brand > .ms-rest-context { letter-spacing: .14em; }
+
+.ms-rest-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 2px;
+    color: #fff0d8;
+    background: #843c2b;
+    font: 700 19px/1 "KaiTi", "STKaiti", "SimSun", serif;
+}
+
+.mengsan-rest-overlay-shuying .mengsan-flow-menu-shuying {
+    position: static !important;
+    min-width: 82px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-color: var(--rest-edge);
+    color: var(--rest-paper);
+    background: #272626;
+    font-size: 14px;
+}
+
+.mengsan-rest-overlay-shuying .mengsan-flow-menu-shuying:hover { background: var(--rest-hover); }
+
+.ms-rest-body {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-top: clamp(28px, 10vh, 112px);
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-title {
+    margin-bottom: 22px;
+    color: var(--rest-paper);
+    text-shadow: 0 3px 16px #000;
+    font: 700 clamp(44px, 6.8vw, 86px)/1.1 "KaiTi", "STKaiti", "SimSun", serif;
+    letter-spacing: .075em;
+}
+
+.ms-rest-dock {
+    align-self: flex-end;
+    width: min(100%, 680px);
+}
+
+.mengsan-rest-overlay-shuying :is(.ms-rest-core, .ms-rest-relic-actions) {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-relic-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ms-rest-relics { margin-top: 15px; }
+.ms-rest-dock > .ms-rest-relics:first-child { margin-top: 0; }
+
+.mengsan-rest-overlay-shuying .ms-rest-relic-heading {
+    margin-bottom: 6px;
+    color: var(--rest-muted);
+    font-size: 13px;
+    text-shadow: 0 1px 4px #000;
+}
+
+.mengsan-rest-overlay-shuying :is(.ms-rest-action, .ms-rest-leave) {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--rest-edge);
+    border-radius: 4px;
+    color: var(--rest-paper);
+    font: inherit;
+    appearance: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color .16s, border-color .16s;
+}
+
+.mengsan-rest-overlay-shuying :is(.ms-rest-action, .ms-rest-leave, .mengsan-flow-menu-shuying):focus-visible {
+    outline: 2px solid var(--rest-accent);
+    outline-offset: 2px;
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-action {
+    gap: 12px;
+    min-width: 0;
+    min-height: 78px;
+    padding: 10px 12px;
+    background: var(--rest-panel);
+    text-align: left;
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-action[data-choice="heal"] {
+    border-color: #a67850;
+    background: #362a23;
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-action:enabled:hover {
+    border-color: var(--rest-accent);
+    background: var(--rest-hover);
+}
+
+.mengsan-rest-overlay-shuying :is(.ms-rest-action, .ms-rest-leave):enabled:active { filter: brightness(.88); }
+
+.mengsan-rest-overlay-shuying .ms-rest-action:disabled {
+    border-style: dashed;
+    color: #c0b8b2;
+    background: #252729;
+    cursor: not-allowed;
+}
+
+.mengsan-rest-overlay-shuying :is(.ms-rest-action, .ms-rest-leave) svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ms-rest-action > svg { color: var(--rest-accent); }
+.ms-rest-action:disabled > svg { visibility: hidden; }
+
+.ms-rest-action-art {
+    display: grid;
+    place-items: center;
+    flex: 0 0 38px;
+    height: 38px;
+    border: 1px solid var(--rest-edge);
+    border-radius: 50%;
+    color: var(--rest-accent);
+    background: #3d3028;
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-action-art > .mengsan-relic-icon-shuying {
+    position: static !important;
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+.ms-rest-action:disabled .ms-rest-action-art {
+    color: inherit;
+    background: transparent;
+    filter: grayscale(1);
+}
+
+.ms-rest-action-copy { display: grid; flex: 1; min-width: 0; gap: 3px; }
+.ms-rest-action-name { font-size: 18px; line-height: 1.25; }
+.ms-rest-action-description { color: var(--rest-muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.ms-rest-action:disabled .ms-rest-action-description { color: inherit; }
+
+.mengsan-rest-overlay-shuying .ms-rest-relic-actions .ms-rest-action {
+    min-height: 62px;
+    gap: 7px;
+    padding: 8px;
+}
+
+.ms-rest-relic-actions .ms-rest-action-art { flex-basis: 32px; height: 32px; }
+.ms-rest-relic-actions .ms-rest-action-name { font-size: 15px; }
+
+.ms-rest-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    min-height: 44px;
+    margin-top: 12px;
+}
+
+.ms-rest-status { color: var(--rest-muted); font-size: 13px; text-shadow: 0 1px 4px #000; }
+
+.mengsan-rest-overlay-shuying .ms-rest-leave {
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding-inline: 12px;
+    border-color: #efc69a;
+    color: #292016;
+    background: #efc69a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mengsan-rest-overlay-shuying .ms-rest-leave:hover { background: #ffe0bb; }
+
+@media (max-width: 720px) {
+    .mengsan-rest-overlay-shuying .ms-rest-relic-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 460px) {
+    .mengsan-flow-overlay-shuying.mengsan-rest-overlay-shuying { background-position: center, 39% center; }
+    .mengsan-rest-overlay-shuying .ms-rest-title { margin-bottom: 16px; }
+    .mengsan-rest-overlay-shuying .ms-rest-core .ms-rest-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .ms-rest-core .ms-rest-action > svg { display: none; }
+}
+
+@media (max-height: 500px) {
+    .ms-rest-body { padding-top: 22px; }
+    .mengsan-rest-overlay-shuying .ms-rest-title { font-size: 42px; margin-bottom: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mengsan-rest-overlay-shuying :is(.ms-rest-action, .ms-rest-leave) { transition: none; }
+}

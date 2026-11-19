@@ -115,6 +115,8 @@ import { chooseRewardPackage } from "./ui/reward-package.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
 import { playDialogue } from "./ui/dialogue.js";
 import { chooseButtons } from "./ui/flow-ui.js";
+import { chooseRest } from "./ui/rest-ui.js";
+import { chooseShop } from "./ui/shop-ui.js";
 import { openModeSelection } from "./ui/navigation.js";
 import {
     completeNode,
@@ -296,25 +298,27 @@ const finishUtilityNode = async (run, node) => {
     applyRelicNodeEnter(run,node);
     applyRoomRelics(run,node,"enter");
     if (node.type == "rest") {
-        const used=new Set(),tent=heldRelics(run).some(r=>r.rule.allRestOptions);
-        while(true){
-        const choices=[
-            { id: "heal", name: "休息",
-                description: `回复 ${restRecovery(run)} 点生命` },
-            { id: "upgrade", name: "磨砺",
-                description: hasUpgradeableCard(run.player.deck)
-                    ? "随机强化一张尚未满级的可强化牌"
-                    : "没有可强化卡牌",
-                disabled: !hasUpgradeableCard(run.player.deck) },
-        ...relicRestChoices(run)].filter(choice=>!used.has(choice.id));
-        if(tent)choices.push({id:"done",name:"离开休息处"});
-        if(!choices.some(choice=>!choice.disabled))break;
-        const choice=await chooseButtons("休息节点",choices);
-        if(choice==="done")break;
-        const result=applyRoomRelics(run,node,choice); used.add(choice);
-        if(result?.recovered)game.log(`回复${result.recovered}点生命`);
-        await finishRelicChoices(run);
-        if(!tent)break;
+        const used = new Set();
+        const tent = heldRelics(run).some(relic => relic.rule.allRestOptions);
+        let lastAction;
+        while (true) {
+            const canUpgrade = hasUpgradeableCard(run.player.deck);
+            const choices = [
+                { id: "heal", name: "休息", description: `回复 ${restRecovery(run)} 点生命` },
+                { id: "upgrade", name: "磨砺",
+                    description: canUpgrade ? "随机强化一张尚未满级的可强化牌" : "没有可强化卡牌",
+                    disabled: !canUpgrade },
+                ...relicRestChoices(run),
+            ].filter(choice => !used.has(choice.id));
+            if (!tent && !choices.some(choice => !choice.disabled)) break;
+            const choice = await chooseRest(choices, { tent, lastAction });
+            if (choice === "done") break;
+            const result = applyRoomRelics(run, node, choice);
+            used.add(choice);
+            lastAction = choices.find(option => option.id === choice)?.name;
+            if (result?.recovered) game.log(`回复${result.recovered}点生命`);
+            await finishRelicChoices(run);
+            if (!tent) break;
         }
     }
     else if (node.type == "chest") {
@@ -325,39 +329,57 @@ const finishUtilityNode = async (run, node) => {
         });
     }
     else if (node.type == "shop") {
-        const stockKey=`${run.actIndex}:${node.id}`,state=relicState(run);
-        const sampleRelic=(exclude=[])=>{
-            const eligible=relicShopRewardIds.filter(id=>!exclude.includes(id) && canAcquireRelic(run,config.rewards[id]?.relic));
-            return eligible.length ? eligible[Math.floor(nextRandom(run)*eligible.length)] : null;
+        const stockKey = `${run.actIndex}:${node.id}`;
+        const state = relicState(run);
+        const sampleRelic = (exclude = []) => {
+            const eligible = relicShopRewardIds.filter(id => !exclude.includes(id) && canAcquireRelic(run, config.rewards[id]?.relic));
+            return eligible.length ? eligible[Math.floor(nextRandom(run) * eligible.length)] : null;
         };
         state.shopStock ||= {};
-        if(!state.shopStock[stockKey]){
-            const stock=[];for(let i=0;i<3;i++)stock.push(sampleRelic(stock));state.shopStock[stockKey]=stock;
+        if (!state.shopStock[stockKey]) {
+            const stock = [];
+            for (let index = 0; index < 3; index++) stock.push(sampleRelic(stock));
+            state.shopStock[stockKey] = stock;
         }
-        const purchased=new Set();
+        const purchased = new Set();
         await saveRun(run);
-        while(true){
-        const price = relicShopPrice(run,20),relicPrice=relicShopPrice(run,120);
-        const stock=relicState(run).shopStock[stockKey];
-        const choices=[
-            { id: "card_sha", name: `购买【杀】（${price}金币）`, description: "加入个人牌组", disabled: run.player.gold < price || !canAcquireCard(run.player.character, "sha") },
-            { id: "heal", name: `恢复生命（${price}金币）`, description: "回复 8 点生命", disabled: run.player.gold < price },
-        ].filter(choice=>!purchased.has(choice.id));
-        stock.forEach((id,index)=>{const reward=config.rewards[id];if(reward && canAcquireRelic(run,reward.relic))choices.push({id:`relic:${index}`,name:`${reward.name}（${relicPrice}金币）`,description:reward.description,image:reward.image,disabled:run.player.gold<relicPrice});});
-        choices.push({id:"leave",name:"离开",description:"结束购物"});
-        const choice=await chooseButtons("商店",choices);
-        if (choice != "leave" && choice != null) {
-            const selected=choices.find(item=>item.id===choice);
-            if(!selected || selected.disabled)throw new Error("梦三商店购买资格无效");
-            const relicIndex=choice.startsWith("relic:") ? Number(choice.slice(6)) : null;
-            const cost=relicIndex!==null ? relicPrice : price;
-            if(run.player.gold<cost)throw new Error("梦三商店金币不足");
-            run.player.gold-=cost;recordRelicShopPurchase(run);
-            applyReward(run,relicIndex!==null ? stock[relicIndex] : choice);
+        while (true) {
+            const price = relicShopPrice(run, 20);
+            const relicPrice = relicShopPrice(run, 120);
+            const stock = relicState(run).shopStock[stockKey];
+            const choices = [
+                { id: "card_sha", name: "【杀】", price, description: "加入个人牌组",
+                    disabled: run.player.gold < price || !canAcquireCard(run.player.character, "sha") },
+                { id: "heal", name: "恢复生命", price, description: "回复 8 点生命",
+                    disabled: run.player.gold < price },
+            ].filter(choice => !purchased.has(choice.id));
+            stock.forEach((id, index) => {
+                const reward = config.rewards[id];
+                if (!reward || !canAcquireRelic(run, reward.relic)) return;
+                choices.push({
+                    id: `relic:${index}`,
+                    name: getRelic(reward.relic).name,
+                    price: relicPrice,
+                    description: reward.description,
+                    image: reward.image,
+                    disabled: run.player.gold < relicPrice,
+                });
+            });
+            const choice = await chooseShop(run.player, choices);
+            if (choice === "leave" || choice == null) break;
+            const selected = choices.find(item => item.id === choice);
+            if (!selected || selected.disabled) throw new Error("梦三商店购买资格无效");
+            const relicIndex = choice.startsWith("relic:") ? Number(choice.slice(6)) : null;
+            if (run.player.gold < selected.price) throw new Error("梦三商店金币不足");
+            run.player.gold -= selected.price;
+            recordRelicShopPurchase(run);
+            applyReward(run, relicIndex !== null ? stock[relicIndex] : choice);
             await finishRelicChoices(run);
-            if(relicIndex!==null)relicState(run).shopStock[stockKey][relicIndex]=heldRelics(run).some(r=>r.wikiId==="the_courier") ? sampleRelic(relicState(run).shopStock[stockKey]) : null;
-            else if(!heldRelics(run).some(r=>r.wikiId==="the_courier"))purchased.add(choice);
-        } else break;
+            const hasCourier = heldRelics(run).some(relic => relic.wikiId === "the_courier");
+            if (relicIndex !== null) {
+                const currentStock = relicState(run).shopStock[stockKey];
+                currentStock[relicIndex] = hasCourier ? sampleRelic(currentStock) : null;
+            } else if (!hasCourier) purchased.add(choice);
         }
     }
     else {
@@ -2027,10 +2049,10 @@ export async function createMengsanMode() {
             [245, 196, 193, 1], [192, 85, 91, 1],
         ] });
     }
-    await new Promise(resolve => {
-        const style = lib.init.css(`${STYLE_PATH}/ui`, "style", resolve);
+    await Promise.all(["style", "shop", "rest"].map(name => new Promise(resolve => {
+        const style = lib.init.css(`${STYLE_PATH}/ui`, name, resolve);
         style.addEventListener("error", resolve, { once: true });
-    });
+    })));
     const mode = createMode();
     mode.splash = "ext:术樱包/pve/images/tianshu.jpg";
     return mode;

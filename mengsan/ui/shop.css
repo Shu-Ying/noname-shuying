@@ -1,0 +1,265 @@
+.mengsan-flow-overlay-shuying.mengsan-shop-overlay-shuying {
+    --shop-paper: #fff0d4;
+    --shop-muted: #d6c6ad;
+    --shop-gold: #edc795;
+    --shop-edge: #8e7451;
+    --shop-title-font: "KaiTi", "STKaiti", "SimSun", serif;
+    overflow: hidden;
+    padding: 20px;
+    color: var(--shop-paper);
+    background: radial-gradient(ellipse at 32% 34%, #494238, #20221e 62%, #171915);
+}
+
+.mengsan-shop-overlay-shuying div { position: static; }
+.mengsan-shop-overlay-shuying :is(h1, h2, h3, p, figure) { margin: 0; }
+.mengsan-shop-overlay-shuying svg {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.65;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ms-shop-panel {
+    display: grid;
+    grid-template-columns: 38% minmax(0, 1fr);
+    flex: none;
+    width: min(1168px, 100%);
+    min-height: min(650px, 100%);
+    max-height: 100%;
+    overflow: auto;
+    border: 1px solid #b48c58;
+    background: #26231d;
+    box-shadow: 0 26px 68px #14110c9c;
+    scrollbar-color: #96764e #26231d;
+}
+
+.ms-shop-portrait {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    border-right: 1px solid #b48c58;
+    background: #534638;
+}
+
+.ms-shop-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+}
+
+.ms-shop-portrait::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(0deg, #1f1a12ef, transparent 46%);
+}
+
+.ms-shop-caption {
+    position: absolute;
+    inset: auto 24px 24px;
+    z-index: 1;
+    display: grid;
+    gap: 4px;
+}
+
+.ms-shop-merchant-label { color: #f2d39f; font-size: 14px; }
+.ms-shop-merchants { font: 700 34px/1.2 var(--shop-title-font); }
+
+.ms-shop-counter {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 24px 25px 22px;
+    background: radial-gradient(ellipse at 64% -8%, #494033, transparent 72%), #27241d;
+}
+
+.ms-shop-header, .ms-shop-status, .ms-shop-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ms-shop-header { justify-content: space-between; flex-wrap: wrap; }
+.ms-shop-status { flex-wrap: wrap; }
+.ms-shop-stat { gap: 6px; color: #f2dfb7; font-size: 13px; white-space: nowrap; }
+.ms-shop-stat + .ms-shop-stat { padding-left: 12px; border-left: 1px solid #8f755858; }
+.ms-shop-stat svg { width: 18px; height: 18px; color: #e7ad65; }
+.ms-shop-value {
+    font: 700 20px/1 "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+.mengsan-shop-overlay-shuying .ms-shop-context {
+    color: #e9c18c;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .12em !important;
+}
+
+.mengsan-shop-overlay-shuying .ms-shop-title-text {
+    margin-top: 5px;
+    font: 700 clamp(38px, 4.4vw, 56px)/1.1 var(--shop-title-font);
+}
+
+.mengsan-shop-overlay-shuying .ms-shop-status > .mengsan-flow-menu-shuying {
+    position: static !important;
+    min-width: 64px;
+    min-height: 44px;
+    padding: 6px 9px;
+    border-color: #9a7951;
+    border-radius: 3px;
+    background: #3e3224;
+    color: #f2dfb7;
+    font-size: 13px;
+}
+
+.mengsan-shop-overlay-shuying .ms-shop-status > .mengsan-flow-menu-shuying:hover { background: #58432d; }
+.ms-shop-relics { margin-top: 22px; }
+.ms-shop-supplies { margin-top: 17px; }
+
+.mengsan-shop-overlay-shuying .ms-shop-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: var(--shop-gold);
+    font-size: 17px;
+}
+
+.ms-shop-heading::after {
+    flex: 1;
+    height: 1px;
+    content: "";
+    background: #8e745183;
+}
+
+.ms-shop-offers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ms-shop-offer {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--shop-edge);
+    background: #3a3225;
+}
+
+.ms-shop-art { display: grid; min-width: 0; place-items: center; color: var(--shop-gold); }
+.ms-shop-art .mengsan-relic-icon-shuying {
+    width: 54px;
+    height: 54px;
+    filter: drop-shadow(0 5px 5px #17100966);
+}
+.ms-shop-name { font: 700 24px/1.25 var(--shop-title-font); }
+.mengsan-shop-overlay-shuying .ms-shop-description {
+    margin-top: 4px;
+    color: var(--shop-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.ms-shop-price, .ms-shop-leave {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 7px 11px;
+    border: 1px solid #ab875b;
+    border-radius: 3px;
+    background: #4d3c28;
+    color: #ffe5b3;
+    font: inherit;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.ms-shop-price:hover:not(:disabled), .ms-shop-leave:hover { background: #725135; }
+.ms-shop-price:disabled { opacity: .56; cursor: not-allowed; }
+.ms-shop-price:focus-visible, .ms-shop-leave:focus-visible {
+    outline: 2px solid #efc580;
+    outline-offset: 2px;
+}
+
+.ms-shop-amount { display: inline-flex; align-items: center; gap: 6px; }
+.ms-shop-amount svg { width: 16px; height: 16px; }
+.ms-shop-relics .ms-shop-price { grid-column: 1 / -1; justify-content: space-between; }
+.ms-shop-relics .ms-shop-offer:first-child {
+    grid-column: 1 / -1;
+    grid-template-columns: 90px minmax(0, 1fr) auto;
+    gap: 14px;
+    padding: 13px 15px;
+    background: radial-gradient(ellipse at 12% 50%, #80603e, transparent 63%), #433729;
+}
+
+.ms-shop-relics .ms-shop-offer:first-child .ms-shop-price { grid-column: auto; }
+.ms-shop-relics .ms-shop-offer:first-child .ms-shop-buy { display: none; }
+.ms-shop-relics .ms-shop-offer:first-child .ms-shop-art .mengsan-relic-icon-shuying { width: 78px; height: 78px; }
+.ms-shop-relics .ms-shop-offer:first-child .ms-shop-name { font-size: 30px; }
+
+.ms-shop-supplies .ms-shop-offer {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 7px;
+    padding: 8px;
+    border-color: #765e43;
+    background: #332e23;
+}
+.ms-shop-supplies .ms-shop-name { font: 700 16px/1.25 "Microsoft YaHei", sans-serif; }
+.mengsan-shop-overlay-shuying .ms-shop-supplies .ms-shop-description { font-size: 12px; }
+.ms-shop-supplies .ms-shop-art svg { width: 26px; height: 26px; }
+.ms-shop-supplies .ms-shop-price { padding-inline: 8px; }
+.ms-shop-supplies :is(.ms-shop-buy, .ms-shop-unit) { display: none; }
+.ms-shop-card-face {
+    display: grid;
+    width: 30px;
+    height: 43px;
+    place-items: center;
+    border: 1px solid #6c543b;
+    outline: 1px solid #d1a76f;
+    background: linear-gradient(150deg, #f5dfa9, #b98751);
+    color: #422d1f;
+    font: 700 21px/1 var(--shop-title-font);
+}
+
+.ms-shop-footer { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 16px; }
+.ms-shop-leave { background: transparent; color: #e9d9ba; border-color: var(--shop-edge); }
+
+@media (max-width: 1000px) {
+    .ms-shop-panel { grid-template-columns: 31% minmax(0, 1fr); }
+    .ms-shop-counter { padding: 19px; }
+}
+
+@media (max-width: 860px) {
+    .ms-shop-supplies .ms-shop-offers { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 680px) {
+    .mengsan-flow-overlay-shuying.mengsan-shop-overlay-shuying { padding: 10px; }
+    .ms-shop-panel { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .ms-shop-portrait {
+        min-height: clamp(140px, 29vh, 210px);
+        border-right: 0;
+        border-bottom: 1px solid #b48c58;
+    }
+    .ms-shop-caption { inset: auto 14px 12px; }
+    .ms-shop-merchants { font-size: 26px; }
+    .ms-shop-counter { padding: 14px; }
+    .ms-shop-status { gap: 8px; }
+    .ms-shop-stat + .ms-shop-stat { padding-left: 8px; }
+    .ms-shop-offers { grid-template-columns: minmax(0, 1fr); }
+    .ms-shop-relics .ms-shop-offer:first-child { grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 11px 12px; }
+    .ms-shop-relics .ms-shop-offer:first-child .ms-shop-price { grid-column: 1 / -1; justify-content: space-between; }
+    .ms-shop-relics .ms-shop-offer:first-child .ms-shop-buy { display: inline; }
+    .ms-shop-relics .ms-shop-offer:first-child .ms-shop-art .mengsan-relic-icon-shuying { width: 54px; height: 54px; }
+    .ms-shop-relics .ms-shop-offer:first-child .ms-shop-name { font-size: 24px; }
+}
