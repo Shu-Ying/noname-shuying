@@ -26,6 +26,17 @@ export const ironcladSkillExhausts = (player,card) => Boolean(ironcladHooks(play
 export const ironcladCost = (player,card,cost) => ironcladHooks(player)?.cost(card,cost) ?? cost;
 export const ironcladCardIsFree = (player,card) => Boolean(ironcladHooks(player)?.isFree(card));
 export const ironcladStrengthPenalty = player => (ironcladHooks(player)?.strengthPenalty() || 0) + sharedStrengthPenalty(player);
+
+export function applyBodyguardDamage(damage, source, target, players) {
+    if (!source || !target || !players) return damage;
+    let multiplier = 1;
+    for (const holder of players) {
+        if (ironcladHooks(holder)?.hasBodyguard?.() && holder.isFriendOf(target) && holder.isEnemyOf(source)) {
+            multiplier *= holder === target ? 2 : 0.5;
+        }
+    }
+    return multiplier === 1 ? damage : Math.floor(damage * multiplier);
+}
 export const queueIroncladExhaust = (player,card) => ironcladHooks(player)?.queueExhaust(card);
 export const flushIroncladExhaust = async player => { await ironcladHooks(player)?.flushExhaust(); await flushRelicExhaust(player); };
 export const afterIroncladDraw = async (player,cards) => { await ironcladHooks(player)?.afterDraw(cards); };

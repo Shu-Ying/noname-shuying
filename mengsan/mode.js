@@ -44,7 +44,7 @@ import {
 } from "./monsters/actions.js";
 import { constrictTotal, resolveConstrict, clearConstrictSource } from "./monsters/strangler-constrict.js";
 import { isShrunk, clearShrinkSource, shrinkAttackDamage } from "./monsters/shrinker-status.js";
-import { advanceTangled } from "./monsters/vine-tangled.js";
+import { advanceTangled, isAttackCard } from "./monsters/vine-tangled.js";
 import { isMawler, recordMawlerAction } from "./monsters/mawler-intent.js";
 import { isVine, recordVineAction } from "./monsters/vine-intent.js";
 import { isCubex, recordCubexAction, initializeCubex } from "./monsters/cubex-intent.js";
@@ -93,6 +93,7 @@ import {
     canPayCard, payCard, isActiveCardUse, isXCostCard,
 } from "./battle/combat-rules.js";
 import { mountBattlePiles } from "./ui/card-library.js";
+import { mountCardChoiceNames } from "./ui/card-choice-names.js";
 import { mountGMManager } from "./ui/gm-manager.js";
 import { createPlayerTeardown } from "./battle/skill-teardown.js";
 import { createBattleResources } from "./battle/battle-resources.js";
@@ -109,6 +110,7 @@ import { showMap as renderMap } from "./ui/map/index.js";
 import { getRandomRewardChoices } from "./progression/reward.js";
 import { canAcquireCard } from "./cards/card-definitions.js";
 import { addCardToDeck, createRandomCardData } from "./cards/card-data.js";
+import { LIUBEI_CARD_OWNER } from "./cards/packs/liubei/names.js";
 import { hasUpgradeableCard, upgradeRandomCard } from "./cards/upgrades.js";
 import { chooseBattleReward } from "./ui/reward-ui.js";
 import { chooseRewardPackage } from "./ui/reward-package.js";
@@ -518,6 +520,7 @@ const { planBondIntent, executeBondIntent } =
     createBondIntentActions(game, () => activeBattle);
 const equipBattleUnit = async (player, spec, resources) => {
     for (const info of spec.equipment || []) {
+        if (info.name === "muniu") continue;
         const card = resources.card(game.createCard(info.name, info.suit, info.number, info.nature));
         await player.equip(card);
     }
@@ -537,7 +540,7 @@ const spawnBattleUnit = async (current, spec, anchor) => {
                 mountEnergy(player, current.session, document));
             current.intentUI.set(player, mountEnemyIntent(player,
                 current.session, STYLE_PATH, document,
-                () => getIntentHostiles(game, player)));
+                () => getIntentHostiles(game, player), () => current));
         }
         for (const participant of [...game.players, ...game.dead]) participant.setSeatNum(Number(participant.dataset.position) + 1);
         await equipBattleUnit(player, spec, current.resources);
@@ -604,6 +607,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         for (const skill of spec.skills || []) if (!lib.skill[skill]) throw new Error("关卡技能未加载：" + skill);
         const slots = new Set();
         for (const card of spec.equipment || []) {
+            if (card.name === "muniu") continue;
             const info = lib.card[card.name];
             if (!info || info.type !== "equip" || !info.subtype || slots.has(info.subtype)) throw new Error("初始装备不存在、不是装备或槽位重复：" + card.name);
             slots.add(info.subtype);
@@ -615,6 +619,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     consumeSupports(run);
     document.body.classList.add("mengsan-battle-ui-shuying");
     session.ownResource({}, () => document.body.classList.remove("mengsan-battle-ui-shuying"));
+    mountCardChoiceNames(session, resources, { ui, lib, document });
     resources.field(_status, "mengsanRun_shuying", run);
     resources.field(_status, "mengsanNode_shuying", node);
     resources.field(_status, "mengsanEncounter_shuying", encounter);
@@ -626,6 +631,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     });
     shuffleBattlePile(run, _status.mengsanBattle_shuying.drawPile);
 
+    // 剧情 NPC 和判定仍用公共牌堆，建堆前排除所有牌包里的木牛流马。
+    resources.field(lib.card, "list", lib.card.list.filter(([, , name]) => name !== "muniu"));
     game.prepareArena(1 + plan.units.length);
     resources.capturePreparedArena();
     // Register runtime IDs before card ownership transfers (gain/lose).
@@ -656,7 +663,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     participants.forEach((player, index) => {
         if (monsters[index]) currentBattle.intentUI.set(player,
             mountEnemyIntent(player, session, STYLE_PATH, document,
-                () => getIntentHostiles(game, player)));
+                () => getIntentHostiles(game, player), () => currentBattle));
     });
     participants.forEach(player => {
         if (player.storage.mengsanBond_shuying) {
@@ -693,6 +700,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         piles:currentBattle.personalPiles,
         isStrike: card => isStrikeCard(card,lib),
         draw: number => game.mengsanDraw_shuying(me, number),
+        onCounterChange: () => currentBattle.relicUI?.refreshCounters(),
         effect: createOpeningEffects(game, me,
             () => currentBattle.energyUI.get(me)?.(), () => nextRandom(run)),
         log: (relic, effect) => {
@@ -708,7 +716,8 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         sessionId: session.id,
         existingGlobalSkills: [...(lib.skill.global || [])],
     });
-    for (const skill of [
+    // 原生全局注册只处理传入的技能，group 中的触发需要逐个注册。
+    for (const skill of game.expandSkills([
         "mengsan_draw_shuying", "mengsan_card_use_shuying", "mengsan_ic_bridge_shuying", "mengsan_shared_bridge_shuying",
         "mengsan_card_affixes_shuying", "mengsan_scenario_shuying", "mengsan_intent_refresh_shuying",
         "mengsan_card_payment_shuying", "mengsan_monster_draw_shuying",
@@ -731,7 +740,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
         "mengsan_relics_shuying",
         "mengsan_relic_attack_shuying",
         "mengsan_relic_boot_shuying",
-    ]) {
+    ])) {
         if (!lib.skill.global.includes(skill)) {
             game.addGlobalSkill(skill);
             session.ownResource({}, () => game.removeGlobalSkill(skill));
@@ -858,7 +867,7 @@ const requestBattleFinish = outcome => {
     // Complete the original card and all queued replays before snapshotting a victory.
     if(outcome==="victory" && current.sharedPendingUses?.size){
         diagnostics.info("victory.deferred", { pendingUses: current.sharedPendingUses.size });
-        current.sharedDeferredVictory=true;return false;
+        return false;
     }
     for (const player of game.dead) {
         recordBondDeath(player, _status.mengsanRun_shuying,
@@ -1017,6 +1026,7 @@ const createMode = () => {
     const nativeChangeHujia = lib.element.Player.prototype.changeHujia;
     const nativeChangeHp = lib.element.Player.prototype.changeHp;
     const nativeAddSkill = lib.element.Player.prototype.addSkill;
+    const nativePhaseDraw = lib.element.Player.prototype.phaseDraw;
     const cardContext = {
         game, get, lib, random:nextRandom, status:_status, getBattle:()=>activeBattle,
         copyToDiscard: createBattleCardCopier(game, () => activeBattle),
@@ -1053,6 +1063,11 @@ const createMode = () => {
         element: {
             player: {
                 ...createCampPlayerMethods(game),
+                phaseDraw() {
+                    const next = nativePhaseDraw.call(this);
+                    if (this.storage?.mengsanPlayer_shuying && this.name1 === LIUBEI_CARD_OWNER) next.num = 3;
+                    return next;
+                },
                 addSkill(skill, ...args) {
                     // 初始武将技能由核心过滤；同时阻止奖励、剧情等动态授予主公技。
                     if (Array.isArray(skill)) skill = skill.filter(name => !lib.skill[name]?.zhuSkill);
@@ -1827,23 +1842,30 @@ const createMode = () => {
             },
             mengsan_vulnerable_shuying: {
                 mark: true, marktext: "易",
+                group: "mengsan_vulnerable_damage_shuying",
                 onremove(player) { delete player.storage.mengsanVulnerable_shuying; },
                 intro: { content(storage, player) { return `剩余${player.storage.mengsanVulnerable_shuying || 0}回合：受到攻击伤害增加50%（向上取整）`; } },
-                trigger: { player: ["damageBegin1", "phaseAfter"] },
+                trigger: { player: "phaseAfter" },
                 forced: true, silent: true, popup: false,
-                filter(event, player) {
-                    if (!player.storage?.mengsanVulnerable_shuying) return false;
-                    return event.name !== "damage" || Boolean(event.card || event.mengsanAttack_shuying);
-                },
+                filter(event, player) { return player.storage?.mengsanVulnerable_shuying > 0; },
                 async content(event, trigger, player) {
-                    if (event.triggername === "damageBegin1") {
-                        trigger.num = Math.ceil(trigger.num * ((trigger.source===game.me && activeBattle?.relics?.has("paper_phrog") ? 1.75 : 1.5) + cardPacks.vulnerableBonus(trigger.source, player)));
-                        return;
-                    }
                     const remaining = Math.max(0, (player.storage.mengsanVulnerable_shuying || 0) - 1);
                     player.storage.mengsanVulnerable_shuying = remaining;
                     if (remaining) player.markSkill("mengsan_vulnerable_shuying");
                     else player.removeSkill("mengsan_vulnerable_shuying");
+                },
+            },
+            mengsan_vulnerable_damage_shuying: {
+                // 来源的力量、虚弱和缩小在 damageBegin1 结算，易伤随后统一放大。
+                trigger: { player: "damageBegin2" },
+                forced: true, silent: true, popup: false, firstDo: true,
+                filter(event, player) {
+                    return player.storage?.mengsanVulnerable_shuying > 0 &&
+                        (isAttackCard(event.card) || event.mengsanAttack_shuying);
+                },
+                async content(event, trigger, player) {
+                    const base = trigger.source === game.me && activeBattle?.relics?.has("paper_phrog") ? 1.75 : 1.5;
+                    trigger.num = Math.ceil(trigger.num * (base + cardPacks.vulnerableBonus(trigger.source, player)));
                 },
             },
             mengsan_intent_refresh_shuying: {

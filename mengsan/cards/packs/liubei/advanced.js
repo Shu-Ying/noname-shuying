@@ -7,7 +7,7 @@ import { isStrikeCard } from "../../strike-counter.js";
 import { snapshotRampage, copyRampageGrowth } from "../../rampage.js";
 import { isAttackCard } from "../../../monsters/vine-tangled.js";
 import { authorizeFreeCardUse, takeXCardUse, cardCost } from "../../../battle/combat-rules.js";
-import { bindIroncladHooks } from "../../ironclad-hooks.js";
+import { applyBodyguardDamage, bindIroncladHooks } from "../../ironclad-hooks.js";
 import { sharedHooks } from "../../shared-hooks.js";
 import { temporaryStrengthAmount } from "../../temporary-strength.js";
 import { shrinkAttackDamage } from "../../../monsters/shrinker-status.js";
@@ -41,6 +41,7 @@ import { bindCombatStatusSource } from "../../../battle/status-sources.js";
 export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEnergy,random}) {
     const states=new WeakMap(), uses=new WeakMap(), hits=new WeakMap(), growth=new WeakMap();
     const seenUses=new WeakSet(), seenBlocks=new WeakSet(), seenDraws=new WeakSet();
+    const bridgeSignals = new WeakMap();
     const valid=(player,token)=>Boolean(token && getBattle()===token.battle && token.session.active &&
         token.battle.session===token.session && token.battle.root===token.root &&
         token.battle.players.has(player) && player?.isAlive?.());
@@ -86,6 +87,7 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
             valid:()=>valid(player,token),
             blocksDraw:()=>Boolean(s.turn.noDraw), blocksEnergy:()=>Boolean(s.turn.noEnergy),
             preservesBlock:()=>Boolean(s.powers.barricade),
+            hasBodyguard: () => Boolean(s.powers.bodyguard),
             skillExhausts:card=>Boolean(s.powers.corruption && skillCard(card)),
             strengthPenalty:()=>s.negativeStrength,
             isFree:card=>{
@@ -419,9 +421,17 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
             async content(event,trigger,player){trigger.num=Math.max(0,trigger.num-stateOf(player).negativeStrength);}},
         [BRIDGE]:{trigger:{global:["useCard1","useCardAfter","cardsDiscardAfter","loseAfter","phaseBefore","phaseJieshuBegin","phaseAfter","drawAfter","changeHujiaAfter","damageBegin2"]},
             forced:true,silent:true,popup:false,priority:60,
-            filter(event){const battle=getBattle();return Boolean(battle?.session.active&&belongs(event,battle.root));},
+            filter(event, player, name) {
+                const battle = getBattle();
+                return Boolean(battle?.session.active && !bridgeSignals.get(event)?.has(name) && belongs(event, battle.root));
+            },
             async content(event,trigger){
                 const name=event.triggername;
+                // 同一事件的不同阶段分别结算一次，跨座位的副本跳过。
+                const signals = bridgeSignals.get(trigger) || new Set();
+                if (signals.has(name)) return;
+                signals.add(name);
+                bridgeSignals.set(trigger, signals);
                 if(name==="useCard1")await onUse(trigger);
                 else if(name==="useCardAfter")await onUseAfter(trigger);
                 else if(name==="phaseBefore")await turnBegin(trigger.player);
@@ -432,10 +442,7 @@ export function createAdvancedIronclad({game,get,lib,status,getBattle,battleEner
                     if(!seenDraws.has(trigger)&&!trigger.mengsanIcDrawHandled_shuying){seenDraws.add(trigger);await afterDraw(ensure(trigger.player),trigger.result?.cards||[]);}
                 } else if(name==="changeHujiaAfter")await afterBlock(trigger);
                 else if(name==="damageBegin2" && (trigger.mengsanAttack_shuying||isAttackCard(trigger.card))){
-                    let multiplier=1;
-                    for(const holder of getBattle().players){const s=stateOf(holder);if(s?.powers.bodyguard&&valid(holder,s.token)&&holder.isFriendOf(trigger.player)&&holder.isEnemyOf(trigger.source))
-                        multiplier*=holder===trigger.player?2:0.5;}
-                    if(multiplier!==1)trigger.num=Math.floor(trigger.num*multiplier);
+                    trigger.num = applyBodyguardDamage(trigger.num, trigger.source, trigger.player, getBattle().players);
                 } else await flushAll();
             }},
     };

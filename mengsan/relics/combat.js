@@ -1,6 +1,7 @@
 import { applyMengsanDebuff } from "../monsters/artifact-status.js";
 import { ironcladBlocksEnergy, ironcladStrengthPenalty } from "../cards/ironclad-hooks.js";
 import { isAttackCard } from "../monsters/vine-tangled.js";
+import { applyAttackWeakness } from "../battle/intent-damage.js";
 
 export function createOpeningEffects(game, owner, refreshEnergy, random = Math.random) {
     const enemies = () => game.players.filter(player =>
@@ -61,8 +62,9 @@ export function createOpeningEffects(game, owner, refreshEnergy, random = Math.r
 export function createRelicCombatSkills(getBattle, getOwner) {
     return {
         mengsan_relic_attack_shuying: {
-            trigger: { global: "damageBegin1" },
-            forced: true, silent: true, popup: false, priority: 80,
+            // 伤害在来源座位结算，包括来源已离场的延迟伤害。
+            trigger: { source: "damageBegin1" },
+            forced: true, silent: true, popup: false, priority: 80, forceDie: true, forceOut: true,
             filter(event) {
                 const source = event.source;
                 return Boolean(getBattle()?.session.active && (isAttackCard(event.card) || event.mengsanAttack_shuying) &&
@@ -76,13 +78,12 @@ export function createRelicCombatSkills(getBattle, getOwner) {
                     trigger.num = Math.max(0, trigger.num + (source.storage.mengsanStrength_shuying || 0) - ironcladStrengthPenalty(source));
                     trigger.num = getBattle().relics?.outgoingDamage(trigger) ?? trigger.num;
                 }
-                if (source.storage.mengsanWeak_shuying > 0) {
-                    trigger.num = Math.floor(trigger.num * (source !== getOwner() && getBattle().relics?.has("paper_krane") ? 0.6 : 0.75));
-                }
+                trigger.num = applyAttackWeakness(trigger.num, source, getOwner(), getBattle()?.relics);
             },
         },
         mengsan_relic_boot_shuying: {
-            trigger:{global:"damageBegin2"},forced:true,silent:true,popup:false,priority:-1000,
+            trigger: { source: "damageBegin2" },
+            forced: true, silent: true, popup: false, priority: -1000, forceDie: true, forceOut: true,
             filter(event){return Boolean(getBattle()?.session.active && event.source===getOwner() && (isAttackCard(event.card) || event.mengsanAttack_shuying) && !event.mengsanScriptedSkill_shuying);},
             async content(event,trigger){trigger.num=getBattle().relics?.lateOutgoingDamage(trigger) ?? trigger.num;},
         },

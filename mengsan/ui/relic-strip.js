@@ -1,10 +1,11 @@
 export function mountRelicStrip(root, getRelics, open, createIcon,
-    document, window) {
+    document, window, getCounter = () => null) {
   const strip = document.createElement("div");
   strip.className = "mengsan-hand-relics-shuying";
   strip.setAttribute("aria-label", "持有遗物，点击查看列表");
   const before = root.style.getPropertyValue("--mengsan-relic-space");
   const priority = root.style.getPropertyPriority("--mengsan-relic-space");
+  const counters = [];
   let pending = null, timer = null, signature = null, disposed = false;
   const cancel = () => {
     if (timer !== null) window.clearTimeout(timer);
@@ -56,14 +57,28 @@ export function mountRelicStrip(root, getRelics, open, createIcon,
   ];
   for (const args of listeners) args[0].addEventListener(...args.slice(1));
   root.appendChild(strip);
+  const refreshCounters = () => {
+    if (disposed) return;
+    for (const { relic, button, badge } of counters) {
+      const { value, label } = getCounter(relic);
+      const text = String(value);
+      if (text === badge.textContent) continue;
+      badge.textContent = text;
+      button.setAttribute("aria-label", `${relic.name}，${label}，点击查看遗物列表`);
+    }
+  };
   const refresh = () => {
     if (disposed) return;
     const relics = getRelics();
     const next = JSON.stringify(relics.map(item => [item.id, item.image, item.name]));
-    if (next === signature) return;
+    if (next === signature) {
+      refreshCounters();
+      return;
+    }
     signature = next;
     cancel();
     strip.replaceChildren();
+    counters.length = 0;
     strip.hidden = relics.length === 0;
     root.style.setProperty("--mengsan-relic-space", relics.length ? "88px" : "0px");
     for (const relic of relics) {
@@ -82,14 +97,23 @@ export function mountRelicStrip(root, getRelics, open, createIcon,
         button.appendChild(icon);
       }
       button.appendChild(fallback);
+      if (getCounter(relic) !== null) {
+        const badge = document.createElement("span");
+        badge.className = "mengsan-relic-counter-shuying";
+        badge.setAttribute("aria-hidden", "true");
+        button.appendChild(badge);
+        counters.push({ relic, button, badge });
+      }
       strip.appendChild(button);
     }
+    refreshCounters();
   };
   refresh();
-  return { refresh, dispose() {
+  return { refresh, refreshCounters, dispose() {
     if (disposed) return;
     disposed = true;
     cancel();
+    counters.length = 0;
     for (const args of listeners) args[0].removeEventListener(...args.slice(1));
     strip.remove();
     const value = root.style.getPropertyValue("--mengsan-relic-space");

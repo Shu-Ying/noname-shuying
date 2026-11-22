@@ -65,7 +65,7 @@ export function attackIconForDamage(damage) {
 }
 
 export function mountEnemyIntent(player, session, assetBase, document,
-    getTarget = () => null) {
+    getTarget = () => null, getBattle = () => null) {
     const badge = document.createElement("div");
     badge.className = "mengsan-intent-shuying";
     badge.hidden = true;
@@ -185,7 +185,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
             const target = getTarget();
             const targets = Array.isArray(target) ? target : [target];
             const damages = (targets.length ? targets : [null]).map(
-                current => previewAttackDamage(intent, player, current));
+                current => previewAttackDamage(intent, player, current, getBattle()));
             const damage = Math.max(...damages);
             const minimum = Math.min(...damages);
             const range = minimum === damage ? String(damage) :
@@ -237,7 +237,7 @@ export function mountEnemyIntent(player, session, assetBase, document,
             const target = getTarget();
             const targets = Array.isArray(target) ? target : [target];
             for (const current of targets.length ? targets : [null]) {
-                values.push(previewAttackDamage(currentIntent, player, current));
+                values.push(previewAttackDamage(currentIntent, player, current, getBattle()));
             }
         }
         if (previous && previous.length === values.length && values.every((value, index) => Object.is(value, previous[index]))) return;

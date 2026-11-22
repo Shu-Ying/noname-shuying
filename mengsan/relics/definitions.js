@@ -3,6 +3,7 @@ import { relicRules, missingMechanisms, unhandledRelicRule } from "./rules.js";
 import { applyRelicPickup, relicCardRequirements } from "./progression.js";
 
 export const relicAdaptations = Object.freeze({
+    nunchaku:"梦三每场战斗从零开始累计攻击牌。",
     the_courier:"梦三商店出售【杀】、回复生命及三件随机遗物；购买后补货，折扣适用现有商品。药水尚无接口。遗物基价120金币，为梦三配置值。",
     miniature_tent:"每个休息选项可各选择一次，直至选择离开；不允许无限重复同一选项。",
     meat_cleaver:"网页没有烹饪细则；暂定每次烹饪最大生命+5，待用户确认。",
@@ -22,7 +23,9 @@ const entries = relicCatalog.map(item => {
     const missingCards = rule ? relicCardRequirements(rule) : [];
     const unhandled = rule ? unhandledRelicRule(rule) : [];
     const reason = missingMechanisms[item.wikiId] || (missingCards.length ? `尚缺网页对应卡牌：${missingCards.join("、")}` : !rule ? "尚未接入此效果" : unhandled.length ? `尚缺效果接口：${unhandled.join("、")}` : null);
-    return Object.freeze({ ...item, owner: null, rule: rule || Object.freeze({}),
+    return Object.freeze({ ...item,
+        description: item.wikiId === "nunchaku" ? "每场战斗中，你每打出10张攻击牌，获得[能量]。" : item.description,
+        owner: null, rule: rule || Object.freeze({}),
         implementation: reason ? "pending" : relicAdaptations[item.wikiId] ? "adapted" : "implemented",
         implementationNote: reason || relicAdaptations[item.wikiId] || "效果已接入，实机验收待完成。", effect: "sts2" });
 });

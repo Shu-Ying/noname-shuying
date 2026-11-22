@@ -47,7 +47,8 @@ export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = 
             const description = document.createElement("p");
             description.textContent = relic.description;
             const status = document.createElement("small");
-            status.textContent = `${relic.pool} · ${relic.tier}${relic.ancient ? ` · ${relic.ancient}` : ""} · ${battleRelics.status(relic)}`;
+            status.textContent = [relic.pool, relic.tier, relic.ancient, battleRelics.status(relic)]
+                .filter(Boolean).join(" · ");
             row.append(summary, description, status);
             list.appendChild(row);
         }
@@ -88,11 +89,11 @@ export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = 
     };
     button.addEventListener("click", () => open());
     if (stripRoot) strip = mountRelicStrip(stripRoot, () => heldRelics(run),
-        open, createRelicIcon, document, window);
+        open, createRelicIcon, document, window, relic => battleRelics.counter(relic));
     const dispose = () => {
         if (disposed) return;
         disposed = true; close(); strip?.dispose(); button.remove();
     };
     session.ownResource(button, dispose);
-    return { dispose, refresh };
+    return { dispose, refresh, refreshCounters: () => strip?.refreshCounters() };
 }

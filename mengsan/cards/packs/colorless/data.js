@@ -514,14 +514,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "获得9点格挡。将本回合所有要对另一名玩家发起的攻击转移到你的身上。",
+    "description": "获得9点格挡。选择一名其他友方角色。直到你的下个回合开始，敌人对其的攻击伤害归零，对你的攻击伤害翻倍。",
     "base": {
       "block": 9
     },
     "upgraded": {
       "block": 13,
       "cost": 1,
-      "description": "获得13点格挡。将本回合所有要对另一名玩家发起的攻击转移到你的身上。"
+      "description": "获得13点格挡。选择一名其他友方角色。直到你的下个回合开始，敌人对其的攻击伤害归零，对你的攻击伤害翻倍。"
     }
   },
   {

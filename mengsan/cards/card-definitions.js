@@ -3,6 +3,7 @@
 import { cardPackDefinitions } from "./packs/data.js";
 import { cardTypes, cardRarityLabels } from "./classification-types.js";
 import { liubeiCardTraits } from "./packs/liubei/traits.js";
+import { isRetiredDeckCard } from "./retired-cards.js";
 const definitions = [
     ...cardPackDefinitions,
     { name: "sha", category: "damage", owner: null, ...liubeiCardTraits.sha },
@@ -42,6 +43,6 @@ export const cardDefinitions = createCardRegistry(definitions);
 
 export function canAcquireCard(character, name, registry = cardDefinitions) {
     const definition = Object.hasOwn(registry, name) ? registry[name] : null;
-    return !!definition && !definition.generatedOnly &&
+    return !!definition && !definition.generatedOnly && !isRetiredDeckCard(character, name) &&
         (definition.owner === null || definition.owner === character);
 }

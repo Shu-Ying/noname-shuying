@@ -4,7 +4,9 @@ import { relicRandomGet } from "./random.js";
 
 export const restRecovery = run => 8+heldRelics(run).reduce((n,r)=>n+(r.rule.restHeal || 0),0);
 export const relicShopPrice = (run,base) => Math.max(1,Math.floor(heldRelics(run).reduce((n,r)=>n*(r.rule.shopDiscount || 1),base)));
-export function recordRelicShopPurchase(run){relicState(run).mawBankBroken=true;}
+export function recordRelicShopPurchase(run) {
+    if (heldRelics(run).some(relic => relic.rule.breaksOnPurchase)) relicState(run).mawBankBroken = true;
+}
 export function relicRestChoices(run) {
     const state = relicState(run), choices = [];
     for (const relic of heldRelics(run)) {

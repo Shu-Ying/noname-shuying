@@ -74,6 +74,7 @@ const persistModeStorage = (update = () => {}, context = {}) => {
         receipt.phase = "mutator";
         update(storage);
         stripBattleProgress(storage[config.saveKey]);
+        migrateRetiredCards(storage[config.saveKey]);
         storage.version = lib.version;
         await writeModeStorage(storage, receipt);
         receipt.phase = "memory.publish";
@@ -99,7 +100,7 @@ const persistModeStorage = (update = () => {}, context = {}) => {
 const saveRun = async run => {
     try {
         // Capture before enqueue: subsequent gameplay mutations cannot alter this save.
-        const snapshot = migrateRetiredCards(stripBattleProgress(copy(run)));
+        const snapshot = copy(run);
         await persistModeStorage(storage => {
             storage[config.saveKey] = snapshot;
         }, { runId: snapshot.runId, revision: snapshot.revision });

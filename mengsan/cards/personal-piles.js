@@ -96,6 +96,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             nature: card.nature || null, affixes: data.affixes?.slice() || [], upgrade: data.upgrade || 0 };
     }
     for (const data of battle.drawPile) {
+        if (data.name === "muniu") continue;
         const card = game.createCard(data.name, data.suit, data.number, data.nature);
         adopt(card, data); draw.appendChild(card);
     }
@@ -344,7 +345,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             return [...cards];
         },
         addToDiscard(data) {
-            if (released || !session.active) return null;
+            if (released || !session.active || data?.name === "muniu") return null;
             if (!data || typeof data.id !== "string" || !data.id ||
                 typeof data.name !== "string" || !/^[a-z][a-z0-9_]*$/.test(data.name) ||
                 !["spade", "heart", "club", "diamond"].includes(data.suit) ||

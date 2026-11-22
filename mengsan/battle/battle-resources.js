@@ -18,6 +18,12 @@ export function createBattleResources(session, {game, ui, _status}) {
     const counters = {phaseNumber:game.phaseNumber, roundNumber:game.roundNumber};
     game.phaseNumber = 0; game.roundNumber = 0;
     session.ownResource({}, () => {
+        // 弃牌展示用的副本在开战后才挂到场上，实体牌回收时不会带走它们。
+        const arenaBefore = before.get(ui.arena);
+        const thrown = new Set(Array.from(ui.arena?.children || []).filter(node =>
+            !arenaBefore?.has(node) && node.classList.contains("card") && node.classList.contains("thrown")));
+        for (const node of thrown) node.remove();
+        if (thrown.size && Array.isArray(ui.thrown)) ui.thrown = ui.thrown.filter(node => !thrown.has(node));
         for (const card of cards) card.remove();
         for (const [node,parent] of nodes) if (node.parentNode === parent) node.remove();
         for (const {object,key,value,descriptor} of fields.slice().reverse()) {

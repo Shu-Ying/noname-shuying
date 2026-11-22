@@ -20,14 +20,14 @@ export function createIntentExecutor(game, getActiveBattle) {
             if (!active(source)) break;
             if (!target.isAlive()) continue;
             if (isDeathBlowIntent(move)) {
-                await beginDeathBlow(source, target, move);
+                await beginDeathBlow(source, target, move, getActiveBattle());
                 continue;
             }
             if (move.damage != null) {
                 for (let hitIndex = 0; hitIndex < attackHitCount(move); hitIndex++) {
                     if (!target.isAlive() || !active(source)) break;
                     const hit = target.damage(
-                        outgoingAttackDamage(move, source), source);
+                        outgoingAttackDamage(move, source, getActiveBattle()), source);
                     hit.mengsanAttack_shuying = true;
                     hit.mengsanScriptedSkill_shuying = true;
                     await hit;

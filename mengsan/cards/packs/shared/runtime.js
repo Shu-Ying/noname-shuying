@@ -7,7 +7,7 @@ import { cardUpgradeLevel, cardUpgradeRule, canUpgradeCard } from "../../upgrade
 import { generationPool } from "../../card-pools.js";
 import { cardPackCosts } from "../data.js";
 import { ironcladStrengthPenalty } from "../../ironclad-hooks.js";
-import { installSharedHookResolver } from "../../shared-hooks.js";
+import { applyInterceptDamage, applyIntangibleDamage, installSharedHookResolver } from "../../shared-hooks.js";
 import { isAttackCard } from "../../../monsters/vine-tangled.js";
 import { applyMengsanDebuff, consumeArtifact } from "../../../monsters/artifact-status.js";
 import { isStunned } from "../../../battle/stun-intent.js";
@@ -15,7 +15,8 @@ import { canPayCard, isActiveCardUse, authorizeFreeCardUse, takeXCardUse, cardCo
 import { grantGold } from "../../../relics/progression.js";
 import { bindCombatStatusSource } from "../../../battle/status-sources.js";
 
-const BRIDGE="mengsan_shared_bridge_shuying", RULES="mengsan_shared_rules_shuying", END="mengsan_shared_end_shuying", LIMIT="mengsan_shared_limit_shuying", AFTER="mengsan_shared_after_shuying";
+const BRIDGE="mengsan_shared_bridge_shuying", RULES="mengsan_shared_rules_shuying", END="mengsan_shared_end_shuying", LIMIT="mengsan_shared_limit_shuying";
+const TRACK = "mengsan_shared_track_use_shuying";
 const safe=n=>Number.isSafeInteger(n) && n>=0;
 function belongs(event,root) {
     const seen=new Set();
@@ -33,6 +34,7 @@ const rule=card=>{const c=sharedByName[card?.name];return c ? cardUpgradeLevel(c
 export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEnergy,temporaryStrength,random}) {
     const states=new WeakMap(), uses=new WeakMap(), replays=new WeakMap(), costCaps=new WeakMap(), ballBonuses=new WeakMap();
     const seenUses=new WeakSet(), seenDraws=new WeakSet(), seenEnds=new WeakSet(), kills=new WeakMap();
+    const bridgeSignals = new WeakMap();
     const tokenOf=player=>{
         const b=getBattle();
         return b?.session?.active && b.root && b.players?.has(player) && player?.isAlive?.()
@@ -186,10 +188,11 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
         }
         return n;
     }
-    installSharedHookResolver(player=>{
-        const s=ensure(player);if(!s)return null;
+    installSharedHookResolver((player, create = true)=>{
+        const s=create ? ensure(player) : stateOf(player);if(!s)return null;
         return {isFree:card=>s.freeTurn.has(physical(card))||s.freeBattle.has(physical(card)),cost:(card,n)=>cost(s,card,n),
             strengthPenalty:()=>s.negativeStrength,blockAmount:(n,e)=>cardBlock(s,n,e),afterDraw:cards=>afterDraw(s,cards),
+            interceptTarget:()=>s.turn.intercept,isIntangible:()=>Boolean(s.powers.intangible),
             snapshotCard:card=>sharedByName[card.name]?.id==="the_ball"?{ballBonus:ballBonus(s,card),ballSession:s.token.session.id}:{},
             copyCard(source,target){
                 if(sharedByName[source.name]?.id==="the_ball"&&target.name===source.name)ballBonuses.set(target,{session:s.token.session,amount:ballBonus(s,source)});
@@ -341,16 +344,31 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
         refresh(s);
     }
 
+    function trackUse(use, battle) {
+        const pending = battle.sharedPendingUses ||= new Set();
+        if (pending.has(use)) return;
+        pending.add(use);
+
+        // 确认原牌及追加结算离开原生 after 队列后，再检查胜负。
+        async function finishUse() {
+            try {
+                if (!use.after.length) await onUseAfter(use);
+            } finally {
+                if (use.after.length) {
+                    use.insertAfter(finishUse, { forceDie: true });
+                } else {
+                    pending.delete(use);
+                    if (getBattle() === battle && battle.session.active && !pending.size) game.checkResult();
+                }
+            }
+        }
+        use.insertAfter(finishUse, { forceDie: true });
+    }
+
     async function onUse(use) {
         const s=ensure(use.player);if(!s || seenUses.has(use))return;seenUses.add(use);
         const b=s.token.battle,entry={s,snapshot:snapshot(use),vigor:0,echoes:[]};uses.set(use,entry);
-        b.sharedPendingUses||=new Set();b.sharedPendingUses.add(use);
-        // Death can omit useCardAfter/Cancelled while the native use event still
-        // drains its after queue. Release only this use's entry after that unwind;
-        // onUseAfter is idempotent and ignores effects owned by a dead player.
-        use.insertAfter(async () => {
-            await onUseAfter(use);
-        }, { forceDie: true });
+        trackUse(use, b);
         if(game.me.isFriendOf(s.player))b.sharedCardUses=(b.sharedCardUses||0)+1;
         if(isAttackCard(use.card)){
             b.sharedAttackRecords||=[];entry.attackRecord={turn:status.currentPhase,source:s.player,targets:(use.targets||[]).filter(t=>valid(t,s.token)&&s.player.isEnemyOf(t))};b.sharedAttackRecords.push(entry.attackRecord);
@@ -381,29 +399,20 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
     }
     async function onUseAfter(use) {
         const entry=uses.get(use);if(!entry)return;
-        uses.delete(use);const {s}=entry,b=s.token.battle;
-        try {
-            if(valid(s.player,s.token) && !use._cancelled){
-                for(const targets of entry.echoes){if(!valid(s.player,s.token))break;await autoPlay(s,entry.snapshot.original,{echo:entry.snapshot,targets});}
-                if(entry.returnTop && valid(s.player,s.token))pileOf(s)?.moveDiscardToTop(entry.snapshot.original);
-                if(entry.ballHandoff && valid(s.player,s.token)){
-                    const card=entry.snapshot.original,source=pileOf(s),recipients=friends(s).filter(p=>p!==s.player).map(ensure)
-                        .filter(other=>pileOf(other)?.canReceiveTransfer(card,s.token.session));
-                    const recipient=rand(s,recipients);
-                    if(recipient){
-                        const turnFree=s.freeTurn.has(card),battleFree=s.freeBattle.has(card);
-                        if(await source?.transferTo(card,pileOf(recipient))){
-                            if(turnFree)recipient.freeTurn.add(card);if(battleFree)recipient.freeBattle.add(card);
-                            refresh(recipient);
-                        }
-                    }
+        uses.delete(use);const {s}=entry;
+        if (!valid(s.player,s.token) || use._cancelled) return;
+        for(const targets of entry.echoes){if(!valid(s.player,s.token))break;await autoPlay(s,entry.snapshot.original,{echo:entry.snapshot,targets});}
+        if(entry.returnTop && valid(s.player,s.token))pileOf(s)?.moveDiscardToTop(entry.snapshot.original);
+        if(entry.ballHandoff && valid(s.player,s.token)){
+            const card=entry.snapshot.original,source=pileOf(s),recipients=friends(s).filter(p=>p!==s.player).map(ensure)
+                .filter(other=>pileOf(other)?.canReceiveTransfer(card,s.token.session));
+            const recipient=rand(s,recipients);
+            if(recipient){
+                const turnFree=s.freeTurn.has(card),battleFree=s.freeBattle.has(card);
+                if(await source?.transferTo(card,pileOf(recipient))){
+                    if(turnFree)recipient.freeTurn.add(card);if(battleFree)recipient.freeBattle.add(card);
+                    refresh(recipient);
                 }
-            }
-        } finally {
-            b.sharedPendingUses?.delete(use);
-            if(getBattle()===b && b.session.active && !b.sharedPendingUses?.size){
-                if(b.sharedDeferredVictory && game.me?.isAlive()){b.sharedDeferredVictory=false;game.mengsanFinishBattle_shuying();}
-                else game.checkResult();
             }
         }
     }
@@ -529,14 +538,28 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
             filter(event){const b=getBattle();return Boolean(b?.session.active && belongs(event,b.root) && limited(event.player,event.card,event));},
             async content(event,trigger){trigger.cancel();},
         },
-        [AFTER]:{trigger:{global:["useCardAfter","useCardCancelled"]},forced:true,silent:true,popup:false,priority:-500,
-            filter(event){return uses.has(event);},async content(event,trigger){await onUseAfter(trigger);},
+        [TRACK]: {
+            trigger: { player: "useCard1" },
+            forced: true, silent: true, popup: false, firstDo: true,
+            filter(event) {
+                const token = tokenOf(event.player);
+                return Boolean(token && belongs(event, token.root));
+            },
+            async content(event, trigger) { trackUse(trigger, getBattle()); },
         },
-        [BRIDGE]:{group:[END,LIMIT,AFTER],trigger:{global:["useCard1","phaseBefore","phaseDrawAfter","phaseDiscardBegin","phaseJieshuBegin","phaseAfter","drawAfter","damageBegin1","damageBegin2","damageBegin4","loseHpBegin","damage","changeHujiaAfter"]},
+        [BRIDGE]:{group:[TRACK,END,LIMIT],trigger:{global:["useCard1","phaseBefore","phaseDrawAfter","phaseDiscardBegin","phaseJieshuBegin","phaseAfter","drawAfter","damageBegin1","damageBegin2","damageBegin4","loseHpBegin","damage","changeHujiaAfter"]},
             forced:true,silent:true,popup:false,priority:300,
-            filter(event){const b=getBattle();return Boolean(b?.session.active&&belongs(event,b.root));},
+            filter(event, player, name) {
+                const battle = getBattle();
+                return Boolean(battle?.session.active && !bridgeSignals.get(event)?.has(name) && belongs(event, battle.root));
+            },
             async content(event,trigger){
                 const name=event.triggername,b=getBattle();if(!b?.session.active)return;
+                // 同一事件的不同阶段分别结算一次，跨座位的副本跳过。
+                const signals = bridgeSignals.get(trigger) || new Set();
+                if (signals.has(name)) return;
+                signals.add(name);
+                bridgeSignals.set(trigger, signals);
                 if(name==="useCard0"){if(limited(trigger.player,trigger.card,trigger))trigger.cancel();return;}
                 if(name==="useCard1"){await onUse(trigger);return;}
                 if(name==="phaseBefore"){await turnStart(trigger.player);return;}
@@ -556,16 +579,10 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
                     return;
                 }
                 if(name==="damageBegin4"||name==="loseHpBegin"){
-                    const s=stateOf(trigger.player);if(s?.powers.intangible&&trigger.num>1)trigger.num=1;return;
+                    trigger.num=applyIntangibleDamage(trigger.num,trigger.player);return;
                 }
                 if(name==="damageBegin2" && (trigger.mengsanAttack_shuying||isAttackCard(trigger.card))){
-                    // Wiki's interception is attack damage suppression + doubled holder damage, not native retargeting.
-                    let multiplier=1;
-                    for(const p of b.players){const s=stateOf(p);if(!s?.turn.intercept || !valid(p,s.token) || !p.isEnemyOf(trigger.source))continue;
-                        if(trigger.player===s.turn.intercept)multiplier=0;
-                        if(trigger.player===p)multiplier*=2;
-                    }
-                    trigger.num=Math.floor(trigger.num*multiplier);return;
+                    trigger.num=applyInterceptDamage(trigger.num,trigger.source,trigger.player,b.players);return;
                 }
                 if(name==="damage"){
                     const s=stateOf(trigger.player);

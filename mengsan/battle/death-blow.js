@@ -13,18 +13,19 @@ export function hasPendingDeathBlow(source) {
     return pendingDeathBlows.has(source);
 }
 
-export async function beginDeathBlow(source, target, intent) {
+export async function beginDeathBlow(source, target, intent, battle) {
     if (!isDeathBlowIntent(intent)) {
         throw new TypeError("濒死一击需要 death_blow 意图类型");
     }
     if (attackHitCount(intent) !== 1) {
         throw new RangeError("濒死一击只能造成一次伤害");
     }
-    const damage = outgoingAttackDamage(intent, source);
+    const damage = outgoingAttackDamage(intent, source, battle);
     if (!source?.isAlive() || !target?.isAlive()) return false;
 
     const hit = target.damage(damage, source);
     hit.mengsanAttack_shuying = true;
+    hit.mengsanScriptedSkill_shuying = true;
     await hit;
     if (source.isAlive()) pendingDeathBlows.add(source);
     return true;

@@ -4,12 +4,14 @@ import { relicRandom, relicRandomGet } from "./random.js";
 import { installRelicDeckHook } from "./hooks.js";
 import { cardDefinitions, canAcquireCard } from "../cards/card-definitions.js";
 import { createCardData } from "../cards/card-data.js";
+import { isRetiredDeckCard } from "../cards/retired-cards.js";
 import { canUpgradeCard, upgradeRandomCard } from "../cards/upgrades.js";
+import { isAttackCard } from "../monsters/vine-tangled.js";
 
 const ids = new Map(relicCatalog.flatMap(r => [[r.id,r.wikiId],[r.wikiId,r.wikiId],[`mengsan_${r.wikiId}_shuying`,r.wikiId]]));
 export const hasRelic = (run, id) => (run?.player?.items || []).some(value => ids.get(value) === id);
 export const relicState = run => run.player.relicState ||= {};
-export const cardType = card => cardDefinitions[card?.name]?.cardType;
+export const cardType = card => cardDefinitions[card?.name]?.cardType ?? (isAttackCard(card) ? "attack" : undefined);
 export const starterKind = card => card?.name === "sha" ? "strike" : card?.name === "mengsan_fangyu" ? "defend" : null;
 export function relicCardRequirements(rule) {
     return [...(rule.addCards || []), ...(rule.openingCards || []), ...(rule.openingDrawCards || []), ...(rule.oneBattleDrawCards || []), ...(rule.shuffleCard ? [rule.shuffleCard] : []), ...(rule.choice === "bite" ? ["mengsan_event_maul"] : [])].filter(name => !Object.hasOwn(cardDefinitions,name));
@@ -66,8 +68,15 @@ export function afterDeckAdd(run,card,{duplicate=true}={}) {
     }
 }
 installRelicDeckHook(afterDeckAdd);
-export function addPermanentRelicCard(run,name,spec) {
-    const card=newRelicCard(run,name,spec); run.player.deck.push(card); afterDeckAdd(run,card); return card;
+export function addPermanentRelicCard(run, name, spec) {
+    const cardName = spec?.name ?? name;
+    if (isRetiredDeckCard(run.player.character, cardName)) {
+        throw new Error(`武将 ${run.player.character} 无法获得牌：${cardName}`);
+    }
+    const card = newRelicCard(run, cardName, spec);
+    run.player.deck.push(card);
+    afterDeckAdd(run, card);
+    return card;
 }
 const queue = (run,relic,spec) => (relicState(run).choices ||= []).push({relic:relic.name,...spec});
 const transform = (run,card,upgrade=false) => {
@@ -78,6 +87,7 @@ const transform = (run,card,upgrade=false) => {
 export function applyRelicPickup(run,relic,{entries,canAcquire,grant}) {
     const r=relic.rule;
     const state=relicState(run);
+    if (r.breaksOnPurchase) delete state.mawBankBroken;
     (state.counterStarts ||= {})[relic.wikiId]={attack:state.attackCount || 0,skill:state.skillCount || 0,card:state.totalCardCount || 0,exhaust:state.exhaustCount || 0};
     if (r.handLimit) run.player.handLimitBonus=(run.player.handLimitBonus || 0)+r.handLimit;
     if (r.maxHp) changeMaxHp(run,r.maxHp);

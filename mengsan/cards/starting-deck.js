@@ -1,6 +1,6 @@
 import { createCardData } from "./card-data.js";
 
-// Mode-owned starting decks. Existing saves always retain their actual player.deck.
+// Mode-owned starting decks. Saved decks are loaded separately.
 export const defaultDeck = Object.freeze([
     ["spade", 7, "sha"], ["heart", 10, "sha"],
     ["club", 4, "sha"], ["diamond", 6, "sha"],
@@ -10,13 +10,12 @@ export const defaultDeck = Object.freeze([
 ].map(Object.freeze));
 
 // Character ID -> [suit, number, card name, optional nature, optional affixes].
-// Example: edit these twelve entries to change only this private Liu Bei's new-run deck.
 export const characterDecks = {
     mengsan_liubei_shuying: [
         ["spade", 7, "sha"], ["heart", 10, "sha"], ["club", 4, "sha"], ["diamond", 6, "sha"],
         ["heart", 2, "mengsan_fangyu"], ["diamond", 7, "mengsan_fangyu"], ["club", 2, "shan"],
         ["heart", 3, "tao"], ["heart", 7, "wuzhong"], ["spade", 1, "juedou"],
-        ["spade", 2, "bagua"], ["club", 6, "sha"],
+        ["club", 6, "sha"],
     ],
 };
 

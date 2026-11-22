@@ -138,9 +138,9 @@ const server = http.createServer((req, res) => {
       window.originalEnemyPresentation=players.slice(1).map(p=>({style:p.style.cssText,classes:p.className,html:p.innerHTML}));
       window.hud=mod.mountBattleHUD(me,battle,{ui,game,get,lib:{skill:{},translate:{}},_status:hudEventState,document,window,assetBase:prefix});
       const {mountRelicStrip}=await import(prefix+'/ui/relic-strip.js');
-      window.testRelics=[];window.testStrip=mountRelicStrip(arena,()=>testRelics,relic=>{window.lastRelicOpened=relic.id;},()=>{
+      window.testRelics=[];window.testRelicCounters={};window.testStrip=mountRelicStrip(arena,()=>testRelics,relic=>{window.lastRelicOpened=relic.id;},()=>{
         const icon=document.createElement('img');icon.src=prefix+'/assets/status/strength_power.png';return icon;
-      },document,window);releases.push(()=>testStrip.dispose());
+      },document,window,relic=>testRelicCounters[relic.id] ?? null);releases.push(()=>testStrip.dispose());
       let submitted=0;game.check=()=>ui.selected.cards.length===1&&ui.selected.targets.length===1;game.uncheck=()=>{ui.selected.cards=[];ui.selected.targets=[];};
       ui.click.card=function(){ui.selected.cards=[this];players.slice(1).forEach(p=>p.classList.add('selectable'));};ui.click.target=function(){ui.selected.targets=[this];};ui.click.ok=()=>{submitted++;game.uncheck();};
       game.isSubmitted=()=>submitted;const event=hudEventState.event;event.selectTarget=[1,1];event.selectCard=[1,1];
@@ -249,15 +249,33 @@ const server = http.createServer((req, res) => {
     assert.equal(await page.evaluate(()=>window.nativeSkillUsed),true,'native skill callbacks survive the separate rail');checks++;
     await page.evaluate(()=>{testNativeSkills.remove();delete ui.skills;hud.refresh();});
     const relicGeometry=await page.evaluate(()=>{
-      testRelics=[{id:'test',name:'遗物'}];testStrip.refresh();
-      const strip=document.querySelector('.mengsan-hand-relics-shuying').getBoundingClientRect(),icon=document.querySelector('.mengsan-hand-relics-shuying button').getBoundingClientRect();
-      return {strip:strip.toJSON(),icon:icon.toJSON()};
+      testRelics=[{id:'test',name:'遗物'}];
+      testRelicCounters.test={value:0,label:'当前计数 0'};
+      testStrip.refresh();
+      const strip=document.querySelector('.mengsan-hand-relics-shuying').getBoundingClientRect();
+      const button=document.querySelector('.mengsan-hand-relics-shuying button');
+      const badge=button.querySelector('.mengsan-relic-counter-shuying');
+      const initial=badge.textContent;
+      button.focus();
+      testRelicCounters.test={value:20,label:'当前计数 20'};
+      testStrip.refreshCounters();
+      return {
+        strip:strip.toJSON(),icon:button.getBoundingClientRect().toJSON(),
+        initial,value:badge.textContent,position:badge.getBoundingClientRect().toJSON(),
+        focused:document.activeElement===button,label:button.getAttribute('aria-label'),
+      };
     });
+    assert.equal(relicGeometry.initial,'0','zero progress renders on the icon');checks++;
+    assert.equal(relicGeometry.value,'20','two-digit progress updates in the same badge');checks++;
+    assert.ok(relicGeometry.focused && relicGeometry.label.includes('20'),'counter updates preserve focus and update the accessible name');checks++;
+    assert.ok(Math.abs(relicGeometry.icon.right-relicGeometry.position.right)<=2 &&
+      Math.abs(relicGeometry.icon.bottom-relicGeometry.position.bottom)<=2,'the badge stays within the lower right corner');checks++;
     assert.ok(relicGeometry.icon.y>=relicGeometry.strip.y&&relicGeometry.icon.bottom<=relicGeometry.strip.bottom,'top relic icon fits without clipping');checks++;
     assert.ok(relicGeometry.strip.width<=142,'relic area stays compact above the right skill rail');checks++;
     assert.ok(relicGeometry.strip.x>=viewport.width-166,'relic area is on the right');checks++;
     assert.ok(Math.abs(relicGeometry.strip.bottom-(viewport.height-Number.parseFloat(await page.locator('#arena').evaluate(n=>n.style.getPropertyValue('--mengsan-relic-dock-bottom')))))<2,'relic area aligns with the side dock, with a compact narrow-screen offset');checks++;
     await page.evaluate(()=>{testRelics=Array.from({length:10},(_,i)=>({id:'r'+i,name:'遗物'+i}));testStrip.refresh();hud.refresh();});
+    assert.equal(await page.locator('.mengsan-relic-counter-shuying').count(),0,'relics without progress have no badge');checks++;
     const battlefieldClear=await page.evaluate(()=>{
       const strip=document.querySelector('.mengsan-hand-relics-shuying').getBoundingClientRect();
       const intersects=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;

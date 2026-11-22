@@ -1,3 +1,5 @@
+import { LIUBEI_CARD_OWNER } from "./packs/liubei/names.js";
+
 // 仅迁移读取/写入时的存档副本，不重新注册已移除的独立牌。
 const cardNames = Object.freeze({mengsan_ic_strike: "sha", mengsan_ic_bash: "mengsan_zhongsha"});
 const rewardIds = Object.freeze({
@@ -10,6 +12,10 @@ export function resolveRetiredCardReward(id) {
     return Object.hasOwn(rewardIds, id) ? rewardIds[id] : id;
 }
 
+export function isRetiredDeckCard(character, name) {
+    return name === "muniu" || (name === "bagua" && character === LIUBEI_CARD_OWNER);
+}
+
 export function migrateRetiredCards(run) {
     if (!run || typeof run !== "object") return run;
     // 同时覆盖永久牌组、待结算快照、已选结果与重试快照，保留牌实例ID及其余状态。
@@ -18,6 +24,14 @@ export function migrateRetiredCards(run) {
         const value = pending.pop();
         if (seen.has(value)) continue;
         seen.add(value);
+        const player = value.player;
+        if (Array.isArray(player?.deck)) {
+            player.deck = player.deck.filter(card => !isRetiredDeckCard(player.character, card?.name));
+        }
+        if (Array.isArray(player?.relicState?.storedCards)) {
+            player.relicState.storedCards = player.relicState.storedCards.filter(card =>
+                !isRetiredDeckCard(player.character, card?.name));
+        }
         if (Object.hasOwn(cardNames, value.name)) value.name = cardNames[value.name];
         const cardName = Object.hasOwn(cardNames, value.card?.name) ? cardNames[value.card.name] : value.card?.name;
         if (cardName === "sha" && value.name === "获得一张【打击】") value.name = "获得一张【杀】";
