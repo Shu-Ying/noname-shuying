@@ -1,0 +1,199 @@
+.mengsan-flow-overlay-shuying.mengsan-character-overlay-shuying {
+    background: radial-gradient(ellipse at 48% 12%, #35403c, #111819 76%);
+}
+
+.mengsan-character-panel-shuying {
+    --character-paper: #f5ead6;
+    --character-gold: #e6c493;
+    --character-line: #706047;
+    --character-panel-padding: clamp(12px, 3vw, 30px);
+    --character-panel-gap: clamp(12px, 2vw, 20px);
+    --character-title-size: clamp(22px, 3.6vw, 38px);
+    /* Overlay padding, heading, and footer consume this space before the portraits. */
+    --character-controls-height: calc(192px + 2 * var(--character-panel-padding)
+        + 2 * var(--character-panel-gap) + 1.15 * var(--character-title-size));
+    gap: var(--character-panel-gap);
+    width: min(1000px, 100%) !important;
+    max-height: 100% !important;
+    padding: var(--character-panel-padding);
+    border: 1px solid var(--character-line);
+    border-radius: 8px;
+    background: radial-gradient(ellipse at 50% 0, #30362c, transparent 72%), #151d1d;
+    color: var(--character-paper);
+    scrollbar-width: thin;
+}
+
+.ms-character-header,
+.ms-character-footer {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.ms-character-header {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--character-line);
+}
+
+.ms-character-heading { position: relative; min-width: 0; }
+.ms-character-eyebrow,
+.ms-character-title,
+.ms-character-status { margin: 0; }
+.ms-character-eyebrow {
+    margin-bottom: 3px;
+    color: var(--character-gold);
+    font-size: 12px;
+    letter-spacing: .16em;
+}
+.ms-character-title {
+    font: 700 var(--character-title-size)/1.15 "KaiTi", "STKaiti", "SimSun", serif;
+    letter-spacing: .08em;
+}
+.ms-character-status { color: #d4c9b6; font-size: 13px; }
+
+.ms-character-button {
+    flex: none;
+    min-height: 44px;
+    padding: 6px clamp(8px, 1.6vw, 16px);
+    border: 1px solid var(--character-line);
+    border-radius: 4px;
+    background: #1b2120;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.ms-character-button:hover { background: #322f25; }
+.ms-character-confirm {
+    min-width: 7.5em;
+    border-color: var(--character-gold);
+    background: var(--character-gold);
+    color: #251b12;
+    font-weight: 700;
+}
+.ms-character-confirm:hover:not(:disabled) { background: #f8d9a7; }
+.ms-character-confirm:disabled {
+    border-color: var(--character-line);
+    background: #252c2b;
+    color: #c5bfad;
+    cursor: default;
+}
+
+.ms-character-list {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(7px, 1.8vw, 17px);
+}
+
+.ms-character-card {
+    --character-accent: #c9b894;
+    --character-deep: #554629;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-width: 0;
+    min-height: clamp(132px, min(46vw, calc(100vh - var(--character-controls-height))), 404px);
+    padding: 0;
+    border: 1px solid var(--character-line);
+    border-color: color-mix(in srgb, var(--character-accent) 45%, #3e3e36);
+    border-radius: 5px;
+    background: #171c1d;
+    color: #fff3dd;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.ms-character-card[data-faction="han"] { --character-accent: #df8979; --character-deep: #883b36; }
+.ms-character-card[data-faction="wei"] { --character-accent: #99c3ed; --character-deep: #34577f; }
+.ms-character-card[data-faction="wu"] { --character-accent: #9acb91; --character-deep: #3a694a; }
+.ms-character-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, #121715, #151817db 14%, #16181730 54%, transparent 78%);
+    pointer-events: none;
+}
+.ms-character-card:hover,
+.ms-character-card[aria-pressed="true"] { border-color: var(--character-accent); }
+.ms-character-card[aria-pressed="true"] {
+    box-shadow: 0 0 0 1px var(--character-accent), 0 0 24px color-mix(in srgb, var(--character-accent) 18%, transparent);
+}
+.ms-character-panel-shuying button:focus-visible {
+    outline: 2px solid var(--character-gold);
+    outline-offset: 3px;
+}
+.ms-character-portrait {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 17%;
+    pointer-events: none;
+}
+.ms-character-faction,
+.ms-character-picked,
+.ms-character-caption {
+    position: absolute;
+    z-index: 1;
+}
+.ms-character-faction {
+    top: 10px;
+    left: 10px;
+    display: grid;
+    place-items: center;
+    min-width: 30px;
+    height: 30px;
+    border: 1px solid var(--character-accent);
+    border-radius: 2px;
+    background: var(--character-deep);
+    font: 700 18px/1 "KaiTi", "STKaiti", "SimSun", serif;
+}
+.ms-character-picked {
+    top: 10px;
+    right: 10px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    background: #121715;
+    font-size: 11px;
+}
+.ms-character-picked[hidden] { display: none; }
+.ms-character-caption {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+}
+.ms-character-name {
+    display: block;
+    font: 700 clamp(19px, 3.8vw, 36px)/1.14 "KaiTi", "STKaiti", "SimSun", serif;
+}
+.ms-character-description {
+    display: block;
+    min-height: 2.6em;
+    margin-top: 5px;
+    color: #f0e7d8;
+    font-size: clamp(11px, 1.5vw, 13px);
+    line-height: 1.3;
+}
+
+@media (max-width: 520px) {
+    .mengsan-character-overlay-shuying { padding-inline: 10px; }
+    .ms-character-faction { top: 6px; left: 6px; min-width: 25px; height: 25px; }
+    .ms-character-picked { top: 7px; right: 5px; }
+    .ms-character-caption { right: 5px; bottom: 7px; left: 6px; }
+    .ms-character-button { font-size: 12px; }
+}
+
+@media (max-height: 440px) {
+    .mengsan-flow-overlay-shuying.mengsan-character-overlay-shuying { padding-block: 62px 10px; }
+    .mengsan-character-panel-shuying { gap: 8px; padding: 10px; }
+    .ms-character-header { padding-bottom: 4px; }
+    .ms-character-title { font-size: 22px; }
+    .ms-character-card { min-height: clamp(114px, calc(100vh - 210px), 190px); }
+}
