@@ -9,6 +9,7 @@ import { heldRelics } from "../relics/definitions.js";
 import { getDiagnostics } from "../../diagnostics/index.js";
 import { prepareRewardPackage, applyRewardPackage }
     from "../progression/reward-package.js";
+import { applyPotionReward, rollPotionReward, samplePotions } from "../potions/state.js";
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const idFor = (run, node) => JSON.stringify([run.runId, run.actIndex, node.id]);
@@ -89,6 +90,9 @@ export function createBattleSettlement({
                     getRandomRewardChoices) : null;
             item = {id, state:"awaitingChoice", nodeId:node.id, base, choices:copy(choices), fixedRewards:copy(fixedRewards), victoryDialogue:copy(encounter.victoryDialogue || []), boss:!!encounter.boss, elite, outcome, relicRecovery, bondGrowth};
             item.rewardPackage = copy(rewardPackage);
+            item.potionChoices = outcome !== "victory" ? []
+                : encounter.rewardPackage ? samplePotions(base, encounter.rewardPackage.potionChoices ?? 0)
+                : !encounter.boss && (encounter.tier === "normal" || elite) ? rollPotionReward(base, elite) : [];
             diagnostics.info("prepared", {
                 outcome, choices: choices.map(choice => choice.id), fixedRewards,
                 expectedRevision: snapshot.revision, actualRevision: run.revision,
@@ -132,20 +136,26 @@ export function createBattleSettlement({
                 const sameChoice = item.rewardPackage
                     ? item.choiceId?.cardId === choiceId?.cardId &&
                         item.choiceId?.relicId === choiceId?.relicId
-                    : item.choiceId === choiceId;
-                if (!sameChoice) throw new Error("Choice already locked");
+                    : item.potionChoices.length ? item.choiceId?.rewardId === choiceId?.rewardId
+                        : item.choiceId === choiceId;
+                if (!sameChoice || item.choiceId?.potion?.id !== choiceId?.potion?.id ||
+                    item.choiceId?.potion?.replaceIndex !== choiceId?.potion?.replaceIndex) {
+                    throw new Error("Choice already locked");
+                }
                 return copy(item);
             }
             const result = copy(item.base);
             let route = "defeat";
             if (item.outcome === "victory") {
+                applyPotionReward(result.player, item.potionChoices, choiceId?.potion);
                 if (item.rewardPackage) {
                     applyRewardPackage(result, item.rewardPackage, choiceId,
                         applyReward);
                 }
                 if (!item.rewardPackage) {
-                    const reward = item.choices.find(c => c.id === choiceId && c.kind !== "gold");
-                    if (choiceId !== null && !reward) {
+                    const rewardId = item.potionChoices.length ? choiceId?.rewardId : choiceId;
+                    const reward = item.choices.find(c => c.id === rewardId && c.kind !== "gold");
+                    if (rewardId !== null && !reward) {
                         throw new Error("Choose one pending reward or skip");
                     }
                     // 结果只计算一次；保存失败后的重试不再次发放金币。

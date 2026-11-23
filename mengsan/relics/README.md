@@ -20,6 +20,12 @@
 保留蛇之戒指、长蛇戒指、百年积木、节日拉炮等既有内部ID；支持 Wiki ID 查询。
 全部原图见 [资源记录](ASSETS.md)。图片和隔离检查通过不代表实机验收。
 
+遗物校验、遗物导入和状态图标导入共用一处拆分图集来源。把包含
+`Godot_Atlas_Sprites_v0.111.0/` 的目录写入 `mengsan/tools/.sts2-source`，
+一行 UTF-8 纯文本即可，此文件仅用于当前机器。也可以设置
+`MENGSAN_STS2_SOURCE` 临时覆盖。相对路径以 `mengsan/tools/` 为基准，
+两处均未设置时读取原 `mengsan/assets/sts2/`。遗物导入还需单独提供 Wiki 快照。
+
 从术樱包目录运行检查：
 
 ```powershell

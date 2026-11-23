@@ -78,36 +78,23 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
   }
   function removeAim() { aim?.remove(); aim = null; }
   function showAim(card, point) {
+    const rect = card.getBoundingClientRect();
+    const x = rect.left + rect.width / 2, y = rect.top + Math.min(12, rect.height / 2);
+    const dx = point.x - x, dy = point.y - y;
+    const length = Math.hypot(dx, dy);
+    if (!(rect.width > 0 && rect.height > 0 && length > 0 && Number.isFinite(length))) {
+      removeAim();
+      return;
+    }
     if (!aim) {
-      aim = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      aim = document.createElement("div");
       aim.classList.add("mengsan-hand-aim-shuying");
       aim.setAttribute("aria-hidden", "true");
-      aim.setAttribute("preserveAspectRatio", "none");
-      const path = document.createElementNS(aim.namespaceURI, "path");
-      // Keep the SVG in the same zoom/transform space as the real hand.
-      // Android WebView can paint a body-fixed SVG in a different viewport.
-      aim.appendChild(path); ui.arena.appendChild(aim);
+      // 无名杀缩放 body，牌面矩形和指针事件都使用视口坐标。
+      document.documentElement.appendChild(aim);
     }
-    const rect = card.getBoundingClientRect();
-    const x = rect.left + rect.width / 2, y = rect.top + 12;
-    const width = ui.arena.clientWidth, height = ui.arena.clientHeight;
-    aim.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    // Use painted bounds instead of relying on WebView CTM handling of zoom.
-    // With preserveAspectRatio=none, viewport-to-viewBox scaling is linear.
-    const bounds = aim.getBoundingClientRect();
-    if (!(bounds.width > 0 && bounds.height > 0)) {
-      removeAim(); return;
-    }
-    const scaleX = width / bounds.width;
-    const scaleY = height / bounds.height;
-    const start = { x: (x - bounds.left) * scaleX,
-      y: (y - bounds.top) * scaleY };
-    const end = { x: (point.x - bounds.left) * scaleX,
-      y: (point.y - bounds.top) * scaleY };
-    if (![start.x, start.y, end.x, end.y].every(Number.isFinite)) { removeAim(); return; }
-    // 十周年金色细线（本地 CONFIG.LINE_COLOR/LINE_WIDTH），不采用尖塔箭头/骨节造型。
-    aim.firstElementChild.setAttribute("d", `M ${start.x} ${start.y} L ${end.x} ${end.y}`);
-    aim.firstElementChild.setAttribute("vector-effect", "non-scaling-stroke");
+    aim.style.width = `${length}px`;
+    aim.style.transform = `translate(${x}px, ${y}px) rotate(${Math.atan2(dy, dx)}rad) translateY(-50%)`;
   }
   function clearSelection(state) {
     if (!live(state) || !state.selected) return;

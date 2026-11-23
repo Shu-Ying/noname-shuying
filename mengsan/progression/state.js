@@ -181,6 +181,7 @@ export const createRun = character => {
             permanentSkills: [],
             temporarySkills: [],
             items: [],
+            potions: [],
             handLimitBonus: 0,
         },
         statistics: {

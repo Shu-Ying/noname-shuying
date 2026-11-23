@@ -1,5 +1,6 @@
 // Candidate external coordinator. Finish callbacks return a boolean, NEVER a drain promise.
 import { getDiagnostics } from "../../diagnostics/index.js";
+import { potionSlots } from "../potions/state.js";
 const copy = value => JSON.parse(JSON.stringify(value));
 export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMap, showEnding, quiesce, releaseSkills = async () => {}, releaseBattle = () => {}, presentVictory = async () => {}}) {
     let state = "map", active = null, work = null, job = null, error = null;
@@ -37,10 +38,15 @@ export function createBattleFlow({settlement, chooseReward, chooseDefeat, showMa
                             elite: job.pending.elite,
                             fixedRewards: copy(job.pending.fixedRewards || []),
                             rewardPackage: copy(job.pending.rewardPackage || null),
+                            potionChoices: copy(job.pending.potionChoices || []),
+                            potionSlots: potionSlots(job.pending.base.player),
                         }), false);
-                    if (job.pending.outcome !== "defeat" && !job.pending.rewardPackage &&
-                        job.choiceId !== null &&
-                        !job.pending.choices.some(c => c.id === job.choiceId && c.kind !== "gold")) throw new Error("Invalid reward selection");
+                    if (job.pending.outcome !== "defeat" && !job.pending.rewardPackage) {
+                        const rewardId = job.pending.potionChoices?.length ? job.choiceId?.rewardId : job.choiceId;
+                        if (rewardId !== null && !job.pending.choices.some(c => c.id === rewardId && c.kind !== "gold")) {
+                            throw new Error("Invalid reward selection");
+                        }
+                    }
                     job.hasChoice = true;
                 }
                 job.pending = await step("applyChoice", () => settlement.choose(job.input.run.runId, job.pending.id, job.choiceId));

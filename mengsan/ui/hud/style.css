@@ -55,6 +55,8 @@ body.mengsan-hud-active-shuying #arena>.mengsan-hud-controls-shuying>.control>di
 .mengsan-hud-skin-skills-shuying>.enable>.skillitem { width:100%!important;min-height:34px!important;text-align:center; }
 .mengsan-hud-skin-skills-shuying .skillitem { -webkit-text-fill-color:currentColor!important;-webkit-text-stroke:0!important;background-clip:border-box!important;-webkit-background-clip:border-box!important; }
 .mengsan-hud-skin-skills-shuying .skillitem::before,.mengsan-hud-skin-skills-shuying .skillitem-child { display:none!important; }
+body.mengsan-hud-active-shuying #arena>.mengsan-hud-controls-shuying>.control.mengsan-hud-potion-action-shuying,
+body.mengsan-hud-active-shuying .mengsan-hud-potion-action-shuying { display:none!important; }
 .mengsan-hud-skin-skills-shuying .skillitem:is(.select,.selected) { outline:1px solid #e6cb93;outline-offset:-2px; }
 .mengsan-hud-skin-skills-shuying>.enable>.skillitem:not(.usable):not(.select),.mengsan-hud-skin-skills-shuying .skillitem.shixiao { opacity:.55; }
 .mengsan-hud-skin-skills-shuying>.trigger>.skillitem { color:#c2c7c8!important;font-size:12px!important; }

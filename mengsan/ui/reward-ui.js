@@ -1,11 +1,10 @@
 import { lib, get } from "../../../../noname.js";
 import { cardCost } from "../battle/combat-rules.js";
-import { cardUpgradeRule } from "../cards/upgrades.js";
 import { getRelic } from "../relics/definitions.js";
 import { relicImageURL, createRelicIcon } from "./relic-icon.js";
 
 import { getCardRarity, applyCardRarity } from "../cards/rarity.js";
-import { cleanCardDescription } from "../cards/description.js";
+import { cardDescriptionText, cleanCardDescription } from "../cards/description.js";
 
 const element = (tag, className, text, parent) => {
     const node = document.createElement(tag);
@@ -27,6 +26,7 @@ export const isCardReward = choice => Boolean(cardNameOf(choice));
 const viewCard = choice => {
     const name = cardNameOf(choice);
     const info = lib.card[name];
+    const card = choice.card || { name };
     const imageName = info?.cardimage || name;
     const modeImage = info?.image;
     const localArt = typeof modeImage === "string" &&
@@ -38,11 +38,9 @@ const viewCard = choice => {
     const type = { basic: "基本牌", trick: "锦囊牌", delay: "延时锦囊", equip: "装备牌" }[info?.type] || "卡牌";
     return {
         rarity: getCardRarity(name),
-        name: get.translation(name), type, image, cost: info?.mengsanXCost_shuying ? "X" : cardCost(choice.card || { name }),
-        description: cleanCardDescription(plainText(cardUpgradeRule(name) && info?.cardPrompt
-            ? info.cardPrompt(choice.card || { name })
-            : lib.translate[`${name}_info`] || choice.description ||
-                "暂无卡牌介绍。")),
+        name: get.translation(name), type, image, cost: info?.mengsanXCost_shuying ? "X" : cardCost(card),
+        description: cleanCardDescription(plainText(cardDescriptionText(card, info,
+            lib.translate[`${name}_info`] || choice.description))),
     };
 };
 
@@ -91,6 +89,15 @@ function chooseRewardDialog(choices) {
     });
 }
 
+export function choosePotionDialog(choices) {
+    return chooseTilesDialog(choices, {
+        title: "药水奖励",
+        description: "领取一瓶药水，或跳过。",
+        skipLabel: "跳过药水",
+        actionLabel: "领取",
+    }, choice => ({ ...choice, type: "药水", cost: null }));
+}
+
 function chooseTilesDialog(choices, {
     title = "选择一张牌", allowSkip = true, skipLabel = "跳过",
     description = "择一入阵，余者留于身后", describeChoice,
@@ -121,6 +128,7 @@ function chooseTilesDialog(choices, {
             if (describeChoice) view.description = describeChoice(choice);
             const card = element("button", "mengsan-card-choice-tile-shuying", null, cards);
             if(getRelic(choice.relic))card.classList.add("mengsan-relic-choice-tile-shuying");
+            if(view.type === "药水")card.classList.add("mengsan-potion-choice-tile");
             card.type = "button";
             if (view.rarity) applyCardRarity(card, cardNameOf(choice));
             card.setAttribute("aria-label", `${view.name}，${view.type}${view.rarity ? `，稀有度：${view.rarity.label}` : ""}，${view.description}。${actionLabel}`);

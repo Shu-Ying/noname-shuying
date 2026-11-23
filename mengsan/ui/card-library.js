@@ -9,7 +9,7 @@ import { cardAffixes } from "../cards/intrinsic-affixes.js";
 import { cardUpgradeLevel, cardUpgradeRule } from "../cards/upgrades.js";
 
 import { getCardRarity, applyCardRarity } from "../cards/rarity.js";
-import { cleanCardDescription } from "../cards/description.js";
+import { cardDescriptionText, cleanCardDescription } from "../cards/description.js";
 import { createVirtualCardGrid } from "./virtual-card-grid.js";
 
 const suits = { spade: "♠ 黑桃", heart: "♥ 红桃", club: "♣ 梅花", diamond: "♦ 方块" };
@@ -31,9 +31,7 @@ export function describeLibraryCard(card) {
         number: ({ 1: "A", 11: "J", 12: "Q", 13: "K" })[card.number] || String(card.number ?? "—"),
         nature: nature || "无属性", type: cardTypes[cardDefinitions[card.name]?.cardType || info?.cardType] || types[info?.type] || "未知类别",
         red: card.suit === "heart" || card.suit === "diamond",
-        description: cleanCardDescription(text((cardUpgradeRule(card.name)||info?.mengsanShared_shuying) && info?.cardPrompt
-            ? info.cardPrompt(card)
-            : lib.translate[`${card.name}_info`] || "暂无卡牌介绍。")),
+        description: cleanCardDescription(text(cardDescriptionText(card, info, lib.translate[`${card.name}_info`]))),
         affixes: cardAffixes(card).filter(key => key !== "annihilate").map(key => affixes[key] || `词缀：${translate(key)}`),
         rarity: getCardRarity(card),
         upgrade: cardUpgradeLevel(card),

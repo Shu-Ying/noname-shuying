@@ -515,7 +515,10 @@ export function createSharedCardRuntime({game,get,lib,status,getBattle,battleEne
             cardPrompt(card){const r=rule(card||{name:spec.name});let description=r?.description||spec.description;
                 if(spec.id==="the_ball"){const s=stateOf(game.me);if(s)description=description.replace("造成10点伤害",`造成${10+ballBonus(s,card)}点伤害`);}
                 if(spec.id==="wither")description=description.replace("受到3点伤害",`受到${witherDamage(card)}点伤害`);
-                return `梦三：${spec.cost==null?"不能被打出":`${spec.cost==="X"?"X":cardCost(card||{name:spec.name})}费`}。${description}`;},
+                if (spec.cost == null) return description;
+                const cost = spec.cost === "X" ? "X" : cardCost(card || { name: spec.name });
+                return `梦三：${cost}费。${description}`;
+            },
             ai:{order:spec.cardType==="power"?7:6,value:spec.cardType==="curse"?0:5,useful:spec.cardType==="curse"?0:5,
                 result:{target:enemy?-1:1},tag:spec.cardType==="attack"?{damage:1}:{}},
         };

@@ -121,7 +121,7 @@
 }
 
 .mengsan-shop-overlay-shuying .ms-shop-status > .mengsan-flow-menu-shuying:hover { background: #58432d; }
-.ms-shop-relics { margin-top: 22px; }
+.ms-shop-relics, .ms-shop-potions { margin-top: 22px; }
 .ms-shop-supplies { margin-top: 17px; }
 
 .mengsan-shop-overlay-shuying .ms-shop-heading {
@@ -193,7 +193,10 @@
 
 .ms-shop-amount { display: inline-flex; align-items: center; gap: 6px; }
 .ms-shop-amount svg { width: 16px; height: 16px; }
-.ms-shop-relics .ms-shop-price { grid-column: 1 / -1; justify-content: space-between; }
+:is(.ms-shop-relics, .ms-shop-potions) .ms-shop-price {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+}
 .ms-shop-relics .ms-shop-offer:first-child {
     grid-column: 1 / -1;
     grid-template-columns: 90px minmax(0, 1fr) auto;

@@ -6,3 +6,8 @@ export function cleanCardDescription(value) {
         .replace(/^(?:主动使用消耗\s*\d+\s*(?:点)?费用|响应不消耗费用|\d+\s*(?:点)?费(?:用)?)[。；：:，,]\s*/, "")
         .replace(/^(?:主动使用消耗X费用|X费)[。；]\s*/, "消耗当前剩余费用，消耗量为X。");
 }
+
+export function cardDescriptionText(card, definition, fallback) {
+    const prompt = typeof definition?.cardPrompt === "function" ? definition.cardPrompt(card) : null;
+    return prompt || fallback || "暂无卡牌介绍。";
+}

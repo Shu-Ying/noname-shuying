@@ -1,5 +1,6 @@
 import { collectCombatStatuses } from './status-model.js';
 import { createOverlayLayout } from './overlays.js';
+import { potionSkillIds } from '../../potions/battle.js';
 
 // Native cards, players and controls stay under their original parents.
 export function mountBattleHUD(player, battle, env) {
@@ -315,7 +316,26 @@ export function mountBattleHUD(player, battle, env) {
         // The actual action controls stay horizontal above the hand; skill references get their own rail.
         const candidates = [...new Set([ui.skills, ui.skills2, ui.skills3, ui.skillControl, ui.gskillControl])]
             .filter(node => node?.isConnected && node !== ui.control);
-        const external = candidates.filter(node => !candidates.some(other => other !== node && other.contains(node)));
+        // The potion slots submit these engine skills directly, so the skill bar has no buttons for them.
+        const hiddenClass = 'mengsan-hud-potion-action-shuying';
+        const visible = candidates.filter(control => {
+            const skinned = control === ui.skillControl || control === ui.gskillControl;
+            const items = [...(skinned ? control.querySelectorAll('.skillitem[data-id]') : control.children)];
+            let hiddenCount = 0;
+            for (const item of items) {
+                if (potionSkillIds.includes(item.dataset.id ?? item.link)) {
+                    ownClass(item, hiddenClass);
+                    hiddenCount++;
+                } else item.classList.remove(hiddenClass);
+            }
+            if (hiddenCount && hiddenCount === items.length) {
+                ownClass(control, hiddenClass);
+                return false;
+            }
+            control.classList.remove(hiddenClass);
+            return true;
+        });
+        const external = visible.filter(node => !visible.some(other => other !== node && other.contains(node)));
         const hudHeight = hudHeightFor();
         const rail = layout === 'wide' ? 142 : layout === 'short' ? 112 : 96;
         const actionBottom = layout === 'narrow' ? hudHeight - 48 : hudHeight + 8;

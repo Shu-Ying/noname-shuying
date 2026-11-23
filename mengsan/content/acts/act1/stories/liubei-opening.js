@@ -48,7 +48,7 @@ export default {
     requiredCharacter: "mengsan_liubei_shuying",
     enemies: ["mengsan_soldier_shuying"], gold: 400,
     skipRandomReward: true, fixedRewards: ["act1.reward.dilu"], openingDialogue, victoryDialogue,
-    rewardPackage: { gold: 400, relicPool: "act1.pool.liubeiOpening.relics" },
+    rewardPackage: { gold: 400, relicPool: "act1.pool.liubeiOpening.relics", potionChoices: 3 },
     battlePlan: {
         units: [{
             id: "soldier", character: "mengsan_soldier_shuying", camp: "enemy",

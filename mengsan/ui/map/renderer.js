@@ -5,6 +5,7 @@ import config from "../../config.js";
 import { getRelic } from "../../relics/definitions.js";
 import { createRelicIcon } from "../relic-icon.js";
 import { renderBonds } from "../bonds.js";
+import { mountPotionSlots } from "../potions.js";
 import { getSelectableNodes } from "../../progression/state.js";
 import { getDiagnostics } from "../../../diagnostics/index.js";
 
@@ -100,11 +101,13 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
     const { overlay, panel, header } = createMapOverlay(act.name);
     let closeCardLibrary = null;
     let savingBonds = false;
+    let potionUI;
     const finish = result => {
         if (overlay.dataset.resolved || savingBonds) return;
         overlay.dataset.resolved = "true";
         document.removeEventListener("keydown", handleEscape);
         closeCardLibrary?.();
+        potionUI?.dispose();
         overlay.remove();
         resolve(result);
     };
@@ -132,6 +135,7 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
         createText("mengsan-map-stat-label-shuying", label, item);
         createText("mengsan-map-stat-value-shuying", value, item);
     });
+    potionUI = mountPotionSlots(status, run.player, { allowImport: true });
 
     const menuLayer = ui.create.div(".mengsan-map-menu-layer-shuying", panel);
     menuLayer.id = "mengsan-map-menu-shuying";

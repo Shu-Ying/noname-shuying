@@ -58,12 +58,12 @@ export function createMengsanCards({ cardPacks, isBattleActive = () => true } = 
     card.sha.cardPrompt = used => {
         const damage = cardUpgradeLevel(used)
             ? cardUpgradeRule("sha").damage : SHA_DAMAGE;
-        return `梦三：主动使用消耗1费用；目标须使用【闪】，` +
-            `否则受到${damage}点伤害。每回合使用次数不限。`;
+        return `出牌阶段，对攻击范围内的一名角色使用。目标须使用【闪】，否则受到${damage}点伤害。每回合使用次数不限。`;
     };
-    translate.sha_info = `梦三：主动使用消耗1费用。出牌阶段，对攻击范围内的一名角色使用；其须使用【闪】，否则受到${SHA_DAMAGE}点伤害。每回合使用次数不限。`;
+    translate.sha_info = card.sha.cardPrompt({ name: "sha" });
     card.tao.content = async function (event) { await event.target.recover(8); };
-    translate.tao_info = "梦三：主动使用消耗1费用，回复8点生命；濒死救援不消耗费用，同样回复8点生命。";
+    translate.tao_info = "出牌阶段，为自己回复8点生命。救援濒死角色时，为该角色回复8点生命，且不消耗费用。";
+    card.tao.cardPrompt = () => translate.tao_info;
     card.taoyuan.content = async function (event) { await event.target.recover(8); };
     translate.taoyuan_info = "梦三：主动使用消耗2费用。所有角色各回复8点生命。";
     card.taoyuan.cardPrompt = () => translate.taoyuan_info;

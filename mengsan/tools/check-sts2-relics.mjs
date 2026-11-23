@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { registerHooks } from "node:module";
+import { join } from "node:path";
+import { getSts2Atlas } from "./sts2-atlas.js";
 import { relicCatalog } from "../relics/catalog.js";
 import { relicDefinitions, getRelic, heldRelics, canAcquireRelic, grantRelic, relicRewardIds, relicRewardPools } from "../relics/definitions.js";
 import { relicState, grantGold, newRelicCard, resolveRelicChoices, relicCardPool, addPermanentRelicCard } from "../relics/progression.js";
@@ -57,9 +59,10 @@ function fixture(run,{encounter={},onCounterChange}={}){
 eq(relicCatalog.length,298,"complete catalog");eq(new Set(relicCatalog.map(r=>r.wikiId)).size,298);
 eq(relicCatalog.map(r=>r.order),Array.from({length:298},(_,i)=>i+1));
 const manifest=JSON.parse(await readFile(new URL("../assets/relics/manifest.json",import.meta.url),"utf8"));
+const relicAtlas = getSts2Atlas("relic_atlas.sprites");
 for(const asset of manifest.assets){
     const bytes=await readFile(new URL(`../${asset.runtime}`,import.meta.url));
-    const source=await readFile(new URL(`../assets/sts2/Godot_Atlas_Sprites_v0.111.0/images/atlases/relic_atlas.sprites/${asset.source}`,import.meta.url));
+    const source=await readFile(join(relicAtlas, asset.source));
     eq(createHash("sha256").update(bytes).digest("hex"),asset.sha256,asset.wikiId);
     eq(bytes,source,`original image ${asset.wikiId}`);
     eq([bytes.readUInt32BE(16),bytes.readUInt32BE(20)],[asset.width,asset.height]);

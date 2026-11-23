@@ -80,7 +80,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "造成8点伤害。对所有其他敌人造成等量的伤害。",
+    "description": "对目标造成8点伤害，再对其余敌人造成等量的非攻击伤害。",
     "base": {
       "damage": 8,
       "hits": 1
@@ -89,7 +89,7 @@ export const colorlessCards = Object.freeze([
       "damage": 11,
       "hits": 1,
       "cost": 0,
-      "description": "造成11点伤害。对所有其他敌人造成等量的伤害。"
+      "description": "对目标造成11点伤害，再对其余敌人造成等量的非攻击伤害。"
     }
   },
   {
@@ -122,7 +122,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "造成7点伤害。获得等量于所造成伤害的格挡。",
+    "description": "造成7点伤害，并获得等量格挡。被敌人格挡吸收的伤害也计入。",
     "base": {
       "damage": 7,
       "hits": 1
@@ -131,7 +131,7 @@ export const colorlessCards = Object.freeze([
       "damage": 9,
       "hits": 1,
       "cost": 1,
-      "description": "造成9点伤害。获得等量于所造成伤害的格挡。"
+      "description": "造成9点伤害，并获得等量格挡。被敌人格挡吸收的伤害也计入。"
     }
   },
   {
@@ -143,7 +143,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "造成5点伤害。本回合其他玩家每攻击过一次该敌人，该牌造成的伤害就额外增加5点。",
+    "description": "造成5点伤害。本回合每有一次其他友方角色对该目标的攻击，此牌的基础伤害增加5点。",
     "base": {
       "damage": 5,
       "hits": 1,
@@ -154,7 +154,7 @@ export const colorlessCards = Object.freeze([
       "hits": 1,
       "perAllyAttack": 7,
       "cost": 1,
-      "description": "造成5点伤害。本回合其他玩家每攻击过一次该敌人，该牌造成的伤害就额外增加7点。"
+      "description": "造成5点伤害。本回合每有一次其他友方角色对该目标的攻击，此牌的基础伤害增加7点。"
     }
   },
   {
@@ -229,7 +229,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "使一名敌人在本回合失去9点力量。消耗。",
+    "description": "使一名敌人失去9点力量，直到该敌人自己的回合结束。消耗。",
     "base": {
       "exhaust": true,
       "negativeStrength": 9
@@ -238,7 +238,7 @@ export const colorlessCards = Object.freeze([
       "exhaust": true,
       "negativeStrength": 15,
       "cost": 0,
-      "description": "使一名敌人在本回合失去15点力量。消耗。"
+      "description": "使一名敌人失去15点力量，直到该敌人自己的回合结束。消耗。"
     }
   },
   {
@@ -354,7 +354,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "获得2点能量。消耗。",
+    "description": "补充2点费用。消耗。",
     "base": {
       "exhaust": true,
       "energy": 2
@@ -363,7 +363,7 @@ export const colorlessCards = Object.freeze([
       "exhaust": true,
       "energy": 3,
       "cost": 0,
-      "description": "获得3点能量。消耗。"
+      "description": "补充3点费用。消耗。"
     }
   },
   {
@@ -375,14 +375,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "另一名玩家获得2点能量。",
+    "description": "为另一名友方角色补充2点费用。若当前轮到该角色，立即生效，否则在其下个回合开始时补充。",
     "base": {
       "allyEnergy": 2
     },
     "upgraded": {
       "allyEnergy": 3,
       "cost": 0,
-      "description": "另一名玩家获得3点能量。"
+      "description": "为另一名友方角色补充3点费用。若当前轮到该角色，立即生效，否则在其下个回合开始时补充。"
     }
   },
   {
@@ -394,7 +394,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "保留。如果你的手牌为空，则抽2张牌并获得2点能量。",
+    "description": "保留。若结算时你没有手牌，抽2张牌并补充2点费用。",
     "base": {
       "retain": true,
       "emptyDraw": 2,
@@ -405,7 +405,7 @@ export const colorlessCards = Object.freeze([
       "emptyDraw": 3,
       "emptyEnergy": 3,
       "cost": 0,
-      "description": "保留。如果你的手牌为空，则抽3张牌并获得3点能量。"
+      "description": "保留。若结算时你没有手牌，抽3张牌并补充3点费用。"
     }
   },
   {
@@ -417,13 +417,13 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "在下个回合获得等量于你当前格挡值的格挡。消耗。",
+    "description": "记录你当前的格挡值。在你的下个回合开始时，获得等量格挡。消耗。",
     "base": {
       "exhaust": true
     },
     "upgraded": {
       "cost": 0,
-      "description": "在下个回合获得等量于你当前格挡值的格挡。"
+      "description": "记录你当前的格挡值。在你的下个回合开始时，获得等量格挡。"
     }
   },
   {
@@ -435,7 +435,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "获得30点格挡。你在接下来的2回合内无法再从卡牌中获得格挡。消耗。",
+    "description": "获得30点格挡。此后，直到你的回合结束两次，你无法再通过卡牌获得格挡。消耗。",
     "base": {
       "exhaust": true,
       "block": 30
@@ -444,7 +444,7 @@ export const colorlessCards = Object.freeze([
       "exhaust": true,
       "block": 40,
       "cost": 0,
-      "description": "获得40点格挡。你在接下来的2回合内无法再从卡牌中获得格挡。消耗。"
+      "description": "获得40点格挡。此后，直到你的回合结束两次，你无法再通过卡牌获得格挡。消耗。"
     }
   },
   {
@@ -456,7 +456,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "所有玩家抽2张牌。消耗。",
+    "description": "你和每名其他友方角色各抽2张牌。消耗。",
     "base": {
       "exhaust": true,
       "teamDraw": 2
@@ -465,7 +465,7 @@ export const colorlessCards = Object.freeze([
       "exhaust": true,
       "teamDraw": 3,
       "cost": 1,
-      "description": "所有玩家抽3张牌。消耗。"
+      "description": "你和每名其他友方角色各抽3张牌。消耗。"
     }
   },
   {
@@ -533,14 +533,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "给另一名玩家11点格挡。",
+    "description": "让另一名友方角色获得11点格挡。",
     "base": {
       "allyBlock": 11
     },
     "upgraded": {
       "allyBlock": 16,
       "cost": 1,
-      "description": "给另一名玩家16点格挡。"
+      "description": "让另一名友方角色获得16点格挡。"
     }
   },
   {
@@ -552,14 +552,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "在本回合给予其他玩家5点力量。",
+    "description": "每名其他友方角色各获得5点力量，持续到各自的行动回合结束。",
     "base": {
       "teamStrength": 5
     },
     "upgraded": {
       "teamStrength": 8,
       "cost": 1,
-      "description": "在本回合给予其他玩家8点力量。"
+      "description": "每名其他友方角色各获得8点力量，持续到各自的行动回合结束。"
     }
   },
   {
@@ -571,14 +571,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 2,
-    "description": "从你的抽牌堆中随机打出2张牌。",
+    "description": "从你的抽牌堆随机选取2张牌并免费打出。",
     "base": {
       "autoDraw": 2
     },
     "upgraded": {
       "autoDraw": 3,
       "cost": 2,
-      "description": "从你的抽牌堆中随机打出3张牌。"
+      "description": "从你的抽牌堆随机选取3张牌并免费打出。"
     }
   },
   {
@@ -609,14 +609,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "uncommon",
     "cost": 2,
-    "description": "在3回合结束后，对所有敌人造成40点伤害。",
+    "description": "在你的第3次回合结束阶段，对所有敌人造成40点非攻击伤害。",
     "base": {
       "bombDamage": 40
     },
     "upgraded": {
       "bombDamage": 50,
       "cost": 2,
-      "description": "在3回合结束后，对所有敌人造成50点伤害。"
+      "description": "在你的第3次回合结束阶段，对所有敌人造成50点非攻击伤害。"
     }
   },
   {
@@ -653,14 +653,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "uncommon",
     "cost": 0,
-    "description": "每当你在一回合内打出五张牌时，对所有敌人造成10点伤害。",
+    "description": "你每打出5张牌，对所有敌人造成10点非攻击伤害。计数在你的回合开始时清零。",
     "base": {
       "panache": 10
     },
     "upgraded": {
       "panache": 14,
       "cost": 0,
-      "description": "每当你在一回合内打出五张牌时，对所有敌人造成14点伤害。"
+      "description": "你每打出5张牌，对所有敌人造成14点非攻击伤害。计数在你的回合开始时清零。"
     }
   },
   {
@@ -693,14 +693,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "从“防御”牌中额外获得4点格挡。",
+    "description": "名称含「防御」的牌使你获得格挡时，额外增加4点格挡。",
     "base": {
       "defendBonus": 4
     },
     "upgraded": {
       "defendBonus": 6,
       "cost": 1,
-      "description": "从“防御”牌中额外获得6点格挡。"
+      "description": "名称含「防御」的牌使你获得格挡时，额外增加6点格挡。"
     }
   },
   {
@@ -731,14 +731,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "你每抽10张牌，获得1点能量。",
+    "description": "累计每抽满10张牌，补充1点费用。",
     "base": {
       "automation": 1
     },
     "upgraded": {
       "automation": 1,
       "cost": 0,
-      "description": "你每抽10张牌，获得1点能量。"
+      "description": "累计每抽满10张牌，补充1点费用。"
     }
   },
   {
@@ -792,7 +792,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "rare",
     "cost": 1,
-    "description": "造成本场战斗中所打出牌数的伤害。",
+    "description": "本场战斗中，玩家方每打出1张牌，此牌便造成1点基础伤害。本次打出也计入。",
     "base": {
       "hits": 1
     },
@@ -800,7 +800,7 @@ export const colorlessCards = Object.freeze([
       "retain": true,
       "hits": 1,
       "cost": 1,
-      "description": "保留。造成本场战斗中所打出牌数的伤害。"
+      "description": "保留。本场战斗中，玩家方每打出1张牌，此牌便造成1点基础伤害。本次打出也计入。"
     }
   },
   {
@@ -835,7 +835,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "rare",
     "cost": 2,
-    "description": "造成20点伤害。斩杀时，获得20金币。",
+    "description": "造成20点伤害。若玩家用此牌击杀敌人，获得20金币。",
     "base": {
       "damage": 20,
       "hits": 1,
@@ -846,7 +846,7 @@ export const colorlessCards = Object.freeze([
       "hits": 1,
       "killGold": 25,
       "cost": 2,
-      "description": "造成25点伤害。斩杀时，获得25金币。"
+      "description": "造成25点伤害。若玩家用此牌击杀敌人，获得25金币。"
     }
   },
   {
@@ -858,7 +858,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "rare",
     "cost": 3,
-    "description": "造成25点伤害。将3张随机0能量的牌加入你的手牌。",
+    "description": "造成25点伤害。从基础费用为0的牌中随机生成3张，加入你的手牌。",
     "base": {
       "damage": 25,
       "hits": 1,
@@ -870,7 +870,7 @@ export const colorlessCards = Object.freeze([
       "generateZero": 3,
       "generatedUpgrade": 1,
       "cost": 3,
-      "description": "造成30点伤害。将3张随机升级过的0能量的牌加入你的手牌。"
+      "description": "造成30点伤害。从基础费用为0的牌中随机生成3张，能强化的先强化，再加入你的手牌。"
     }
   },
   {
@@ -882,7 +882,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "rare",
     "cost": 3,
-    "description": "造成10点伤害。该敌人在本回合受到的来自其他玩家的伤害变为两倍。",
+    "description": "造成10点伤害。直到你的下个回合开始，其他友方角色对该敌人造成的伤害翻倍。",
     "base": {
       "damage": 10,
       "hits": 1,
@@ -893,7 +893,7 @@ export const colorlessCards = Object.freeze([
       "hits": 1,
       "allyDamageMultiplier": 3,
       "cost": 3,
-      "description": "造成14点伤害。该敌人在本回合受到的来自其他玩家的伤害变为三倍。"
+      "description": "造成14点伤害。直到你的下个回合开始，其他友方角色对该敌人造成的伤害变为3倍。"
     }
   },
   {
@@ -981,7 +981,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "rare",
     "cost": 1,
-    "description": "抽牌直到抽满手牌。消耗。",
+    "description": "抽牌直到手牌数量达到当前上限。消耗。",
     "base": {
       "exhaust": true
     },
@@ -989,7 +989,7 @@ export const colorlessCards = Object.freeze([
       "exhaust": true,
       "retain": true,
       "cost": 1,
-      "description": "保留。抽牌直到抽满手牌。消耗。"
+      "description": "保留。抽牌直到手牌数量达到当前上限。消耗。"
     }
   },
   {
@@ -1001,13 +1001,13 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "rare",
     "cost": 1,
-    "description": "获得等同于另一位玩家格挡值的格挡。消耗。",
+    "description": "选择另一名友方角色，获得等同于其当前格挡值的格挡。消耗。",
     "base": {
       "exhaust": true
     },
     "upgraded": {
       "cost": 1,
-      "description": "获得等同于另一位玩家格挡值的格挡。"
+      "description": "选择另一名友方角色，获得等同于其当前格挡值的格挡。"
     }
   },
   {
@@ -1039,14 +1039,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "rare",
     "cost": 2,
-    "description": "所有玩家获得12点格挡。",
+    "description": "你和每名其他友方角色各获得12点格挡。",
     "base": {
       "teamBlock": 12
     },
     "upgraded": {
       "teamBlock": 17,
       "cost": 2,
-      "description": "所有玩家获得17点格挡。"
+      "description": "你和每名其他友方角色各获得17点格挡。"
     }
   },
   {
@@ -1058,14 +1058,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "skill",
     "rarity": "rare",
     "cost": 3,
-    "description": "打出你弃牌堆中的3张随机攻击牌。",
+    "description": "从你的弃牌堆随机选择至多3张攻击牌并免费打出。",
     "base": {
       "autoDiscard": 3
     },
     "upgraded": {
       "autoDiscard": 4,
       "cost": 3,
-      "description": "打出你弃牌堆中的4张随机攻击牌。"
+      "description": "从你的弃牌堆随机选择至多4张攻击牌并免费打出。"
     }
   },
   {
@@ -1077,11 +1077,11 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "rare",
     "cost": 1,
-    "description": "每回合首次打出攻击或技能牌时，将其置于你的抽牌堆顶端。",
+    "description": "每回合第一次打出攻击牌或技能牌后，将该牌从弃牌堆放回抽牌堆顶部。",
     "base": {},
     "upgraded": {
       "cost": 0,
-      "description": "每回合首次打出攻击或技能牌时，将其置于你的抽牌堆顶端。"
+      "description": "每回合第一次打出攻击牌或技能牌后，将该牌从弃牌堆放回抽牌堆顶部。"
     }
   },
   {
@@ -1093,12 +1093,12 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "rare",
     "cost": 1,
-    "description": "在你的回合开始时，变化你手牌中的1张牌。",
+    "description": "在你的回合开始时，选择一张可以变化的手牌，将它随机变为另一张牌。",
     "base": {},
     "upgraded": {
       "innate": true,
       "cost": 1,
-      "description": "固有。在你的回合开始时，变化你手牌中的1张牌。"
+      "description": "固有。在你的回合开始时，选择一张可以变化的手牌，将它随机变为另一张牌。"
     }
   },
   {
@@ -1110,12 +1110,12 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "rare",
     "cost": 1,
-    "description": "每当你在你的回合获得格挡时，其他玩家获得相应一半的格挡。",
+    "description": "在你的回合内，每当你获得格挡，其他友方角色各获得其一半，向下取整。",
     "base": {},
     "upgraded": {
       "innate": true,
       "cost": 1,
-      "description": "固有。每当你在你的回合获得格挡时，其他玩家获得相应一半的格挡。"
+      "description": "固有。在你的回合内，每当你获得格挡，其他友方角色各获得其一半，向下取整。"
     }
   },
   {
@@ -1127,11 +1127,11 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "rare",
     "cost": 2,
-    "description": "在你的回合开始时，打出你抽牌堆顶部的牌。",
+    "description": "你的摸牌阶段结束后，免费打出抽牌堆最上面的一张牌。",
     "base": {},
     "upgraded": {
       "cost": 1,
-      "description": "在你的回合开始时，打出你抽牌堆顶部的牌。"
+      "description": "你的摸牌阶段结束后，免费打出抽牌堆最上面的一张牌。"
     }
   },
   {
@@ -1178,14 +1178,14 @@ export const colorlessCards = Object.freeze([
     "cardType": "power",
     "rarity": "rare",
     "cost": 3,
-    "description": "获得9层覆甲。",
+    "description": "获得9层覆甲。回合结束时获得等同于层数的格挡，你的回合开始时减少1层。",
     "base": {
       "plating": 9
     },
     "upgraded": {
       "plating": 12,
       "cost": 3,
-      "description": "获得12层覆甲。"
+      "description": "获得12层覆甲。回合结束时获得等同于层数的格挡，你的回合开始时减少1层。"
     }
   },
   {
@@ -1197,7 +1197,7 @@ export const colorlessCards = Object.freeze([
     "cardType": "attack",
     "rarity": "uncommon",
     "cost": 1,
-    "description": "造成10点伤害。将这张牌在本场战斗中的伤害增加15，然后将其交给一名随机盟友。",
+    "description": "造成10点伤害。此牌在本场战斗中的伤害增加15点。若有可以接收此牌的其他友方角色，将此牌交给随机一名。",
     "base": {
       "damage": 10,
       "hits": 1,
@@ -1208,7 +1208,7 @@ export const colorlessCards = Object.freeze([
       "hits": 1,
       "ballGrowth": 25,
       "cost": 1,
-      "description": "造成10点伤害。将这张牌在本场战斗中的伤害增加25，然后将其交给一名随机盟友。"
+      "description": "造成10点伤害。此牌在本场战斗中的伤害增加25点。若有可以接收此牌的其他友方角色，将此牌交给随机一名。"
     }
   }
 ]);

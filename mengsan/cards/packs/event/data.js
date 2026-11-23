@@ -188,14 +188,14 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "event",
     "cost": 0,
-    "description": "在这个回合，你当前手牌中所有牌的耗能降低至1。消耗。",
+    "description": "本回合，你当前手牌的费用最高为1点。消耗。",
     "base": {
       "exhaust": true
     },
     "upgraded": {
       "exhaust": true,
       "cost": 0,
-      "description": "在这场战斗，你当前手牌中所有牌的耗能降低至1。消耗。"
+      "description": "本场战斗中，你当前手牌的费用最高为1点。消耗。"
     }
   },
   {
@@ -207,7 +207,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "event",
     "cost": 1,
-    "description": "获得8点格挡。获得2点能量。",
+    "description": "获得8点格挡，再补充2点费用。",
     "base": {
       "block": 8,
       "energy": 2
@@ -217,7 +217,7 @@ export const eventCards = Object.freeze([
       "block": 8,
       "energy": 2,
       "cost": 1,
-      "description": "固有。获得8点格挡。获得2点能量。"
+      "description": "固有。获得8点格挡，再补充2点费用。"
     }
   },
   {
@@ -229,7 +229,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "event",
     "cost": 1,
-    "description": "获得8点格挡。抽3张牌",
+    "description": "获得8点格挡，再抽3张牌。",
     "base": {
       "block": 8,
       "draw": 3
@@ -239,7 +239,7 @@ export const eventCards = Object.freeze([
       "block": 8,
       "draw": 3,
       "cost": 1,
-      "description": "固有。获得8点格挡。抽3张牌"
+      "description": "固有。获得8点格挡，再抽3张牌。"
     }
   },
   {
@@ -337,7 +337,7 @@ export const eventCards = Object.freeze([
     "cardType": "power",
     "rarity": "event",
     "cost": 1,
-    "description": "能力牌的耗能减少1能量。",
+    "description": "本场战斗中，你打出能力牌的费用减少1点。",
     "base": {
       "powerDiscount": 1
     },
@@ -345,7 +345,7 @@ export const eventCards = Object.freeze([
       "innate": true,
       "powerDiscount": 1,
       "cost": 1,
-      "description": "固有。能力牌的耗能减少1能量。"
+      "description": "固有。本场战斗中，你打出能力牌的费用减少1点。"
     }
   },
   {
@@ -357,7 +357,7 @@ export const eventCards = Object.freeze([
     "cardType": "power",
     "rarity": "event",
     "cost": 1,
-    "description": "在战斗结束时，升级你牌组中的一张随机牌。",
+    "description": "赢得本场战斗后，随机强化永久牌组中一张可强化的牌。",
     "base": {
       "battleUpgrade": 1
     },
@@ -365,7 +365,7 @@ export const eventCards = Object.freeze([
       "innate": true,
       "battleUpgrade": 1,
       "cost": 1,
-      "description": "固有。在战斗结束时，升级你牌组中的一张随机牌。"
+      "description": "固有。赢得本场战斗后，随机强化永久牌组中一张可强化的牌。"
     }
   },
   {
@@ -468,7 +468,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "ancient",
     "cost": 0,
-    "description": "获得2点能量。抽2张牌。失去1点最大生命。",
+    "description": "补充2点费用，抽2张牌。若此时生命已满，先失去1点生命。随后降低1点最大生命。",
     "base": {
       "draw": 2,
       "energy": 2
@@ -477,7 +477,7 @@ export const eventCards = Object.freeze([
       "draw": 3,
       "energy": 3,
       "cost": 0,
-      "description": "获得3点能量。抽3张牌。失去1点最大生命。"
+      "description": "补充3点费用，抽3张牌。若此时生命已满，先失去1点生命。随后降低1点最大生命。"
     }
   },
   {
@@ -511,7 +511,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "ancient",
     "cost": 2,
-    "description": "固有。升级你的全部卡牌。消耗。",
+    "description": "固有。强化本场战斗中属于你的所有可强化牌。消耗。",
     "base": {
       "exhaust": true,
       "innate": true
@@ -520,7 +520,7 @@ export const eventCards = Object.freeze([
       "exhaust": true,
       "innate": true,
       "cost": 1,
-      "description": "固有。升级你的全部卡牌。消耗。"
+      "description": "固有。强化本场战斗中属于你的所有可强化牌。消耗。"
     }
   },
   {
@@ -532,7 +532,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "ancient",
     "cost": 3,
-    "description": "获得15点格挡。下个回合，抽2张牌并获得2点能量。消耗。",
+    "description": "获得15点格挡。在你的下个回合开始时，抽2张牌并补充2点费用。消耗。",
     "base": {
       "exhaust": true,
       "block": 15,
@@ -545,7 +545,7 @@ export const eventCards = Object.freeze([
       "nextDraw": 3,
       "nextEnergy": 3,
       "cost": 3,
-      "description": "获得17点格挡。下个回合，抽3张牌并获得3点能量。消耗。"
+      "description": "获得17点格挡。在你的下个回合开始时，抽3张牌并补充3点费用。消耗。"
     }
   },
   {
@@ -557,7 +557,7 @@ export const eventCards = Object.freeze([
     "cardType": "skill",
     "rarity": "ancient",
     "cost": 1,
-    "description": "从3张能力牌中选择1张加入你的手牌。这张牌在本回合可以免费打出。消耗。",
+    "description": "从随机出现的至多3张能力牌中选一张，加入手牌。本回合可免费打出该牌。消耗。",
     "base": {
       "exhaust": true
     },
@@ -565,7 +565,7 @@ export const eventCards = Object.freeze([
       "exhaust": true,
       "generatedUpgrade": 1,
       "cost": 1,
-      "description": "从3张升级过的能力牌中选择1张加入你的手牌。这张牌在本回合可以免费打出。消耗。"
+      "description": "从随机出现的至多3张能力牌中选一张，能强化时将其强化，再加入手牌。本回合可免费打出该牌。消耗。"
     }
   }
 ]);

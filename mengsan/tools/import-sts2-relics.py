@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import struct
 from pathlib import Path
 
@@ -24,6 +25,23 @@ LIUBEI_RELICS = frozenset({
 })
 
 
+def get_relic_atlas():
+    tools_dir = ROOT / "tools"
+    config = tools_dir / ".sts2-source"
+    source = os.environ.get("MENGSAN_STS2_SOURCE", "").strip()
+    if not source and config.is_file():
+        source = config.read_text(encoding="utf-8-sig").strip()
+    atlas = (
+        tools_dir / (source or "../assets/sts2")
+        / "Godot_Atlas_Sprites_v0.111.0" / "images" / "atlases" / "relic_atlas.sprites"
+    ).resolve()
+    if not atlas.is_dir():
+        raise FileNotFoundError(
+            f"找不到 STS2 拆分图集：{atlas}。请检查 MENGSAN_STS2_SOURCE 或 tools/.sts2-source。"
+        )
+    return atlas
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("snapshot", type=Path)
@@ -32,7 +50,7 @@ def main():
     rows = source["relics"]
     if len(rows) != 298 or len({row["id"] for row in rows}) != 298:
         raise ValueError("Expected reviewed 298 unique relics")
-    atlas = ROOT / "assets/sts2/Godot_Atlas_Sprites_v0.111.0/images/atlases/relic_atlas.sprites"
+    atlas = get_relic_atlas()
     target = ROOT / "assets/relics"
     target.mkdir(exist_ok=True)
     entries, assets = [], []

@@ -115,10 +115,15 @@ import { hasUpgradeableCard, upgradeRandomCard } from "./cards/upgrades.js";
 import { chooseBattleReward } from "./ui/reward-ui.js";
 import { chooseRewardPackage } from "./ui/reward-package.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
+import { finishRandomEvent } from "./progression/random-event.js";
 import { playDialogue } from "./ui/dialogue.js";
 import { chooseButtons } from "./ui/flow-ui.js";
 import { chooseRest } from "./ui/rest-ui.js";
 import { chooseShop } from "./ui/shop-ui.js";
+import { acquirePotion, createPotionOffer, potionSlots } from "./potions/state.js";
+import { loadPotionAssets, potionView } from "./potions/presentation.js";
+import { createPotionActions, createPotionSkills, potionBlockType, potionSkillIds, potionSkillTranslations } from "./potions/battle.js";
+import { choosePotionReplacement, choosePotionReward, mountPotionSlots } from "./ui/potions.js";
 import { openModeSelection } from "./ui/navigation.js";
 import {
     completeNode,
@@ -343,6 +348,15 @@ const finishUtilityNode = async (run, node) => {
             for (let index = 0; index < 3; index++) stock.push(sampleRelic(stock));
             state.shopStock[stockKey] = stock;
         }
+        run.potionShopStock ||= {};
+        if (!run.potionShopStock[stockKey]) {
+            const offers = [];
+            for (let index = 0; index < 3; index++) {
+                offers.push(createPotionOffer(run, offers.map(offer => offer?.id)));
+            }
+            run.potionShopStock[stockKey] = offers;
+        }
+        const potionOffers = run.potionShopStock[stockKey];
         const purchased = new Set();
         await saveRun(run);
         while (true) {
@@ -367,12 +381,37 @@ const finishUtilityNode = async (run, node) => {
                     disabled: run.player.gold < relicPrice,
                 });
             });
+            potionOffers.forEach((offer, index) => {
+                if (!offer) return;
+                const price = relicShopPrice(run, offer.price);
+                choices.push({
+                    ...potionView(offer.id),
+                    id: "potion:" + index,
+                    price,
+                    disabled: run.player.gold < price,
+                });
+            });
             const choice = await chooseShop(run.player, choices);
             if (choice === "leave" || choice == null) break;
             const selected = choices.find(item => item.id === choice);
             if (!selected || selected.disabled) throw new Error("梦三商店购买资格无效");
             const relicIndex = choice.startsWith("relic:") ? Number(choice.slice(6)) : null;
             if (run.player.gold < selected.price) throw new Error("梦三商店金币不足");
+            if (choice.startsWith("potion:")) {
+                const index = Number(choice.slice(7));
+                const offer = potionOffers[index];
+                const selection = await choosePotionReplacement(potionSlots(run.player), offer.id);
+                if (!selection) continue;
+                if (!acquirePotion(run.player, offer.id, selection.replaceIndex)) {
+                    throw new Error("梦三商店药水栏位无效");
+                }
+                run.player.gold -= selected.price;
+                recordRelicShopPurchase(run);
+                const courier = heldRelics(run).some(relic => relic.wikiId === "the_courier");
+                potionOffers[index] = courier ? createPotionOffer(run,
+                    potionOffers.filter((_, slot) => slot !== index).map(offer => offer?.id)) : null;
+                continue;
+            }
             run.player.gold -= selected.price;
             recordRelicShopPurchase(run);
             applyReward(run, relicIndex !== null ? stock[relicIndex] : choice);
@@ -383,6 +422,9 @@ const finishUtilityNode = async (run, node) => {
                 currentStock[relicIndex] = hasCourier ? sampleRelic(currentStock) : null;
             } else if (!hasCourier) purchased.add(choice);
         }
+    }
+    else if (await finishRandomEvent(run, node, chooseButtons, name => get.translation(name))) {
+        await finishRelicChoices(run);
     }
     else {
         const choices = [
@@ -748,6 +790,11 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
     }
     activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying);
     currentBattle.owner = me;
+    currentBattle.run = run;
+    potionSkillIds.forEach(skill => me.addSkill(skill));
+    currentBattle.potionUI = mountPotionSlots(ui.arena, run.player,
+        createPotionActions(currentBattle, { lib, game, ui, _status }));
+    session.ownResource(currentBattle.potionUI, () => currentBattle.potionUI.dispose());
     currentBattle.hud = mountBattleHUD(me, currentBattle, {
         game, ui, get, lib, _status, document, window, assetBase: STYLE_PATH,
         log: message => game.log(message),
@@ -842,13 +889,16 @@ const makeFlow = (releaseSkills = async () => {}, releaseBattle = () => {}) => c
                 (card ? `强化【${get.translation(card.name)}】` : "未强化卡牌"));
         },
     }),
-    chooseReward: (choices, options) => (options.rewardPackage
-        ? chooseRewardPackage : chooseBattleReward)(choices, {
-        ...options,
-        fixedRewards: options.fixedRewards.map(id => ({
+    chooseReward: async (choices, options) => {
+        const rewards = { ...options, fixedRewards: options.fixedRewards.map(id => ({
             ...config.rewards[id], id,
-        })),
-    }),
+        })) };
+        if (rewards.rewardPackage) return chooseRewardPackage(choices, rewards);
+        const rewardId = await chooseBattleReward(choices, rewards);
+        if (!rewards.potionChoices.length) return rewardId;
+        const potion = await choosePotionReward(rewards.potionChoices, rewards.potionSlots);
+        return { rewardId, potion };
+    },
     chooseDefeat:chooseDefeatAction,
     showMap,
     showEnding:async (route, run) => {
@@ -1098,6 +1148,7 @@ const createMode = () => {
                     return next;
                 },
                 changeHujia(num, type) {
+                    if (type === potionBlockType) return nativeChangeHujia.call(this, num, "gain", false);
                     if(activeBattle?.session.active && type!=="damage")num=relicBlockAmount(this,beforeIroncladBlock(this,beforeSharedBlock(this,num??1,_status.event),_status.event),_status.event);
                     // 脆弱只削减正向获得的护甲，不改变受伤时消耗护甲的数值。
                     if (this.storage?.mengsanFrail_shuying > 0 && (num == null || num > 0) && type !== "damage") {
@@ -1389,6 +1440,7 @@ const createMode = () => {
         },
         skill: {
             ...cardPacks.skills,
+            ...createPotionSkills(() => activeBattle, game),
             ...createRelicSkills(() => activeBattle, () => game.me),
             ...createRelicCombatSkills(() => activeBattle, () => game.me),
             mengsan_taoyuan_bond_shuying: {
@@ -1989,6 +2041,7 @@ const createMode = () => {
             },
         },
         translate: {
+            ...potionSkillTranslations,
             mengsan_ally_shuying: "友",
             mengsan_ally_shuying2: "友方",
             mengsan_enemy_shuying: "敌",
@@ -2071,10 +2124,11 @@ export async function createMengsanMode() {
             [245, 196, 193, 1], [192, 85, 91, 1],
         ] });
     }
-    await Promise.all(["style", "shop", "rest"].map(name => new Promise(resolve => {
+    await Promise.all(["style", "shop", "rest", "potions"].map(name => new Promise(resolve => {
         const style = lib.init.css(`${STYLE_PATH}/ui`, name, resolve);
         style.addEventListener("error", resolve, { once: true });
     })));
+    await loadPotionAssets(lib);
     const mode = createMode();
     mode.splash = "ext:术樱包/pve/images/tianshu.jpg";
     return mode;

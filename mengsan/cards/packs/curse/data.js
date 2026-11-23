@@ -52,7 +52,7 @@ export const curseCards = Object.freeze([
     "cardType": "curse",
     "rarity": "curse",
     "cost": null,
-    "description": "不能被打出。你在本回合不能打出超过3张牌。",
+    "description": "不能被打出。此牌在你手中时，若本回合已主动打出3张牌，你不能再主动打牌。",
     "base": {
       "unplayable": true
     }
@@ -66,7 +66,7 @@ export const curseCards = Object.freeze([
     "cardType": "curse",
     "rarity": "curse",
     "cost": null,
-    "description": "不能被打出。在你的回合结束时，如果这张牌在你的手牌中, 你受到2点伤害。",
+    "description": "不能被打出。你的弃牌阶段开始时，若此牌仍在手牌中，你受到2点伤害。",
     "base": {
       "unplayable": true,
       "endDamage": 2
@@ -81,7 +81,7 @@ export const curseCards = Object.freeze([
     "cardType": "curse",
     "rarity": "curse",
     "cost": null,
-    "description": "不能被打出。在你的回合结束时，如果这张牌在你的手牌中，失去相当于手牌数量的生命。",
+    "description": "不能被打出。你的弃牌阶段开始时，若此牌仍在手牌中，你每持有1张手牌便失去1点生命。",
     "base": {
       "unplayable": true
     }
@@ -126,7 +126,7 @@ export const curseCards = Object.freeze([
     "cardType": "curse",
     "rarity": "curse",
     "cost": null,
-    "description": "不能被打出。在5场战斗后从你的牌组中移除。",
+    "description": "不能被打出。带着此牌赢得5场战斗后，它会从永久牌组移除。",
     "base": {
       "unplayable": true
     }

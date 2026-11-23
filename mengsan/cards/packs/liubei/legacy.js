@@ -41,17 +41,13 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
                 : { damage: 8, vulnerable: 2 };
             return "梦三：主动使用消耗2费用。对攻击范围内的" +
                 `一名其他角色造成${effect.damage}点伤害，然后给予其` +
-                `${effect.vulnerable}层易伤。受到攻击伤害增加50%` +
+                `${effect.vulnerable}层易伤。易伤使受到的攻击伤害增加50%` +
                 "（向上取整），每个自身回合结束减少1层。" +
                 "每回合使用次数不限。";
         },
     };
     translate.mengsan_zhongsha = "重杀";
-    translate.mengsan_zhongsha_info =
-        "梦三：主动使用消耗2费用。出牌阶段，对攻击范围内的" +
-        "一名其他角色造成8点伤害，然后给予其2层易伤。" +
-        "易伤使受到的攻击伤害增加50%（向上取整），" +
-        "每个自身回合结束减少1层。每回合使用次数不限。";
+    translate.mengsan_zhongsha_info = card.mengsan_zhongsha.cardPrompt({ name: "mengsan_zhongsha" });
     // STS2 Setup Strike: the new temporary strength does not enhance its own hit.
     // STS2 Cinder: damage first, then exhaust one random remaining hand card.
     card.mengsan_yujin = {
@@ -274,12 +270,12 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
             const block = upgraded ? rule.block : rule.baseBlock;
             const damage = upgraded ? rule.damage : rule.baseDamage;
             return '梦三：主动使用消耗1费用。获得' + block +
-                '点格挡（护甲），然后对一名敌方角色造成' + damage +
+                '点格挡，然后对一名敌方角色造成' + damage +
                 '点伤害。每回合使用次数不限。';
         },
     };
     translate.mengsan_tiezhanbo = "铁斩波";
-    translate.mengsan_tiezhanbo_info = "梦三：主动使用消耗1费用。获得5点格挡（护甲），" +
+    translate.mengsan_tiezhanbo_info = "梦三：主动使用消耗1费用。获得5点格挡，" +
         "然后对一名敌方角色造成5点伤害。每回合使用次数不限。";
     // STS2 Twin Strike: each hit resolves on the same target separately.
     card.mengsan_shuangchongdaji = {
@@ -399,8 +395,7 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         },
     };
     translate.mengsan_feijianhuixuanbiao = "飞剑回旋镖";
-    translate.mengsan_feijianhuixuanbiao_info = "梦三：主动使用消耗1费用。随机对敌人造成3点伤害3次。" +
-        "每次攻击重新随机选择存活的敌人，可以重复命中同一敌人。每回合使用次数不限。";
+    translate.mengsan_feijianhuixuanbiao_info = card.mengsan_feijianhuixuanbiao.cardPrompt({ name: "mengsan_feijianhuixuanbiao" });
     // Resolve damage before drawing from the acting player's mode-owned pile.
     card.mengsan_jianbingdaji = {
         type: "basic", fullimage: true,
@@ -472,13 +467,13 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         },
         cardPrompt(used) {
             const cost = cardCost(used || { name: "mengsan_quanshenzhuangji" });
-            return `梦三：主动使用消耗${cost}费用。对一名敌方角色造成等同于你当前格挡（护甲）值的伤害。` +
+            return `梦三：主动使用消耗${cost}费用。对一名敌方角色造成等同于你当前格挡值的伤害。` +
                 "不消耗格挡，可以受到力量加成。" +
                 "每回合使用次数不限。";
         },
     };
     translate.mengsan_quanshenzhuangji = "全身撞击";
-    translate.mengsan_quanshenzhuangji_info = "梦三：主动使用消耗1费用。对一名敌方角色造成等同于你当前格挡（护甲）值的伤害。" +
+    translate.mengsan_quanshenzhuangji_info = "梦三：主动使用消耗1费用。对一名敌方角色造成等同于你当前格挡值的伤害。" +
         "不消耗格挡，可以受到力量加成。每回合使用次数不限。";
     // Double only the surviving target's existing vulnerable after damage resolves.
     card.mengsan_rongrongzhiquan = {
@@ -518,8 +513,7 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         },
     };
     translate.mengsan_rongrongzhiquan = "熔融之拳";
-    translate.mengsan_rongrongzhiquan_info = "梦三：主动使用消耗1费用。对一名敌方角色造成10点伤害，然后将该目标已有的易伤层数翻倍。" +
-        "消耗：使用后退出本场战斗。";
+    translate.mengsan_rongrongzhiquan_info = card.mengsan_rongrongzhiquan.cardPrompt({ name: "mengsan_rongrongzhiquan" });
     // STS2【愤怒】：攻击后生成独立的战斗复制品，不扩充永久牌组。
     card.mengsan_fennu = {
         type: "basic", fullimage: true,
@@ -554,9 +548,7 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         },
     };
     translate.mengsan_fennu = "愤怒";
-    translate.mengsan_fennu_info = "梦三：主动使用消耗0费用。对一名敌方角色造成6点伤害，" +
-        "然后将一张此牌的复制品加入你的个人弃牌堆。复制品保留原牌状态和词缀，仅存在于本场战斗。" +
-        "每回合使用次数不限。";
+    translate.mengsan_fennu_info = card.mengsan_fennu.cardPrompt({ name: "mengsan_fennu" });
     // STS2【放血】：先等待原生生命流失及濒死救援，再增加当前战斗费用。
     card.mengsan_fangxue = {
         type: "basic", fullimage: true,
@@ -615,13 +607,13 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
             const rule = cardUpgradeRule("mengsan_jianyi");
             const current = cardUpgradeLevel(used);
             const block = current ? rule.block : rule.baseBlock;
-            return "梦三：主动使用消耗1费用。获得" + block + "点格挡（护甲），然后" +
+            return "梦三：主动使用消耗1费用。获得" + block + "点格挡，然后" +
                 (current && rule.chooseExhaust ? "选择消耗" : "随机消耗") +
                 "一张你的手牌（退出本场战斗，不进入弃牌堆或洗牌）。没有手牌时不消耗牌。";
         },
     };
     translate.mengsan_jianyi = "坚毅";
-    translate.mengsan_jianyi_info = "梦三：主动使用消耗1费用。获得7点格挡（护甲），然后随机消耗一张你的手牌（退出本场战斗，不进入弃牌堆或洗牌）。没有手牌时不消耗牌。";
+    translate.mengsan_jianyi_info = "梦三：主动使用消耗1费用。获得7点格挡，然后随机消耗一张你的手牌（退出本场战斗，不进入弃牌堆或洗牌）。没有手牌时不消耗牌。";
     // STS2【破灭】：免费使用自己的堆顶原牌，再将这一原牌消耗。
     card.mengsan_pomie = {
         type: "basic", fullimage: true,
@@ -665,11 +657,11 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         cardPrompt(used) {
             const rule = cardUpgradeRule("mengsan_songjianwushi");
             const block = cardUpgradeLevel(used) ? rule.block : rule.baseBlock;
-            return "梦三：主动使用消耗1费用。获得" + block + "点格挡（护甲），然后抽" + rule.draw + "张牌。";
+            return "梦三：主动使用消耗1费用。获得" + block + "点格挡，然后抽" + rule.draw + "张牌。";
         },
     };
     translate.mengsan_songjianwushi = "耸肩无视";
-    translate.mengsan_songjianwushi_info = "梦三：主动使用消耗1费用。获得8点格挡（护甲），然后抽1张牌。";
+    translate.mengsan_songjianwushi_info = "梦三：主动使用消耗1费用。获得8点格挡，然后抽1张牌。";
     // STS2【暴走】：先攻击，再仅增加本场这张实体牌的伤害。
     card.mengsan_baozou = {
         type: "basic", fullimage: true,
@@ -751,8 +743,8 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         cardPrompt(used) {
             const rule = cardUpgradeRule("mengsan_xuanfengzhan");
             const amount = cardUpgradeLevel(used) ? rule.damage : rule.baseDamage;
-            return "梦三：X费用。消耗当前剩余费用，对所有敌方角色各造成" + amount +
-                "点伤害X次，每次分别结算。X为本次用于攻击的费用；缠结时先扣除1点附加费用。X为0时不造成伤害。";
+            return `消耗当前剩余费用，对所有敌方角色各造成${amount}点伤害，结算X次。` +
+                "X按本次用于攻击的费用计算。缠结时先扣除1点附加费用。";
         },
     };
     translate.mengsan_xuanfengzhan = "旋风斩";
@@ -816,11 +808,11 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         cardPrompt(used) {
             const rule = cardUpgradeRule("mengsan_xueqiang");
             const block = cardUpgradeLevel(used) ? rule.block : rule.baseBlock;
-            return "梦三：主动使用消耗2费用。失去2点生命，然后获得" + block + "点格挡（护甲）。";
+            return "梦三：主动使用消耗2费用。失去2点生命，然后获得" + block + "点格挡。";
         },
     };
     translate.mengsan_xueqiang = "血墙";
-    translate.mengsan_xueqiang_info = "梦三：主动使用消耗2费用。失去2点生命，然后获得16点格挡（护甲）。";
+    translate.mengsan_xueqiang_info = "梦三：主动使用消耗2费用。失去2点生命，然后获得16点格挡。";
     // STS2【战栗】：施加易伤走既有人工制品入口，消耗走原生用牌及个人牌堆。
     card.mengsan_zhanli = {
         type: "basic", fullimage: true,
@@ -876,11 +868,11 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
         ai: { order: 8, result: { player: 1 } },
         cardPrompt(used) {
             const selection = cardUpgradeLevel(used) ? "所有牌" : "一张牌";
-            return "梦三：主动使用消耗1费用。获得5点格挡（护甲），然后强化你手牌中的" + selection + "（仅本场战斗）。";
+            return "梦三：主动使用消耗1费用。获得5点格挡，然后强化你手牌中的" + selection + "（仅本场战斗）。";
         },
     };
     translate.mengsan_wuzhuang = "武装";
-    translate.mengsan_wuzhuang_info = "梦三：主动使用消耗1费用。获得5点格挡（护甲），然后强化你手牌中的一张牌（仅本场战斗）。";
+    translate.mengsan_wuzhuang_info = "梦三：主动使用消耗1费用。获得5点格挡，然后强化你手牌中的一张牌（仅本场战斗）。";
     // 【防御】沿用梦三护甲事件，保留脆弱与伤害抵扣等既有规则。
     card.mengsan_fangyu = {
         type: "basic",
@@ -899,12 +891,10 @@ export function createLegacyLiuBeiCards({ copyToDiscard, reclaimFromDiscard, tem
             await player.changeHujia(cardUpgradeLevel(event.card) ? 8 : 5);
         },
         ai: { order: 7, result: { target: 1 } },
-        cardPrompt(used) { return `梦三：主动使用消耗1费用。获得${cardUpgradeLevel(used) ? 8 : 5}点格挡（护甲）。`; },
+        cardPrompt(used) { return `梦三：主动使用消耗1费用。获得${cardUpgradeLevel(used) ? 8 : 5}点格挡。`; },
     };
     translate.mengsan_fangyu = "防御";
-    translate.mengsan_fangyu_info =
-        "梦三：主动使用消耗1费用。出牌阶段，对自己使用，获得5点格挡（护甲）。" +
-        "每回合使用次数不限。";
+    translate.mengsan_fangyu_info = card.mengsan_fangyu.cardPrompt({ name: "mengsan_fangyu" });
     // 【桃】的回复量也由梦三牌本体提供；救援仍不消耗费用。
     return { cards:card, translate, names:Object.keys(card) };
 }

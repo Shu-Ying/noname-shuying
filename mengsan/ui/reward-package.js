@@ -1,5 +1,8 @@
 import { lib, get } from "../../../../noname.js";
 import { getRelic } from "../relics/definitions.js";
+import { potionView } from "../potions/presentation.js";
+import { choosePotionReward } from "./potions.js";
+import { cardDescriptionText } from "../cards/description.js";
 import {
     chooseCardDialog, chooseRelicDialog, chooseVictoryOptions,
     RETURN_TO_VICTORY,
@@ -10,15 +13,14 @@ const upgradeDescription = choice => {
     const info = lib.card[card.name];
     const suit = get.translation(card.suit);
     // Display this card's current rules, not eligibility or upgrade comparisons.
-    const description = typeof info?.cardPrompt === "function"
-        ? info.cardPrompt(card) : lib.translate[`${card.name}_info`] || "暂无卡牌介绍。";
+    const description = cardDescriptionText(card, info, lib.translate[`${card.name}_info`]);
     return `${suit}${card.number} · ${description}`;
 };
 
 export async function chooseRewardPackage(choices, {
-    rewardPackage: pack, fixedRewards = [],
+    rewardPackage: pack, fixedRewards = [], potionChoices = [], potionSlots = [],
 }) {
-    let cardId = null, relicId = null;
+    let cardId = null, relicId = null, potion = null;
     const upgradeChoices = pack.upgradeChoices.map(card => ({
         id: card.id, card,
     }));
@@ -70,14 +72,27 @@ export async function chooseRewardPackage(choices, {
             return RETURN_TO_VICTORY;
         },
     };
-    return chooseVictoryOptions([upgrade, relic, {
+    const options = [upgrade, relic];
+    if (potionChoices.length) {
+        const label = "药水奖励 · " + potionChoices.length + "选1";
+        const option = {
+            id: "potion", label, description: "选择一瓶药水，也可跳过。",
+            async choose() {
+                potion = await choosePotionReward(potionChoices, potionSlots);
+                option.label = potion ? "已选药水 · " + potionView(potion.id).name : label;
+                return RETURN_TO_VICTORY;
+            },
+        };
+        options.push(option);
+    }
+    return chooseVictoryOptions([...options, {
         id: "claim-package", label: "领取奖励并继续",
         description: "领取固定奖励与已选奖励，未选择的项目视为跳过。",
-        choose: () => ({ cardId, relicId }),
+        choose: () => ({ cardId, relicId, potion }),
     }, {
         id: "skip-package", label: "跳过",
-        description: "跳过强化与遗物，金币与固定卡牌仍会获得。",
-        choose: () => ({ cardId: null, relicId: null }),
+        description: "跳过可选奖励，金币与固定卡牌仍会获得。",
+        choose: () => ({ cardId: null, relicId: null, potion: null }),
     }], {
         title: "初识的卢", allowSkip: false,
         rewardLabel: "搜刮 · 战利品列表",
@@ -86,6 +101,6 @@ export async function chooseRewardPackage(choices, {
             ...fixedRewards.map(reward => ({ ...reward }))],
         description: `固定获得 ${pack.gold} 金币与${fixedRewards.map(
             reward => `【${reward.name}】`).join("、")}。` +
-            "强化与遗物点击后选择，也可跳过。",
+            "点击查看可选奖励，也可跳过。",
     });
 }

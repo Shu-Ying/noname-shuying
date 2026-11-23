@@ -67,7 +67,7 @@ export const statusCards = Object.freeze([
     "cardType": "status",
     "rarity": "status",
     "cost": null,
-    "description": "不能被打出。在你的回合结束时，如果这张牌在你的手牌中，你受到3点伤害。",
+    "description": "不能被打出。你的弃牌阶段开始时，若此牌仍在手牌中，你受到3点伤害。",
     "base": {
       "unplayable": true,
       "endDamage": 3
@@ -82,7 +82,7 @@ export const statusCards = Object.freeze([
     "cardType": "status",
     "rarity": "status",
     "cost": null,
-    "description": "不能被打出。在你的回合结束时，如果这张牌在你的手牌中，你受到3点伤害。",
+    "description": "不能被打出。你的弃牌阶段开始时，若此牌仍在手牌中，你受到3点非攻击伤害。",
     "base": {
       "unplayable": true,
       "endDamage": 3
@@ -125,7 +125,7 @@ export const statusCards = Object.freeze([
     "cardType": "status",
     "rarity": "status",
     "cost": null,
-    "description": "不能被打出。虚无。每当你抽到这张牌时，失去1点能量。",
+    "description": "不能被打出。虚无。抽到此牌时，扣除1点费用。",
     "base": {
       "ethereal": true,
       "unplayable": true

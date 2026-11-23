@@ -79,11 +79,11 @@ export function addPermanentRelicCard(run, name, spec) {
     return card;
 }
 const queue = (run,relic,spec) => (relicState(run).choices ||= []).push({relic:relic.name,...spec});
-const transform = (run,card,upgrade=false) => {
-    const name=relicRandomGet(run,relicCardPool(run)); if (!name) return false;
+export function transformPermanentCard(run,card,upgrade=false,candidates=relicCardPool(run)) {
+    const name=relicRandomGet(run,candidates); if (!name) return false;
     const next=newRelicCard(run,name); next.id=card.id; if (upgrade && canUpgradeCard(next)) next.upgrade++;
     Object.keys(card).forEach(key=>delete card[key]); Object.assign(card,next); return true;
-};
+}
 export function applyRelicPickup(run,relic,{entries,canAcquire,grant}) {
     const r=relic.rule;
     const state=relicState(run);
@@ -98,8 +98,8 @@ export function applyRelicPickup(run,relic,{entries,canAcquire,grant}) {
     for (const name of r.addCards || []) addPermanentRelicCard(run,name);
     for (let i=0;i<(r.randomCurse || 0);i++) { const name=relicRandomGet(run,relicCardPool(run,{pack:"curse"})); if (name) addPermanentRelicCard(run,name); }
     if (r.upgradeStarters) for (const kind of ["strike","defend"]) { const card=run.player.deck.find(card=>starterKind(card)===kind && canUpgradeCard(card)); if (card) card.upgrade++; }
-    if (r.transformAllStarters) for (const card of run.player.deck) if (starterKind(card) && !card.affixes.includes("eternal")) transform(run,card);
-    if (r.transformStarters) for (const kind of ["strike","defend"]) { const card=run.player.deck.find(card=>starterKind(card)===kind && !card.affixes.includes("eternal")); if (card) transform(run,card); }
+    if (r.transformAllStarters) for (const card of run.player.deck) if (starterKind(card) && !card.affixes.includes("eternal")) transformPermanentCard(run,card);
+    if (r.transformStarters) for (const kind of ["strike","defend"]) { const card=run.player.deck.find(card=>starterKind(card)===kind && !card.affixes.includes("eternal")); if (card) transformPermanentCard(run,card); }
     if (r.addStarters) { addPermanentRelicCard(run,"sha"); addPermanentRelicCard(run,"mengsan_fangyu"); }
     if (r.gainRandomRarity) { const name=relicRandomGet(run,relicCardPool(run,{rarity:r.gainRandomRarity})); if (name) addPermanentRelicCard(run,name); }
     if (r.gainAncientCard) { const name=relicRandomGet(run,relicCardPool(run,{rarity:"ancient",pack:"event"})); if (name) addPermanentRelicCard(run,name); }
@@ -137,7 +137,7 @@ export async function resolveRelicChoices(run,choose,{cardName=name=>name}={}) {
             if (task.kind==="upgrade") card.upgrade++;
             else if (task.kind==="duplicate") addPermanentRelicCard(run,card.name,{...card,affixes:[...card.affixes]});
             else if (task.kind==="remove") run.player.deck.splice(index,1);
-            else if (task.kind==="transform" || task.kind==="transformUpgrade") transform(run,card,task.kind==="transformUpgrade");
+            else if (task.kind==="transform" || task.kind==="transformUpgrade") transformPermanentCard(run,card,task.kind==="transformUpgrade");
             else if (task.kind==="bite") { const next=newRelicCard(run,"mengsan_event_maul");next.id=card.id;Object.keys(card).forEach(key=>delete card[key]);Object.assign(card,next); }
             else if (task.kind==="store") (relicState(run).storedCards ||= []).push(...run.player.deck.splice(index,1));
         }

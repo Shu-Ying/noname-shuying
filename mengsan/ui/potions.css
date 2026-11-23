@@ -1,0 +1,73 @@
+.mengsan-potion-slots {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    position: relative;
+    width: auto;
+    pointer-events: auto;
+}
+
+.mengsan-battle-potions {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 44%;
+    z-index: 7;
+}
+
+.mengsan-potion-slot {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 2px;
+    border: 1px solid #c89658;
+    border-radius: 6px;
+    background: #241e19;
+    color: #f2d8ab;
+}
+
+button.mengsan-potion-slot, .mengsan-potion-import { cursor: pointer; }
+.mengsan-potion-slot-empty { border-style: dashed; opacity: .65; }
+.mengsan-potion-icon { position: relative; display: grid; place-items: center; width: 100%; height: 100%; }
+.mengsan-potion-icon > img { grid-area: 1 / 1; width: 100%; height: 100%; object-fit: contain; }
+.mengsan-potion-icon > span { grid-area: 1 / 1; }
+.mengsan-potion-icon > [hidden] { display: none; }
+.ms-shop-potion-image { width: 48px; height: 48px; object-fit: contain; }
+.mengsan-potion-choice-tile .mengsan-card-choice-art-shuying { aspect-ratio: 1; }
+.mengsan-potion-choice-tile .mengsan-card-choice-art-shuying img { object-fit: contain; }
+.mengsan-potion-choice-tile .mengsan-card-choice-art-shuying:has(img) .mengsan-card-choice-glyph-shuying { display: none; }
+.mengsan-potion-text-blue { color: #91c8f2; }
+.mengsan-potion-text-gold { color: #efc57e; }
+.mengsan-potion-text-green { color: #bee09b; }
+.mengsan-potion-text-red { color: #f39d8c; }
+.mengsan-potion-import { border: 0; background: transparent; color: #f2d8ab; }
+
+.mengsan-map-status-shuying:has(> .mengsan-potion-slots) {
+    flex-wrap: wrap;
+}
+
+.mengsan-potion-dialog {
+    box-sizing: border-box;
+    width: min(340px, calc(100vw - 32px));
+    padding: 20px;
+    border: 1px solid #c89658;
+    border-radius: 10px;
+    background: #241e19;
+    color: #f9e6c8;
+    text-align: center;
+}
+
+.mengsan-potion-dialog::backdrop { background: #100d0abf; }
+.mengsan-potion-dialog > .mengsan-potion-icon { width: 56px; height: 56px; margin: auto; }
+.mengsan-potion-dialog h2 { margin: 12px 0 6px; }
+.mengsan-potion-dialog p { line-height: 1.5; white-space: pre-line; }
+.mengsan-potion-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.mengsan-potion-actions button { min-height: 34px; padding: 3px 12px; }
+
+@media (pointer: coarse) {
+    .mengsan-potion-slot { width: 40px; height: 40px; }
+    .mengsan-potion-actions button { min-height: 44px; }
+}

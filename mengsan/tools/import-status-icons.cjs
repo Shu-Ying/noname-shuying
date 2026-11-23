@@ -4,8 +4,9 @@ const crypto = require('node:crypto');
 const { pathToFileURL } = require('node:url');
 (async () => {
     const root = path.resolve(__dirname, '..');
+    const { getSts2Atlas } = await import('./sts2-atlas.js');
+    const source = getSts2Atlas('power_atlas.sprites');
     const { statusIconNames } = await import(pathToFileURL(path.join(root, 'ui/hud/status-model.js')).href);
-    const source = path.join(root, 'assets/sts2/Godot_Atlas_Sprites_v0.111.0/images/atlases/power_atlas.sprites');
     const output = path.join(root, 'assets/status');
     fs.mkdirSync(output, {recursive:true});
     const entries = [], missing = [];

@@ -1,6 +1,7 @@
 import { chooseFlow } from "./flow-ui.js";
 import { mountMenu } from "./navigation.js";
 import { createRelicIcon } from "./relic-icon.js";
+import { mountPotionSlots, showPotionDescription } from "./potions.js";
 
 const portraitUrl = new URL("../assets/portraits/sushuang-zhangshiping.png", import.meta.url).href;
 const iconPaths = {
@@ -38,12 +39,22 @@ function offer(choice, relic, finish) {
     const card = element("article", "offer");
     const art = element("span", "art");
     art.setAttribute("aria-hidden", "true");
-    const visual = relic ? createRelicIcon(choice.image) :
+    let visual = relic ? createRelicIcon(choice.image) :
         choice.id === "card_sha" ? element("span", "card-face", "杀") : icon("heal");
+    if (choice.id.startsWith("potion:")) {
+        visual = element("img", "potion-image");
+        visual.alt = "";
+        visual.src = choice.image;
+        visual.addEventListener("error", () => {
+            visual.replaceWith(element("span", "card-face", choice.name[0]));
+        }, { once: true });
+    }
     if (visual) art.append(visual);
 
     const copy = element("div", "copy");
-    const description = element("p", "description", choice.description);
+    const description = element("p", "description");
+    if (choice.richDescription) showPotionDescription(description, choice);
+    else description.textContent = choice.description;
     description.id = `ms-shop-description-${choice.id}`;
     copy.append(element("h3", "name", choice.name), description);
 
@@ -91,13 +102,19 @@ export const chooseShop = (player, choices) => chooseFlow("商店", (overlay, fi
         statusItem("coin", "金币", player.gold),
         statusItem("heart", "生命", player.hp == null ? "未初始化" : `${player.hp}/${player.maxHp}`),
     );
+    mountPotionSlots(status, player);
     const menu = mountMenu(status);
     header.append(heading, status);
     counter.append(header);
 
-    const relics = [], supplies = [];
-    for (const choice of choices) (choice.id.startsWith("relic:") ? relics : supplies).push(choice);
+    const relics = [], supplies = [], potions = [];
+    for (const choice of choices) {
+        if (choice.id.startsWith("potion:")) potions.push(choice);
+        else if (choice.id.startsWith("relic:")) relics.push(choice);
+        else supplies.push(choice);
+    }
     appendOffers(counter, "遗物", "relics", relics, finish);
+    appendOffers(counter, "药水", "potions", potions, finish);
     appendOffers(counter, "补给", "supplies", supplies, finish);
 
     const footer = element("footer", "footer");
