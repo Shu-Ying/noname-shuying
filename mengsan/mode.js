@@ -115,6 +115,7 @@ import { chooseRewardPackage } from "./ui/reward-package.js";
 import { applyStoryOutcome, getAvailableStoryChoices } from "./progression/story.js";
 import { playDialogue } from "./ui/dialogue.js";
 import { chooseButtons } from "./ui/flow-ui.js";
+import { chooseCharacterCards } from "./ui/character-select.js";
 import { chooseRest } from "./ui/rest-ui.js";
 import { chooseShop } from "./ui/shop-ui.js";
 import { openModeSelection } from "./ui/navigation.js";
@@ -179,12 +180,18 @@ const chooseRun = async savedRun => {
 };
 
 const chooseCharacter = async (backLabel = "返回存档选择") => {
-    const choices = config.characters.filter(name => lib.character[name]).map(name => ({
-        id: name,
-        name: get.translation(name),
-        description: lib.translate[`${name}_title`] || "作为本次征程的角色",
-    }));
-    return chooseButtons("选择出征武将", [...(choices.length ? choices : [{ id: "mengsan_liubei_shuying", name: "刘备" }]), { id: "back", name: backLabel, description: "不会修改现有征程" }], "此武将将陪伴你完成本次征程。", { back: "back", eyebrow: "出征准备" });
+    const playable = config.characters.filter(id => lib.character[id]).map(id => {
+        const { group, img } = lib.character[id];
+        return {
+            id,
+            name: get.translation(id),
+            faction: group,
+            factionName: get.translation(group),
+            portrait: img ? lib.assetURL + img : "",
+            description: lib.translate[`${id}_title`] || "作为本次征程的角色",
+        };
+    });
+    return chooseCharacterCards(playable, STYLE_PATH, backLabel);
 };
 
 const chooseDefeatAction = async run => chooseButtons("角色阵亡", [
@@ -2049,7 +2056,7 @@ export async function createMengsanMode() {
             [245, 196, 193, 1], [192, 85, 91, 1],
         ] });
     }
-    await Promise.all(["style", "shop", "rest"].map(name => new Promise(resolve => {
+    await Promise.all(["style", "shop", "rest", "character-select"].map(name => new Promise(resolve => {
         const style = lib.init.css(`${STYLE_PATH}/ui`, name, resolve);
         style.addEventListener("error", resolve, { once: true });
     })));
