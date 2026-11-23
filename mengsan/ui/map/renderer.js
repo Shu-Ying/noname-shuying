@@ -1,5 +1,5 @@
 import { openCardLibrary } from "../card-library.js";
-import { askMenu, openModeSelection, openNonameMenu } from "../navigation.js";
+import { askMenu, confirmRestartJourney, openModeSelection, openNonameMenu } from "../navigation.js";
 import { ui, get } from "../../../../../noname.js";
 import config from "../../config.js";
 import { getRelic } from "../../relics/definitions.js";
@@ -28,6 +28,7 @@ const controlIconPaths = {
     book: "M5 5h9a5 5 0 015 5v17a5 5 0 00-5-5H5zM27 5h-9a5 5 0 00-5 5v17a5 5 0 015-5h9z",
     record: "M8 4h16v24H8zM12 10h8M12 16h8M12 22h5",
     settings: "M16 11a5 5 0 100 10 5 5 0 000-10zM16 3v4M16 25v4M3 16h4M25 16h4M7 7l3 3M22 22l3 3M25 7l-3 3M10 22l-3 3",
+    restart: "M5 15a11 11 0 111 7M5 6v9h9",
     exit: "M13 5H6v22h7M20 10l6 6-6 6M26 16H11",
     back: "M20 7l-9 9 9 9M11 16h16",
     close: "M8 8l16 16M24 8L8 24",
@@ -342,6 +343,9 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
                     await askMenu("暂时无法显示菜单", error.message || "请稍后重试。", [{ id: "close", name: "回到行军图" }]);
                 }
             },
+        }).setAttribute("aria-haspopup", "dialog");
+        createMenuAction({ icon: "restart", name: "重新开始", description: "结束本次征程，返回角色选择",
+            danger: true, onClick: confirmRestartJourney,
         }).setAttribute("aria-haspopup", "dialog");
     }
 

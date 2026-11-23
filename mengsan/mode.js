@@ -125,7 +125,7 @@ import { acquirePotion, createPotionOffer, potionSlots } from "./potions/state.j
 import { loadPotionAssets, potionView } from "./potions/presentation.js";
 import { createPotionActions, createPotionSkills, potionBlockType, potionSkillIds, potionSkillTranslations } from "./potions/battle.js";
 import { choosePotionReplacement, choosePotionReward, mountPotionSlots } from "./ui/potions.js";
-import { openModeSelection } from "./ui/navigation.js";
+import { confirmRestartJourney, consumeJourneyRestart, openModeSelection } from "./ui/navigation.js";
 import {
     completeNode,
     createRun,
@@ -179,11 +179,15 @@ const reportFlowError = error => {
 const chooseRun = async savedRun => {
     const available = savedRun?.status === "running";
     const act = available ? config.acts[savedRun.actIndex] : null;
-    return chooseButtons("梦三", [
+    const choices = [
         { id: "continue", name: "继续征程", disabled: !available,
           description: available ? `${get.translation(savedRun.player.character)} · ${act?.name || "未知区域"} · 已完成 ${savedRun.statistics?.completedNodes || 0} 个节点` : "暂无进行中的征程" },
         { id: "new", name: "开始新征程", description: available ? "选择角色，确认后替换当前自动存档" : "选择一名武将，踏入第一关" },
-    ], "单一自动存档 · 完成节点后记录进度", { eyebrow: "水墨行军 · 存档选择" });
+    ];
+    if (available) {
+        choices.push({ id: "restart", name: "重新开始", danger: true, description: "清除上次征程的存档，进入角色选择" });
+    }
+    return chooseButtons("梦三", choices, "单一自动存档 · 完成节点后记录进度", { eyebrow: "水墨行军 · 存档选择" });
 };
 
 const chooseCharacter = async (backLabel = "返回存档选择") => {
@@ -1055,9 +1059,15 @@ const routeRun = async (run, selected = null, supplied = false) => {
 const startJourney = async () => {
                 lib.translate.restart = "返回";
                 let run = modeStorage.read()[config.saveKey] || null;
+                let selectCharacterDirectly = consumeJourneyRestart() && !run;
                 while (true) {
-                    const action = await chooseRun(run);
+                    const action = selectCharacterDirectly ? "new" : await chooseRun(run);
+                    selectCharacterDirectly = false;
                     if (action === "continue") break;
+                    if (action === "restart") {
+                        await confirmRestartJourney();
+                        continue;
+                    }
                     const character = await chooseCharacter();
                     if (character === "back") continue;
                     if (run) {

@@ -1,9 +1,21 @@
 import { lib, game, ui, _status } from "../../../../noname.js";
 import { save } from "../../../../noname/util/config.js";
 import { getDiagnostics } from "../../diagnostics/index.js";
+import config from "../config.js";
 
 let selectingMode = false;
 let nonameMenuTask = null;
+let restartingJourney = false;
+
+const journeyRestartKey = () => `${lib.configprefix}${config.modeId}:restart`;
+const canRestartJourney = () => lib.storage?.[config.saveKey]?.status === "running";
+
+export const consumeJourneyRestart = () => {
+    const key = journeyRestartKey();
+    if (sessionStorage.getItem(key) !== "true") return false;
+    sessionStorage.removeItem(key);
+    return true;
+};
 
 // Open the engine's real settings menu without ending the current expedition flow.
 export const openNonameMenu = async () => {
@@ -138,6 +150,53 @@ export const askMenu = (title, description, choices) => new Promise(resolve => {
     dialog.querySelector("button")?.focus();
 });
 
+export const confirmRestartJourney = async () => {
+    if (restartingJourney || !canRestartJourney()) return;
+    restartingJourney = true;
+    let cleared = false;
+    try {
+        const confirmed = await askMenu("重新开始？", "当前征程的存档将被清除。确认后返回角色选择。", [
+            { id: "cancel", name: "取消" },
+            { id: "confirm", name: "确认重新开始", danger: true },
+        ]);
+        if (confirmed !== "confirm") return;
+
+        const restartKey = journeyRestartKey();
+        const directStartKey = `${lib.configprefix}directstart`;
+        const previousDirectStart = localStorage.getItem(directStartKey);
+        const previousInert = ui.window.inert;
+        const wasPaused = _status.paused2;
+        ui.window.inert = true;
+        game.pause2();
+        try {
+            sessionStorage.setItem(restartKey, "true");
+            localStorage.setItem(directStartKey, "true");
+            await game.mengsanClearRun_shuying();
+        } catch (error) {
+            ui.window.inert = previousInert;
+            if (!wasPaused) game.resume2();
+            sessionStorage.removeItem(restartKey);
+            if (previousDirectStart === null) localStorage.removeItem(directStartKey);
+            else localStorage.setItem(directStartKey, previousDirectStart);
+            throw error;
+        }
+        cleared = true;
+
+        // Reload through the engine so the old flow stops and pending DB writes can finish.
+        game.reload();
+        await new Promise(() => {});
+    } catch (error) {
+        console.error("梦三重新开始失败：", error);
+        getDiagnostics().scope("mengsan.navigation").error("restart.failed", error);
+        const message = cleared ? "本局存档已清除，请重新进入梦三选择角色。" : "请关闭提示后重试。";
+        await askMenu("暂时无法重新开始", message, [
+            { id: "close", name: "关闭提示" },
+        ]);
+    } finally {
+        restartingJourney = false;
+    }
+};
+
 export const mountMenu = (overlay, options = {}) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -160,12 +219,15 @@ export const mountMenu = (overlay, options = {}) => {
         options.onOpen?.();
         let action = null;
         try {
-            action = await askMenu("征程菜单", "退出不删除存档。未完成的节点与对话将在下次进入时重新开始。", [
+            const choices = [
                 { id: "resume", name: "继续当前界面" },
                 { id: "noname", name: "显示 Noname 菜单" },
                 { id: "exit", name: "返回模式选择" },
-            ]);
+            ];
+            if (canRestartJourney()) choices.push({ id: "restart", name: "重新开始", danger: true });
+            action = await askMenu("征程菜单", "返回模式选择会保留存档。未完成的节点与对话将在下次进入时重新开始。", choices);
             if (action === "noname") { await openNonameMenu(); return; }
+            if (action === "restart") { await confirmRestartJourney(); return; }
             if (action !== "exit") return;
             const confirmed = await askMenu("返回模式选择？", "保留上次已完成节点的存档。本次尚未完成的内容不会提交。", [
                 { id: "cancel", name: "留在梦三" },
