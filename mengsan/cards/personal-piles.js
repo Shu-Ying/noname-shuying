@@ -20,13 +20,15 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
     // Detached nodes: engine get.position recognises these IDs; no duplicate document IDs.
     draw.id = "cardPile"; discard.id = "discardPile";
     const owned = new Set(), topPlaying = new Set(), restores = [];
+    const pileNodes = { drawPile: draw, discardPile: discard };
+    const viewKeys = new WeakMap(), exhaustSources = new WeakMap();
     const strict = env.strict !== false;
     let released = false, forcedOwner = false, forcedPublic = false, exhaustTotal = 0;
     function recordExhaust(card) {
         if (card.storage?.mengsanExhausted_shuying) return false;
         card.storage.mengsanExhausted_shuying = true;
-        battle.exhaustPile.push(snapshot(card)); exhaustTotal++;
-        queueIroncladExhaust(owner, card); queueRelicExhaust(owner, card); refresh(); return true;
+        battle.exhaustPile.push(snapshotExhausted(card)); exhaustTotal++;
+        queueIroncladExhaust(owner, card); queueRelicExhaust(owner, card); refresh("exhaustPile"); return true;
     }
     const personal = () => {
         if (released || forcedPublic) return false;
@@ -42,7 +44,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         }
         return false; // Never infer ownership from whose turn it is.
     };
-    const refresh = () => { if (!released) env.refresh(); };
+    const refresh = (...piles) => { if (!released) env.refresh(...piles); };
     const canReceiveTransfer = (card, sourceSession) => !released && session.active && sourceSession===session &&
         owner.isAlive() && !owned.has(card) && typeof card?.storage?.mengsanCard_shuying?.id==="string" &&
         ![...owned].some(c=>c.storage?.mengsanCard_shuying?.id===card.storage.mengsanCard_shuying.id);
@@ -95,6 +97,19 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         return { ...data, ...snapshotRampage(card), ...ironcladHooks(owner)?.snapshotCard(card), ...sharedHooks(owner)?.snapshotCard?.(card), name: card.name, suit: card.suit, number: card.number,
             nature: card.nature || null, affixes: data.affixes?.slice() || [], upgrade: data.upgrade || 0 };
     }
+    function viewKey(card) {
+        if (!viewKeys.has(card)) viewKeys.set(card, Symbol());
+        return viewKeys.get(card);
+    }
+    function snapshotExhausted(card) {
+        const data = snapshot(card);
+        exhaustSources.set(data, card);
+        return data;
+    }
+    function removeExhaustSnapshot(card) {
+        const index = battle.exhaustPile.findIndex(data => exhaustSources.get(data) === card);
+        if (index >= 0) battle.exhaustPile.splice(index, 1);
+    }
     for (const data of battle.drawPile) {
         if (data.name === "muniu") continue;
         const card = game.createCard(data.name, data.suit, data.number, data.nature);
@@ -111,16 +126,28 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             if (Object.getOwnPropertyDescriptor(ui, key)?.get === read) Object.defineProperty(ui, key, descriptor.get ? descriptor : { ...descriptor, value: publicNode });
         });
     }
-    for (const [key, node] of [["drawPile", draw], ["discardPile", discard]]) {
+    for (const [key, node] of Object.entries(pileNodes)) {
         Object.defineProperty(battle, key, { configurable: true, enumerable: true,
             get: () => Array.from(node.childNodes, snapshot) });
     }
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver(records => {
         if (released) return;
+        const changed = new Set(records.map(record => record.target));
         // A card from our deck can be discarded during an enemy-owned event.
-        for (const card of Array.from(publicDiscard.childNodes)) if (owned.has(card)) discard.appendChild(card);
-        for (const node of [draw, discard]) for (const card of node.childNodes) adopt(card);
-        refresh();
+        if (changed.has(publicDiscard)) {
+            for (const card of Array.from(publicDiscard.childNodes)) {
+                if (!owned.has(card)) continue;
+                discard.appendChild(card);
+                changed.add(discard);
+            }
+        }
+        const piles = [];
+        for (const [key, node] of Object.entries(pileNodes)) {
+            if (!changed.has(node)) continue;
+            for (const card of node.childNodes) adopt(card);
+            piles.push(key);
+        }
+        if (piles.length) refresh(...piles);
     });
     for (const node of [draw, discard, publicDiscard]) observer.observe(node, { childList: true });
     function wash() {
@@ -129,7 +156,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         shuffle(run, cards);
         queueRelicShuffle(owner);
         for (const card of cards) { card.fix?.(); draw.appendChild(card); }
-        refresh();
+        refresh("drawPile", "discardPile");
         return true;
     }
     function take(number = 1, putBack = false, bottom = false) {
@@ -147,7 +174,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         if (putBack) for (let i = cards.length - 1; i >= 0; i--) {
             if (bottom) draw.appendChild(cards[i]); else draw.insertBefore(cards[i], draw.firstChild);
         }
-        refresh(); return cards;
+        refresh("drawPile"); return cards;
     }
     function wrap(object, key, replacement, shouldReplace = personal) {
         const descriptor = Object.getOwnPropertyDescriptor(object, key), original = object[key];
@@ -177,6 +204,17 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         owned.clear(); topPlaying.clear(); draw.remove(); discard.remove(); exhausted.remove();
     });
     return {
+        pileView: {
+            count(key) {
+                return pileNodes[key]?.childNodes.length ?? battle.exhaustPile.length;
+            },
+            records(key) {
+                const node = pileNodes[key];
+                return node
+                    ? Array.from(node.childNodes, card => ({ card: snapshot(card), key: viewKey(card) }))
+                    : battle.exhaustPile.map(card => ({ card, key: viewKey(exhaustSources.get(card) ?? card) }));
+            },
+        },
         take,
         canReceiveTransfer,
         receiveTransfer(card,sourceSession) {
@@ -259,13 +297,12 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
         exhaustTotal() { return exhaustTotal; },
         exhaustedCards() { return [...owned].filter(card => card.storage?.mengsanExhausted_shuying); },
         syncExhaustSnapshots() {
-            if(released || !session.active)return;
-            const current=new Map([...owned].filter(card=>card.storage?.mengsanExhausted_shuying)
-                .map(card=>[card.storage.mengsanCard_shuying?.id,card]));
-            for(let index=0;index<battle.exhaustPile.length;index++){
-                const card=current.get(battle.exhaustPile[index].id);
-                if(card)battle.exhaustPile[index]=snapshot(card);
+            if (released || !session.active) return;
+            for (let index = 0; index < battle.exhaustPile.length; index++) {
+                const card = exhaustSources.get(battle.exhaustPile[index]);
+                if (card?.storage?.mengsanExhausted_shuying) battle.exhaustPile[index] = snapshotExhausted(card);
             }
+            // Whole-deck upgrades also mutate draw and discard cards in place.
             refresh();
         },
         // 自动打出不会触发抽牌、洗牌或堆顶牌不足的失败规则。
@@ -273,9 +310,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             if (released || !session.active || !owned.has(card)) return false;
             if (fromExhaust) {
                 if (!card.storage?.mengsanExhausted_shuying) return false;
-                const id = card.storage?.mengsanCard_shuying?.id;
-                const index = battle.exhaustPile.findIndex(data => data.id === id);
-                if (index >= 0) battle.exhaustPile.splice(index,1);
+                removeExhaustSnapshot(card);
                 delete card.storage.mengsanExhausted_shuying;
                 delete card._selfDestroyed;
             } else if (card.parentNode !== draw && card.parentNode !== discard) return false;
@@ -315,9 +350,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             if(released || !session.active || !owner.isAlive() || !owned.has(card))return false;
             if(owner.getCards("h").includes(card))return true;
             if(card.storage?.mengsanExhausted_shuying){
-                const id=card.storage.mengsanCard_shuying?.id;
-                const index=battle.exhaustPile.findIndex(data=>data.id===id);
-                if(index>=0)battle.exhaustPile.splice(index,1);
+                removeExhaustSnapshot(card);
                 delete card.storage.mengsanExhausted_shuying;delete card._selfDestroyed;
             }
             delete card.storage.mengsanConsumed_shuying;
@@ -356,7 +389,7 @@ export function installPersonalPiles(session, owner, battle, run, resources, env
             const card = game.createCard(data.name, data.suit, data.number, data.nature);
             adopt(card, data);
             discard.appendChild(card);
-            refresh();
+            refresh("discardPile");
             return card;
         },
         async addToHand(data) {

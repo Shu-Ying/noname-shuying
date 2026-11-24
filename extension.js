@@ -6,7 +6,7 @@ import { configureDiagnostics } from "./diagnostics/index.js";
 
 export const type = "extension";
 export let shuYing = new Object();
-const shuYingLocalVersion = "2.0.2.3-rc.11";
+const shuYingLocalVersion = "2.0.2.3-rc.12";
 
 shuYing.name = "术樱包";
 shuYing.editable = false;

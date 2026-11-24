@@ -94,7 +94,11 @@ async function mountSurface(page, origin, prefix, settings, surface) {
       openCardLibrary(run);
     } else if (surface==='牌堆') {
       const {mountBattlePiles} = await modules('card-library');
-      mountBattlePiles({active:true,ownResource(){}},{drawPile:run.player.deck,discardPile:[],exhaustPile:[]});
+      const battle = {drawPile:run.player.deck,discardPile:[],exhaustPile:[]};
+      window.pileReview = {
+        battle,
+        control: mountBattlePiles({active:true,ownResource(){}},battle),
+      };
     } else if (surface==='遗物') {
       const {mountRelics} = await modules('relics');
       mountRelics({active:true,ownResource(){}},run,{status(){},counter:()=>({value:null,label:null})},{stripRoot:ui.arena});
@@ -178,7 +182,173 @@ async function checkSurface(page, surface, settings, origin, prefix) {
   if (result!==null) assert.equal(await page.evaluate(()=>zoomReviewResult),result,'the original action returns the choice');
 }
 
+async function checkLivePiles(page, origin, prefix) {
+  await mountSurface(page,origin,prefix,{zoom:1},'牌堆');
+  await page.evaluate(async prefix => {
+    const {battle,control} = window.pileReview;
+    control.dispose();
+    const engine = await import('/noname.js');
+    const {mountBattlePiles} = await import(prefix+'/ui/card-library.js');
+    const {installPersonalPiles} = await import(prefix+'/cards/personal-piles.js');
+    const {DAZED_NAME,dazedDefinition,createDazedData} = await import(prefix+'/cards/status-cards.js');
+    battle.drawPile = Array.from({length:48},(_,index) => ({id:`card-${index}`,name:'sha',suit:'heart',number:index%13+1}));
+    engine.lib.card[DAZED_NAME] = dazedDefinition;
+    engine.lib.translate[DAZED_NAME] = '晕眩';
+    const hand = document.createElement('div');
+    const owner = {playerid:'pile-review',isAlive:()=>true,getCards:()=>Array.from(hand.childNodes),
+      lose(card,pile) { pile.appendChild(card); return {}; }};
+    const session = {active:true,ownResource(){}};
+    const publicDiscard = document.createElement('div');
+    const ui = {cardPile:document.createElement('div'),discardPile:publicDiscard};
+    const game = {createCard(name,suit,number,nature) {
+      return Object.assign(document.createElement('div'),{name,suit,number,nature,gaintag:new Set(),
+        addGaintag(tag) { this.gaintag.add(tag); }});
+    }};
+    let dialogControl;
+    const piles = installPersonalPiles(session,owner,battle,{}, {card(){}}, {
+      game,ui,get:{},lib:engine.lib,_status:{},document,MutationObserver,shuffle:(_,cards)=>cards.reverse(),
+      refresh: (...keys) => dialogControl?.refresh(...keys),
+    });
+    const reads = {count:0,records:0};
+    dialogControl = mountBattlePiles(session,battle,{
+      count(key) { reads.count++; return piles.pileView.count(key); },
+      records(key) { reads.records++; return piles.pileView.records(key); },
+    });
+    window.pileReview = {piles,control:dialogControl,draw:piles.withOwner(()=>ui.cardPile),publicDiscard,createDazedData,reads,
+      makeNative(suit,number) { return hand.appendChild(game.createCard('sha',suit,number)); }};
+  },prefix);
+  await page.locator('.mengsan-battle-piles-button-shuying').tap();
+  const result = await page.evaluate(async () => {
+    const {piles,draw,publicDiscard,createDazedData,reads,makeNative} = window.pileReview;
+    const dialog = document.querySelector('.mengsan-deck-dialog-shuying');
+    const [drawTab,discardTab,exhaustTab] = dialog.querySelectorAll('.ms-deck-tabs button:not([hidden])');
+    const grid = dialog.querySelector('.ms-library-grid');
+    const body = dialog.querySelector('.ms-deck-body');
+    const frame = async () => {
+      // Let native pile mutations notify the dialog before waiting for its next paint.
+      await Promise.resolve();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+    };
+    const cardAt = index => grid.querySelector(`[data-card-index="${index}"]`);
+    const first = cardAt(0);
+    reads.count = reads.records = 0;
+    publicDiscard.appendChild(document.createElement('div'));
+    await frame();
+    const unrelatedReads = {...reads};
+    let countUpdates = 0;
+    const observer = new MutationObserver(records => { countUpdates += records.length; });
+    observer.observe(discardTab,{childList:true});
+    for (let index=0;index<3;index++) {
+      piles.addToDiscard(createDazedData(`status-${index}`));
+    }
+    const beforeFrame = discardTab.textContent;
+    await frame();
+    observer.disconnect();
+    const afterBatch = {beforeFrame,countUpdates,discard:discardTab.textContent,sameCard:first===cardAt(0),reads:{...reads}};
+
+    first.click();
+    const heading = dialog.querySelector('.ms-deck-detail h3');
+    const back = dialog.querySelector('.ms-deck-detail button');
+    const [seen] = piles.take(1);
+    await frame();
+    const detail = {stillOpen:heading.isConnected && !heading.closest('section').hidden,focused:document.activeElement===back,draw:drawTab.textContent};
+    if (!detail.stillOpen) return {afterBatch,detail};
+    back.click();
+    const afterBack = {top:body.scrollTop,number:cardAt(0).querySelector('.ms-deck-corner').textContent,
+      focused:document.activeElement===drawTab};
+
+    const start = 12;
+    const original = cardAt(start);
+    body.scrollTop = original.getBoundingClientRect().top - body.getBoundingClientRect().top - 5;
+    await frame();
+    const topBefore = cardAt(start).getBoundingClientRect().top - body.getBoundingClientRect().top;
+    cardAt(start).focus({preventScroll:true});
+    draw.prepend(seen,...Array.from(draw.childNodes).slice(25,33));
+    await frame();
+    const moved = cardAt(start+9);
+    const reorder = {topBefore,topAfter:moved?.getBoundingClientRect().top-body.getBoundingClientRect().top,
+      focused:document.activeElement===moved,order:moved?.querySelector('.ms-deck-order').textContent};
+
+    const upgraded = draw.childNodes[start+9];
+    upgraded.storage.mengsanCard_shuying.upgrade = 1;
+    piles.syncExhaustSnapshots();
+    await frame();
+    const upgrade = {tag:cardAt(start+9).querySelector('.ms-deck-tags')?.textContent,focused:document.activeElement===cardAt(start+9)};
+
+    body.style.maxHeight = '32px';
+    draw.replaceChildren();
+    await frame();
+    const empty = {visible:!!grid.querySelector('.ms-deck-empty'),top:body.scrollTop,focused:document.activeElement===drawTab};
+    body.scrollTop = body.scrollHeight;
+    piles.take(1);
+    await frame();
+    const wash = {draw:drawTab.textContent,discard:discardTab.textContent,top:body.scrollTop,
+      first:cardAt(0).querySelector('.ms-deck-name').textContent};
+    body.style.maxHeight = '';
+
+    publicDiscard.appendChild(seen);
+    await frame();
+    const reclaimed = {stillPublic:publicDiscard.contains(seen),discard:discardTab.textContent};
+    piles.addToDiscard(createDazedData('status-4'));
+    discardTab.click();
+    const switched = {discard:discardTab.textContent,visible:cardAt(1).querySelector('.ms-deck-name').textContent};
+    cardAt(1).click();
+    piles.addToDiscard(createDazedData('status-5'));
+    await frame();
+    const discardDetail = {visible:!dialog.querySelector('.ms-deck-detail').hidden,
+      summary:dialog.querySelector('.ms-deck-summary').textContent};
+
+    const nativeFirst = makeNative('club',7), nativeSecond = makeNative('diamond',8);
+    await piles.exhaustFromHand(nativeFirst);
+    await piles.exhaustFromHand(nativeSecond);
+    exhaustTab.click();
+    cardAt(0).focus({preventScroll:true});
+    piles.syncExhaustSnapshots();
+    await frame();
+    const corners = () => Array.from(grid.querySelectorAll('.ms-deck-corner'),card => card.textContent);
+    const exhaust = {cards:corners(),focused:document.activeElement===cardAt(0)};
+    piles.beginAutoPlay(nativeSecond,true);
+    await frame();
+    exhaust.remaining = corners();
+    discardTab.click();
+    return {unrelatedReads,afterBatch,detail,afterBack,reorder,upgrade,empty,wash,reclaimed,switched,discardDetail,exhaust};
+  });
+  assert.deepEqual(result.unrelatedReads,{count:0,records:0});
+  assert.deepEqual(result.afterBatch,{beforeFrame:'弃牌堆 · 0',countUpdates:1,discard:'弃牌堆 · 3',sameCard:true,
+    reads:{count:1,records:0}});
+  assert.deepEqual(result.detail,{stillOpen:true,focused:true,draw:'剩余牌堆 · 47'});
+  assert.deepEqual(result.afterBack,{top:0,number:'♥ 红桃 2',focused:true});
+  assert.ok(Math.abs(result.reorder.topAfter-result.reorder.topBefore)<=2,JSON.stringify(result.reorder));
+  assert.equal(result.reorder.focused,true);
+  assert.equal(result.reorder.order,'22');
+  assert.deepEqual(result.upgrade,{tag:'+1',focused:true});
+  assert.deepEqual(result.empty,{visible:true,top:0,focused:true});
+  assert.deepEqual(result.wash,{draw:'剩余牌堆 · 2',discard:'弃牌堆 · 0',top:0,first:'晕眩'});
+  assert.deepEqual(result.reclaimed,{stillPublic:false,discard:'弃牌堆 · 1'});
+  assert.deepEqual(result.switched,{discard:'弃牌堆 · 2',visible:'晕眩'});
+  assert.deepEqual(result.discardDetail,{visible:true,summary:'弃牌堆 · 共 3 张'});
+  assert.deepEqual(result.exhaust,{cards:['♣ 梅花 7','♦ 方块 8'],focused:true,remaining:['♣ 梅花 7']});
+  if (process.env.HUD_ARTIFACTS) {
+    await page.screenshot({path:path.join(process.env.HUD_ARTIFACTS,'battle-piles-live.png')});
+  }
+  const readsAfterClose = await page.evaluate(async () => {
+    const {control,reads} = window.pileReview;
+    reads.count = reads.records = 0;
+    control.refresh();
+    document.querySelector('.ms-deck-header button').click();
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    return {...reads};
+  });
+  assert.deepEqual(readsAfterClose,{count:0,records:0});
+  assert.equal(await page.locator('.mengsan-deck-dialog-shuying').count(),0);
+}
+
 exports.testJourneyZoom = async function testJourneyZoom(browser,origin,prefix) {
+  const pilePage = await browser.newPage({viewport:{width:812,height:375},hasTouch:true});
+  try { await checkLivePiles(pilePage,origin,prefix); }
+  finally { await pilePage.close(); }
+  console.log('Live battle piles: passed');
+  if (process.env.PILE_REFRESH_REVIEW === '1') return;
   const failures = [];
   let checks = 0;
   const scenarios = [{zoom:.5},{zoom:.65},{zoom:1},{zoom:1.5},{zoom:2},{zoom:3},{zoom:1.5,transform:true},

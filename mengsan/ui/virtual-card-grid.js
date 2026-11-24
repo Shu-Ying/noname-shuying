@@ -5,6 +5,21 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
     const maxCached = 24;
     let records = [], columns = 1, height = 218, gap = 8, padding = 5, viewportHeight = 0;
     let frame = 0, disposed = false;
+    function mount(index) {
+        if (mounted.has(index)) return mounted.get(index);
+        const node = cached.get(index) || createCard(records[index], index);
+        cached.delete(index);
+        node.dataset.cardIndex = String(index);
+        node.style.gridRow = String(Math.floor(index / columns) + 1);
+        node.style.gridColumn = String(index % columns + 1);
+        // 保持 DOM 顺序与屏幕顺序一致，方便键盘与读屏浏览。
+        let next = null;
+        for (const [otherIndex, other] of mounted) {
+            if (otherIndex > index && (!next || otherIndex < Number(next.dataset.cardIndex))) next = other;
+        }
+        grid.insertBefore(node, next); mounted.set(index, node);
+        return node;
+    }
     function draw() {
         if (disposed || grid.hidden || !viewportHeight) return;
         const stride = height + gap;
@@ -20,25 +35,26 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
                 while (cached.size > maxCached) cached.delete(cached.keys().next().value);
             }
         }
-        for (let index = first; index < end; index++) {
-            if (mounted.has(index)) continue;
-            const node = cached.get(index) || createCard(records[index], index);
-            cached.delete(index);
-            node.dataset.cardIndex = String(index);
-            node.style.gridRow = String(Math.floor(index / columns) + 1);
-            node.style.gridColumn = String(index % columns + 1);
-            // 保持 DOM 顺序与屏幕顺序一致，方便键盘与读屏浏览。
-            let next = null;
-            for (const [otherIndex, other] of mounted) {
-                if (otherIndex > index && (!next || otherIndex < Number(next.dataset.cardIndex))) next = other;
-            }
-            grid.insertBefore(node, next); mounted.set(index, node);
-        }
+        for (let index = first; index < end; index++) mount(index);
     }
     function schedule() {
         if (!frame && !disposed) frame = requestAnimationFrame(() => { frame = 0; draw(); });
     }
-    function layout(cardHeight = height) {
+    function rowTop(index) {
+        return padding + Math.floor(index / columns) * (height + gap);
+    }
+    function visiblePositions() {
+        const top = viewport.scrollTop, bottom = top + viewportHeight;
+        const firstRow = Math.max(0, Math.floor((top - padding) / (height + gap)));
+        const positions = [];
+        for (let index = firstRow * columns; index < records.length; index++) {
+            const position = rowTop(index);
+            if (position >= bottom) break;
+            if (position + height > top) positions.push({ index, offset: position - top });
+        }
+        return positions;
+    }
+    function layout(cardHeight = height, position = null) {
         height = cardHeight;
         if (disposed || grid.hidden || !grid.clientWidth) return;
         const style = getComputedStyle(grid);
@@ -53,16 +69,21 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
             node.style.gridRow = String(Math.floor(index / columns) + 1);
             node.style.gridColumn = String(index % columns + 1);
         }
+        if (position) viewport.scrollTop = position.index >= 0
+            ? rowTop(position.index) - position.offset : position.scrollTop;
         draw();
     }
-    function focus(index) {
+    function focus(index, { scroll = true } = {}) {
         if (!Number.isInteger(index) || index < 0 || index >= records.length || disposed) return;
-        const top = padding + Math.floor(index / columns) * (height + gap);
-        if (top < viewport.scrollTop) viewport.scrollTop = top;
-        else if (top + height > viewport.scrollTop + viewportHeight) {
-            viewport.scrollTop = top + height - viewportHeight;
+        if (scroll) {
+            const top = rowTop(index);
+            if (top < viewport.scrollTop) viewport.scrollTop = top;
+            else if (top + height > viewport.scrollTop + viewportHeight) {
+                viewport.scrollTop = top + height - viewportHeight;
+            }
+            draw();
         }
-        draw(); mounted.get(index)?.focus({ preventScroll: true });
+        mount(index).focus({ preventScroll: true });
     }
     function keydown(event) {
         const card = event.target.closest("[data-card-index]");
@@ -83,6 +104,7 @@ export function createVirtualCardGrid(viewport, grid, createCard) {
             records = value; mounted.clear(); cached.clear(); grid.replaceChildren();
         },
         layout,
+        visiblePositions,
         focus,
         resume() { draw(); },
         dispose() {

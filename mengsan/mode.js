@@ -703,7 +703,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
 
     activeBattle.personalPiles = installPersonalPiles(session, me, _status.mengsanBattle_shuying, run, resources, {
         game, ui, get, lib, _status, document, MutationObserver, shuffle: shuffleBattlePile,
-        refresh: () => activeBattle?.session === session && activeBattle.pilesUI?.refresh(),
+        refresh: (...piles) => activeBattle?.session === session && activeBattle.pilesUI?.refresh(...piles),
     });
     activeBattle.personalPiles.withOwner(() => me.init(run.player.character));
     me.storage.mengsanUnitId_shuying = "player";
@@ -799,7 +799,7 @@ const prepareBattle = async (run, node, encounter, session, resources) => {
             session.ownResource({}, () => game.removeGlobalSkill(skill));
         }
     }
-    activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying);
+    activeBattle.pilesUI = mountBattlePiles(session, _status.mengsanBattle_shuying, activeBattle.personalPiles.pileView);
     currentBattle.owner = me;
     currentBattle.run = run;
     potionSkillIds.forEach(skill => me.addSkill(skill));
