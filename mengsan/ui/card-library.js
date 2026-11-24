@@ -328,7 +328,7 @@ export function openCardLibrary(run, options = {}) {
     // Prevent the map's Escape/Tab handler from acting behind this modal.
     dialog.addEventListener("keydown", event => event.stopPropagation());
     render();
-    document.body.appendChild(dialog);
+    document.documentElement.appendChild(dialog);
     try { dialog.showModal(); } catch (error) { close(); throw error; }
     fitCards();
     if (typeof ResizeObserver !== "undefined") {

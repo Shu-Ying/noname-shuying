@@ -12,7 +12,7 @@ export const chooseFlow = (title, render, { back } = {}) => new Promise(resolve 
         if (overlay.dataset.resolved) return;
         overlay.dataset.resolved = "true";
         overlay.remove();
-        if (previousFocus?.isConnected) previousFocus.focus();
+        if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
         resolve(id);
     };
     const initialFocus = render(overlay, finish);
@@ -26,7 +26,7 @@ export const chooseFlow = (title, render, { back } = {}) => new Promise(resolve 
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
-    initialFocus?.focus();
+    initialFocus?.focus({ preventScroll: true });
 });
 
 export const chooseButtons = (title, choices, description = "", options = {}) => chooseFlow(title, (overlay, finish) => {

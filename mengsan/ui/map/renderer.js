@@ -415,7 +415,8 @@ export const showMap = (run, { saveRun } = {}) => new Promise(resolve => {
         suppressClick = true;
         if (!viewport.hasPointerCapture(event.pointerId)) viewport.setPointerCapture(event.pointerId);
         viewport.classList.add("dragging");
-        viewport.scrollTop = drag.top - distance;
+        const scale = viewport.getBoundingClientRect().height / viewport.offsetHeight || 1;
+        viewport.scrollTop = drag.top - distance / scale;
         event.preventDefault();
     });
     const endDrag = event => {

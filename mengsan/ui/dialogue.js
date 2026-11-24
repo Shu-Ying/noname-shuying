@@ -29,21 +29,22 @@ export const playDialogue = (lines, options = {}) => new Promise(resolve => {
 
     const overlay = ui.create.div(".mengsan-dialogue-overlay-shuying", ui.window);
     const stage = ui.create.div(".mengsan-dialogue-stage-shuying", overlay);
-    ui.create.div(".mengsan-dialogue-chapter-shuying", options.title || "剧情", stage);
-    const textBox = ui.create.div(".mengsan-dialogue-box-shuying", stage);
+    ui.create.div(".mengsan-dialogue-chapter-shuying", options.title || "剧情", overlay);
+    const content = ui.create.div(".mengsan-dialogue-content-shuying", stage);
+    const choices = ui.create.div(".mengsan-dialogue-choices-shuying", content);
+    const textBox = ui.create.div(".mengsan-dialogue-box-shuying", content);
     const portraitFrame = ui.create.div(
         ".mengsan-dialogue-portrait-frame-shuying", textBox);
     const speaker = ui.create.div(".mengsan-dialogue-speaker-shuying", textBox);
     const text = ui.create.div(".mengsan-dialogue-text-shuying", textBox);
     const progress = ui.create.div(".mengsan-dialogue-progress-shuying", textBox);
     const indicator = ui.create.div(".mengsan-dialogue-indicator-shuying", "◆", textBox);
-    const choices = ui.create.div(".mengsan-dialogue-choices-shuying", stage);
     const skipButton = document.createElement("button");
     skipButton.type = "button";
     skipButton.className = "mengsan-dialogue-skip-shuying";
     skipButton.textContent = "跳过对话";
     skipButton.setAttribute("aria-label", "跳过对话，未选择的发言使用默认选项");
-    stage.appendChild(skipButton);
+    overlay.appendChild(skipButton);
 
     let lineIndex = -1;
     let timer = null;
@@ -189,5 +190,5 @@ export const playDialogue = (lines, options = {}) => new Promise(resolve => {
     const help = ui.create.div(".mengsan-dialogue-help-shuying", stage);
     help.textContent = "点击补全文字 · 再次点击继续 · Enter / 空格";
     showNextLine();
-    textBox.focus();
+    if (!awaitingChoice || typing) textBox.focus({ preventScroll: true });
 });

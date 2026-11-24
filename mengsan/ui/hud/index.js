@@ -108,7 +108,7 @@ export function mountBattleHUD(player, battle, env) {
     const openDetails = (target, id = null) => {
         if (disposed || frozen || !battle.session.active) return;
         closeDialog(); previousFocus = document.activeElement;
-        dialog = create('dialog', 'mengsan-hud-dialog-shuying mengsan-deck-dialog-shuying mengsan-relic-dialog-shuying', document.body);
+        dialog = create('dialog', 'mengsan-hud-dialog-shuying mengsan-deck-dialog-shuying mengsan-relic-dialog-shuying', document.documentElement);
         const current = dialog;
         const header = create('header', 'ms-deck-header', dialog);
         create('h2', '', header, `${nameOf(target)} · 当前状态`);
@@ -247,8 +247,13 @@ export function mountBattleHUD(player, battle, env) {
         for (const mark of hiddenMarks) if (!wanted.has(mark)) { mark.classList.remove('mengsan-hud-represented-mark-shuying'); hiddenMarks.delete(mark); }
         for (const mark of wanted) if (!mark.classList.contains('mengsan-hud-represented-mark-shuying')) { mark.classList.add('mengsan-hud-represented-mark-shuying'); hiddenMarks.add(mark); }
     }
-    let layout = null;
+    let layout = null, handGeometry;
     const hudHeightFor = () => layout === 'short' ? 188 : layout === 'narrow' ? 288 : 274;
+    function invalidateHandBounds() {
+        // Decade uses this cache to place the origin of committed card effects.
+        const bounds = window.decadeUI?.boundsCaches?.hand;
+        if (bounds) bounds.updated = false;
+    }
     const oldLayout = arena.getAttribute('data-mengsan-hud-layout');
     restores.push(() => {
         if (arena.getAttribute('data-mengsan-hud-layout') !== layout) return;
@@ -272,20 +277,41 @@ export function mountBattleHUD(player, battle, env) {
         const hudHeight = hudHeightFor();
         style(arena, '--mengsan-hud-height', `${hudHeight}px`);
         const large = width >= 1000;
-        style(arena, '--mengsan-hud-left', short ? '216px' : narrow ? '116px' : large ? '352px' : '292px');
-        style(arena, '--mengsan-hud-right', short ? '132px' : narrow ? '116px' : '184px');
+        const left = short ? 216 : narrow ? 116 : large ? 352 : 292;
+        const right = short ? 132 : narrow ? 116 : 184;
+        style(arena, '--mengsan-hud-left', `${left}px`);
+        style(arena, '--mengsan-hud-right', `${right}px`);
+        // Nova sets important geometry on #me and #handcards1. The HUD owns these positions for this battle.
+        const handInset = Math.min(Math.max(left,right),Math.max(0,(width-114)/2));
+        for (const [key,value] of Object.entries({left:`${handInset}px`,right:`${handInset}px`,
+            width:'auto',bottom:short?'64px':'68px'})) style(handRoot,key,value);
+        const firstHand = ui.handcards1Container;
+        if (firstHand && handRoot.contains(firstHand)) {
+            style(firstHand,'left','0px');
+            style(firstHand,'width','100%');
+        }
+        const geometry = [handRoot.offsetLeft, handRoot.offsetTop, handRoot.offsetWidth, handRoot.offsetHeight].join(',');
+        if (geometry !== handGeometry) {
+            handGeometry = geometry;
+            invalidateHandBounds();
+        }
         style(arena, '--mengsan-profile-info-left', short ? '108px' : narrow ? '22px' : large ? '200px' : '160px');
         style(arena, '--mengsan-profile-width', short ? '172px' : narrow ? '76px' : large ? '200px' : '130px');
         skinActor(player);
         // Inline important dimensions also beat skins with #arena > .player !important rules.
+        const selfLeft = short ? 24 : narrow ? 22 : 40;
+        const selfWidth = short || narrow ? 76 : large ? 144 : 104;
         const selfBottom = narrow ? 180 : 24;
         const selfHeight = short || narrow ? 104 : large ? 196 : 148;
         const infoTop = narrow ? hudHeight - selfBottom + 16 : hudHeight - selfBottom - selfHeight + (short ? 0 : 20);
         style(arena, '--mengsan-profile-info-top', `${infoTop}px`);
-        for (const [key, value] of Object.entries({left: short ? '24px' : narrow ? '22px' : '40px', right:'auto', top:'auto',
-            bottom:`${selfBottom}px`, width:short ? '76px' : narrow ? '76px' : large ? '144px' : '104px',
+        for (const [key, value] of Object.entries({left:`${selfLeft}px`, right:'auto', top:'auto',
+            bottom:`${selfBottom}px`, width:`${selfWidth}px`,
             height:`${selfHeight}px`, transform:'none'})) style(player, key, value);
-        style(arena, '--mengsan-side-dock-bottom', `${selfBottom + selfHeight + 12}px`);
+        const statusBottom = selfBottom + selfHeight + 12;
+        const statusBesidePortrait = height - statusBottom < 36;
+        style(arena, '--mengsan-status-left', `${statusBesidePortrait ? selfLeft + selfWidth + 8 : selfLeft}px`);
+        style(arena, '--mengsan-side-dock-bottom', `${statusBesidePortrait ? 8 : statusBottom}px`);
         style(arena, '--mengsan-relic-dock-bottom', `${selfBottom + selfHeight + (narrow ? -4 : 12)}px`);
         style(arena, '--mengsan-skill-ceiling', `${Math.min(hudHeight - 36, selfBottom + selfHeight)}px`);
         style(arena, '--mengsan-status-height', short ? '52px' : narrow ? '84px' : '160px');
@@ -339,8 +365,8 @@ export function mountBattleHUD(player, battle, env) {
         const hudHeight = hudHeightFor();
         const rail = layout === 'wide' ? 142 : layout === 'short' ? 112 : 96;
         const actionBottom = layout === 'narrow' ? hudHeight - 48 : hudHeight + 8;
-        const compactActions = response || arena.clientWidth < 1000;
-        for (const [key,value] of Object.entries({position:'absolute',left:compactActions?'16px':'var(--mengsan-hud-left)',right:compactActions?'16px':'var(--mengsan-hud-right)',top:'auto',bottom:`${actionBottom}px`,width:'auto','max-height':'none',transform:'none'})) style(ui.control,key,value);
+        const actionInset = response || arena.clientWidth < 1000 ? '16px' : 'max(var(--mengsan-hud-left),var(--mengsan-hud-right))';
+        for (const [key,value] of Object.entries({position:'absolute',left:actionInset,right:actionInset,top:'auto',bottom:`${actionBottom}px`,width:'auto','max-height':'none',transform:'none'})) style(ui.control,key,value);
         for (const group of ui.control.children) if (group.classList.contains('control')) {
             if (external.includes(group)) {
                 ownClass(group,'mengsan-hud-native-skills-shuying');
@@ -362,7 +388,7 @@ export function mountBattleHUD(player, battle, env) {
             const host=node.offsetParent||arena,a=arena.getBoundingClientRect(),h=host.getBoundingClientRect();
             const scale=h.width/host.offsetWidth||1,zoom=a.width/arena.clientWidth||1;
             const responseConfirm = response && node === ui.confirm;
-            const center=responseConfirm ? arena.clientWidth/2 : (parseFloat(arena.style.getPropertyValue('--mengsan-hud-left'))+arena.clientWidth-parseFloat(arena.style.getPropertyValue('--mengsan-hud-right')))/2;
+            const center=arena.clientWidth/2;
             const side=responseConfirm ? 0 : node===ui.confirm?-1:1;
             for(const [key,value] of Object.entries({position:'absolute',left:`${(a.left+center*zoom-h.left)/scale+side*80}px`,right:'auto',top:'auto',bottom:`${(h.bottom-a.bottom+actionBottom*zoom)/scale}px`,width:`${Math.min(rail,140)}px`,transform:'translateX(-50%)'}))style(node,key,value);
         }
@@ -420,6 +446,7 @@ export function mountBattleHUD(player, battle, env) {
         for (const mark of hiddenMarks) mark.classList.remove('mengsan-hud-represented-mark-shuying'); hiddenMarks.clear();
         for (const restore of restores.reverse()) restore();
         releaseNodes();
+        invalidateHandBounds();
         root.remove(); link.remove();
     }
     ownClass(document.body, 'mengsan-hud-active-shuying'); ownClass(arena, 'mengsan-hud-arena-shuying');

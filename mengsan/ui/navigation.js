@@ -145,7 +145,7 @@ export const askMenu = (title, description, choices) => new Promise(resolve => {
         dialog.appendChild(button);
     }
     dialog.addEventListener("cancel", event => { event.preventDefault(); finish(null); });
-    document.body.appendChild(dialog);
+    document.documentElement.appendChild(dialog);
     dialog.showModal();
     dialog.querySelector("button")?.focus();
 });

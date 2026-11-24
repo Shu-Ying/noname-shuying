@@ -9,6 +9,7 @@ const { chromium } = require(packages ? path.join(packages, 'playwright') : 'pla
 const prefix = '/extension/' + encodeURIComponent('术樱包') + '/mengsan';
 const decadePrefix = '/extension/' + encodeURIComponent('十周年UI');
 const reviewOnly = process.env.HUD_REVIEW === '1';
+const journeyReview = process.env.UI_ZOOM_REVIEW === '1';
 const holdStatus = async (page, locator, pointerType = 'mouse') => {
   const box = await locator.boundingBox();
   const point = {x:box.x + box.width / 2,y:box.y + box.height / 2};
@@ -46,6 +47,18 @@ async function checkMobileTargetLine(page, artifact) {
     await touch.send('Input.dispatchTouchEvent', {type:'touchMove',touchPoints:[end]});
     await aim.waitFor({state:'visible',timeout:2500});
   }
+  // Exercise a WebView-style mismatch between the SVG matrix and its painted bounds.
+  await page.evaluate(() => {
+    const create = document.createElementNS.bind(document);
+    document.createElementNS = (namespace,tag) => {
+      const node = create(namespace,tag);
+      if (tag === 'svg') {
+        const screenMatrix = node.getScreenCTM.bind(node);
+        node.getScreenCTM = () => screenMatrix()?.translate(-120,45);
+      }
+      return node;
+    };
+  });
   await drag();
   const geometry = await aim.evaluate((overlay, pointer) => {
     const card = window.card.getBoundingClientRect();
@@ -61,6 +74,7 @@ async function checkMobileTargetLine(page, artifact) {
     return {origin,pointer,from:{x:left?bounds.left:bounds.right,y:up?bounds.top:bounds.bottom},
       to:{x:left?bounds.right:bounds.left,y:up?bounds.bottom:bounds.top}};
   },end);
+  await page.evaluate(() => { delete document.createElementNS; });
   if (artifact) await page.screenshot({path:artifact});
   await touch.send('Input.dispatchTouchEvent', {type:'touchCancel',touchPoints:[]});
   assert.equal(await aim.count(),0,'the target line disappears on touch cancellation');
@@ -78,6 +92,46 @@ async function checkMobileTargetLine(page, artifact) {
   assert.equal(await page.evaluate(()=>game.isSubmitted()),before+1,'touch release still submits the valid target once');
 }
 
+async function checkOrdinaryPlayCenter(page, skin, artifact) {
+  const geometry = await page.evaluate(async skin => {
+    const {arena,control,me} = ui;
+    const prompt = document.createElement('div');
+    prompt.className = skin === 'native' ? 'dialog' : 'hand-tip';
+    prompt.textContent = '请选择要使用的牌';
+    arena.append(prompt);
+    ui.dialog = prompt;
+    hudEventState.event.dialog = prompt;
+    hud.refresh();
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const bounds = node => node.getBoundingClientRect().toJSON();
+    const result = {arena:bounds(arena),hand:bounds(me),card:bounds(card),prompt:bounds(prompt),
+      buttons:[...control.firstElementChild.children].map(bounds)};
+    if (!window.card.isConnected) throw new Error('The original hand card must remain connected');
+    return result;
+  },skin);
+  if (artifact) await page.screenshot({path:artifact});
+  await page.evaluate(()=>{ui.dialog.remove();delete ui.dialog;delete hudEventState.event.dialog;hud.refresh();});
+  const {arena,hand,card,prompt,buttons} = geometry;
+  const center = box => (box.left+box.right)/2;
+  const actions = {left:Math.min(...buttons.map(box=>box.left)),right:Math.max(...buttons.map(box=>box.right))};
+  assert.ok([hand,card,prompt,actions].every(box=>Math.abs(center(box)-center(arena))<=2),
+    'ordinary play fan, prompt and action buttons share the arena center: '+JSON.stringify(geometry));
+}
+
+async function setBattleZoom(page, zoom) {
+  await page.evaluate(zoom => {
+    const {style} = document.body;
+    style.zoom = zoom;
+    style.width = style.height = '100%';
+  },zoom);
+  // Let the native hand transform and the resize observers settle after a zoom change.
+  await page.waitForFunction(() => {
+    const arena = ui.arena.getBoundingClientRect(), hand = card.getBoundingClientRect();
+    return Math.abs(arena.width-innerWidth)<=2 &&
+      Math.abs((arena.left+arena.right-hand.left-hand.right)/2)<=2;
+  },null,{timeout:2500});
+}
+
 async function checkCommittedLine(page, skin) {
   const geometry = await page.evaluate(async ({skin,decadePrefix}) => {
     const engine = await import('/noname.js');
@@ -86,11 +140,12 @@ async function checkCommittedLine(page, skin) {
     const [actor,target] = window.game.players;
     // Use the shipped line producers and renderer, with only the game lifecycle isolated.
     engine.lib.config ??= {};
-    engine.setUI({arena,create:{div:() => {
+    engine.setUI({arena,create:{div:selector => {
       const node = document.createElement('div');
-      node.className = 'linexy hidden';
+      if (selector) node.className = 'linexy hidden';
       node.show = () => node.classList.remove('hidden');
       node.listenTransition = () => {};
+      node.setBackgroundImage = path => {node.style.backgroundImage = `url(${path})`;};
       return node;
     }},refresh:node=>node.getBoundingClientRect()});
     const get = engine.get;
@@ -102,7 +157,7 @@ async function checkCommittedLine(page, skin) {
     if (skin !== 'native') {
       const {playerLine} = await import(decadePrefix+'/src/overrides/player/animations.js');
       const {BoundsCache} = await import(decadePrefix+'/src/utils/bounds.js');
-      window.decadeUI = {boundsCaches:{hand:new BoundsCache(hand)}};
+      window.decadeUI ??= {boundsCaches:{hand:new BoundsCache(hand)}};
       actor.checkBoundsCache = target.checkBoundsCache = function() {
         this.cacheLeft = this.offsetLeft;
         this.cacheTop = this.offsetTop;
@@ -124,11 +179,30 @@ async function checkCommittedLine(page, skin) {
     const result = {x1,y1,x2:x1+matrix.c*length,y2:y1+matrix.d*length,expectedStart,
       expectedEnd:{x:target.offsetLeft+target.offsetWidth/2,y:target.offsetTop+target.offsetHeight/2}};
     effect.remove();
+    // Run the configured renderer as well as the default one. Its art may be provided by the Android package.
+    Object.assign(engine.game,{
+      linexy:engine.Game.prototype.zsJinlongLineXy,
+      zsPlayLineAnimationByName:engine.Game.prototype.zsPlayLineAnimationByName,
+      zsPlayLineAnimation:engine.Game.prototype.zsPlayLineAnimation,
+      jianqiLineAnim:new engine.Game().jianqiLineAnim,
+    });
+    line.call(actor,target,{duration:120});
+    const dragon = arena.lastElementChild;
+    const {left,top,width,transform,backgroundImage} = dragon.style;
+    const degrees = Number(transform.match(/rotate\(([-.\d]+)deg\)/)?.[1]);
+    const radians = degrees*Math.PI/180;
+    const distance = parseFloat(width)-2;
+    const start = {x:parseFloat(left),y:parseFloat(top)+10};
+    result.dragon = {start,end:{x:start.x+distance*Math.cos(radians),y:start.y+distance*Math.sin(radians)},backgroundImage};
     return result;
   },{skin,decadePrefix});
   assert.ok(geometry && Math.hypot(geometry.x1-geometry.expectedStart.x,geometry.y1-geometry.expectedStart.y)<=2 &&
     Math.hypot(geometry.x2-geometry.expectedEnd.x,geometry.y2-geometry.expectedEnd.y)<=2,
     'A012 the committed card effect retains its native origin and reaches the target: '+JSON.stringify(geometry));
+  assert.ok(geometry.dragon.backgroundImage.includes('jinlonglinexy') &&
+    Math.hypot(geometry.dragon.start.x-geometry.expectedStart.x,geometry.dragon.start.y-geometry.expectedStart.y)<=2 &&
+    Math.hypot(geometry.dragon.end.x-geometry.expectedEnd.x,geometry.dragon.end.y-geometry.expectedEnd.y)<=2,
+    'the configured Jinlong effect retains its origin and reaches the target: '+JSON.stringify(geometry));
 }
 
 async function checkBattlePotionSlots(page, skin, artifact) {
@@ -333,15 +407,16 @@ async function checkMobileResponseLayout(page, skin, artifact) {
   const restored = await page.evaluate(() => {
     delete hudEventState.event.respondTo;
     hud.refresh();
-    return ui.control.style.translate === '' && reviewResponse.card.style.translate === '';
+    const verticalShift = Number.parseFloat(ui.control.style.translate.split(/\s+/)[1]) || 0;
+    return verticalShift === 0 && reviewResponse.card.style.translate === '';
   });
   assert.ok(restored,'response spacing is released when the original event ends');
 }
 const fixture = `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="/layout/default/layout.css"><div id="window"><div id="arena"><div id="mebg"></div><div id="me" class="mengsan-hand-root-shuying"><div id="handcards1" class="mengsan-hand-scroll-shuying"><div class="handcards mengsan-hand-zone-shuying mengsan-hand-layout-shuying"></div></div><div id="handcards2"><div class="handcards"></div></div></div><div id="control"><div class="control"><div>测试技能</div><div>结束出牌</div></div></div></div></div><style>html,body,#window{margin:0;width:100%;height:100%;position:absolute}#arena{inset:0;width:100%;height:100%;position:absolute}#arena>.player{position:absolute;width:100px;height:130px;background:#345;color:#fff}#arena>.player .avatar{height:100%;width:100%;background:linear-gradient(#334f4b,#172d29)}#arena>.player .name{position:absolute;top:4px;left:4px}#me{position:absolute;bottom:0;width:100%;height:160px}#handcards1,#handcards2{position:absolute;width:100%;height:100%}.handcards{height:100%}.card{background:#e8d7b2;color:#263b35;position:absolute}.mengsan-intent-shuying{position:absolute}</style>`;
-const importMap = reviewOnly ? fs.readFileSync(path.join(app,'index.html'),'utf8').match(/<script type="importmap">.*?<\/script>/s)[0] : '';
+const importMap = reviewOnly || journeyReview ? fs.readFileSync(path.join(app,'index.html'),'utf8').match(/<script type="importmap">.*?<\/script>/s)[0] : '';
 const server = http.createServer((req, res) => {
   if (req.url === '/fixture') { res.setHeader('Content-Type','text/html;charset=utf-8');res.end(fixture.replace('<meta charset="utf-8">','<meta charset="utf-8">'+importMap));return; }
-  if(!reviewOnly && req.url==='/noname.js'){res.setHeader('Content-Type','text/javascript');res.end('export const _status={};');return;}
+  if(!reviewOnly && !journeyReview && req.url==='/noname.js'){res.setHeader('Content-Type','text/javascript');res.end('export const _status={};');return;}
   if(decodeURIComponent(new URL(req.url,'http://localhost').pathname)==='/extension/术樱包/diagnostics/index.js') {
     res.setHeader('Content-Type','text/javascript');res.end('export const getDiagnostics=()=>({status:()=>({enabled:false}),scope:()=>({info(){},error(){}})});');return;
   }
@@ -359,12 +434,17 @@ const server = http.createServer((req, res) => {
  const viewports = reviewOnly ? [{width:1080,height:486},{width:812,height:375},{width:667,height:375}]
    : [{width:1280,height:720},{width:1234,height:920},{width:812,height:600},{width:812,height:375},{width:667,height:375},{width:375,height:500},{width:540,height:900}];
  try {
+  if (journeyReview) {
+    await require('./test-journey-ui-zoom.cjs').testJourneyZoom(browser,origin,prefix);
+    return;
+  }
   for (const skin of process.env.HUD_TEST_SKIN?[process.env.HUD_TEST_SKIN]:['native','shousha','shizhounian','xinsha']) {
    for (const viewport of viewports) {
     const page = await browser.newPage({viewport,hasTouch:true,deviceScaleFactor:reviewOnly?2.625:1});
     await page.goto(origin+'/fixture');
     if (reviewOnly && viewport.width===1080) {
-      await page.addStyleTag({content:'body{zoom:.64;width:156.25%;height:156.25%}'});
+      await page.addStyleTag({url:origin+'/layout/nova/layout.css'});
+      await page.addStyleTag({content:'body{zoom:.65;width:100%;height:100%}'});
     }
     await page.addStyleTag({content:'body{background:#161e29 url("/image/background/lanting_bg.jpg") center/cover no-repeat}'});
     await page.addStyleTag({url:origin+prefix+'/ui/style.css'});
@@ -477,8 +557,22 @@ const server = http.createServer((req, res) => {
     if (reviewOnly) {
       const scenario = `${skin}-${viewport.width}x${viewport.height}`;
       const artifact = name => process.env.HUD_ARTIFACTS && path.join(process.env.HUD_ARTIFACTS,`${name}-${scenario}.png`);
-      try { await checkMobileTargetLine(page,artifact('A012')); await checkCommittedLine(page,skin); checks+=7; }
+      try { await checkMobileTargetLine(page,artifact('A012')); await checkCommittedLine(page,skin); checks+=8; }
       catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      try { await checkOrdinaryPlayCenter(page,skin,artifact('ordinary-play-center')); checks++; }
+      catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      if (viewport.width===1080) {
+        for (const zoom of [.5,.85,1,1.2]) {
+          try {
+            await setBattleZoom(page,zoom);
+            await checkOrdinaryPlayCenter(page,skin);
+            await checkMobileTargetLine(page);
+            await checkCommittedLine(page,skin);
+            checks+=9;
+          } catch (error) { reviewFailures.push(`${scenario} zoom ${zoom} ${error.message}`); }
+        }
+        await setBattleZoom(page,.65);
+      }
       try { await checkBattlePotionSlots(page,skin,artifact('battle-potion-slots')); checks+=4; }
       catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
       try { await checkMobileResponseLayout(page,skin,artifact('A013')); checks+=4; }
@@ -486,6 +580,15 @@ const server = http.createServer((req, res) => {
       if (skin!=='native') {
         try { await checkPotionSkillsDuringDiscard(page,skin,artifact('discard-skill-controls')); checks+=5; }
         catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+        try {
+          assert.equal(await page.evaluate(()=>{
+            const bounds = window.decadeUI.boundsCaches.hand;
+            bounds.check();
+            hud.dispose();
+            return bounds.updated;
+          }),false,'the skin will read restored hand geometry after the HUD exits');
+          checks++;
+        } catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
       }
       if (!reviewFailures.some(failure => failure.startsWith(`${scenario} `))) console.log(`${scenario} battle UI review passed`);
       await page.close();

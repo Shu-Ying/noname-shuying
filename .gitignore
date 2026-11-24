@@ -20,6 +20,7 @@ tools/*.mjs
 !/tools/test_mengsan_zip_install.mjs
 !/mengsan/tools/test-hud-status.cjs
 !/mengsan/tools/test-battle-hud.cjs
+!/mengsan/tools/test-journey-ui-zoom.cjs
 !/mengsan/tools/import-status-icons.cjs
 
 /.update_tmp/

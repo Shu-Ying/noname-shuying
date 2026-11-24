@@ -83,7 +83,7 @@ export function mountRelics(session, run, battleRelics, { stripRoot = ui.me } = 
         });
         dialog.addEventListener("keydown", event => event.stopPropagation());
         refresh();
-        document.body.appendChild(dialog);
+        document.documentElement.appendChild(dialog);
         try { dialog.showModal(); dismiss.focus(); }
         catch (error) { close(); throw error; }
     };

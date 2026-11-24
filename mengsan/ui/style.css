@@ -303,9 +303,26 @@
 
 .mengsan-dialogue-stage-shuying {
     position: absolute !important;
-    inset: 0 !important;
+    inset: 68px 0 max(8px, env(safe-area-inset-bottom)) !important;
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0 6px;
+    overflow: auto;
+    touch-action: pan-y;
+}
+
+.mengsan-dialogue-content-shuying {
+    position: relative !important;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    margin-top: auto;
+    width: min(1120px, 92%);
 }
 
 .mengsan-dialogue-chapter-shuying {
@@ -388,13 +405,9 @@
 }
 
 .mengsan-dialogue-box-shuying {
-    position: absolute !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: clamp(18px, 4vh, 42px) !important;
-    top: auto !important;
-    transform: translateX(-50%) !important;
-    width: min(1120px, 92vw) !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
     height: auto !important;
     min-height: clamp(120px, 20vh, 180px);
     padding: clamp(32px, 5vh, 46px) clamp(24px, 4vw, 52px) 28px;
@@ -496,9 +509,8 @@
         height: 146px !important;
         padding: 4px;
     }
+    .mengsan-dialogue-content-shuying { width: 96%; }
     .mengsan-dialogue-box-shuying {
-        bottom: 8px !important;
-        width: 96vw !important;
         min-height: 126px;
         padding: 30px 18px 24px;
     }
@@ -548,6 +560,7 @@
 
 .mengsan-map-panel-shuying {
     padding: 0 !important;
+    container-type: size;
     background:
         linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
         linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px);
@@ -783,7 +796,7 @@
     position: relative !important;
     z-index: 1;
     display: block !important;
-    width: min(420px, calc(100vw - 32px));
+    width: min(420px, calc(100% - 32px));
     height: 100% !important;
     padding: 0 !important;
     border: 0;
@@ -920,13 +933,42 @@
     .mengsan-ink-legend-shuying { display: none; }
     .mengsan-map-shuying .mengsan-node-shuying { width: 52px; height: 52px; padding: 9px; }
     .mengsan-map-menu-layer-shuying { align-items: flex-end; }
-    .mengsan-map-menu-sheet-shuying { width: 100%; height: min(82dvh, 680px) !important; border-right: 0; border-top: 1px solid rgba(210,175,101,.34); border-radius: 16px 16px 0 0; animation-name: mengsan-menu-enter-mobile-shuying; }
+    .mengsan-map-menu-sheet-shuying { width: 100%; height: min(82%, 680px) !important; border-right: 0; border-top: 1px solid rgba(210,175,101,.34); border-radius: 16px 16px 0 0; animation-name: mengsan-menu-enter-mobile-shuying; }
     @keyframes mengsan-menu-enter-mobile-shuying { from { opacity: 0; transform: translateY(24px); } }
     .mengsan-map-menu-title-shuying { font-size: 24px; }
     .mengsan-map-menu-header-shuying { inset: 14px 14px auto 14px !important; }
     .mengsan-map-menu-content-shuying { inset: 102px 14px calc(max(14px, env(safe-area-inset-bottom)) + 92px) 14px !important; padding-top: 0; }
     .mengsan-map-menu-footer-shuying { left: 14px !important; right: 14px !important; bottom: max(12px, env(safe-area-inset-bottom)) !important; }
     .mengsan-map-menu-action-shuying { min-height: 64px; }
+}
+
+@container (max-height: 325px) {
+    .mengsan-map-menu-sheet-shuying { overflow-y: auto; overscroll-behavior-y: contain; }
+    .mengsan-map-menu-header-shuying,
+    .mengsan-map-menu-content-shuying,
+    .mengsan-map-menu-footer-shuying {
+        position: relative !important;
+        inset: auto !important;
+        width: auto !important;
+        margin: 0 14px;
+    }
+    .mengsan-map-menu-header-shuying { height: auto !important; min-height: 54px; padding: 4px; }
+    .mengsan-map-menu-content-shuying { overflow: visible; padding-top: 8px; }
+    .mengsan-map-menu-footer-shuying { height: auto !important; padding: 8px 4px; }
+}
+@container (max-height: 190px) {
+    .mengsan-map-header-shuying { grid-template-columns: auto minmax(0, 1fr); min-height: 0; gap: 4px 8px; padding: 4px 8px; }
+    .mengsan-map-menu-trigger-shuying { width: 34px; min-width: 34px; min-height: 34px; }
+    .mengsan-map-title-group-shuying > .mengsan-title-shuying { font-size: 16px; }
+    .mengsan-map-header-shuying > .mengsan-map-status-shuying {
+        grid-column: 1 / -1; justify-self: stretch; justify-content: flex-start;
+        min-width: 0; flex-wrap: nowrap; gap: 4px; overflow-x: auto;
+    }
+    .mengsan-map-stat-shuying { flex: 0 0 auto; min-width: 38px; min-height: 24px; padding: 1px 4px; }
+    .mengsan-map-status-shuying .mengsan-potion-slots { flex: none; flex-wrap: nowrap; }
+    .mengsan-map-status-shuying .mengsan-potion-slot { width: 26px; height: 26px; }
+    .mengsan-map-status-shuying .mengsan-potion-import { flex: none; white-space: nowrap; }
+    .mengsan-map-viewport-shuying { padding-block: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -954,6 +996,11 @@
 .mengsan-flow-overlay-shuying {
     background: radial-gradient(ellipse at 18% 20%, #53635766, transparent 55%), linear-gradient(120deg, #172724f5, #101b1df5);
     padding: 80px 24px 28px;
+    overflow: clip;
+}
+.mengsan-flow-overlay-shuying > .mengsan-panel-shuying {
+    min-height: 0;
+    overscroll-behavior: contain;
 }
 .mengsan-flow-panel-shuying {
     width: min(680px, 100%) !important;
@@ -1156,30 +1203,35 @@ button.mengsan-card-choice-skip-shuying:hover { color: #fff1d5; border-color: #d
 .mengsan-menu-dialog-shuying p { margin: 0 0 24px; color: var(--flow-muted); }
 .mengsan-menu-dialog-shuying button { display: block; width: 100%; min-height: 48px; margin-top: 12px; border: 1px solid #c4a56888; border-radius: 3px; padding: 10px; font: inherit; color: var(--flow-paper); background: #ffffff08; cursor: pointer; }
 .mengsan-menu-dialog-shuying button.danger { background: var(--flow-danger); border-color: #d89586; }
-.mengsan-dialogue-overlay-shuying { background: radial-gradient(ellipse at 35% 25%, #62736544, transparent 60%), linear-gradient(120deg, #172724ee, #101b1dee); }
-.mengsan-dialogue-chapter-shuying { top: 26px !important; left: 24px !important; max-width: calc(100% - 160px); color: var(--flow-muted); }
+.mengsan-dialogue-overlay-shuying { container-type: size; background: radial-gradient(ellipse at 35% 25%, #62736544, transparent 60%), linear-gradient(120deg, #172724ee, #101b1dee); }
+.mengsan-dialogue-chapter-shuying { top: 26px !important; left: 50% !important; right: auto !important; transform: translateX(-50%); max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--flow-muted); }
 .mengsan-dialogue-box-shuying { border-radius: 4px; border-color: var(--flow-gold); background: #172724f5; padding-bottom: 34px; }
 .mengsan-dialogue-speaker-shuying { border-radius: 2px; color: #172724; background: #efe5cf; font-family: "KaiTi", "SimSun", serif; }
 .mengsan-dialogue-text-shuying { color: var(--flow-paper); font-size: clamp(17px, 2vw, 22px); line-height: 1.85; max-height: 30vh; overflow: auto; }
-.mengsan-dialogue-help-shuying { position: absolute !important; bottom: 8px; left: 16px; right: 16px; text-align: center; font-size: 12px; color: var(--flow-muted); pointer-events: none; }
-.mengsan-dialogue-choices-shuying { position: absolute !important; left: 50%; bottom: clamp(210px, 32vh, 290px); transform: translateX(-50%); width: min(580px, 88vw); display: grid; gap: 10px; z-index: 5; }
+.mengsan-dialogue-help-shuying { position: relative !important; flex: none; margin: 8px 16px 0; text-align: center; font-size: 12px; color: var(--flow-muted); pointer-events: none; }
+.mengsan-dialogue-choices-shuying { position: relative !important; width: min(580px, 100%); display: grid; gap: 10px; z-index: 5; }
+.mengsan-dialogue-choices-shuying:empty { display: none; }
 .mengsan-dialogue-skip-shuying { position: absolute !important; top: max(18px, env(safe-area-inset-top)); left: max(18px, env(safe-area-inset-left)); z-index: 6; padding: 8px 14px; border: 1px solid var(--flow-gold); border-radius: 4px; color: var(--flow-paper); background: #172724e8; font: inherit; cursor: pointer; }
 .mengsan-dialogue-skip-shuying:hover, .mengsan-dialogue-skip-shuying:focus-visible { background: #304540; outline: 2px solid var(--flow-gold); outline-offset: 2px; }
 .mengsan-dialogue-choice-shuying { padding: 12px 18px; border: 1px solid var(--flow-gold); border-radius: 4px; color: var(--flow-paper); background: #172724f5; text-align: left; font: inherit; cursor: pointer; }
 .mengsan-dialogue-choice-shuying:hover, .mengsan-dialogue-choice-shuying:focus-visible { background: #304540; outline: 2px solid var(--flow-gold); outline-offset: 2px; }
+@container (max-height: 280px) {
+    .mengsan-dialogue-stage-shuying { padding-top: 4px; }
+    .mengsan-dialogue-choices-shuying { gap: 6px; }
+    .mengsan-dialogue-choice-shuying { min-height: 36px; padding: 6px 14px; }
+}
 @media (max-width: 600px) {
     .mengsan-dialogue-chapter-shuying { display: block !important; font-size: 14px; }
     .mengsan-flow-overlay-shuying { padding: 78px 12px 16px; }
     .mengsan-flow-panel-shuying { padding: 24px 18px; }
     .mengsan-flow-panel-shuying > .mengsan-title-shuying { font-size: 30px; }
     .mengsan-flow-panel-shuying .mengsan-choice-shuying { padding: 14px; }
-    .mengsan-dialogue-box-shuying { bottom: 36px !important; }
 }
 @media (max-height: 500px) {
     .mengsan-flow-overlay-shuying { padding-top: 70px; padding-bottom: 12px; }
     .mengsan-flow-panel-shuying { padding: 18px 24px; }
     .mengsan-flow-panel-shuying > .mengsan-description-shuying { margin-bottom: 16px; }
-    .mengsan-dialogue-box-shuying { bottom: 28px !important; min-height: 100px; max-height: 50vh; padding: 24px 20px 20px; }
+    .mengsan-dialogue-box-shuying { min-height: 100px; padding: 24px 20px 20px; }
     .mengsan-dialogue-text-shuying { max-height: 24vh; }
     .mengsan-dialogue-portrait-frame-shuying {
         height: 110px !important;
@@ -1267,7 +1319,8 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 
 /* Battle-only control; removed with its owning session. */
 .mengsan-battle-piles-button-shuying {
-    position: fixed !important; right: max(14px, env(safe-area-inset-right)); top: 110px;
+    --mengsan-battle-side-top: clamp(4px, calc(100% - 100px), 110px);
+    position: fixed !important; right: max(14px, env(safe-area-inset-right)); top: var(--mengsan-battle-side-top);
     z-index: 35; min-width: 64px; min-height: 44px; padding: 8px 14px;
     border: 1px solid #dcb578; border-radius: 8px; background: #30251eee;
     color: #f4e7cc; font: 16px/1.4 "Microsoft YaHei", sans-serif;
@@ -1282,7 +1335,7 @@ dialog.mengsan-deck-dialog-shuying::backdrop { background: #080706b8; }
 .mengsan-gm-dialog-shuying .ms-gm-editor { overflow: auto; flex: 1; min-height: 0; border-top: 1px solid #96754e; padding: 12px 4px; }
 .mengsan-gm-dialog-shuying .ms-gm-affixes { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px; margin-top: 12px; }
 .mengsan-gm-dialog-shuying .ms-gm-affixes button:disabled { opacity: .55; cursor: not-allowed; }
-@media (max-height: 500px) { .mengsan-battle-piles-button-shuying { top: 70px; right: max(8px, env(safe-area-inset-right)); } }
+@media (max-height: 500px) { .mengsan-battle-piles-button-shuying { --mengsan-battle-side-top: clamp(4px, calc(100% - 100px), 70px); right: max(8px, env(safe-area-inset-right)); } }
 
 /* Only session-created Mengsan players; retain internal identity and seat order. */
 .player.mengsan-hide-identity-shuying > .identity {
@@ -1408,7 +1461,7 @@ body.mengsan-battle-ui-shuying #arena[data-number="3"] > .player:is([data-positi
     height: 22px;
     object-fit: contain;
 }
-.mengsan-battle-relics-button-shuying { top: 162px; }
+.mengsan-battle-relics-button-shuying { top: calc(var(--mengsan-battle-side-top) + 52px); }
 .mengsan-hand-relics-shuying {
     position: absolute !important;
     left: 0;
@@ -1503,9 +1556,6 @@ body.mengsan-battle-ui-shuying #arena[data-number="3"] > .player:is([data-positi
 .mengsan-map-inventory-row-shuying > .mengsan-relic-icon-shuying { width: 40px; height: 40px; }
 .mengsan-relic-choice-tile-shuying .mengsan-card-choice-art-shuying img { padding: 14px; box-sizing: border-box; background: transparent; }
 .mengsan-relic-choice-tile-shuying .mengsan-card-choice-art-shuying:has(img) .mengsan-card-choice-glyph-shuying { display: none; }
-@media (max-height: 500px) {
-    .mengsan-battle-relics-button-shuying { top: 122px; }
-}
 .mengsan-bonds-shuying {
     position: relative !important;
     flex-shrink: 0;

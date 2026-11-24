@@ -82,9 +82,9 @@ export function createOverlayLayout(arena, hand, ui, player) {
             .filter(button => !button.closest('.mengsan-hud-external-control-shuying,.removing,.closing'))
             .map(button => button.getBoundingClientRect()).filter(box => box.height && box.width);
     }
-    function positionResponseActions(handTop, center, gap, used) {
+    function alignActions(handTop, center, gap, used, response) {
         const controls = [ui.control];
-        if (ui.confirm?.isConnected && !ui.control.contains(ui.confirm)) controls.push(ui.confirm);
+        if (response && ui.confirm?.isConnected && !ui.control.contains(ui.confirm)) controls.push(ui.confirm);
         let top = Infinity;
         for (const node of controls) {
             const isRoot = node === ui.control;
@@ -102,7 +102,7 @@ export function createOverlayLayout(arena, hand, ui, player) {
             const right = Math.max(...centered.map(box => box.right));
             const scale = hostScale(node), previous = currentShift(node,scale);
             const bottom = Math.max(...buttons.map(box => box.bottom)) - previous.y;
-            const offset = handTop - gap - bottom;
+            const offset = response ? handTop - gap - bottom : 0;
             shift(node,center - (left + right)/2 + previous.x,offset,scale,used);
             top = Math.min(top, ...buttons.map(box => box.top - previous.y + offset));
         }
@@ -140,16 +140,16 @@ export function createOverlayLayout(arena, hand, ui, player) {
             const handCards=[...hand.querySelectorAll('.handcards>.card')].map(node=>node.getBoundingClientRect()).filter(box=>box.height&&box.width);
             const handTop=Math.min(handBox.top,...handCards.map(box=>box.top));
             const gap=Math.max(4,(arena.clientHeight<=500?6:8)*zoom);
-            const responseTop=response ? positionResponseActions(handCards.length ? Math.min(...handCards.map(box=>box.top)) : handTop,(a.left+a.right)/2,gap,used) : Infinity;
+            const actionTop=alignActions(handCards.length ? Math.min(...handCards.map(box=>box.top)) : handTop,(a.left+a.right)/2,gap,used,response);
             const controlTop=ui.control.getBoundingClientRect().top;
             let promptBottom=Math.min(controlTop-10*zoom,a.bottom-(footerHeight+54)*zoom);
-            if(Number.isFinite(responseTop))promptBottom=responseTop-gap;
+            if(response && Number.isFinite(actionTop))promptBottom=actionTop-gap;
             let promptTop=Infinity;
             for(const node of prompts) {
                 if(node.hidden || !node.getClientRects().length)continue;
                 mark(node,'mengsan-hud-prompt-shuying');used.add(node);
-                const promptX=response?a.left+16*zoom:x;
                 const promptWidth=response?arena.clientWidth-32:width;
+                const promptX=a.left+(arena.clientWidth-promptWidth)*zoom/2;
                 position(node,promptX,0,promptWidth,arena.clientHeight<=500?34:64);
                 const height=node.getBoundingClientRect().height;
                 position(node,promptX,Math.max(a.top+(response?8:50)*zoom,promptBottom-height),promptWidth,arena.clientHeight<=500?34:64);

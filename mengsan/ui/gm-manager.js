@@ -181,7 +181,7 @@ export function mountGMManager(session, owner, piles, battle, resources, game) {
         const created = dialog;
         dialog.addEventListener("close", () => { if (dialog === created) close(); });
         dialog.addEventListener("keydown", event => event.stopPropagation());
-        document.body.appendChild(dialog);
+        document.documentElement.appendChild(dialog);
         try { dialog.showModal(); } catch (error) { close(); throw error; }
         render();
         dialog.querySelector(".ms-deck-header button").focus();

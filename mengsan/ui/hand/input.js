@@ -89,24 +89,20 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
       aim = document.createElementNS(svg, "svg");
       aim.classList.add("mengsan-hand-aim-shuying");
       aim.setAttribute("aria-hidden", "true");
+      aim.setAttribute("preserveAspectRatio", "none");
       aim.appendChild(document.createElementNS(svg, "line"));
       document.documentElement.appendChild(aim);
     }
-    // 牌面和触点在同一个视口坐标系，统一换算到绘制层的局部坐标。
-    const matrix = aim.getScreenCTM();
-    const determinant = matrix && matrix.a * matrix.d - matrix.b * matrix.c;
-    if (!determinant || !Number.isFinite(determinant)) { removeAim(); return; }
-    const inverse = matrix.inverse();
-    const viewportPoint = aim.createSVGPoint();
-    viewportPoint.x = x; viewportPoint.y = y;
-    const from = viewportPoint.matrixTransform(inverse);
-    viewportPoint.x = point.x; viewportPoint.y = point.y;
-    const to = viewportPoint.matrixTransform(inverse);
+    // Use the painted overlay bounds so card, touch and line share viewport CSS pixels.
+    const overlay = aim.getBoundingClientRect();
+    if (!(overlay.width > 0 && overlay.height > 0)) { removeAim(); return; }
+    const viewBox = `0 0 ${overlay.width} ${overlay.height}`;
+    if (aim.getAttribute("viewBox") !== viewBox) aim.setAttribute("viewBox", viewBox);
     const line = aim.firstElementChild;
-    line.setAttribute("x1", from.x);
-    line.setAttribute("y1", from.y);
-    line.setAttribute("x2", to.x);
-    line.setAttribute("y2", to.y);
+    line.setAttribute("x1", x - overlay.left);
+    line.setAttribute("y1", y - overlay.top);
+    line.setAttribute("x2", point.x - overlay.left);
+    line.setAttribute("y2", point.y - overlay.top);
   }
   function clearSelection(state) {
     if (!live(state) || !state.selected) return;
