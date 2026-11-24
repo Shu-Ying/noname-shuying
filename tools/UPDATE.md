@@ -16,6 +16,7 @@
 2. 在 `modules` 中维护可选模块的目录、入口和显示名。
 3. 发布工作流为每个模块生成独立清单，并将清单提交到发布标签。
 4. 完整 ZIP 安装包仍包含所有模块，供离线或整包安装使用。
+5. GitHub 和 Gitea 都从校验通过的标签快照生成 `mengsan-<tag>-part-001.zip` 等分包，随完整 ZIP 上传到同一 Release。分包内使用模块清单的 `mengsan/` 路径，供客户端首次安装使用。
 
 修改 `extension.js` 中的 `shuYingLocalVersion`，提交并推送到 GitHub
 默认分支后，工作流会比较推送前后的版本号。版本号变化时自动生成和校验
@@ -30,6 +31,21 @@ Gitea 保持接收同一发布标签后打包的流程；使用 Gitea 更新源�
 客户端从标签的 raw 文件路径读取清单。因此 Gitea 发布必须使用已经包含
 `dist/manifest.json` 和 `dist/modules/*.json` 的同一标签；当前 Gitea 工作流
 会生成并上传附件，但不会改写触发它的标签。
+
+## 分包安装试用
+
+在测试客户端中将 `shuYing_mengsan_zip_trial` 设为 `true`，然后从扩展菜单首次安装梦三。在客户端的调试控制台执行以下代码，试用后将 `true` 改为 `false` 再执行一次。默认设置沿用逐文件下载，待手机实测通过后启用分包。
+
+```js
+const { game } = await import(new URL("noname.js", document.baseURI).href);
+game.saveConfig("shuYing_mengsan_zip_trial", true);
+```
+
+每包按 5 MiB 的展开数据量分组，压缩包最大 6 MiB。大于展开上限的单文件继续逐个下载。客户端顺序处理同源同标签的附件，已校验并暂存的文件可供本次安装复用。附件缺失或无法使用时，剩余文件从当前标签的 raw 路径补齐。
+
+Electron 走原生 HTTPS，Cordova 使用 `FileTransfer` 下载一包到当前操作的临时目录，读取前核对大小，处理结束后清理。网页端走 Fetch，附件域不可读时回退。ZIP 解压需要支持 `DecompressionStream("deflate-raw")`，不支持的客户端继续逐文件下载。
+
+实测应记录手机型号、客户端版本、标签、下载源、请求数、总耗时和内存峰值，并分别验证 GitHub 和 Gitea 在游戏内可以下载附件及回退到同源逐文件下载。
 
 发布时生成器会把 `tools/legacy/mengsan-files.json`、上一次完整清单和当前模块
 文件合并，随新标签发布迁移路径清单。它用于接管旧安装中的梦三文件并清理

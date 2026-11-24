@@ -1,9 +1,11 @@
-import { lib, game } from "../../noname.js";
+import { lib, game, get } from "../../noname.js";
 
 const giteaRepositoryApi = "https://gitea.diuse.work/api/v1/repos/Diuse/noname-shuying";
 const githubRepositoryApi = "https://api.github.com/repos/Shu-Ying/noname-shuying";
 const githubRawBase = "https://raw.githubusercontent.com/Shu-Ying/noname-shuying";
 const coreTempDir = "extension/术樱包/.update_tmp";
+const mengsanArchiveBytes = 6 * 1024 * 1024;
+const mengsanUncompressedBytes = 5 * 1024 * 1024;
 let fileMutationUncertain = false;
 const verifiedCacheKey = "shuYing_update_verified_files";
 const installedManifestKey = "shuYing_update_installation";
@@ -472,6 +474,10 @@ async function waitForRetry(delay, signal) {
 }
 
 async function fetchFile(path, tag, source, options = {}) {
+    return fetchDownload(getRemoteUrl(tag, path, source), path, options);
+}
+
+async function fetchDownload(url, label, options = {}) {
     for (let attempt = 0; ; attempt++) {
         if (options.signal?.aborted) throw options.signal.reason || new Error("下载已停止");
         const controller = new AbortController();
@@ -480,22 +486,24 @@ async function fetchFile(path, tag, source, options = {}) {
         let timer, reader, timedOut = false;
         const resetTimeout = () => {
             clearTimeout(timer);
-            timer = setTimeout(() => { timedOut = true; controller.abort(new Error(`${path} 下载超时`)); }, 60000);
+            timer = setTimeout(() => { timedOut = true; controller.abort(new Error(`${label} 下载超时`)); }, 60000);
         };
         options.onProgress?.(0, 0);
         try {
             resetTimeout();
-            const response = await fetch(getRemoteUrl(tag, path, source), { signal: controller.signal });
+            const response = await (options.request || fetch)(url, { signal: controller.signal });
             reader = response.body?.getReader?.();
             if (!response.ok) {
-                const error = new Error(`${path} 下载失败：${response.status}`);
+                const error = new Error(`${label} 下载失败：${response.status}`);
+                error.status = response.status;
                 error.retryable = [408, 429, 500, 502, 503, 504].includes(response.status);
                 throw error;
             }
             if (!reader) {
+                if (options.requireStream) throw new Error(`${label} 无法限制流式下载大小`);
                 const data = await response.arrayBuffer();
                 if (Number.isSafeInteger(options.size) && data.byteLength > options.size) {
-                    throw new Error(`${path} 下载数据超过清单大小`);
+                    throw new Error(`${label} 下载数据超过预期大小`);
                 }
                 options.onProgress?.(data.byteLength, data.byteLength);
                 return data;
@@ -507,7 +515,7 @@ async function fetchFile(path, tag, source, options = {}) {
                 if (done) break;
                 loaded += value.byteLength;
                 if (Number.isSafeInteger(options.size) && loaded > options.size) {
-                    throw new Error(`${path} 下载数据超过清单大小`);
+                    throw new Error(`${label} 下载数据超过预期大小`);
                 }
                 chunks.push(value);
                 options.onProgress?.(loaded, value.byteLength);
@@ -521,7 +529,7 @@ async function fetchFile(path, tag, source, options = {}) {
         catch (error) {
             if (options.signal?.aborted || attempt >= 2
                 || !(timedOut || error?.retryable || error instanceof TypeError)) throw error;
-            await addLog(options.shuYing, `下载重试 ${attempt + 1}/2：${path}；${getErrorMessage(error)}`);
+            await addLog(options.shuYing, `下载重试 ${attempt + 1}/2：${label}；${getErrorMessage(error)}`);
         }
         finally {
             clearTimeout(timer);
@@ -530,6 +538,215 @@ async function fetchFile(path, tag, source, options = {}) {
         }
         await waitForRetry(600 * (attempt + 1), options.signal);
     }
+}
+
+async function getMengsanReleaseParts(manifest, shuYing) {
+    const github = manifest.source == "github";
+    const api = github ? githubRepositoryApi : giteaRepositoryApi;
+    const downloadOrigin = github ? "https://github.com" : new URL(giteaRepositoryApi).origin;
+    const tag = manifest.tag_name;
+    const data = await fetchDownload(`${api}/releases/tags/${encodeURIComponent(tag)}`, "梦三发布附件列表",
+        { size: 1024 * 1024, requireStream: true, shuYing });
+    const release = JSON.parse(new TextDecoder().decode(data));
+    if (release.tag_name !== tag || release.draft !== false || !Array.isArray(release.assets)) {
+        throw new Error("梦三发布附件列表与当前标签不符");
+    }
+
+    const prefix = `mengsan-${tag}-part-`;
+    const parts = [];
+    for (const asset of release.assets) {
+        const name = asset?.name;
+        if (typeof name != "string" || !name.startsWith(prefix) || !/^\d{3,}\.zip$/.test(name.slice(prefix.length))
+            || !Number.isSafeInteger(asset.size) || asset.size <= 0 || asset.size > mengsanArchiveBytes) continue;
+        try {
+            const url = new URL(asset.browser_download_url);
+            if (url.origin == downloadOrigin && !url.username && !url.password) {
+                parts.push({ name, size: asset.size, url: url.href });
+            }
+        }
+        catch {} // Ignore unusable attachment URLs.
+    }
+    return parts.sort((left, right) => left.name.localeCompare(right.name, "en", { numeric: true }));
+}
+
+function requestNodeArchive(url, { signal }, redirects = 5) {
+    return new Promise((resolve, reject) => {
+        const request = window.require("https").get(url, response => {
+            const status = response.statusCode;
+            if (status >= 300 && status < 400 && response.headers.location) {
+                response.destroy();
+                try {
+                    const next = new URL(response.headers.location, url);
+                    if (!redirects || next.protocol != "https:" || next.username || next.password) {
+                        throw new Error("梦三分包重定向无效");
+                    }
+                    resolve(requestNodeArchive(next.href, { signal }, redirects - 1));
+                }
+                catch (error) { reject(error); }
+                return;
+            }
+            const iterator = response[Symbol.asyncIterator]();
+            resolve({ status, ok: status >= 200 && status < 300, body: {
+                getReader: () => ({
+                    async read() {
+                        try { return await iterator.next(); }
+                        catch (error) { error.retryable = true; throw error; }
+                    },
+                    async cancel() { response.destroy(); },
+                }),
+            } });
+        });
+        const abort = () => request.destroy(signal.reason);
+        request.once("error", error => { error.retryable = true; reject(error); });
+        request.once("close", () => signal.removeEventListener("abort", abort));
+        if (signal.aborted) abort();
+        else signal.addEventListener("abort", abort, { once: true });
+    });
+}
+
+async function downloadCordovaArchive(part, target, onProgress, shuYing) {
+    try {
+        const entry = await cordovaEntry(target, true);
+        const transfer = new window.FileTransfer();
+        await new Promise((resolve, reject) => {
+            let loaded = 0, timer, cancelError, settled = false;
+            const finish = error => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                if (cancelError || error) reject(cancelError || operationError(error) || new Error("梦三分包下载失败"));
+                else resolve();
+            };
+            const cancel = error => {
+                clearTimeout(timer);
+                cancelError = error;
+                timer = setTimeout(() => finish(cancelError), 5000);
+                try { transfer.abort(); }
+                catch { finish(cancelError); }
+            };
+            const resetTimeout = () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => cancel(new Error("梦三分包下载超时")), 60000);
+            };
+            transfer.onprogress = event => {
+                if (settled || cancelError) return;
+                if (event.loaded > part.size) { cancel(new Error("梦三分包超过预期大小")); return; }
+                onProgress(event.loaded, Math.max(0, event.loaded - loaded));
+                loaded = event.loaded;
+                resetTimeout();
+            };
+            resetTimeout();
+            try { transfer.download(part.url, entry.toURL(), () => finish(), error => finish(error)); }
+            catch (error) { finish(error); }
+        });
+        if ((await fileMetadata(target))?.size !== part.size) throw new Error("下载大小与发布附件不符");
+        return await readFile(target);
+    }
+    finally {
+        try { await removeFile(target); }
+        catch (error) { addLog(shuYing, `梦三分包临时文件清理失败：${getErrorMessage(error)}`); }
+    }
+}
+
+async function readMengsanZipEntry(entry, size) {
+    // JSZip 2.7 keeps the compressed entry lazy after load().
+    const data = entry._data;
+    const compressed = toUint8Array(data.getCompressedContent());
+    if (data.compressionMethod == "\x00\x00") return compressed;
+    if (data.compressionMethod != "\x08\x00") {
+        throw new Error("当前环境不支持流式解压梦三分包");
+    }
+
+    const bytes = new Uint8Array(size);
+    const reader = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+    let offset = 0;
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (offset + value.byteLength > size) throw new Error("梦三 ZIP 条目超过清单大小");
+            bytes.set(value, offset);
+            offset += value.byteLength;
+        }
+        if (offset !== size) throw new Error("梦三 ZIP 条目未达到清单大小");
+        return bytes;
+    }
+    finally { await reader.cancel().catch(() => {}); }
+}
+
+async function unpackMengsanPart(data, manifest, remaining, stageVerified) {
+    let entries, expandedSize = 0;
+    try {
+        get.zip(zip => { entries = Object.values(zip.load(data).files); });
+        for (const entry of entries) {
+            const size = entry._data?.uncompressedSize;
+            if (entry.dir || !Object.hasOwn(manifest.files, entry.name) || size !== manifest.files[entry.name].size) {
+                throw new Error(`梦三 ZIP 条目与清单不符：${entry.name}`);
+            }
+            expandedSize += size;
+        }
+        if (!entries.length || expandedSize > mengsanUncompressedBytes) throw new Error("梦三 ZIP 展开大小无效");
+    }
+    catch (error) { return error; }
+
+    for (const entry of entries) {
+        if (!remaining.has(entry.name)) continue;
+        let bytes;
+        try {
+            bytes = await readMengsanZipEntry(entry, manifest.files[entry.name].size);
+            await verifyFile(entry.name, bytes, manifest);
+        }
+        catch (error) { return error; }
+        // A storage failure must reach the existing installation recovery path.
+        await stageVerified(entry.name, bytes);
+    }
+    return null;
+}
+
+async function stageMengsanArchives(shuYing, manifest, operationRoot, remaining, stageVerified, progress) {
+    let parts;
+    try { parts = await getMengsanReleaseParts(manifest, shuYing); }
+    catch (error) {
+        addLog(shuYing, `无法获取梦三分包，改为逐文件下载：${getErrorMessage(error)}`);
+        return;
+    }
+    addLog(shuYing, `梦三分包：${manifest.source} ${manifest.tag_name}，${parts.length} 包`);
+    const nativeMobile = hasCordovaFiles() && typeof window.FileTransfer == "function";
+    const request = lib.node && typeof window.require == "function" ? requestNodeArchive : null;
+    for (const part of parts) {
+        if (!remaining.size) break;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            let data;
+            try {
+                const onProgress = (loaded, delta) => progress.archive(part.name, delta);
+                data = nativeMobile
+                    ? await downloadCordovaArchive(part, `${operationRoot}/${part.name}`, onProgress, shuYing)
+                    : await fetchDownload(part.url, part.name, { size: part.size, requireStream: true,
+                        request, onProgress, shuYing });
+            }
+            catch (error) {
+                addLog(shuYing, `梦三分包下载失败：${part.name}；${getErrorMessage(error)}`);
+                if (nativeMobile && !attempt) continue;
+                if (error.status !== 404) return;
+                break;
+            }
+            const error = data.byteLength === part.size
+                ? await unpackMengsanPart(data, manifest, remaining, stageVerified)
+                : new Error("下载大小与发布附件不符");
+            if (!error) break;
+            const action = attempt ? "回退逐文件" : "重试分包";
+            addLog(shuYing, `${action}：${part.name}；${getErrorMessage(error)}`);
+        }
+    }
+    if (remaining.size) addLog(shuYing, `梦三分包未覆盖 ${remaining.size} 个文件，继续逐文件下载`);
+}
+
+function canUseMengsanArchives() {
+    if (typeof get.zip != "function" || typeof Blob != "function" || typeof Blob.prototype.stream != "function"
+        || typeof DecompressionStream != "function") return false;
+    try { new DecompressionStream("deflate-raw"); }
+    catch { return false; }
+    return true;
 }
 
 function downloadProgress(shuYing, files, manifest) {
@@ -550,6 +767,7 @@ function downloadProgress(shuYing, files, manifest) {
             transferred += delta;
             render(file);
         },
+        archive(name, delta) { transferred += delta; render(name); },
         complete(file) { completed++; render(file, completed == files.length); },
         finish() { addLog(shuYing, `下载及准备完成：${files.length} 个文件，${formatBytes(totalBytes)}，用时 ${((Date.now() - started) / 1000).toFixed(1)} 秒`); },
     };
@@ -1311,7 +1529,7 @@ async function getPreviousMengsanManifest(rootManifest = null) {
 }
 
 async function installMengsanFiles(shuYing, manifest, files, previousManifest = null,
-    verifyAll = true) {
+    verifyAll = true, freshInstall = false) {
     assertMutationReady();
     const previousRecord = getMengsanRecord();
     const currentFiles = getManifestFileKeys(manifest);
@@ -1322,10 +1540,12 @@ async function installMengsanFiles(shuYing, manifest, files, previousManifest = 
         files: uniqueManifestList([...oldFiles, ...currentFiles, ...getManifestRemoveFiles(manifest)]),
         recoveryDirectory: operationRoot,
     };
+    if (freshInstall) pending.freshInstall = true;
     await saveMengsanRecord(pending); // Disable loading before the first filesystem mutation.
     let filesApplied = false;
     try {
-        await updateAllFiles(shuYing, manifest, files, operationRoot);
+        const useArchives = freshInstall && lib.config.shuYing_mengsan_zip_trial === true && canUseMengsanArchives();
+        await updateAllFiles(shuYing, manifest, files, operationRoot, useArchives);
         filesApplied = true;
         const verification = verifyAll ? manifest : { ...manifest,
             files: Object.fromEntries(files.map(file => [file, manifest.files[file]])),
@@ -1408,7 +1628,7 @@ function newOperationRoot() {
     return `${coreTempDir}/${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-async function updateAllFiles(shuYing, manifest, files, operationRoot = newOperationRoot()) {
+async function updateAllFiles(shuYing, manifest, files, operationRoot = newOperationRoot(), useArchives = false) {
     assertMutationReady();
     if (typeof game.writeFile != "function") {
         throw new Error("当前环境不支持写入文件");
@@ -1433,7 +1653,19 @@ async function updateAllFiles(shuYing, manifest, files, operationRoot = newOpera
         await createFolders(`${oldRoot}/`, [...files, ...obsoleteFiles]);
 
         const progress = downloadProgress(shuYing, files, manifest);
-        await runFilePool(files, async (file, index, signal) => {
+        let rawFiles = files;
+        if (useArchives) {
+            const remaining = new Set(files);
+            await stageMengsanArchives(shuYing, manifest, operationRoot, remaining, async (file, bytes) => {
+                staged.add(file);
+                await writeTargetFile(bytes, `${newRoot}/${file}`);
+                remaining.delete(file);
+                progress.receive(file, bytes.byteLength, 0);
+                progress.complete(file);
+            }, progress);
+            rawFiles = Array.from(remaining);
+        }
+        await runFilePool(rawFiles, async (file, index, signal) => {
             staged.add(file);
             await downloadFile(file, `${newRoot}/${file}`, manifest, {
                 signal, shuYing, onProgress: (loaded, delta) => progress.receive(file, loaded, delta),
@@ -1824,7 +2056,8 @@ async function manageMengsanModule(shuYing) {
         setProgress(shuYing, {
             title: "安装梦三模式", status: "准备下载", current: 0, total: files.length * 2,
         });
-        await installMengsanFiles(shuYing, moduleManifest, files, previous);
+        const freshInstall = !pendingInstall || record.freshInstall === true;
+        await installMengsanFiles(shuYing, moduleManifest, files, previous, true, freshInstall);
         alert("梦三模式安装完成，请重启游戏生效。");
     }
     catch (error) {

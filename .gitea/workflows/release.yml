@@ -58,7 +58,7 @@ jobs:
             throw "extension.js 的版本号必须为 $version"
           }
 
-          # The updater reads raw tag paths, not release attachments.
+          # The updater reads manifests from raw tag paths.
           # Never generate new manifests after the release tag already exists.
           python (Join-Path $stage 'tools/verify_manifest.py') `
             --root $stage `
@@ -109,6 +109,11 @@ jobs:
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }
 
+          $partsDir = Join-Path $env:RUNNER_TEMP "mengsan-parts-$tag"
+          python (Join-Path $stage 'tools/build_mengsan_archives.py') `
+            --root $stage --out-dir $partsDir --tag $tag
+          if ($LASTEXITCODE -ne 0) { throw '梦三分包失败' }
+
           Write-Host "版本：$version"
           Write-Host "文件数：$($manifest.file_count)"
           Write-Host "安装包：$package"
@@ -152,10 +157,18 @@ jobs:
           $releaseFiles = @($manifestPath)
           $releaseFiles += $moduleManifests
           $releaseFiles += $package
+          $partsDir = Join-Path $env:RUNNER_TEMP "mengsan-parts-$tag"
+          $releaseFiles += @(Get-ChildItem -LiteralPath $partsDir `
+            -Filter '*.zip' -File | Sort-Object Name | ForEach-Object { $_.FullName })
           foreach ($file in $releaseFiles) {
+            $attachment = if ($file -like '*.zip') {
+              "attachment=@$file;type=application/zip"
+            } else {
+              "attachment=@$file"
+            }
             curl.exe --fail --silent --show-error `
               -H "Authorization: token $env:GITEA_TOKEN" `
-              -F "attachment=@$file" `
+              -F $attachment `
               $assetApi | Out-Null
             if ($LASTEXITCODE -ne 0) {
               throw "上传附件失败：$file"

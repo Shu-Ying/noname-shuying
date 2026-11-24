@@ -185,6 +185,11 @@ jobs:
           '@ | python - $stage $package
           if ($LASTEXITCODE -ne 0) { throw '打包失败' }
 
+          $partsDir = Join-Path $env:RUNNER_TEMP "mengsan-parts-$tag"
+          python (Join-Path $stage 'tools/build_mengsan_archives.py') `
+            --root $stage --out-dir $partsDir --tag $tag
+          if ($LASTEXITCODE -ne 0) { throw '梦三分包失败' }
+
           Write-Host "版本：$version"
           Write-Host "文件数：$($manifest.file_count)"
           Write-Host "安装包：$package"
@@ -222,7 +227,10 @@ jobs:
             -ContentType 'application/json' `
             -Body $body
 
-          foreach ($file in @($manifestPath, $package)) {
+          $partsDir = Join-Path $env:RUNNER_TEMP "mengsan-parts-$tag"
+          $partFiles = @(Get-ChildItem -LiteralPath $partsDir `
+            -Filter '*.zip' -File | Sort-Object Name | ForEach-Object { $_.FullName })
+          foreach ($file in (@($manifestPath, $package) + $partFiles)) {
             $name = [uri]::EscapeDataString([IO.Path]::GetFileName($file))
             $uploadUri = $release.upload_url.Split('{')[0] + "?name=$name"
             $contentType = if ($file -like '*.zip') {
