@@ -10,11 +10,18 @@
 
 .mengsan-battle-potions {
     position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 44%;
+    top: var(--mengsan-potion-top, 8px);
+    left: var(--mengsan-potion-left, 8px);
+    width: max-content;
+    max-width: calc(50% - 16px);
+    transition: none;
     z-index: 7;
+}
+
+/* Decade UI sets data-id during every skill-bar rebuild, before its first paint. */
+.mengsan-hud-arena-shuying :is(.skill-control, .skill-controlzuoshou, .gskill-control)
+    [data-id^="mengsan_use_"][data-id$="_potion_shuying"] {
+    display: none !important;
 }
 
 .mengsan-potion-slot {

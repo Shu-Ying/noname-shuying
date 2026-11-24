@@ -78,16 +78,18 @@
 }
 .mengsan-hand-aim-shuying {
   position: fixed;
-  top: 0;
-  left: 0;
-  height: 2.6px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1000;
   pointer-events: none;
-  transform-origin: 0 0;
-  transition: none;
-  border-radius: 2px;
-  background: rgb(250, 220, 140);
-  box-shadow: 0 0 2px #f5d25b;
+}
+.mengsan-hand-aim-shuying > line {
+  stroke: rgb(250, 220, 140);
+  stroke-width: 2.6px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 2px #f5d25b);
 }
 /* 只在梦三手牌挂载期间隐藏十周年阶段、等待响应和对方思考图片。 */
 body.mengsan-hand-ui-shuying [style*="extension/十周年UI/ui/assets/lbtn/tips/"]:is(

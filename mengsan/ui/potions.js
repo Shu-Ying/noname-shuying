@@ -58,6 +58,45 @@ export function showPotionDescription(node, view) {
     parent.append(view.richDescription.slice(start));
 }
 
+function positionBattlePotions(root, strip, ui) {
+    if (!root.clientWidth || !root.clientHeight) return;
+    const view = root.ownerDocument.defaultView;
+    const arena = root.getBoundingClientRect();
+    const scaleX = arena.width / root.clientWidth || 1;
+    const scaleY = arena.height / root.clientHeight || 1;
+    const {width,height} = strip.getBoundingClientRect();
+    const gapX = 8 * scaleX, gapY = 8 * scaleY;
+    const startX = arena.left + gapX;
+    const limitX = arena.left + arena.width / 2 - gapX;
+    const obstacles = [];
+    for (const panel of new Set([ui.cardRoundTime,ui.cardRoundTimeNode,ui.cardPileNumber,
+        ui.time,ui.time3,ui.time4,ui.timeNode,ui.roundmenu])) {
+        if (!panel?.isConnected) continue;
+        const style = view.getComputedStyle(panel);
+        if (style.visibility === 'hidden' || style.display === 'none' || Number(style.opacity) === 0) continue;
+        for (const node of [panel,...panel.querySelectorAll('.cardPileNumber,.roundNumber,.time,.cardPileNumber > span')]) {
+            const box = node.getBoundingClientRect();
+            if (box.width && box.height) obstacles.push(box);
+        }
+    }
+    let x = startX, y = arena.top + gapY;
+    for (;;) {
+        const nearby = obstacles.filter(box => box.left < x + width + gapX && box.right + gapX > x &&
+            box.top < y + height + gapY && box.bottom + gapY > y);
+        if (!nearby.length) break;
+        const nextX = Math.max(...nearby.map(box=>box.right)) + gapX;
+        if (nextX + width <= limitX) {
+            x = nextX;
+        } else {
+            x = startX;
+            y = Math.min(...nearby.map(box=>box.bottom)) + gapY;
+        }
+    }
+    const left = `${(x-arena.left)/scaleX}px`, top = `${(y-arena.top)/scaleY}px`;
+    if (strip.style.getPropertyValue('--mengsan-potion-left') !== left) strip.style.setProperty('--mengsan-potion-left',left);
+    if (strip.style.getPropertyValue('--mengsan-potion-top') !== top) strip.style.setProperty('--mengsan-potion-top',top);
+}
+
 export function mountPotionSlots(root, player, actions = {}) {
     const strip = element("div", "mengsan-potion-slots");
     if (actions.use) strip.classList.add("mengsan-battle-potions");
@@ -142,5 +181,9 @@ export function mountPotionSlots(root, player, actions = {}) {
         strip.addEventListener(type, event => event.stopPropagation());
     }
     refresh();
-    return { refresh, dispose() { close(); strip.remove(); } };
+    return {
+        refresh,
+        layoutBattleSlots(ui) { if (actions.use && strip.isConnected) positionBattlePotions(root, strip, ui); },
+        dispose() { close(); strip.remove(); },
+    };
 }

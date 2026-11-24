@@ -25,13 +25,13 @@ function info(text) {
     return { size: Buffer.byteLength(text), sha256: createHash("sha256").update(text).digest("hex") };
 }
 
-function zip(files) {
+function zip(files, compression = "DEFLATE") {
     const archive = new JSZip();
     for (const [name, data] of Object.entries(files)) archive.file(name, data);
-    return archive.generate({ type: "uint8array", compression: "DEFLATE" });
+    return archive.generate({ type: "uint8array", compression });
 }
 
-async function setup({ source = "github", parts = [zip(assets)], releaseTag = tag,
+async function setup({ source = "github", contents = assets, parts = [zip(contents)], releaseTag = tag,
     draft = false, failWrite = false, record, trial = true, transport = "browser",
     blocksBrowserAssets = false, canInflate = true, localVersion = version } = {}) {
     const github = source == "github";
@@ -74,7 +74,7 @@ async function setup({ source = "github", parts = [zip(assets)], releaseTag = ta
         files: { "extension.js": info("main") },
         modules: { mengsan: { entry: moduleEntry, manifest: modulePath } } };
     const moduleManifest = { algorithm: "sha256", module_id: "mengsan", version,
-        files: Object.fromEntries(Object.entries(assets).map(([file, content]) => [file, info(content)])) };
+        files: Object.fromEntries(Object.entries(contents).map(([file, content]) => [file, info(content)])) };
     const attachments = parts?.map((part, index) => {
         const name = `mengsan-${tag}-part-${String(index + 1).padStart(3, "0")}.zip`;
         const url = `${repository}/releases/download/${tag}/${name}`;
@@ -159,7 +159,7 @@ async function setup({ source = "github", parts = [zip(assets)], releaseTag = ta
             }
             return new Response(part.bytes || part);
         }
-        for (const [file, content] of Object.entries({ ...assets, "extension.js": "main" })) {
+        for (const [file, content] of Object.entries({ ...contents, "extension.js": "main" })) {
             if (url == raw(file)) return new Response(content);
         }
         return new Response(null, { status: 404 });
@@ -186,7 +186,7 @@ async function setup({ source = "github", parts = [zip(assets)], releaseTag = ta
     await module.link(() => engine);
     await module.evaluate();
     const shuYing = { text: { style: {}, showPopover() {}, setAttribute() {}, matches: () => false } };
-    return { updater: module.namespace.default, shuYing, requests, releaseUrl, raw, attachments, nativeRequests,
+    return { updater: module.namespace.default, shuYing, requests, releaseUrl, raw, attachments, nativeRequests, contents,
         writes, config, files, alerts, errors };
 }
 
@@ -199,7 +199,7 @@ async function install(options) {
 function assertInstalled(result) {
     assert.deepEqual(result.errors, []);
     assert.equal(result.config[recordKey]?.status, "installed", result.alerts.join("\n"));
-    for (const [file, content] of Object.entries(assets)) {
+    for (const [file, content] of Object.entries(result.contents)) {
         assert.equal(new TextDecoder().decode(result.files.get(extensionRoot + file)), content);
     }
 }
@@ -240,7 +240,6 @@ for (const [description, options] of Object.entries({
     "draft release": { draft: true },
     "invalid ZIP": { parts: [new Uint8Array([1, 2, 3])] },
     "ZIP contains unlisted entries": { parts: [zip({ ...assets, "../unexpected.js": "x" })] },
-    "ZIP above the download budget": { parts: [new Uint8Array(6 * 1024**2 + 1)] },
     "response larger than its attachment metadata": { parts: [{ size: 1, bytes: zip(assets) }] },
 })) {
     test(`uses same-tag raw after ${description}`, async () => {
@@ -252,6 +251,21 @@ for (const [description, options] of Object.entries({
         assert.ok(!result.writes.some(write => write.path.includes("unexpected.js")));
     });
 }
+
+test("stages a ZIP with exactly 10 MiB of content", async () => {
+    const contents = { ...assets, [asset]: "x".repeat(10 * 1024**2 - Buffer.byteLength(assets[moduleEntry])) };
+    const result = await install({ contents, parts: [zip(contents, "STORE")] });
+    assertInstalled(result);
+    assert.ok(result.requests.includes(result.attachments[0].browser_download_url));
+    assert.ok(!result.requests.includes(result.raw(asset)));
+});
+
+test("skips a ZIP above the 11 MiB download limit", async () => {
+    const result = await install({ parts: [new Uint8Array(11 * 1024**2 + 1)] });
+    assertInstalled(result);
+    assert.ok(!result.requests.includes(result.attachments[0].browser_download_url));
+    assert.ok(result.requests.includes(result.raw(asset)));
+});
 
 test("a staging storage failure stops the ZIP install without raw retries", async () => {
     const result = await install({ failWrite: true });

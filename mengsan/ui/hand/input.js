@@ -79,22 +79,34 @@ export function createHandInput(player, session, adapter, fan, env, refresh, log
   function removeAim() { aim?.remove(); aim = null; }
   function showAim(card, point) {
     const rect = card.getBoundingClientRect();
-    const x = rect.left + rect.width / 2, y = rect.top + Math.min(12, rect.height / 2);
-    const dx = point.x - x, dy = point.y - y;
-    const length = Math.hypot(dx, dy);
-    if (!(rect.width > 0 && rect.height > 0 && length > 0 && Number.isFinite(length))) {
+    const x = rect.left + rect.width / 2, y = rect.top;
+    if (!(rect.width > 0 && rect.height > 0 && Number.isFinite(point.x) && Number.isFinite(point.y))) {
       removeAim();
       return;
     }
     if (!aim) {
-      aim = document.createElement("div");
+      const svg = "http://www.w3.org/2000/svg";
+      aim = document.createElementNS(svg, "svg");
       aim.classList.add("mengsan-hand-aim-shuying");
       aim.setAttribute("aria-hidden", "true");
-      // 无名杀缩放 body，牌面矩形和指针事件都使用视口坐标。
+      aim.appendChild(document.createElementNS(svg, "line"));
       document.documentElement.appendChild(aim);
     }
-    aim.style.width = `${length}px`;
-    aim.style.transform = `translate(${x}px, ${y}px) rotate(${Math.atan2(dy, dx)}rad) translateY(-50%)`;
+    // 牌面和触点在同一个视口坐标系，统一换算到绘制层的局部坐标。
+    const matrix = aim.getScreenCTM();
+    const determinant = matrix && matrix.a * matrix.d - matrix.b * matrix.c;
+    if (!determinant || !Number.isFinite(determinant)) { removeAim(); return; }
+    const inverse = matrix.inverse();
+    const viewportPoint = aim.createSVGPoint();
+    viewportPoint.x = x; viewportPoint.y = y;
+    const from = viewportPoint.matrixTransform(inverse);
+    viewportPoint.x = point.x; viewportPoint.y = point.y;
+    const to = viewportPoint.matrixTransform(inverse);
+    const line = aim.firstElementChild;
+    line.setAttribute("x1", from.x);
+    line.setAttribute("y1", from.y);
+    line.setAttribute("x2", to.x);
+    line.setAttribute("y2", to.y);
   }
   function clearSelection(state) {
     if (!live(state) || !state.selected) return;

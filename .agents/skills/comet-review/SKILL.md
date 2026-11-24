@@ -20,7 +20,7 @@ The entire Skill invocation must remain read-only:
 - Do not fix findings, advance phase, or update tasks, state, verification reports, or review records.
 - Do not call this review a Verify pass or treat “no findings” as proof that tests passed.
 
-Only run commands needed to read files, query state, and inspect Git diffs. Checks that might execute project code, install dependencies, or produce files are outside this entry's scope.
+Only run commands needed to read files, query state, and inspect Git diffs, plus the focused browser check in the [battle UI review checklist](../../../docs/reviews/mengsan-battle-ui.md). Run that check without screenshot output unless a temporary directory outside the repository has been designated for review evidence. All other checks that execute project code, install dependencies, or produce files are outside this entry's scope.
 
 ## 1. Locate the project and current change
 
@@ -80,6 +80,8 @@ If the available evidence still cannot establish a reliable, verifiable baseline
 
 ## 4. Perform the review
 
+Apply the battle UI review checklist and record the results by scenario name in the evidence status. Reuse evidence bound to the current changes when available.
+
 Review the requirements, tasks, and current diff, focusing only on:
 
 - Implementation correctness and clear logic errors.
@@ -110,7 +112,7 @@ Evidence: The specific relationship to the diff, task, spec, or verification rec
 Then include:
 
 - `Review scope`: workflow, change, phase, baseline, included diffs, and any scope limitations.
-- `Evidence status`: the test, build, and verification records inspected and whether they still apply to the current changes. Do not rerun tests.
+- `Evidence status`: report each battle UI scenario by its name in the checklist, together with the other test, build, and verification records inspected and whether they still apply to the current changes.
 - `Open questions`: only questions that actually prevent a judgment.
 - `Conclusion`: the finding count, or an explicit “No concrete findings.”
 

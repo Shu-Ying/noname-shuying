@@ -30,11 +30,11 @@ class MengsanArchivesTest(unittest.TestCase):
         }), encoding="utf-8")
 
     def test_parts_cover_packable_files_once(self):
-        first = b"a" * (3 * 1024**2)
-        second = b"b" * (3 * 1024**2)
+        first = b"a" * (10 * 1024**2)
+        second = b"b"
         self.write_snapshot({
             "mengsan/b": second,
-            "mengsan/oversized": b"c" * (5 * 1024**2 + 1),
+            "mengsan/oversized": b"c" * (10 * 1024**2 + 1),
             "mengsan/a": first,
         })
         parts = build_archives(self.root, self.output, "v2.0.2.3-rc.8")

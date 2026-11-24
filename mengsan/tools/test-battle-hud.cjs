@@ -4,9 +4,11 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const app = path.resolve(__dirname, '../../../..');
-const packages = process.env.CODEX_NODE_MODULES || 'C:/Users/Diuse/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';
-const { chromium } = require(path.join(packages, 'playwright'));
+const packages = process.env.CODEX_NODE_MODULES;
+const { chromium } = require(packages ? path.join(packages, 'playwright') : 'playwright');
 const prefix = '/extension/' + encodeURIComponent('术樱包') + '/mengsan';
+const decadePrefix = '/extension/' + encodeURIComponent('十周年UI');
+const reviewOnly = process.env.HUD_REVIEW === '1';
 const holdStatus = async (page, locator, pointerType = 'mouse') => {
   const box = await locator.boundingBox();
   const point = {x:box.x + box.width / 2,y:box.y + box.height / 2};
@@ -31,10 +33,315 @@ const exposedTarget = (page,index) => page.evaluate(index => {
   }
   throw new Error('Native target has no exposed drag point: '+index);
 },index);
+async function checkMobileTargetLine(page, artifact) {
+  const touch = await page.context().newCDPSession(page);
+  const handCard = page.locator('.handcards>.card').first();
+  const target = await exposedTarget(page, 1);
+  const end = {x:target.x, y:target.y};
+  const aim = page.locator('.mengsan-hand-aim-shuying');
+  async function drag() {
+    const start = await handCard.boundingBox();
+    const source = {x:start.x + start.width / 2,y:start.y + start.height / 2};
+    await touch.send('Input.dispatchTouchEvent', {type:'touchStart',touchPoints:[source]});
+    await touch.send('Input.dispatchTouchEvent', {type:'touchMove',touchPoints:[end]});
+    await aim.waitFor({state:'visible',timeout:2500});
+  }
+  await drag();
+  const geometry = await aim.evaluate((overlay, pointer) => {
+    const card = window.card.getBoundingClientRect();
+    const origin = {x:card.left + card.width / 2, y:card.top};
+    const line = overlay.querySelector('line');
+    if (line) {
+      const matrix = line.getScreenCTM();
+      return {origin,pointer,from:new DOMPoint(line.x1.baseVal.value,line.y1.baseVal.value).matrixTransform(matrix).toJSON(),
+        to:new DOMPoint(line.x2.baseVal.value,line.y2.baseVal.value).matrixTransform(matrix).toJSON(),bounds:line.getBoundingClientRect().toJSON()};
+    }
+    const bounds = overlay.getBoundingClientRect();
+    const left = origin.x <= pointer.x, up = origin.y <= pointer.y;
+    return {origin,pointer,from:{x:left?bounds.left:bounds.right,y:up?bounds.top:bounds.bottom},
+      to:{x:left?bounds.right:bounds.left,y:up?bounds.bottom:bounds.top}};
+  },end);
+  if (artifact) await page.screenshot({path:artifact});
+  await touch.send('Input.dispatchTouchEvent', {type:'touchCancel',touchPoints:[]});
+  assert.equal(await aim.count(),0,'the target line disappears on touch cancellation');
+  assert.ok(Math.hypot(geometry.from.x-geometry.origin.x,geometry.from.y-geometry.origin.y)<=2,
+    'A012 target line starts at the selected card’s top center: '+JSON.stringify(geometry));
+  assert.ok(Math.hypot(geometry.to.x-end.x,geometry.to.y-end.y)<=2,
+    'A012 target line ends at the current touch: '+JSON.stringify(geometry));
+  assert.ok(geometry.bounds && Math.abs(geometry.bounds.bottom-geometry.origin.y)<=2 &&
+    Math.abs(geometry.bounds.top-end.y)<=2,'A012 the rendered line reaches both endpoint heights');
+  await page.waitForTimeout(180);
+  await drag();
+  const before = await page.evaluate(()=>game.isSubmitted());
+  await touch.send('Input.dispatchTouchEvent', {type:'touchEnd',touchPoints:[]});
+  assert.equal(await aim.count(),0,'the target line disappears on touch release');
+  assert.equal(await page.evaluate(()=>game.isSubmitted()),before+1,'touch release still submits the valid target once');
+}
+
+async function checkCommittedLine(page, skin) {
+  const geometry = await page.evaluate(async ({skin,decadePrefix}) => {
+    const engine = await import('/noname.js');
+    const {Player} = await import('/noname/library/element/player.js');
+    const {arena,me:hand} = window.ui;
+    const [actor,target] = window.game.players;
+    // Use the shipped line producers and renderer, with only the game lifecycle isolated.
+    engine.lib.config ??= {};
+    engine.setUI({arena,create:{div:() => {
+      const node = document.createElement('div');
+      node.className = 'linexy hidden';
+      node.show = () => node.classList.remove('hidden');
+      node.listenTransition = () => {};
+      return node;
+    }},refresh:node=>node.getBoundingClientRect()});
+    const get = engine.get;
+    engine.setGet({itemtype:()=> 'player',objtype:get.objtype.bind(get),xyDistance:get.xyDistance.bind(get)});
+    engine.setGame({me:actor,broadcast(){},addVideo(){},linexy:engine.Game.prototype.linexy});
+    actor.getLeft = target.getLeft = function() { return this.offsetLeft; };
+    actor.getTop = target.getTop = function() { return this.offsetTop; };
+    let line = Player.prototype.line;
+    if (skin !== 'native') {
+      const {playerLine} = await import(decadePrefix+'/src/overrides/player/animations.js');
+      const {BoundsCache} = await import(decadePrefix+'/src/utils/bounds.js');
+      window.decadeUI = {boundsCaches:{hand:new BoundsCache(hand)}};
+      actor.checkBoundsCache = target.checkBoundsCache = function() {
+        this.cacheLeft = this.offsetLeft;
+        this.cacheTop = this.offsetTop;
+        this.cacheWidth = this.offsetWidth;
+        this.cacheHeight = this.offsetHeight;
+      };
+      line = playerLine;
+    }
+    line.call(actor,target,{duration:120});
+    const effect = arena.querySelector('.linexy');
+    if (!effect) return null;
+    await new Promise(resolve=>setTimeout(resolve,150));
+    const matrix = new DOMMatrix(getComputedStyle(effect).transform);
+    const x1 = parseFloat(effect.style.left), y1 = parseFloat(effect.style.top);
+    const length = parseFloat(effect.style.height);
+    const expectedStart = skin === 'native'
+      ? {x:actor.offsetLeft+actor.offsetWidth/2,y:actor.offsetTop+actor.offsetHeight/2}
+      : {x:arena.offsetWidth/2,y:hand.offsetTop};
+    const result = {x1,y1,x2:x1+matrix.c*length,y2:y1+matrix.d*length,expectedStart,
+      expectedEnd:{x:target.offsetLeft+target.offsetWidth/2,y:target.offsetTop+target.offsetHeight/2}};
+    effect.remove();
+    return result;
+  },{skin,decadePrefix});
+  assert.ok(geometry && Math.hypot(geometry.x1-geometry.expectedStart.x,geometry.y1-geometry.expectedStart.y)<=2 &&
+    Math.hypot(geometry.x2-geometry.expectedEnd.x,geometry.y2-geometry.expectedEnd.y)<=2,
+    'A012 the committed card effect retains its native origin and reaches the target: '+JSON.stringify(geometry));
+}
+
+async function checkBattlePotionSlots(page, skin, artifact) {
+  await page.evaluate(async ({prefix,skin}) => {
+    const {mountPotionSlots} = await import(prefix+'/ui/potions.js');
+    const {ui,battle,hud} = window;
+    const counter = document.createElement('div');
+    counter.className = 'cardRoundNumber';
+    counter.innerHTML = '<div class="cardPileNumber"><span>23</span></div><div class="roundNumber">第3轮</div><div class="time">03:00</div>';
+    if (skin === 'native') counter.style.cssText = 'left:18px;top:4px;width:140px;height:40px';
+    (skin === 'shousha' ? document.body : ui.arena).append(counter);
+    ui.cardRoundTime = counter;
+    window.reviewCounter = counter;
+    window.potionActionCalls = 0;
+    battle.potionUI = mountPotionSlots(ui.arena,{potions:['ENERGY_POTION',null,'FIRE_POTION']},{
+      canUse:()=>true,use:()=>{ window.potionActionCalls++; },
+    });
+    hud.refresh();
+  },{prefix,skin});
+  const geometry = await page.evaluate(() => {
+    const box = node => node.getBoundingClientRect().toJSON();
+    return {arena:box(ui.arena),strip:box(document.querySelector('.mengsan-battle-potions')),
+      counters:[reviewCounter,...reviewCounter.querySelectorAll('div,span')].map(box)};
+  });
+  const {arena,strip,counters} = geometry;
+  assert.ok(strip.left>=arena.left && strip.right<=arena.left+arena.width/2 && strip.top>=arena.top &&
+    strip.bottom<=arena.top+140,'battle potions stay at the upper left: '+JSON.stringify(geometry));
+  assert.ok(counters.every(box=>!box.width||!box.height||strip.right<=box.left||strip.left>=box.right||
+    strip.bottom<=box.top||strip.top>=box.bottom),'battle potion slots clear the round, time and pile counters');
+  if (artifact) await page.screenshot({path:artifact});
+  await page.getByRole('button',{name:'能量药水',exact:true}).tap();
+  await page.getByRole('button',{name:'使用',exact:true}).tap();
+  assert.equal(await page.evaluate(()=>potionActionCalls),1,'the relocated potion button opens details and submits once');
+  const fallback = await page.evaluate(() => {
+    reviewCounter.className = '';
+    reviewCounter.replaceChildren();
+    reviewCounter.style.cssText = 'position:absolute;left:0;top:0;width:46%;height:46px;transition:none';
+    hud.refresh();
+    const panel = reviewCounter.getBoundingClientRect(), arena = ui.arena.getBoundingClientRect();
+    const slots = ui.arena.querySelector('.mengsan-battle-potions').getBoundingClientRect();
+    return slots.top>panel.bottom && slots.left>=arena.left && slots.right<=arena.left+arena.width/2;
+  });
+  assert.ok(fallback,'the potion strip drops below a counter that leaves no room beside it');
+  await page.evaluate(()=>{battle.potionUI.dispose();delete battle.potionUI;reviewCounter.remove();delete ui.cardRoundTime;});
+}
+
+async function checkPotionSkillsDuringDiscard(page, skin, artifact) {
+  const [factory,filename] = {shousha:['createShoushaSkillPlugin','shousha'],
+    shizhounian:['createShizhounianSkillPlugin','shizhounian'],xinsha:['createXinshaSkillPlugin','xinsha']}[skin];
+  await page.evaluate(async ({prefix,decadePrefix,filename,factory}) => {
+    const [engine,{Click},{Check},skinModule,{createBaseLbtnPlugin},potions] = await Promise.all([
+      import('/noname.js'),import('/noname/ui/click/index.js'),import('/noname/game/check.js'),
+      import(decadePrefix+`/ui/skill/skins/${filename}.js`),import(decadePrefix+'/ui/lbtn/skins/base.js'),import(prefix+'/potions/battle.js'),
+    ]);
+    const {ui,game,card,hud,hudEventState:status} = window;
+    const me = game.me;
+    const passive = 'mengsan_taoyuan_bond_shuying';
+    const names = {...potions.potionSkillTranslations,[passive]:'桃园羁绊'};
+    const skill = {...potions.createPotionSkills(()=>null,game),[passive]:{locked:true,mark:true}};
+    const config = {touchscreen:true,phonelayout:true,extension_十周年UI_rightLayout:'on'};
+    const lib = {config,skill};
+    const get = {info:id=>skill[id],translation:id=>names[id]||id,
+      is:{locked:id=>id===passive,zhuanhuanji:()=>false,phoneLayout:()=>true}};
+    const app = {listen(){},reWriteFunction(){},get:{skillInfo(id) {
+      return {id,name:id,info:skill[id],translation:names[id],type:skill[id].enable?'enable':'trigger'};
+    }}};
+    Array.prototype.addArray ??= function(items){for(const item of items)if(!this.includes(item))this.push(item);return this;};
+    Array.prototype.add ??= function(item){if(!this.includes(item))this.push(item);return this;};
+    Array.prototype.remove ??= function(item){const i=this.indexOf(item);if(i!==-1)this.splice(i,1);return this;};
+    ui.controls = [ui.control.firstElementChild];
+    ui.updatec = ()=>{};
+    ui.create = {div(selector,parent,label) {
+      const node = document.createElement('div');
+      if(selector) node.className = selector.split('.').filter(Boolean).join(' ');
+      if(label) node.textContent=label;
+      parent?.appendChild(node);
+      return node;
+    },control:()=>ui.control.firstElementChild};
+    engine.lib.config = config;
+    engine.lib.device = 'android';
+    engine.setUI(ui);engine.setGame(game);engine.setGet(get);engine.setStatus(status);
+    Object.assign(status.event,{name:'chooseToDiscard',selectCard:[2,2],position:'h'});
+    delete status.event.respondTo;
+    window.reviewResponse.card.remove();
+    ui.thrown = [];
+    const prompt = window.reviewResponse.prompt;
+    const count = document.createElement('span');
+    count.textContent = '0/2';
+    prompt.replaceChildren('请弃置两张手牌',document.createElement('br'),count);
+    status.event.custom = {add:{card() {count.textContent = `${ui.selected.cards.length}/2`;}}};
+    Object.assign(me,{getSkills:type=>type==='e'?[]:Object.keys(skill),invisibleSkills:[],awakenedSkills:[],
+      getStorage:(key,fallback=[])=>me.storage[key]??fallback,isTempBanned:()=>false});
+    Object.assign(game,{expandSkills:skills=>skills,addVideo(){},countChoose(){},check:()=>Check.prototype.confirm(status.event,'')});
+    const plugin = skinModule[factory](lib,game,ui,get,{},status,app);
+    if (filename === 'xinsha') {
+      plugin.initCreateFunctions();
+      plugin.initUpdateFunctions();
+    } else {
+      plugin._extendUICreate();
+      plugin._extendUI();
+    }
+    plugin.updateSkillMarks=()=>{};
+    createBaseLbtnPlugin(lib,game,ui,get,{},status,app).initConfirmRewrite();
+    ui.confirm = null;
+    ui.create.confirm('');
+    card.classList.remove('selected');
+    card.updateTransform=()=>{};
+    card.addEventListener('touchend',()=>{
+      status.clicked=false;
+      Click.prototype.card.call(card);
+    });
+    hud.refresh();
+    const visiblePotionButtons = () => [...ui.skillControl.querySelectorAll('[data-id]')].filter(node=>
+      node.getClientRects().length && potions.potionSkillIds.includes(node.dataset.id)).map(node=>node.dataset.id);
+    window.discardSkillCheck = {frames:[],visiblePotionButtons,passive,
+      initialPotionButton:ui.skillControl.querySelector(`[data-id="${potions.potionSkillIds[0]}"]`)};
+    const capture = event => {
+      if (event.target.closest('.card')!==card) return;
+      // Listen after the real card handler, before any scheduled HUD refresh.
+      discardSkillCheck.frames.push(visiblePotionButtons());
+      requestAnimationFrame(()=>discardSkillCheck.frames.push(visiblePotionButtons()));
+    };
+    window.addEventListener('touchend',capture,{once:true});
+  },{prefix,decadePrefix,factory,filename});
+  await page.locator('.handcards>.card').first().tap();
+  const result = await page.evaluate(async () => {
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const {frames,passive,initialPotionButton,visiblePotionButtons} = discardSkillCheck;
+    return {frames,visible:visiblePotionButtons(),rebuilt:initialPotionButton && !initialPotionButton.isConnected,
+      selected:ui.selected.cards.length,count:ui.dialog.textContent,passiveVisible:Boolean(ui.skillControl.querySelector(`[data-id="${passive}"]`)?.getClientRects().length)};
+  });
+  if (artifact) await page.screenshot({path:artifact});
+  assert.equal(result.rebuilt,true,'ten-year UI rebuilt the skill row on tap');
+  assert.ok(result.selected===1 && result.count.endsWith('1/2'),'the original touch selects one discard card and updates the count');
+  assert.ok(result.passiveVisible,'normal skills remain visible');
+  assert.equal(result.frames.length,2,'both touch and first animation frame were sampled');
+  assert.deepEqual([...result.frames.flat(),...result.visible],[],'potion skill duplicates are hidden from the first frame');
+}
+
+async function checkMobileResponseLayout(page, skin, artifact) {
+  await page.evaluate(({skin,decadePrefix}) => {
+    const {arena,control} = ui;
+    const card = document.createElement('div');
+    const scale = Math.min(arena.clientHeight * .18 / 156,1);
+    card.className = 'card thrown';
+    card.style.cssText = `left:calc(50% - 56px);top:calc(50% - 78px);width:112px;height:156px;transform:scale(${scale});`;
+    card.style.background = `center/100% 100% url("${decadePrefix}/image/card-skins/decade/sha.png")`;
+    arena.appendChild(card);
+    ui.thrown = [card];
+    const prompt = document.createElement('div');
+    prompt.className = skin === 'native' ? 'dialog' : 'hand-tip';
+    prompt.innerHTML = skin === 'native'
+      ? '<div class="content-container"><div class="content"><div class="caption">请使用一张闪响应杀</div></div></div>'
+      : '<span>请使用一张闪响应杀</span>';
+    arena.appendChild(prompt);
+    ui.dialog = prompt;
+    const event = hudEventState.event;
+    event.name = 'chooseToUse';
+    event.respondTo = [game.players[1],{name:'sha'}];
+    event.dialog = prompt;
+    window.reviewResponses = [];
+    const confirm = control.firstElementChild;
+    confirm.classList.remove('stayleft');
+    ui.confirm = confirm;
+    if (skin !== 'native') confirm.classList.add('combo-control','lbtn-confirm');
+    const [ok,cancel] = confirm.children;
+    confirm.node = {ok,cancel};
+    [ok,cancel].forEach((node,index) => {
+      node.dataset.response = index ? 'cancel' : 'ok';
+      if (skin !== 'native') node.classList.add('control');
+      if (skin === 'shousha') {
+        (node.firstElementChild || node).textContent = '';
+        if (index) node.innerHTML = '<img src="/extension/十周年UI/ui/assets/lbtn/uibutton/QX.png" alt="取消">';
+      } else (node.firstElementChild || node).textContent = index ? '取消' : '确定';
+      node.addEventListener('click',()=>reviewResponses.push(node.dataset.response));
+    });
+    window.reviewResponse = {card,prompt};
+    window.card.classList.add('selected');
+    window.card.style.backgroundImage = `url("${decadePrefix}/image/card-skins/decade/shan.png")`;
+    window.card.textContent = '';
+    hud.refresh();
+  },{skin,decadePrefix});
+  await page.waitForTimeout(550);
+  const geometry = await page.evaluate(() => {
+    const box = node => node.getBoundingClientRect().toJSON();
+    return {arena:box(ui.arena), card:box(reviewResponse.card), prompt:box(reviewResponse.prompt),
+      ok:box(document.querySelector('[data-response="ok"]')),cancel:box(document.querySelector('[data-response="cancel"]')),
+      hand:box(card)};
+  });
+  if (artifact) await page.screenshot({path:artifact});
+  const {arena, card, prompt, ok, cancel, hand} = geometry;
+  const center = ({left,right}) => (left + right) / 2;
+  assert.ok([card,prompt,{left:ok.left,right:cancel.right}].every(box=>Math.abs(center(box)-center(arena))<=2),
+    'A013 played card, response prompt and action group share the arena center: '+JSON.stringify(geometry));
+  const gap = 4;
+  assert.ok(card.top >= arena.top+2 && card.bottom+gap <= prompt.top && prompt.bottom+gap <= Math.min(ok.top,cancel.top) &&
+    Math.max(ok.bottom,cancel.bottom)+gap <= hand.top && ok.right <= cancel.left,
+    'A013 played card, prompt, actions and selected hand card do not overlap: '+JSON.stringify(geometry));
+  await page.locator('[data-response="ok"]').tap();
+  await page.locator('[data-response="cancel"]').tap();
+  assert.deepEqual(await page.evaluate(()=>reviewResponses),['ok','cancel'],'both original response callbacks are reachable');
+  const restored = await page.evaluate(() => {
+    delete hudEventState.event.respondTo;
+    hud.refresh();
+    return ui.control.style.translate === '' && reviewResponse.card.style.translate === '';
+  });
+  assert.ok(restored,'response spacing is released when the original event ends');
+}
 const fixture = `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="/layout/default/layout.css"><div id="window"><div id="arena"><div id="mebg"></div><div id="me" class="mengsan-hand-root-shuying"><div id="handcards1" class="mengsan-hand-scroll-shuying"><div class="handcards mengsan-hand-zone-shuying mengsan-hand-layout-shuying"></div></div><div id="handcards2"><div class="handcards"></div></div></div><div id="control"><div class="control"><div>测试技能</div><div>结束出牌</div></div></div></div></div><style>html,body,#window{margin:0;width:100%;height:100%;position:absolute}#arena{inset:0;width:100%;height:100%;position:absolute}#arena>.player{position:absolute;width:100px;height:130px;background:#345;color:#fff}#arena>.player .avatar{height:100%;width:100%;background:linear-gradient(#334f4b,#172d29)}#arena>.player .name{position:absolute;top:4px;left:4px}#me{position:absolute;bottom:0;width:100%;height:160px}#handcards1,#handcards2{position:absolute;width:100%;height:100%}.handcards{height:100%}.card{background:#e8d7b2;color:#263b35;position:absolute}.mengsan-intent-shuying{position:absolute}</style>`;
+const importMap = reviewOnly ? fs.readFileSync(path.join(app,'index.html'),'utf8').match(/<script type="importmap">.*?<\/script>/s)[0] : '';
 const server = http.createServer((req, res) => {
-  if (req.url === '/fixture') { res.setHeader('Content-Type','text/html;charset=utf-8');res.end(fixture);return; }
-  if(req.url==='/noname.js'){res.setHeader('Content-Type','text/javascript');res.end('export const _status={};');return;}
+  if (req.url === '/fixture') { res.setHeader('Content-Type','text/html;charset=utf-8');res.end(fixture.replace('<meta charset="utf-8">','<meta charset="utf-8">'+importMap));return; }
+  if(!reviewOnly && req.url==='/noname.js'){res.setHeader('Content-Type','text/javascript');res.end('export const _status={};');return;}
   if(decodeURIComponent(new URL(req.url,'http://localhost').pathname)==='/extension/术樱包/diagnostics/index.js') {
     res.setHeader('Content-Type','text/javascript');res.end('export const getDiagnostics=()=>({status:()=>({enabled:false}),scope:()=>({info(){},error(){}})});');return;
   }
@@ -48,20 +355,27 @@ const server = http.createServer((req, res) => {
  const origin = 'http://127.0.0.1:' + server.address().port;
  const browser = await chromium.launch({channel:'msedge',headless:true});
  let checks = 0;
+ const reviewFailures = [];
+ const viewports = reviewOnly ? [{width:1080,height:486},{width:812,height:375},{width:667,height:375}]
+   : [{width:1280,height:720},{width:1234,height:920},{width:812,height:600},{width:812,height:375},{width:667,height:375},{width:375,height:500},{width:540,height:900}];
  try {
   for (const skin of process.env.HUD_TEST_SKIN?[process.env.HUD_TEST_SKIN]:['native','shousha','shizhounian','xinsha']) {
-   for (const viewport of [{width:1280,height:720},{width:1234,height:920},{width:812,height:600},{width:812,height:375},{width:667,height:375},{width:375,height:500},{width:540,height:900}]) {
-    const page = await browser.newPage({viewport,hasTouch:true});
+   for (const viewport of viewports) {
+    const page = await browser.newPage({viewport,hasTouch:true,deviceScaleFactor:reviewOnly?2.625:1});
     await page.goto(origin+'/fixture');
+    if (reviewOnly && viewport.width===1080) {
+      await page.addStyleTag({content:'body{zoom:.64;width:156.25%;height:156.25%}'});
+    }
     await page.addStyleTag({content:'body{background:#161e29 url("/image/background/lanting_bg.jpg") center/cover no-repeat}'});
     await page.addStyleTag({url:origin+prefix+'/ui/style.css'});
+    if(reviewOnly) await page.addStyleTag({url:origin+prefix+'/ui/potions.css'});
     if(skin!=='native') {
       for(const css of ['/extension/'+encodeURIComponent('十周年UI')+'/src/styles/layout.css','/extension/'+encodeURIComponent('十周年UI')+'/ui/styles/base.css','/extension/'+encodeURIComponent('十周年UI')+'/ui/styles/skill/'+skin+'.css','/extension/'+encodeURIComponent('十周年UI')+'/ui/styles/lbtn/'+skin+'.css'])await page.addStyleTag({url:origin+css});
       await page.addStyleTag({url:origin+'/extension/'+encodeURIComponent('十周年UI')+'/src/styles/player'+({shousha:2,shizhounian:1,xinsha:3}[skin])+'.css'});
       await page.addStyleTag({url:origin+'/extension/'+encodeURIComponent('十周年UI')+'/src/styles/equip.css'});
     }
     await page.addStyleTag({url:origin+prefix+'/ui/hand/style.css'});
-    const initial = await page.evaluate(async ({prefix,skin}) => {
+    const initial = await page.evaluate(async ({prefix,skin,reviewOnly,decadePrefix}) => {
       const mod = await import(prefix+'/ui/hud/index.js').catch(error=>({error:String(error)}));
       if(typeof mod.mountBattleHUD!=='function')return {module:false,error:mod.error};
       const releases=[];window.session={id:'hud-test',active:true,ownResource:(_,f)=>releases.push(f)};
@@ -82,12 +396,16 @@ const server = http.createServer((req, res) => {
         node.addEventListener('click',()=>{window.nativeActionClicks=(window.nativeActionClicks||0)+1;});
       });
       const players=[];
-      for(let i=0;i<8;i++) {
+      for(let i=0;i<(reviewOnly?2:8);i++) {
         const player=document.createElement('div');player.className='player';player.dataset.position=String(i);player.playerid=String(i);player.name=i?'enemy'+i:'liubei';player.hp=40;player.maxHp=60;player.hujia=8;
         player.storage={mengsanCamp_shuying:i?'enemy':'ally',mengsanStrength_shuying:i===1?3:0,mengsanVulnerable_shuying:i===2?2:0,mengsanEnergy_shuying:3,mengsanMaxEnergy_shuying:3};
         player.innerHTML=skin==='native' ? '<div class="avatar"></div><div class="name">'+(i?'敌人'+i:'刘备')+'</div><div class="hp">40/60</div><div class="marks"></div>' : '<div class="primary-avatar has-outcrop"><div class="action">回合开始</div></div><div class="framebg"></div><div class="identity">汉</div><div class="camp-wrap"><div class="camp-border"></div><div class="avatar-name">'+(i?'敌人'+i:'刘备')+'</div></div><div class="hp-wrap"><div class="hp">40/60</div></div><div class="card-count">8</div><div class="dui-marks"></div>';
         if(i)player.insertAdjacentHTML('beforeend','<div class="mengsan-intent-shuying">攻击 8×2</div>');
         player.node={avatar:player.querySelector('.avatar,.primary-avatar'),hp:player.querySelector('.hp'),hpWrap:player.querySelector('.hp-wrap'),campWrap:player.querySelector('.camp-wrap'),name:player.querySelector('.name,.avatar-name'),identity:player.querySelector('.identity'),framebg:player.querySelector('.framebg'),count:player.querySelector('.card-count'),marks:player.querySelector('.marks,.dui-marks')};
+        if (reviewOnly && i && window.innerWidth>=1000) {
+          player.style.cssText='left:50%!important;right:auto!important;top:12px!important;bottom:auto!important;transform:translateX(-50%)!important;';
+        }
+        if (reviewOnly && !i) player.node.avatar.style.backgroundImage=`url(${prefix}/assets/portraits/liubei-portrait.jpg)`;
         player.node.avatar.style.backgroundImage='url("/image/character/'+(i?'caocao':'liubei')+'.jpg")';
         if(i){player.style.cssText=`left:${(i-1)%4*21+5}%;top:${68+Math.floor((i-1)/4)*96}px;width:68px;height:82px;transform:none`;}
         const equips=document.createElement('div');equips.className='equips';player.node.equips=equips;player.appendChild(equips);
@@ -119,6 +437,10 @@ const server = http.createServer((req, res) => {
       me.node.handcards1=ui.handcards1Container.firstElementChild;me.node.handcards2=ui.handcards2Container.firstElementChild;
       const get={translation:value=>value==='liubei'?'刘备':String(value).replace(/^enemy/,'敌人'),select:value=>value};
       const card=document.createElement('div');card.className='card selectable';card.textContent='杀';card.name='sha';me.node.handcards1.appendChild(card);window.card=card;
+      if (reviewOnly) {
+        card.style.background=`center/100% 100% url("${decadePrefix}/image/card-skins/decade/sha.png")`;
+        card.textContent='';
+      }
       card.addEventListener('contextmenu',event=>{
         event.preventDefault();window.introOpens=(window.introOpens||0)+1;
         const tip=document.createElement('div');tip.className='dialog popped static';
@@ -148,10 +470,27 @@ const server = http.createServer((req, res) => {
       window.testHandUI=await mountHandUI(me,session,{ui,game,get,lib:{card:{},translate:{}},_status:hudEventState,document,window,isActiveCardUse:()=>true,canPayCard:()=>true,cardCost:()=>1,styleURL:prefix+'/ui/hand/style.css'});
       window.testInput={owns:()=>false};hud.refresh();window.testFan={sync:()=>testHandUI.refresh()};
       return {module:true,parentKept:hand.parentNode===oldParents.hand&&control.parentNode===oldParents.control&&card.parentNode===oldParents.card,skin};
-    },{prefix,skin});
+    },{prefix,skin,reviewOnly,decadePrefix});
     assert.equal(initial.module,true,initial.error||'HUD mount module must exist');checks++;
     assert.equal(initial.parentKept,true);checks++;
     await page.waitForTimeout(70);
+    if (reviewOnly) {
+      const scenario = `${skin}-${viewport.width}x${viewport.height}`;
+      const artifact = name => process.env.HUD_ARTIFACTS && path.join(process.env.HUD_ARTIFACTS,`${name}-${scenario}.png`);
+      try { await checkMobileTargetLine(page,artifact('A012')); await checkCommittedLine(page,skin); checks+=7; }
+      catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      try { await checkBattlePotionSlots(page,skin,artifact('battle-potion-slots')); checks+=4; }
+      catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      try { await checkMobileResponseLayout(page,skin,artifact('A013')); checks+=4; }
+      catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      if (skin!=='native') {
+        try { await checkPotionSkillsDuringDiscard(page,skin,artifact('discard-skill-controls')); checks+=5; }
+        catch (error) { reviewFailures.push(`${scenario} ${error.message}`); }
+      }
+      if (!reviewFailures.some(failure => failure.startsWith(`${scenario} `))) console.log(`${scenario} battle UI review passed`);
+      await page.close();
+      continue;
+    }
     const releasedControls = await page.evaluate(() => {
       const control = document.createElement('div');
       control.className = 'control';
@@ -444,6 +783,7 @@ const server = http.createServer((req, res) => {
     await page.close();
    }
   }
+  if (reviewFailures.length) throw new Error(reviewFailures.join('\n'));
   console.log('HUD browser checks: '+checks);
  } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);server.close();process.exitCode=1;});

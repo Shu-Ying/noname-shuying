@@ -9,8 +9,8 @@ from pathlib import Path
 
 from generate_manifest import validate_relative_paths
 
-MAX_UNCOMPRESSED_BYTES = 5 * 1024**2
-MAX_ARCHIVE_BYTES = 6 * 1024**2
+MAX_UNCOMPRESSED_BYTES = 10 * 1024**2
+MAX_ARCHIVE_BYTES = MAX_UNCOMPRESSED_BYTES + 1024**2
 
 
 def write_part(root: Path, part: Path, files: list[str], manifest: dict) -> None:

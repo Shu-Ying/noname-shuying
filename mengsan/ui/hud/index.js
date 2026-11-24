@@ -312,7 +312,7 @@ export function mountBattleHUD(player, battle, env) {
             right:`${(h.right - a.right + (layout === 'wide' ? 24 : 16) * arenaScale) / scale}px`, bottom:`${(h.bottom - a.bottom + bottom * arenaScale) / scale}px`,
             width:`${rail * arenaScale / scale}px`, 'max-height':`${maxHeight * arenaScale / scale}px`})) style(node, key, value);
     }
-    function syncControls() {
+    function syncControls(response) {
         // The actual action controls stay horizontal above the hand; skill references get their own rail.
         const candidates = [...new Set([ui.skills, ui.skills2, ui.skills3, ui.skillControl, ui.gskillControl])]
             .filter(node => node?.isConnected && node !== ui.control);
@@ -339,7 +339,7 @@ export function mountBattleHUD(player, battle, env) {
         const hudHeight = hudHeightFor();
         const rail = layout === 'wide' ? 142 : layout === 'short' ? 112 : 96;
         const actionBottom = layout === 'narrow' ? hudHeight - 48 : hudHeight + 8;
-        const compactActions = arena.clientWidth < 1000;
+        const compactActions = response || arena.clientWidth < 1000;
         for (const [key,value] of Object.entries({position:'absolute',left:compactActions?'16px':'var(--mengsan-hud-left)',right:compactActions?'16px':'var(--mengsan-hud-right)',top:'auto',bottom:`${actionBottom}px`,width:'auto','max-height':'none',transform:'none'})) style(ui.control,key,value);
         for (const group of ui.control.children) if (group.classList.contains('control')) {
             if (external.includes(group)) {
@@ -361,8 +361,9 @@ export function mountBattleHUD(player, battle, env) {
             ownClass(node,'mengsan-hud-external-action-shuying');
             const host=node.offsetParent||arena,a=arena.getBoundingClientRect(),h=host.getBoundingClientRect();
             const scale=h.width/host.offsetWidth||1,zoom=a.width/arena.clientWidth||1;
-            const center=(parseFloat(arena.style.getPropertyValue('--mengsan-hud-left'))+arena.clientWidth-parseFloat(arena.style.getPropertyValue('--mengsan-hud-right')))/2;
-            const side=node===ui.confirm?-1:1;
+            const responseConfirm = response && node === ui.confirm;
+            const center=responseConfirm ? arena.clientWidth/2 : (parseFloat(arena.style.getPropertyValue('--mengsan-hud-left'))+arena.clientWidth-parseFloat(arena.style.getPropertyValue('--mengsan-hud-right')))/2;
+            const side=responseConfirm ? 0 : node===ui.confirm?-1:1;
             for(const [key,value] of Object.entries({position:'absolute',left:`${(a.left+center*zoom-h.left)/scale+side*80}px`,right:'auto',top:'auto',bottom:`${(h.bottom-a.bottom+actionBottom*zoom)/scale}px`,width:`${Math.min(rail,140)}px`,transform:'translateX(-50%)'}))style(node,key,value);
         }
     }
@@ -388,8 +389,11 @@ export function mountBattleHUD(player, battle, env) {
         healthFill.style.width = `${Math.max(0, Math.min(100, player.maxHp > 0 ? player.hp / player.maxHp * 100 : 0))}%`;
         text(energy, `费用 ${player.storage.mengsanEnergy_shuying ?? 0} / ${player.storage.mengsanMaxEnergy_shuying ?? 0}`);
         syncActors(); syncExternalEquipment(); renderStatuses();
-        refreshDetails(); syncControls(); syncNotifications();
-        overlays.refresh({ footerHeight:hudHeightFor(), status:_status });
+        const event = _status.event;
+        const response = event?.player === player && Boolean(event.respondTo || event.name === 'chooseToRespond');
+        refreshDetails(); syncControls(response); syncNotifications();
+        battle.potionUI?.layoutBattleSlots(ui);
+        overlays.refresh({ footerHeight:hudHeightFor(), status:_status, response });
     }
     function schedule() {
         if (disposed || frozen || document.hidden || frame !== null) return;

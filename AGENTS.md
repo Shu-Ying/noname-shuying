@@ -63,3 +63,7 @@ gives you structural context (callers, dependents, test coverage) that file sear
 3. Use `get_affected_flows_tool` to understand impact.
 4. Use `query_graph_tool` pattern="tests_for" to check coverage.
 <!-- /code-review-graph MCP tools -->
+
+## 梦三战斗 UI 审查
+
+每次 review 都按 [梦三战斗 UI 回归清单](docs/reviews/mengsan-battle-ui.md) 逐项核验，并记录结果和验证环境。涉及战斗 UI 的改动须附本轮渲染截图，并单独记录 Android 实机验证状态。

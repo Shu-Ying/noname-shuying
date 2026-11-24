@@ -41,7 +41,7 @@ const { game } = await import(new URL("noname.js", document.baseURI).href);
 game.saveConfig("shuYing_mengsan_zip_trial", true);
 ```
 
-每包按 5 MiB 的展开数据量分组，压缩包最大 6 MiB。大于展开上限的单文件继续逐个下载。客户端顺序处理同源同标签的附件，已校验并暂存的文件可供本次安装复用。附件缺失或无法使用时，剩余文件从当前标签的 raw 路径补齐。
+每包按 10 MiB 的展开数据量分组，压缩包最大 11 MiB。大于展开上限的单文件继续逐个下载。客户端顺序处理同源同标签的附件，已校验并暂存的文件可供本次安装复用。附件缺失或无法使用时，剩余文件从当前标签的 raw 路径补齐。
 
 Electron 走原生 HTTPS，Cordova 使用 `FileTransfer` 下载一包到当前操作的临时目录，读取前核对大小，处理结束后清理。网页端走 Fetch，附件域不可读时回退。ZIP 解压需要支持 `DecompressionStream("deflate-raw")`，不支持的客户端继续逐文件下载。
 
